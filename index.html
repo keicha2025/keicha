@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- ★★★ SEO 優化 ★★★ -->
+
+    <!-- ★★★ SEO 優化 (首頁) ★★★ -->
     <!-- 1. 標題 (Title) -->
-    <title>KEICHA - 專注細節，日本直送 | 日本代購、抹茶、電話代播</title>
+    <title>KEICHA - 日本代購 | 抹茶選品 | 電話代播服務</title>
     <!-- 2. 描述 (Description) -->
-    <meta name="description" content="KEICHA 提供專業的日本代購服務，專精於抹茶選品與日本手機電信、電話代播服務。專注細節，為您日本直送。">
+    <meta name="description" content="KEICHA 提供最專業的日本代購服務，並提供日文電話代播，為您處理日本大小事。">
     <!-- 3. 關鍵字 (Keywords) -->
-    <meta name="keywords" content="KEICHA, 日本代購, 日本代標, 抹茶代購, 日本抹茶, 電話代播, 日本電話代打, 上林春松">
+    <meta name="keywords" content="KEICHA, 日本代購, 抹茶, 抹茶代購, 上林春松, 電話代播, 電話代打, 日文電話, 餐廳預約, 賣貨便">
     <!-- 4. Google 網站驗證 -->
     <meta name="google-site-verification" content="rK15shxYyikAOEYfHB_ZzRr9fJTsXkyciZmwZtYyJT0" />
-    <meta name="google-site-verification" content="RSCsK8X-OoCTr2uKZ2oKz-QbY1SjZWYLZRIfQz9NKWY" />
     
-    <!-- 5. Open Graph (OG) 社交分享標籤 -->
-    <meta property="og:title" content="KEICHA - 專注細節，日本直送">
-    <meta property="og:description" content="KEICHA 提供專業的日本代購、抹茶選品、電話代播服務。">
+    <!-- 5. Open Graph (OG) 社交分享標籤 (★ 已啟用) -->
+    <meta property="og:title" content="KEICHA - 日本代購 | 抹茶選品 | 電話代播服務">
+    <meta property="og:description" content="抹茶選品與日本電話代播服務。">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg"> <!-- ★ 假設的 LOGO 絕對路徑 -->
-    <meta property="og:url" content="https://keicha2025.github.io/keicha/"> <!-- ★ 假設的網站絕對路徑 -->
+    <!-- ★ 這一行是您的縮圖預覽 -->
+    <meta property="og:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
+    <meta property="og:url" content="https://keicha.netlify.app/"> <!-- ★ 修正為 Netlify 網址 -->
     <meta property="og:site_name" content="KEICHA">
 
     <!-- 6. Twitter Card (可選，但建議) -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="KEICHA - 專注細節，日本直送">
-    <meta name="twitter:description" content="KEICHA 提供專業的日本代購、抹茶選品、電話代播服務。">
-    <meta name="twitter:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg"> <!-- ★ 假設的 LOGO 絕對路徑 -->
+    <meta name="twitter:title" content="KEICHA - 日本代購 | 抹茶選品">
+    <meta name="twitter:description" content="專精於抹茶選品與日文電話代播服務。">
+    <meta name="twitter:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
     <!-- ★★★ SEO 結束 ★★★ -->
 
     <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- 載入 Inter 字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,7 +47,6 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        
         /* 導覽列下拉選單 */
         .dropdown:hover .dropdown-menu {
             display: block;
@@ -78,14 +76,13 @@
         }
     </script>
 </head>
-<!-- ★ 樣式已還原為您原始的版本 -->
-<body class="bg-white text-gray-800">
+<body class="bg-white text-gray-800"> <!-- ★ 修正回原始的 body 樣式 -->
 
-    <!-- ==== 導覽列 ==== -->
+    <!-- ==== 導覽列 (★ 已修正) ==== -->
     <header class="bg-white shadow-md sticky top-0 z-50 h-20">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex justify-between items-center">
             
-            <!-- Logo / 網站名稱 -->
+            <!-- Logo -->
             <a href="index.html" class="flex items-center">
                 <!-- ★ 相對路徑 LOGO -->
                 <img src="images/KEICHA_LOGO_chuuouzoroe.jpg" alt="KEICHA Logo" class="h-14">
@@ -102,6 +99,7 @@
                     </button>
                     <!-- 下拉內容 -->
                     <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <!-- ★ 連結到新分頁 -->
                         <a href="maccha.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             抹茶代購狀況
                         </a>
@@ -121,11 +119,10 @@
                     款項支付
                 </a>
 
-                <!-- 4. 分享按鈕 (電腦版) 
-                  - 預設 hidden, 由 JS 判斷是否支援 Web Share API 才顯示
-                -->
+                <!-- 4. 分享按鈕 (電腦版) -->
                 <button type="button" id="desktop-share-button" class="p-2 text-gray-700 hover:text-brandGreen rounded-full focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
                     <span class="sr-only">分享網站</span>
+                    <!-- ★ 相對路徑 ICON -->
                     <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
                 </button>
 
@@ -135,10 +132,10 @@
                 </a>
             </nav>
 
-            <!-- 手機版漢堡選單按鈕 (md 以下尺寸顯示) -->
+            <!-- ★ 手機版漢堡選單按鈕 (md 以下尺寸顯示) (★ 已修正) -->
             <div class="md:hidden flex items-center space-x-2">
                 
-                <!-- ★ 手機版分享按鈕 (固定) -->
+                <!-- 手機版分享按鈕 (固定) -->
                 <button type="button" id="mobile-share-button-fixed" class="p-2 text-gray-700 rounded-full hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
                     <span class="sr-only">分享網站</span>
                     <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
@@ -154,7 +151,7 @@
             </div>
         </div>
 
-        <!-- 手機版彈出選單 (預設隱藏) -->
+        <!-- ★ 手機版彈出選單 (預設隱藏) (★ 已修正) -->
         <div id="mobile-menu" class="mobile-menu md:hidden absolute top-20 left-0 w-full bg-white shadow-lg z-40" data-state="closed">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">HOME</a>
@@ -163,7 +160,7 @@
                 <a href="#payment" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">貨到付款下單</a>
                 <a href="#payment" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">款項支付</a>
                 
-                <!-- ★ 已移除選單內的分享按鈕，因為它現在固定顯示在導覽列上 -->
+                <!-- ★ 已移除選單內的分享按鈕 -->
 
                 <hr class="my-2">
                 
@@ -175,14 +172,15 @@
     </header>
 
     <main>
-        <!-- 1. Hero 主視覺區塊 -->
+        <!-- 1. Hero 主視覺區塊 (已修改) -->
         <section class="relative h-auto py-16 md:py-24 flex items-center justify-center text-center text-white px-4 bg-brandGreen">
-            
+            <!-- 調整 h-auto 並增加 py-16/py-24 讓高度自適應 -->
+          
             <div class="relative z-10">
                 <h1 class="text-4xl md:text-6xl font-bold">KEICHA</h1>
                 <p class="text-xl md:text-2xl mt-4 font-medium">專注細節，日本直送。</p>
-                <p class="text-lg md:text-xl mt-2 text-gray-200">日本代購、抹茶選品、電話代打服務</p>
-                
+                <p class="text-lg md:text-xl mt-2 text-gray-200">日本代購、抹茶選品、電話代播服務</p>
+              
                 <!-- 導覽連結 (新位置) -->
                 <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 md:gap-x-6 mt-10">
                     <a href="#services" class="text-white font-medium hover:underline" target="_self">服務項目</a>
@@ -200,12 +198,12 @@
             </div>
         </section>
 
-        <!-- 2. 付款與下單專區 -->
+        <!-- 2. 付款與下單專區 (新區塊) -->
         <section id="payment" class="py-16 md:py-24 bg-gray-50">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-                <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">付款與下單專區</h2>
+                <h2 class="text-3xl font-bold text-center mb-12">付款與下單專區</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                    
+                  
                     <!-- 左欄: 線上刷卡 -->
                     <div class="bg-white p-8 rounded-lg shadow-lg">
                         <h3 class="text-2xl font-semibold text-center mb-8">線上刷卡支付</h3>
@@ -262,13 +260,13 @@
         <!-- 3. 服務項目 -->
         <section id="services" class="py-16 md:py-24 bg-white">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">服務項目</h2>
+                <h2 class="text-3xl font-bold text-center mb-12">服務項目</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    
+                  
                     <!-- 服務卡片 1: 抹茶代購 -->
                     <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col">
-                        <!-- ★ ICON 已更新為圖片 -->
-                        <img src="images/KEICHA_icon_maccha.png" alt="抹茶代購" class="h-20 w-20 mx-auto mb-4">
+                        <!-- ★ 相對路徑 ICON -->
+                        <img src="images/KEICHA_icon_maccha.png" alt="抹茶代購" class="h-16 w-16 mx-auto mb-4">
                         <h3 class="text-xl font-semibold mb-3">抹茶代購</h3>
                         <p class="text-gray-600 mb-6 flex-grow">
                             目前可代購上林春松，也曾代購過辻喜、山政小山園、一保堂等品牌，但目前由於供貨狀況不穩，暫停訂購中。歡迎隨時透過 LINE 官方帳號私訊，將為您確認。
@@ -277,28 +275,29 @@
                             <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-medium hover:bg-opacity-90 transition duration-300">
                                 私訊詢問抹茶
                             </a>
-                            <!-- 新增按鈕 -->
-                            <a href="maccha.html" target="_self" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition duration-300"> <!-- ★ 連結更新 -->
+                            <!-- ★ 連結到新分頁 -->
+                            <a href="maccha.html" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition duration-300">
                                 查看抹茶代購狀況
                             </a>
                         </div>
                     </div>
-                    
+                  
                     <!-- 服務卡片 3: 日本電話代打 -->
                     <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col">
-                        <!-- ★ ICON 已更新為圖片 -->
-                        <img src="images/KEICHA_icon_denwa.png" alt="日本電話代打" class="h-20 w-20 mx-auto mb-4">
-                        <h3 class="text-xl font-semibold mb-3">日本電話代打</h3>
+                        <!-- ★ 相對路徑 ICON -->
+                        <img src="images/KEICHA_icon_denwa.png" alt="電話代播" class="h-16 w-16 mx-auto mb-4">
+                        <h3 class="text-xl font-semibold mb-3">日本電話代播</h3>
                         <p class="text-gray-600 mb-6 flex-grow">
                             跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務，讓您的日本之行游刃有餘。
                         </p>
                         <div class="mt-auto"> <!-- 按鈕容器 (確保對齊) -->
-                            <a href="denwa.html" target="_self" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300"> <!-- ★ 連結更新 -->
+                            <!-- ★ 連結到新分頁 -->
+                            <a href="denwa.html" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300">
                                 查看服務詳情
                             </a>
                         </div>
                     </div>
-                    
+                  
                 </div>
             </div>
         </section>
@@ -306,9 +305,9 @@
         <!-- 4. 服務實績 -->
         <section id="cases" class="py-16 md:py-24 bg-gray-50">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-                <h2 class="text-3xl font-bold text-center mb-6 text-gray-900">服務實績</h2>
+                <h2 class="text-3xl font-bold text-center mb-6">服務實績</h2>
                 <p class="text-center text-gray-600 mb-10">我們已成功協助眾多客戶處理日本大小事宜：</p>
-                
+              
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 text-lg">
                     <!-- 使用 ul/li 列表呈現案例 -->
                     <ul class="space-y-3">
@@ -362,35 +361,36 @@
         <!-- 5. 聯絡我們 (LINE) -->
         <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-3xl font-bold mb-4 text-gray-900">需要我們為您服務嗎？</h2>
+                <h2 class="text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
                 <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
-                
+              
                 <!-- LINE 加入好友按鈕 -->
                 <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
                     <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
                 </a>
-                
+              
                 <p class="text-gray-600">或手動輸入 ID:</p>
-                    <input type="text" value="@366qwylw" readonly
-                           onclick="this.select()"
-                           class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
-                           title="點擊選取 ID">
+                <input type="text" value="@366qwylw" readonly
+                       onclick="this.select()"
+                       class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                       title="點擊選取 ID"
+                       onfocus="this.select()">
             </div>
         </section>
 
     </main>
 
-    <!-- 頁尾 (注意事項) -->
+    <!-- 頁尾 (注意事項) - 已更新為包含所有資訊的新 Footer -->
     <footer id="notice" class="bg-gray-800 text-gray-300 py-16">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-                
+              
                 <!-- 服務連結 -->
                 <div>
                     <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
                     <ul class="space-y-3">
-                        <li><a href="maccha.html" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li> <!-- ★ 連結更新 -->
-                        <li><a href="denwa.html" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li> <!-- ★ 連結更新 -->
+                        <li><a href="maccha.html" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
+                        <li><a href="denwa.html" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
                     </ul>
                 </div>
 
@@ -452,9 +452,10 @@
         </div>
     </footer>
 
-    <!-- ==== Javascript ==== -->
+    <!-- ==== Javascript (★ 已修正) ==== -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
             // --- 導覽列邏輯 (手機選單) ---
             const menuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
@@ -470,19 +471,24 @@
                 });
             }
 
-            // --- Web Share API 邏輯 (★ 已更新) ---
+            // --- Web Share API 邏輯 ---
+            // ★ 修正：合併兩個按鈕的選擇器
             const desktopShareButton = document.getElementById('desktop-share-button');
-            // const mobileShareButtonMenu = document.getElementById('mobile-share-button-menu'); // ★ 已移除
             const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
             
+            // 抓取此頁面的 <head> 中的 OG 標籤內容
+            const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
+            const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
+
             const shareData = {
-                title: 'KEICHA - 專注細節，日本直送',
-                text: 'KEICHA 提供專業的日本代購、抹茶選品、電話代播服務。',
-                url: window.location.origin + window.location.pathname
+                title: shareTitle,
+                text: shareText,
+                url: window.location.href // 抓取此頁面的完整網址
             };
 
-            // 檢查是否支援 Web Share API
+            // 檢查瀏覽器是否支援 navigator.share
             if (navigator.share) {
+                
                 const showShareButton = (button) => {
                     if (button) {
                         button.classList.remove('hidden'); // 顯示按鈕
@@ -496,16 +502,17 @@
                         });
                     }
                 };
+
+                // ★ 啟用兩個按鈕
                 showShareButton(desktopShareButton);
-                // showShareButton(mobileShareButtonMenu); // ★ 已移除
                 showShareButton(mobileShareButtonFixed);
+
             } else {
-                // 不支援 Web Share API 的話，按鈕將保持 hidden
                 console.log('此瀏覽器不支援 Web Share API');
             }
+
         });
     </script>
 
 </body>
-
 </html>
