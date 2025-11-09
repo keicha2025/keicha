@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ★★★ SEO 優化 (maccha.html 專屬) ★★★ -->
+    <!-- 1. 標題 (Title) -->
+    <title>KEICHA 抹茶代購總覽 | 日本抹茶品牌狀態</title>
+    <!-- 2. 描述 (Description) -->
+    <meta name="description" content="KEICHA 抹茶代購總覽。即時查看丸久小山園、山政小山園、星野製茶園、上林春松本店的最新可訂購狀態。">
+    <!-- 3. 關鍵字 (Keywords) -->
+    <meta name="keywords" content="KEICHA, 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶園, 上林春松本店, 抹茶狀態">
+    <!-- 4. Google 網站驗證 -->
+    <meta name="google-site-verification" content="rK15shxYyikAOEYfHB_ZzRr9fJTsXkyciZmwZtYyJT0" />
+    
+    <!-- 5. Open Graph (OG) 社交分享標籤 -->
+    <meta property="og:title" content="KEICHA 抹茶代購總覽">
+    <meta property="og:description" content="即時查看日本各大抹茶品牌的可訂購狀態。">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
+    <meta property="og:url" content="https://keicha.netlify.app/maccha.html"> <!-- ★ 本頁網址 -->
+    <meta property="og:site_name" content="KEICHA">
+
+    <!-- 6. Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KEICHA 抹茶代購總覽">
+    <meta name="twitter:description" content="即時查看日本各大抹茶品牌的可訂購狀態。">
+    <meta name="twitter:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
+    <!-- ★★★ SEO 結束 ★★★ -->
+
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 Inter 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 應用字體 */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f8fafc; /* bg-gray-50 */
+        }
+        /* 導覽列下拉選單 */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        /* 手機選單 */
+        .mobile-menu[data-state="open"] {
+            display: block;
+        }
+        .mobile-menu[data-state="closed"] {
+            display: none;
+        }
+        /* 載入中動畫 */
+        .loader {
+            border-top-color: #6ea44c; /* brandGreen */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <script>
+        // 自訂 Tailwind 顏色
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#6ea44c',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- ==== 導覽列 ==== -->
+    <header class="bg-white shadow-md sticky top-0 z-50 h-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex justify-between items-center">
+            
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center">
+                <img src="images/KEICHA_LOGO_chuuouzoroe.jpg" alt="KEICHA Logo" class="h-14">
+            </a>
+
+            <!-- 電腦版導覽列 (md 以上尺寸顯示) -->
+            <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
+                
+                <!-- 1. HOME (下拉選單) -->
+                <div class="relative dropdown">
+                    <button class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50 flex items-center">
+                        <span>HOME</span>
+                        <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- 下拉內容 -->
+                    <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <a href="maccha.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            抹茶代購狀況
+                        </a>
+                        <a href="denwa.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            電話代播服務
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. 貨到付款 (錨點連結 - 返回首頁) -->
+                <a href="index.html#payment" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    貨到付款下單
+                </a>
+
+                <!-- 3. 款項支付 (錨點連結 - 返回首頁) -->
+                <a href="index.html#payment" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    款項支付
+                </a>
+
+                <!-- 4. 分享按鈕 (電腦版) -->
+                <button type="button" id="desktop-share-button" class="p-2 text-gray-700 hover:text-brandGreen rounded-full focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
+                    <span class="sr-only">分享網站</span>
+                    <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
+                </button>
+
+                <!-- 5. LINE 官方客服 (主要按鈕) -->
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="ml-2 inline-block bg-brandGreen text-white px-5 py-2 rounded-full text-base font-medium hover:bg-opacity-90 transition duration-300 shadow">
+                    LINE官方客服
+                </a>
+            </nav>
+
+            <!-- 手機版漢堡選單按鈕 (md 以下尺寸顯示) -->
+            <div class="md:hidden flex items-center space-x-2">
+                
+                <!-- 手機版分享按鈕 (固定) -->
+                <button type="button" id="mobile-share-button-fixed" class="p-2 text-gray-700 rounded-full hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
+                    <span class="sr-only">分享網站</span>
+                    <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
+                </button>
+
+                <!-- 漢堡選單按鈕 -->
+                <button id="mobile-menu-button" class="p-2 text-gray-700 rounded-md hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen">
+                    <span class="sr-only">開啟選單</span>
+                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 手機版彈出選單 (預設隱藏) -->
+        <div id="mobile-menu" class="mobile-menu md:hidden absolute top-20 left-0 w-full bg-white shadow-lg z-40" data-state="closed">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">HOME</a>
+                <a href="maccha.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">抹茶代購狀況</a>
+                <a href="denwa.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">電話代播服務</a>
+                <a href="index.html#payment" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">貨到付款下單</a>
+                <a href="index.html#payment" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">款項支付</a>
+                
+                <hr class="my-2">
+                
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-brandGreen text-white px-4 py-2 rounded-md text-base font-medium hover:bg-opacity-90">
+                    LINE官方客服
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==== 頁面主要內容 (來自您的 Google Site) ==== -->
+    <main>
+        <!-- 1. 頁面標題 -->
+        <section class="bg-white pt-16 pb-12 shadow-sm">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="flex justify-center items-center gap-4 mb-4">
+                   <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
+                </div>
+                <p class="mt-4 text-lg text-gray-600">頁面資訊皆自動更新，請稍候載入</p>
+            </div>
+        </section>
+
+        <!-- 2. 品牌總覽 (來自 matcha-status.html) -->
+        <section id="status-overview" class="py-16 md:py-24 bg-gray-100">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+                <h2 class="text-3xl font-bold text-center mb-12">品牌總覽</h2>
+                <!-- 載入動畫 (總覽) -->
+                <div id="status-loader" class="flex justify-center items-center h-24 hidden">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-12 w-12"></div>
+                </div>
+                <!-- 錯誤訊息 (總覽) -->
+                <div id="status-error" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg"></div>
+                <!-- 狀態格 (總覽) -->
+                <div id="status-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- 丸久小山園 狀態 -->
+                    <div id="status-marukyu" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">丸久小山園</h3>
+                        <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                    </div>
+                    <!-- 山政小山園 狀態 -->
+                    <div id="status-yamamasa" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">山政小山園</h3>
+                        <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                    </div>
+                    <!-- 星野製茶園 狀態 -->
+                    <div id="status-hoshino" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">星野製茶園</h3>
+                        <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                    </div>
+                    <!-- 上林春松本店 狀態 -->
+                    <div id="status-kanbayashi" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">上林春松本店</h3>
+                        <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 品牌詳細品項 (來自 matcha-products.html) -->
+        <div class="py-16 md:py-24 space-y-16">
+            
+            <section id="marukyu" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28"> <!-- 加上 scroll-mt -->
+                <h2 class="text-3xl font-bold text-center mb-10">丸久小山園</h2>
+                <div id="marukyu-loader" class="flex justify-center items-center h-32">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                </div>
+                <div id="marukyu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <section id="yamamasa" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+                <h2 class="text-3xl font-bold text-center mb-10">山政小山園</h2>
+                <div id="yamamasa-loader" class="flex justify-center items-center h-32">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                </div>
+                <div id="yamamasa-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <section id="hoshino" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+                <h2 class="text-3xl font-bold text-center mb-10">星野製茶園</h2>
+                <div id="hoshino-loader" class="flex justify-center items-center h-32">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                </div>
+                <div id="hoshino-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <section id="kanbayashi" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+                <h2 class="text-3xl font-bold text-center mb-10">上林春松本店</h2>
+                <div id="kanbayashi-loader" class="flex justify-center items-center h-32">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                </div>
+                <div id="kanbayashi-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+        </div>
+
+        <!-- 4. 下單區塊 -->
+        <section id="payment" class="py-16 md:py-24 bg-white border-t border-gray-200 scroll-mt-28">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-xl">
+                <h2 class="text-3xl font-bold text-center mb-12">下單專區</h2>
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-center mb-8">7-11 貨到付款下單</h3>
+                    <div class="text-center">
+                        <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
+                            前往 7-11 賣貨便
+                        </a>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                        <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結：</p>
+                        <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2510186847800" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 聯絡我們 -->
+        <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">您在尋找其他品牌嗎？</h2>
+                <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
+                    <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+                </a>
+                <p class="text-gray-600">或手動輸入 ID:</p>
+                 <input type="text" value="@366qwylw" readonly
+                       onclick="this.select()"
+                       class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                       title="點擊選取 ID"
+                       onfocus="this.select()">
+            </div>
+        </section>
+    </main>
+
+    <!-- ==== 頁尾 ==== -->
+    <footer id="notice" class="bg-gray-800 text-gray-300 py-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                
+                <!-- 服務連結 (★ 已修正) -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
+                    <ul class="space-y-3">
+                        <li><a href="maccha.html" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
+                        <li><a href="denwa.html" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
+                    </ul>
+                </div>
+
+                <!-- 付款方式 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
+                    <ul class="space-y-3">
+                        <li><a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
+                        <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
+                    </ul>
+                </div>
+
+                <!-- 購買須知 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="text-gray-400"><span class="font-medium text-gray-200">・出貨時間：</span> 預購商品下單後約15~20天內出貨。</li>
+                        <li class="text-gray-400"><span class="font-medium text-gray-200">・客製訂購：</span> 歡迎聯繫訂購其他抹茶品項。</li>
+                        <li class="text-gray-400"><span class="font-medium text-gray-200">・退換政策：</span> 預購商品不適用猶豫期，恕不接受取消或退貨。</li>
+                        <li class="text-gray-400"><span class="font-medium text-gray-200">・付款方式：</span> 代購採 7-11 貨到付款；代撥服務採線上刷卡。</li>
+                    </ul>
+                </div>
+
+                <!-- 聯絡資訊 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">聯絡資訊</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li><span class="font-medium text-gray-200">Email:</span><br> <a href="mailto:keicha.nihoncha@gmail.com" class="hover:text-white hover:underline">keicha.nihoncha@gmail.com</a></li>
+                        <li><span class="font-medium text-gray-200">LINE ID:</span><br> @366qwylw</li>
+                        <li class="mt-4"><img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 官方帳號" class="w-24 h-24 rounded-lg"></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700">
+                &copy; 2024 KEICHA. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ==== JavaScript 執行區塊 (★ 已合併) ==== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. 導覽列邏輯 (手機選單) ---
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (menuButton) {
+                menuButton.addEventListener('click', () => {
+                    const currentState = mobileMenu.getAttribute('data-state');
+                    if (currentState === 'closed') {
+                        mobileMenu.setAttribute('data-state', 'open');
+                    } else {
+                        mobileMenu.setAttribute('data-state', 'closed');
+                    }
+                });
+            }
+
+            // --- 2. Web Share API 邏輯 ---
+            const desktopShareButton = document.getElementById('desktop-share-button');
+            const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
+            
+            const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
+            const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
+
+            const shareData = {
+                title: shareTitle,
+                text: shareText,
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                const showShareButton = (button) => {
+                    if (button) {
+                        button.classList.remove('hidden');
+                        button.addEventListener('click', async () => {
+                            try {
+                                await navigator.share(shareData);
+                                console.log('網站分享成功');
+                            } catch (err) {
+                                console.error('分享失敗: ', err);
+                            }
+                        });
+                    }
+                };
+                showShareButton(desktopShareButton);
+                showShareButton(mobileShareButtonFixed);
+            } else {
+                console.log('此瀏覽器不支援 Web Share API');
+            }
+
+
+            // --- 3. Google Sheets 載入邏輯 (來自您的程式碼) ---
+            
+            // --- 您的後台設定區 ---
+            const statusSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
+            const productSheetUrls = {
+                marukyu: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=0&single=true&output=csv",
+                yamamasa: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=42307123&single=true&output=csv",
+                hoshino: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=1215737367&single=true&output=csv",
+                kanbayashi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=13600549&single=true&output=csv"
+            };
+            // --- 設定區結束 ---
+
+            /**
+             * 修正：清理 CSV 標頭中的隱藏字元
+             */
+            function cleanHeader(headerArray) {
+                return headerArray.map(h => h.trim().replace(/[\uFEFF"']/g, ''));
+            }
+
+            /**
+             * 解析「品牌總覽」CSV
+             */
+            function parseStatusCSV(text) {
+                const lines = text.split(/\r?\n/);
+                if (lines.length < 2) return [];
+                
+                let header = cleanHeader(lines[0].split(','));
+                
+                const requiredHeaders = ['key', 'name', 'status'];
+                if (!requiredHeaders.every(h => header.includes(h))) {
+                    console.error('「總覽」CSV 標頭缺少 key, name, 或 status 欄位:', header);
+                    throw new Error('「總覽」CSV 標頭缺少 key, name, 或 status 欄位。');
+                }
+                
+                const headerMap = {
+                    key: header.indexOf('key'),
+                    name: header.indexOf('name'),
+                    status: header.indexOf('status')
+                };
+
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    const row = lines[i].split(',');
+                    const item = {
+                        key: row[headerMap.key] ? row[headerMap.key].trim() : '',
+                        name: row[headerMap.name] ? row[headerMap.name].trim() : '',
+                        status: row[headerMap.status] ? row[headerMap.status].trim() : ''
+                    };
+                    if (item.key && item.name) { // 確保有 key 和 name
+                        data.push(item);
+                    }
+                }
+                return data;
+            }
+
+            /**
+             * 渲染「品牌總覽」
+             */
+            function renderStatus(key, status, name) {
+                const card = document.getElementById(`status-${key}`);
+                if (!card) return;
+
+                const isAvailable = status === 'available';
+                const statusText = isAvailable ? '可供訂購' : '缺貨中';
+                const statusBg = isAvailable ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-700';
+                
+                card.innerHTML = `
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">${name}</h3>
+                    <span class="text-sm font-medium px-3 py-1 rounded-full ${statusBg}">${statusText}</span>
+                `;
+                card.style.opacity = 1;
+            }
+
+            /**
+             * 處理「品牌總覽」錯誤
+             */
+            function renderStatusError(error) {
+                const errorDiv = document.getElementById('status-error');
+                const gridDiv = document.getElementById('status-grid');
+                if (errorDiv) {
+                    errorDiv.innerHTML = `載入「品牌總覽」時發生錯誤。<br>(${error.message})<br><span class="text-sm text-gray-600">請確認 Google Sheet 第一行 A1, B1, C1 分別為 key, name, status (全小寫)。</span>`;
+                    errorDiv.classList.remove('hidden');
+                }
+                if (gridDiv) gridDiv.classList.add('hidden');
+            }
+
+            /**
+             * 解析「詳細品項」CSV
+             */
+            function parseProductCSV(text) {
+                const lines = text.split(/\r?\n/);
+                if (lines.length < 2) return [];
+                
+                let header = cleanHeader(lines[0].split(','));
+
+                const requiredHeaders = ['product_name', 'price', 'price_multi', 'status'];
+                if (!requiredHeaders.every(h => header.includes(h))) {
+                    console.error('「品項」CSV 標頭缺少必要欄位:', header);
+                    throw new Error('「品項」CSV 標頭缺少 product_name, price, price_multi 或 status 欄位。');
+                }
+                
+                const headerMap = {
+                    product_name: header.indexOf('product_name'),
+                    price: header.indexOf('price'),
+                    price_multi: header.indexOf('price_multi'),
+                    status: header.indexOf('status')
+                };
+
+                const products = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    // 簡易 CSV 解析，假設欄位內沒有逗號
+                    const data = lines[i].split(','); 
+                    const product = {
+                        product_name: data[headerMap.product_name] ? data[headerMap.product_name].trim() : '',
+                        price: data[headerMap.price] ? data[headerMap.price].trim() : '',
+                        price_multi: data[headerMap.price_multi] ? data[headerMap.price_multi].trim() : '',
+                        status: data[headerMap.status] ? data[headerMap.status].trim() : ''
+                    };
+                    if (product.product_name) { // 確保有產品名稱
+                        products.push(product);
+                    }
+                }
+                return products;
+            }
+
+            /**
+             * 渲染「詳細品項」
+             */
+            function renderProductBrand(brandKey, products) {
+                const grid = document.getElementById(`${brandKey}-grid`);
+                const loader = document.getElementById(`${brandKey}-loader`);
+                if (!grid || !loader) return;
+
+                loader.style.display = 'none';
+                grid.innerHTML = '';
+
+                if (products.length === 0) {
+                    grid.innerHTML = `<p class="text-gray-500 text-center col-span-full">目前此品牌尚無代購品項，或暫時缺貨中。</p>`;
+                    return;
+                }
+
+                products.forEach(product => {
+                    const name = product.product_name || '未命名品項';
+                    const price = product.price ? parseInt(product.price) : 0;
+                    const priceMulti = product.price_multi ? parseInt(product.price_multi) : 0;
+                    const status = product.status || 'out-of-stock';
+                    
+                    const isAvailable = status === 'available';
+                    const cardClasses = isAvailable ? 'bg-white transform hover:scale-105' : 'bg-gray-100 opacity-70';
+                    
+                    const statusBadge = isAvailable
+                        ? `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">可訂購</span>`
+                        : `<span class="absolute top-3 right-3 bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">缺貨中</span>`;
+
+                    let priceHTML = '';
+                    const priceTextClass = isAvailable ? 'text-brandGreen' : 'text-gray-500';
+
+                    if (priceMulti > 0 && priceMulti < price) {
+                        priceHTML = `<div>
+                            <p class="text-sm text-gray-500">單罐: NT$ ${price.toLocaleString()}</p>
+                            <p class="text-lg font-bold ${priceTextClass}">2罐起單價: NT$ ${priceMulti.toLocaleString()}</p>
+                        </div>`;
+                    } else if (price > 0) {
+                        priceHTML = `<p class="text-lg font-bold ${priceTextClass}">NT$ ${price.toLocaleString()}</p>`;
+                    } else {
+                        priceHTML = `<p class="text-lg font-bold ${priceTextClass}">價格請洽詢</p>`;
+                    }
+
+                    const cardHTML = `
+                        <div class="${cardClasses} relative shadow-lg rounded-lg overflow-hidden transition-all duration-300 flex flex-col">
+                            ${statusBadge}
+                            <div class="p-6 flex-grow">
+                                <h3 class="text-xl font-bold mb-2 ${isAvailable ? 'text-gray-900' : 'text-gray-600'}">${name}</h3>
+                            </div>
+                            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                                ${priceHTML}
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += cardHTML;
+                });
+            }
+
+            /**
+             * 處理「詳細品項」錯誤
+             */
+            function renderProductError(brandKey, error) {
+                const grid = document.getElementById(`${brandKey}-grid`);
+                const loader = document.getElementById(`${brandKey}-loader`);
+                if (loader) loader.style.display = 'none';
+                if (grid) {
+                    grid.innerHTML = `<p class="text-red-500 text-center col-span-full">載入 ${brandKey} 品項時發生錯誤。<br>(錯誤訊息: ${error.message})<br><span class="text-sm text-gray-600">請確認 Google Sheet 標頭為: product_name, price, price_multi, status (全小寫)</span></p>`;
+                }
+            }
+
+            // --- 4. 執行 Google Sheets 載入 ---
+            
+            // 觸發「品牌總覽」
+            const statusLoader = document.getElementById('status-loader');
+            if (statusLoader) statusLoader.classList.remove('hidden');
+
+            if (!statusSheetUrl || !statusSheetUrl.startsWith('http') || statusSheetUrl.includes("請貼上")) {
+                renderStatusError(new Error("尚未設定「狀態總覽」的 Google Sheet 網址。"));
+                if (statusLoader) statusLoader.classList.add('hidden');
+            } else {
+                fetch(statusSheetUrl, { cache: 'no-store' }) // 強制清除快取
+                    .then(response => response.ok ? response.text() : Promise.reject(new Error(`網路回應錯誤 (status: ${response.status})`)))
+                    .then(csvText => {
+                        const statuses = parseStatusCSV(csvText);
+                        statuses.forEach(s => renderStatus(s.key, s.status, s.name));
+                        if (statusLoader) statusLoader.classList.add('hidden');
+                    })
+                    .catch(err => {
+                        console.error("抓取「品牌總覽」時發生錯誤:", err);
+                        renderStatusError(err);
+                        if (statusLoader) statusLoader.classList.add('hidden');
+                    });
+            }
+
+            // 觸發「詳細品項」
+            Object.keys(productSheetUrls).forEach(brandKey => {
+                const url = productSheetUrls[brandKey];
+                if (!url || !url.startsWith('http') || url.includes("請貼上")) {
+                    renderProductError(brandKey, new Error(`尚未設定 ${brandKey} 的 Google Sheet 網址。`));
+                    return;
+                }
+
+                fetch(url, { cache: 'no-store' }) // 強制清除快取
+                    .then(response => response.ok ? response.text() : Promise.reject(new Error(`網路回應錯誤 (status: ${response.status})`)))
+                    .then(csvText => {
+                        const products = parseProductCSV(csvText);
+                        renderProductBrand(brandKey, products);
+                    })
+                    .catch(error => {
+                        console.error(`抓取 ${brandKey} 品項時發生錯誤:`, error);
+                        renderProductError(brandKey, error);
+                    });
+            });
+        
+        }); // 結束 DOMContentLoaded
+    </script>
+
+</body>
+</html>
