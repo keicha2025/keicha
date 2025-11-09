@@ -20,7 +20,7 @@
     <meta property="og:type" content="website">
     <!-- ★ 修正 og:image 路徑，指向您的 LOGO 絕對路徑 -->
     <meta property="og:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
-    <meta property="og:url" content="https://keicha2025.github.io/keicha/denwa.html"> <!-- ★ 假設的網站絕對路徑 -->
+    <meta property="og:url" content="https://keicha.netlify.app/denwa.html"> <!-- ★ 修正為 Netlify 網址 -->
     <meta property="og:site_name" content="KEICHA">
 
     <!-- 6. Twitter Card (可選，但建議) -->
@@ -236,7 +236,7 @@
                         </div>
                        <div class="mt-8 pt-6 border-t border-slate-200 text-center">
                            <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請手動複製以下通用付款連結至瀏覽器開啟，並可自行輸入金額：</p>
-                           <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" style="width:100%; max-width:400px; padding:10px; font-size:14px; background-color:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; text-align:center;">
+                           <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" class="w-full max-w-md p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                            <p class="text-sm text-slate-500 mt-2">謝謝您</p>
                        </div>
                     </section>
@@ -306,12 +306,12 @@
                                     <!-- Slide 1 -->
                                     <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
                                         <!-- ★ 相對路徑圖片 -->
-                                        <img src="images/keicha_電話代播_服務案例1.jpg" alt="服務案例1" class="w-full h-full object-contain">
+                                        <img src="images/fu-wu-an-li1.png" alt="服務案例1" class="w-full h-full object-contain">
                                     </div>
                                     <!-- Slide 2 -->
                                     <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
                                         <!-- ★ 相對路徑圖片 -->
-                                        <img src="images/keicha_電話代播_服務案例2.jpg" alt="服務案例2" class="w-full h-full object-contain">
+                                        <img src="images/fu-wu-an-li2.png" alt="服務案例2" class="w-full h-full object-contain">
                                     </div>
                                 </div>
                                 
@@ -643,19 +643,29 @@
                 };
 
                 const observer = new IntersectionObserver((entries, observer) => {
+                    let visibleSections = [];
                     entries.forEach(entry => {
-                        const id = entry.target.getAttribute('id');
-                        const navLink = tocNav.querySelector(`a[href="#${id}"]`);
-                        
                         if (entry.isIntersecting) {
-                            // 當區塊進入視窗
-                            navLinks.forEach(link => link.classList.remove('active'));
-                            if (navLink) {
-                                navLink.classList.add('active');
-                            }
+                            visibleSections.push(entry.target);
                         }
                     });
+
+                    // 只 highlight 最靠近頂部的可見 section
+                    if (visibleSections.length > 0) {
+                        const topSection = visibleSections.reduce((prev, curr) => {
+                            return prev.getBoundingClientRect().top < curr.getBoundingClientRect().top ? prev : curr;
+                        });
+
+                        const id = topSection.getAttribute('id');
+                        const navLink = tocNav.querySelector(`a[href="#${id}"]`);
+
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        if (navLink) {
+                            navLink.classList.add('active');
+                        }
+                    }
                 }, observerOptions);
+
 
                 sections.forEach(section => {
                     observer.observe(section);
@@ -746,6 +756,19 @@
                     header.addEventListener('click', () => {
                         const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
                         
+                        // 關閉所有其他已開啟的項目
+                        if (!isOpen) {
+                            accordionItems.forEach(otherItem => {
+                                if (otherItem !== item) {
+                                    const otherContent = otherItem.querySelector('.accordion-content');
+                                    const otherIcon = otherItem.querySelector('.accordion-header span:last-child');
+                                    otherContent.style.maxHeight = '0px';
+                                    otherIcon.style.transform = 'rotate(0deg)';
+                                }
+                            });
+                        }
+
+                        // 切換當前點擊的項目
                         if (isOpen) {
                             content.style.maxHeight = '0px';
                             icon.style.transform = 'rotate(0deg)';
