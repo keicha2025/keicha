@@ -57,11 +57,11 @@
             background-color: #f8fafc; /* bg-slate-50 */
             scroll-behavior: smooth;
         }
-        /* 導覽列下拉選單 */
-        .dropdown:hover .dropdown-menu {
+        /* ★ 修正：移除 :hover 規則，改用 data-state */
+        .dropdown-menu[data-state="open"] {
             display: block;
         }
-        .dropdown-menu {
+        .dropdown-menu[data-state="closed"] {
             display: none;
         }
         /* 手機選單 */
@@ -110,13 +110,14 @@
             <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
                 
                 <!-- 1. HOME (下拉選單) -->
-                <div class="relative dropdown">
-                    <button class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50 flex items-center">
+                <!-- ★ 加上 ID 並移除 .dropdown class -->
+                <div class="relative"> 
+                    <button id="desktop-dropdown-button" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50 flex items-center">
                         <span>HOME</span>
                         <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </button>
-                    <!-- 下拉內容 -->
-                    <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <!-- ★ 加上 ID 並設定 data-state -->
+                    <div id="desktop-dropdown-menu" data-state="closed" class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                         <a href="maccha.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             抹茶代購狀況
                         </a>
@@ -600,7 +601,48 @@
                 });
             }
 
-            // --- [NEW] Web Share API 邏輯 ---
+            // --- [NEW] 導覽列邏輯 (電腦版 "HOME" 下拉選單) ---
+            const dropdownButton = document.getElementById('desktop-dropdown-button');
+            const dropdownMenu = document.getElementById('desktop-dropdown-menu');
+
+            if (dropdownButton && dropdownMenu) {
+                dropdownButton.addEventListener('click', (event) => {
+                    // 阻止事件冒泡，以免觸發 window 的點擊事件
+                    event.stopPropagation(); 
+                    const currentState = dropdownMenu.getAttribute('data-state');
+                    if (currentState === 'closed') {
+                        dropdownMenu.setAttribute('data-state', 'open');
+                    } else {
+                        dropdownMenu.setAttribute('data-state', 'closed');
+                    }
+                });
+
+                // 點擊下拉選單內的連結時，也要關閉選單
+                dropdownMenu.addEventListener('click', () => {
+                     dropdownMenu.setAttribute('data-state', 'closed');
+                });
+            }
+
+            // --- [NEW] 全域點擊監聽 (用來關閉選單) ---
+            window.addEventListener('click', () => {
+                // 關閉電腦版下拉選單
+                if (dropdownMenu) {
+                    dropdownMenu.setAttribute('data-state', 'closed');
+                }
+                // 關閉手機版選單
+                if (mobileMenu && mobileMenu.getAttribute('data-state') === 'open') {
+                    mobileMenu.setAttribute('data-state', 'closed');
+                }
+            });
+            
+            // 阻止選單和按鈕本身的點擊事件冒泡到 window
+            if (menuButton) {
+                menuButton.addEventListener('click', (event) => event.stopPropagation());
+            }
+            if (mobileMenu) {
+                 mobileMenu.addEventListener('click', (event) => event.stopPropagation());
+            }
+            // --- [EXISTING] Web Share API 邏輯 ---
             const desktopShareButton = document.getElementById('desktop-share-button');
             const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
             
@@ -614,7 +656,8 @@
                 const showShareButton = (button) => {
                     if (button) {
                         button.classList.remove('hidden'); // 顯示按鈕
-                        button.addEventListener('click', async () => {
+                        button.addEventListener('click', async (event) => { // ★ 加上 event
+                            event.stopPropagation(); // ★ 阻止冒泡
                             try {
                                 await navigator.share(shareData);
                                 console.log('網站分享成功');
