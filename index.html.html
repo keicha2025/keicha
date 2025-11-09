@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KEICHA - 專注細節，日本直送</title>
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 Inter 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 應用字體 */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+    
+    <script>
+        // 自訂 Tailwind 顏色
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#6ea44c',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-gray-800">
+
+    <!-- 導覽列 (已刪除) -->
+    <!-- <header class="bg-white shadow-md sticky top-0 z-50"> ... </header> -->
+
+    <main>
+        <!-- 1. Hero 主視覺區塊 (已修改) -->
+        <section class="relative h-auto py-16 md:py-24 flex items-center justify-center text-center text-white px-4 bg-brandGreen">
+            <!-- 調整 h-auto 並增加 py-16/py-24 讓高度自適應 -->
+            
+            <div class="relative z-10">
+                <h1 class="text-4xl md:text-6xl font-bold">KEICHA</h1>
+                <p class="text-xl md:text-2xl mt-4 font-medium">專注細節，日本直送。</p>
+                <p class="text-lg md:text-xl mt-2 text-gray-200">日本代購、抹茶選品、電話代打服務</p>
+                
+                <!-- 導覽連結 (新位置) -->
+                <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 md:gap-x-6 mt-10">
+                    <a href="#services" class="text-white font-medium hover:underline" target="_self">服務項目</a>
+                    <span class="text-white opacity-50 hidden md:inline">|</span>
+                    <a href="#cases" class.
+="text-white font-medium hover:underline" target="_self">服務實績</a>
+                    <span class="text-white opacity-50 hidden md:inline">|</span>
+                    <a href="#payment" class="text-white font-medium hover:underline" target="_self">付款下單</a>
+                    <span class="text-white opacity-50 hidden md:inline">|</span>
+                    <a href="#notice" class="text-white font-medium hover:underline" target="_self">購買須知</a>
+                    <!-- <a href="https://lin.ee/QJU5mUO" target="_blank" class="ml-0 md:ml-2 bg-white text-brandGreen px-4 py-1 rounded-full font-medium text-sm hover:bg-gray-100 transition duration-300 shadow">
+                        加入 LINE 好友
+                    </a> --> <!-- 重複的按鈕已移除 -->
+                </div>
+
+                <a href="https://lin.ee/QJU5mUO" target="_blank" class="mt-10 inline-block bg-white text-brandGreen px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg">
+                    LINE官方客服
+                </a>
+            </div>
+        </section>
+
+        <!-- 2. 付款與下單專區 (新區塊) -->
+        <section id="payment" class="py-16 md:py-24 bg-gray-50">
+            <div class.
+="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+                <h2 class="text-3xl font-bold text-center mb-12">付款與下單專區</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                    
+                    <!-- 左欄: 線上刷卡 -->
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-semibold text-center mb-8">線上刷卡支付</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                            <!-- 預付款 -->
+                            <div>
+                                <h4 class="font-semibold mb-2">預付款 (50元)</h4>
+                                <a href="https://pcpay.tw/EhQGv" target="_blank" class="inline-block hover:opacity-90 transition-opacity">
+                                    <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款50元"/>
+                                </a>
+                            </div>
+                            <!-- 基本方案 -->
+                            <div>
+                                <h4 class="font-semibold mb-2">基本方案 (160元)</h4>
+                                <a href="https://pcpay.tw/ovM39" target="_blank" class="inline-block hover:opacity-90 transition-opacity">
+                                    <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="基本費率160元"/>
+                                </a>
+                                <p class="text-xs text-gray-500 mt-1">(含50元預付款)</p>
+                            </div>
+                            <!-- 其他費用 -->
+                            <div>
+                                <h4 class="font-semibold mb-2">其他費用支付</h4>
+                                <a href="https://pcpay.tw/NF4vv" target="_blank" class="inline-block hover:opacity-90 transition-opacity">
+                                    <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付補款及尾款"/>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- 備用付款 -->
+                        <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                            <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結並手動輸入金額：</p>
+                            <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
+                        </div>
+                    </div>
+
+                    <!-- 右欄: 7-11 貨到付款 -->
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-semibold text-center mb-8">7-11 貨到付款下單</h3>
+                        <div class="text-center">
+                            <!-- 說明文 (已移除) -->
+                            <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
+                                前往 7-11 賣貨便
+                            </a>
+                        </div>
+                        <!-- 備用付款 (新增) -->
+                        <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                            <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結：</p>
+                            <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2510186847800" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 服務項目 -->
+        <section id="services" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center mb-12">服務項目</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    
+                    <!-- 服務卡片 1: 抹茶代購 -->
+                    <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col">
+                        <div class="text-6xl mb-4">🍵</div>
+                        <h3 class="text-xl font-semibold mb-3">抹茶代購</h3>
+                        <p class="text-gray-600 mb-6 flex-grow">
+                            目前可代購上林春松，也曾代購過辻喜、山政小山園、一保堂等品牌，但目前由於供貨狀況不穩，暫停訂購中。歡迎隨時透過 LINE 官方帳號私訊，將為您確認。
+                        </p>
+                        <div class="mt-auto flex flex-col gap-3"> <!-- 按鈕容器 -->
+                            <a href="https://lin.ee/QJU5mUO" target="_blank" class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-medium hover:bg-opacity-90 transition duration-300">
+                                私訊詢問抹茶
+                            </a>
+                            <!-- 新增按鈕 -->
+                            <a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition duration-300">
+                                查看抹茶代購狀況
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 服務卡片 2: 日本代購 (已移除) -->
+                    
+                    <!-- 服務卡片 3: 日本電話代打 -->
+                    <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col">
+                        <div class="text-6xl mb-4">📞</div>
+                        <h3 class="text-xl font-semibold mb-3">日本電話代打</h3>
+                        <p class="text-gray-600 mb-6 flex-grow">
+                            跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務，讓您的日本之行游刃有餘。
+                        </p>
+                        <div class="mt-auto"> <!-- 按鈕容器 (確保對齊) -->
+                            <a href="https://sites.google.com/view/keicha/denwa" target="_blank" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300">
+                                查看服務詳情
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 服務實績 -->
+        <section id="cases" class="py-16 md:py-24 bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+                <h2 class="text-3xl font-bold text-center mb-6">服務實績</h2>
+                <p class="text-center text-gray-600 mb-10">我們已成功協助眾多客戶處理日本大小事宜：</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 text-lg">
+                    <!-- 使用 ul/li 列表呈現案例 -->
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>炉ばた焼ウタリ</code> 餐廳預約</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span>登別溫泉旅館 詢問取消費用事宜</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>ヒヨク之トリ</code> (燒肉店) 餐廳預約</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>能登屋旅館</code> 停車資訊詢問</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>よろにく</code> (燒肉店) 預約取消</span>
+                        </li>
+                    </ul>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span>熱海花火大會 觀覽船預約</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>民宿ムラナカ</code> 預約詢問</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>三嶋亭</code> (壽喜燒) 餐廳預約詢問</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>涸沢ヒュッテ</code> (上高地山小屋) 住宿預約</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-brandGreen font-bold mr-2 mt-1 flex-shrink-0">✓</span>
+                            <span><code>燒肉五苑</code> 餐廳取消預約</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 聯絡我們 (LINE) -->
+        <!-- 注意：這個區塊的資訊將被整合到新的 Footer 中，您可以選擇保留或刪除 -->
+        <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
+                <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
+                
+                <!-- LINE 加入好友按鈕 -->
+                <a href="https://lin.ee/QJU5mUO" target="_blank" class="inline-block mb-4 transition-transform hover:scale-105">
+                    <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+                </a>
+                
+                <p class="text-gray-600">或手動輸入 ID: </p>
+                        <input type="text" value="@366qwylw" readonly 
+                               onclick="this.select()" 
+                               class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer" 
+                               title="點擊選取 ID">
+        </section>
+
+    </main>
+
+    <!-- 頁尾 (注意事項) - 已更新為包含所有資訊的新 Footer -->
+    <footer id="notice" class="bg-gray-800 text-gray-300 py-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                
+                <!-- 服務連結 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
+                    <ul class="space-y-3">
+                        <li><a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
+                        <li><a href="https://sites.google.com/view/keicha/denwa" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
+                    </ul>
+                </div>
+
+                <!-- 付款方式 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
+                    <ul class="space-y-3">
+                        <li><a href="https://pcpay.tw/NF4vv" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
+                        <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
+                    </ul>
+                </div>
+
+                <!-- 購買須知 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="text-gray-400">
+                            <span class="font-medium text-gray-200">・出貨時間：</span>
+                            預購商品下單後約15~20天內出貨。
+                        </li>
+                        <li class_Hant="text-gray-400">
+                            <span class="font-medium text-gray-200">・客製訂購：</span>
+                            歡迎聯繫訂購其他抹茶品項。
+                        </li>
+                        <li class="text-gray-400">
+                            <span class="font-medium text-gray-200">・退換政策：</span>
+                            預購商品不適用猶豫期，恕不接受取消或退貨。
+                        </li>
+                        <li class="text-gray-400">
+                            <span class="font-medium text-gray-200">・付款方式：</span>
+                            代購採 7-11 貨到付款；代撥服務採線上刷卡。
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 聯絡資訊 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">聯絡資訊</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li>
+                            <span class="font-medium text-gray-200">Email:</span><br>
+                            <a href="mailto:keicha.nihoncha@gmail.com" class="hover:text-white hover:underline">keicha.nihoncha@gmail.com</a>
+                        </li>
+                        <li>
+                            <span class="font-medium text-gray-200">LINE ID:</span><br>
+                            @366qwylw
+                        </li>
+                        <li class="mt-4">
+                            <img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 官方帳號" class="w-24 h-24 rounded-lg">
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+            
+            <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700">
+                &copy; 2024 KEICHA. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
+
