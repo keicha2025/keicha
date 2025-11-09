@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ★★★ SEO 優化 (denwa.html 專屬) ★★★ -->
+    <!-- 1. 標題 (Title) -->
+    <title>KEICHA 電話代播服務 | 日本餐廳預約、活動代訂</title>
+    <!-- 2. 描述 (Description) -->
+    <meta name="description" content="KEICHA 提供專業的日本電話代播服務，跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務。">
+    <!-- 3. 關鍵字 (Keywords) -->
+    <meta name="keywords" content="KEICHA, 電話代播, 電話代打, 日文電話, 餐廳預約, 日本預約, 日本代訂">
+    <!-- 4. Google 網站驗證 -->
+    <meta name="google-site-verification" content="rK15shxYyikAOEYfHB_ZzRr9fJTsXkyciZmwZtYyJT0" />
+    
+    <!-- 5. Open Graph (OG) 社交分享標籤 (★ 已修正) -->
+    <meta property="og:title" content="KEICHA 電話代播服務">
+    <meta property="og:description" content="跨越語言障礙，為您代訂日本餐廳、預約活動。">
+    <meta property="og:type" content="website">
+    <!-- ★ 修正 og:image 路徑，指向您的 LOGO 絕對路徑 -->
+    <meta property="og:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
+    <meta property="og:url" content="https://keicha2025.github.io/keicha/denwa.html"> <!-- ★ 假設的網站絕對路徑 -->
+    <meta property="og:site_name" content="KEICHA">
+
+    <!-- 6. Twitter Card (可選，但建議) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KEICHA 電話代播服務">
+    <meta name="twitter:description" content="跨越語言障礙，為您代訂日本餐廳、預約活動。">
+    <meta name="twitter:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
+    <!-- ★★★ SEO 結束 ★★★ -->
+
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 自訂 Tailwind 顏色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#6ea44c',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 載入 Inter 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body, html {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+            scroll-behavior: smooth;
+        }
+        /* 導覽列下拉選單 */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        /* 手機選單 */
+        .mobile-menu[data-state="open"] {
+            display: block;
+        }
+        .mobile-menu[data-state="closed"] {
+            display: none;
+        }
+
+        /* denwa.html 頁面專用樣式 */
+        .nav-link.active {
+            background-color: #6ea44c; /* brandGreen */
+            color: white;
+            font-weight: 600;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .slider-dot.active {
+            background-color: #6ea44c; /* brandGreen */
+            opacity: 1;
+        }
+        .slider-slide img {
+            max-height: 500px;
+            margin: 0 auto;
+            width: auto;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="text-slate-800 bg-slate-50">
+
+    <!-- ==== 導覽列 (★ 已修正) ==== -->
+    <header class="bg-white shadow-md sticky top-0 z-50 h-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex justify-between items-center">
+            
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center">
+                <img src="images/KEICHA_LOGO_chuuouzoroe.jpg" alt="KEICHA Logo" class="h-14">
+            </a>
+
+            <!-- 電腦版導覽列 (md 以上尺寸顯示) -->
+            <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
+                
+                <!-- 1. HOME (下拉選單) -->
+                <div class="relative dropdown">
+                    <button class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50 flex items-center">
+                        <span>HOME</span>
+                        <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <!-- 下拉內容 -->
+                    <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <a href="maccha.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            抹茶代購狀況
+                        </a>
+                        <a href="denwa.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            電話代播服務
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. 貨到付款 (錨點連結 - 返回首頁) -->
+                <a href="index.html#payment" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    貨到付款下單
+                </a>
+
+                <!-- 3. 款項支付 (錨點連結 - 返回首頁) -->
+                <a href="index.html#payment" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    款項支付
+                </a>
+
+                <!-- 4. 分享按鈕 (電腦版) -->
+                <button type="button" id="desktop-share-button" class="p-2 text-gray-700 hover:text-brandGreen rounded-full focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
+                    <span class="sr-only">分享網站</span>
+                    <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
+                </button>
+
+                <!-- 5. LINE 官方客服 (主要按鈕) -->
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="ml-2 inline-block bg-brandGreen text-white px-5 py-2 rounded-full text-base font-medium hover:bg-opacity-90 transition duration-300 shadow">
+                    LINE官方客服
+                </a>
+            </nav>
+
+            <!-- ★ 手機版漢堡選單按鈕 (md 以下尺寸顯示) (★ 已修正) -->
+            <div class="md:hidden flex items-center space-x-2">
+                
+                <!-- 手機版分享按鈕 (固定) -->
+                <button type="button" id="mobile-share-button-fixed" class="p-2 text-gray-700 rounded-full hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
+                    <span class="sr-only">分享網站</span>
+                    <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
+                </button>
+
+                <!-- 漢堡選單按鈕 -->
+                <button id="mobile-menu-button" class="p-2 text-gray-700 rounded-md hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen">
+                    <span class="sr-only">開啟選單</span>
+                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ★ 手機版彈出選單 (預設隱藏) (★ 已修正) -->
+        <div id="mobile-menu" class="mobile-menu md:hidden absolute top-20 left-0 w-full bg-white shadow-lg z-40" data-state="closed">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">HOME</a>
+                <a href="maccha.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">抹茶代購狀況</a>
+                <a href="denwa.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">電話代播服務</a>
+                <a href="index.html#payment" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">貨到付款下單</a>
+                <a href="index.html#payment" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">款項支付</a>
+                
+                <!-- ★ 已移除選單內的分享按鈕 -->
+
+                <hr class="my-2">
+                
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-brandGreen text-white px-4 py-2 rounded-md text-base font-medium hover:bg-opacity-90">
+                    LINE官方客服
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==== 頁面主要內容 ==== -->
+    <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">KEICHA 電話代撥服務</h1>
+            <p class="mt-2 text-slate-600">感謝您選擇 KEICHA，請在使用服務前詳閱以下條款並完成支付。</p>
+        </header>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sticky Navigation -->
+            <aside class="md:w-1/4 lg:w-1/5 md:sticky md:top-28 self-start"> <!-- 調整 top-28 (20 + 8) -->
+                <nav id="toc-nav" class="bg-white rounded-lg shadow-sm p-4">
+                    <h3 class="font-semibold text-lg mb-3 text-slate-700">頁面導覽</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#section-payment" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200 font-bold">服務費用支付</a></li>
+                        <li><a href="#section-terms" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務條款與介紹</a></li>
+                        <li><a href="#section-privacy" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">隱私權條款</a></li>
+                        <li><a href="#section-contact" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">聯絡方式</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="md:w-3/4 lg:w-4/5">
+                <div class="space-y-10">
+                    <section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm"> <!-- 調整 scroll-mt-28 -->
+                        <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
+                        <p class="text-slate-600 mb-6">請根據您的需求選擇支付方案。所有服務皆須先支付預付款。若有疑問，請先洽詢官方客服。</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center justify-items-center text-center">
+                            <div>
+                                <h3 class="font-semibold mb-2">預付款 (50元)</h3>
+                                <a href="https://pcpay.tw/EhQGv" target="_blank" rel="noopener noreferrer"><img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款50元"/></a>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2">基本方案 (160元)</h3>
+                                <a href="https://pcpay.tw/ovM39" target="_blank" rel="noopener noreferrer"><img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款+基本費率160元"/></a>
+                                <p class="text-xs text-slate-500 mt-1">(含50元預付款)</p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2">補款及尾款</h3>
+                                <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer"><img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付補款及尾款"/></a>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2">官方客服</h3>
+                                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
+                                <p class="text-xs text-slate-500 mt-1">LINE ID：@366qwylw</p>
+                            </div>
+                        </div>
+                       <div class="mt-8 pt-6 border-t border-slate-200 text-center">
+                           <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請手動複製以下通用付款連結至瀏覽器開啟，並可自行輸入金額：</p>
+                           <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" style="width:100%; max-width:400px; padding:10px; font-size:14px; background-color:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; text-align:center;">
+                           <p class="text-sm text-slate-500 mt-2">謝謝您</p>
+                       </div>
+                    </section>
+
+                    <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm"> <!-- 調整 scroll-mt-28 -->
+                        <h2 class="text-2xl font-bold text-brandGreen mb-6">服務條款與介紹</h2>
+                        
+                        <!-- 服務內容 -->
+                        <div class="service-subsection">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">服務內容</h3>
+                            <div class="space-y-4 text-slate-700">
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2 flex items-center">
+                                        <!-- ★ 相對路徑 ICON -->
+                                        <img src="images/KEICHA_icon_denwa.png" alt="電話代播" class="h-8 w-8 mr-3">
+                                        日本電話代撥服務
+                                    </h4>
+                                    <p class="mb-2">協助您處理以下單次可完成的日文溝通需求：</p>
+                                    <ul class="list-disc list-inside space-y-1 pl-4">
+                                        <li>餐廳訂位、預訂變更或取消。</li>
+                                        <li>向商家（飯店、餐廳等）進行各類詢問。</li>
+                                        <li>其他需要日文溝通的代辦事項。</li>
+                                    </ul>
+                                </div>
+                                <div class="border-t pt-4">
+                                    <h4 class="text-lg font-semibold mb-2 flex items-center"><span class="text-2xl mr-3">🌐</span>網路代訂服務</h4>
+                                    <ul class="list-disc list-inside space-y-1 pl-4">
+                                        <li>代為操作日本網站進行餐廳、飯店等預訂。</li>
+                                        <li><strong>服務限制：</strong>僅限無須事先付款、或由本店代為付款的內容。所有後續的兌換、現場付款、領取等操作、均須由客戶自行處理。</li>
+                                        <li><strong>服務包含：</strong>訂單完成後、提供簡要的中文翻譯說明。</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg mt-4">
+                                    <h4 class="text-lg font-semibold text-red-800 mb-2">無法受理之服務</h4>
+                                    <p class="text-red-700">請於下單前確認，若下單後發現屬於此類，將依退款規則處理：</p>
+                                    <ul class="list-disc list-inside space-y-1 pl-4 text-red-700 mt-2">
+                                        <li>撥打非商家之私人電話。</li>
+                                        <li>依法規或商家規定，需本人親自辦理之業務。</li>
+                                        <li>無法接收國際來電之商家。</li>
+                                        <li>各類網路平台、App 註冊所需之電話號碼認證服務。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 服務實績 -->
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">服務實績</h3>
+                            <p class="text-slate-600 mb-4">我們已成功協助眾多客戶處理日本大小事宜：</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-slate-700">
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>炉ばた焼ウタリ 餐廳預約</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>登別溫泉旅館 詢問取消費用事宜</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>ヒヨク之トリ (燒肉店) 餐廳預約</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>能登屋旅館 停車資訊詢問</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>よろにく (燒肉店) 預約取消</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>熱海花火大會 觀覽船預約</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>民宿ムラナカ 預約詢問</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>三嶋亭 (壽喜燒) 餐廳預約詢問</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>涸沢ヒュッテ (上高地山小屋) 住宿預約</div>
+                                <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>燒肉五苑 餐廳取消預約</div>
+                            </div>
+
+                            <!-- Carousel Start -->
+                            <div id="slider-container" class="relative w-full max-w-2xl mx-auto rounded-lg overflow-hidden shadow-lg bg-gray-100 mt-8">
+                                <!-- Slider Wrapper -->
+                                <div id="slider-wrapper" class="flex transition-transform duration-500 ease-in-out">
+                                    <!-- Slide 1 -->
+                                    <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
+                                        <!-- ★ 相對路徑圖片 -->
+                                        <img src="images/keicha_電話代播_服務案例1.jpg" alt="服務案例1" class="w-full h-full object-contain">
+                                    </div>
+                                    <!-- Slide 2 -->
+                                    <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
+                                        <!-- ★ 相對路徑圖片 -->
+                                        <img src="images/keicha_電話代播_服務案例2.jpg" alt="服務案例2" class="w-full h-full object-contain">
+                                    </div>
+                                </div>
+                                
+                                <!-- Prev/Next Buttons -->
+                                <button id="slider-prev" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
+                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                </button>
+                                <button id="slider-next" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
+                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                
+                                <!-- Dots -->
+                                <div id="slider-dots" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                                    <button class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
+                                    <button class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
+                                </div>
+                            </div>
+                            <!-- Carousel End -->
+                        </div>
+
+                        <!-- 費用與支付 -->
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">服務費用與支付方式</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700">
+                                <div class="bg-slate-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-lg mb-2">支付方式</h4>
+                                    <p>所有服務皆透過 <strong>信用卡</strong> 付款。</p>
+                                </div>
+                                <div class="bg-slate-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-lg mb-2">預付款（行政處理費）</h4>
+                                    <p>所有訂單均須先支付預付款 <strong>新台幣 50 元</strong>。此費用訂單受理後概不退還。</p>
+                                </div>
+                                <div class="bg-[#f0f6ec] p-4 rounded-lg md:col-span-2">
+                                    <h4 class="font-semibold text-lg text-brandGreen mb-2">服務費用標準</h4>
+                                    <div class="space-y-2">
+                                        <p><strong>📞 電話代撥：</strong>每通 7 分鐘內 <strong>NT$160</strong>。超過部分每 10 分鐘加收 <strong>NT$200</strong>。</p>
+                                        <p><strong>🌐 網路代訂：</strong>每筆訂單（單次操作）<strong>NT$150</strong>。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t pt-4">
+                                <h4 class="font-semibold text-lg mb-2">計費原則</h4>
+                                <ul class="list-disc list-inside space-y-1 pl-4">
+                                    <li>電話代撥以「<strong>每通電話</strong>」為單位計費。</li>
+                                    <li>若需再次致電，將視為一筆新服務訂單，並重新計費（包含預付款與服務尾款）。</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 變更與取消 -->
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">變更訂位與取消相關</h3>
+                            <div class="space-y-4 text-slate-700">
+                                <p>訂單成立後，若客戶需要變更原先提供的預約資訊或需本店再次聯繫店家，均視為一筆 <strong>新服務訂單</strong>，需另行支付全額服務費用。</p>
+                                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                                    <h4 class="font-semibold text-amber-800">商家取消費用</h4>
+                                    <p class="text-amber-700">若因取消預訂而產生商家取消費，該費用將由 <strong>客戶全額負擔</strong>。若商家向本店請求支付，本店保留向客戶求償該筆實付金額之權利。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 退款規則 -->
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">退款規則</h3>
+                            <div class="space-y-3">
+                                <div class="accordion-item">
+                                    <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                        <span>不予退款之情況</span>
+                                        <span class="transform transition-transform duration-300">▼</span>
+                                    </button>
+                                    <div class="accordion-content">
+                                        <div class="p-4 bg-white border rounded-b-lg">
+                                            <p>除「部分退款」所列情況外，凡電話成功接通商家，無論最終結果如何，所有已付費用（含預付款及服務尾款）<strong>概不退還</strong>。</p>
+                                            <p class="mt-2 text-sm text-slate-500">服務費用為支付本店「代撥/代訂行為」所耗費之時間與人力成本，並不保證「預訂必然成功」。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                        <span>部分退款之情況</span>
+                                        <span class="transform transition-transform duration-300">▼</span>
+                                    </button>
+                                    <div class="accordion-content">
+                                        <div class="p-4 bg-white border rounded-b-lg">
+                                            <p>僅限發生以下情況時，本店將收取「<strong>服務尾款之一半</strong>」，預付款 50 元恕不退還：</p>
+                                            <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
+                                                <li>於商家公告之營業時間内，本店連續撥打三次，商家均無人接聽。</li>
+                                                <li>商家表示不接受代撥、代訂服務或不接受電話預約。</li>
+                                                <li>商家無法接收或不接受國際電話。</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 免責聲明 -->
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">免責聲明</h3>
+                            <div class="space-y-4 text-slate-700">
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-1">資訊正確性</h4>
+                                    <p>客戶應確保提供所有預訂資訊之完整性與正確性。若因資訊錯誤導致預訂失敗、權益受損或產生額外費用，本店概不負責。</p>
+                                </div>
+                                <div class="border-t pt-4">
+                                    <h4 class="font-semibold text-lg mb-1">服務性質</h4>
+                                    <p>本店僅提供「代客溝通」及「代客操作」之服務。所有預訂之履約、服務品質等，均由您與該商家負責。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="section-privacy" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm"> <!-- 調整 scroll-mt-28 -->
+                        <h2 class="text-2xl font-bold text-brandGreen mb-4">隱私權條款</h2>
+                        <p class="text-slate-600 mb-6">本店非常重視您的個人隱私與資料保護，為了讓您安心使用本服務，向您說明我們如何蒐集、使用及保護您的個人資訊。</p>
+                        <div class="space-y-3">
+                            <div class="accordion-item">
+                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                    <span>一、資料蒐集方式</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 bg-white border rounded-b-lg">
+                                        <p>為完成交易需提供的聯絡資訊（如姓名、電話、電子郵件等）。</p>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="accordion-item">
+                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                    <span>二、資料使用範圍</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 bg-white border rounded-b-lg">
+                                        <ul class="list-disc list-inside space-y-1 pl-4">
+                                            <li>處理您的訂單與服務需求</li>
+                                            <li>聯繫您以確認或通知交易進度</li>
+                                            <li>回覆您的問題或提供售後服務</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="accordion-item">
+                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                    <span>三、資料保護與安全</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 bg-white border rounded-b-lg">
+                                        <p>我們會採取合理的安全措施保護您的個人資料，您的個資使用僅限於完成服務所需。</p>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="accordion-item">
+                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                    <span>四、第三方服務</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 bg-white border rounded-b-lg">
+                                        <p>電話代撥服務可能涉及第三方平台（如餐廳、飯店、交通機構等），在這些平台上的個人資料使用，將依該平台的隱私政策處理，本商店不負擔第三方服務隱私風險之責任。</p>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="accordion-item">
+                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                    <span>五、權益聲明</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 bg-white border rounded-b-lg">
+                                        <p>您可隨時要求查詢、更正或刪除您的個人資料。如您對本條款有任何疑問，請與我們聯繫。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center"> <!-- 調整 scroll-mt-28 -->
+                        <h2 class="text-2xl font-bold text-brandGreen mb-4">聯絡方式</h2>
+                        <p class="mb-4 text-slate-600">本店保留隨時修改本服務條款之權利，修改後將公布於本網站。</p>
+                        <p class="font-semibold mb-2">若有任何服務疑問，請透過官方客服聯繫：</p>
+                        <div class="inline-block">
+                            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
+                        </div>
+                        <p class="mt-4 text-slate-600 text-sm">如按鈕無法開啟，請手動輸入ID加入官方客服：</p>
+                        <input type="text" value="@366qwylw" readonly
+                               onclick="this.select()"
+                               class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                               title="點擊選取 ID">
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ==== 頁尾 ==== -->
+    <footer id="notice" class="bg-gray-800 text-gray-300 py-16 mt-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                
+                <!-- 服務連結 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
+                    <ul class="space-y-3">
+                        <li><a href="maccha.html" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
+                        <li><a href="denwa.html" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
+                    </ul>
+                </div>
+
+                <!-- 付款方式 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
+                    <ul class="space-y-3">
+                        <li><a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
+                        <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
+                    </ul>
+                </div>
+
+                <!-- 購買須知 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="text-gray-400">
+                            <span class="font-medium text-gray-200">・出貨時間：</span>
+                            預購商品下單後約15~20天內出貨。
+                        </li>
+                        <li class="text-gray-400">
+                            <span class="font-medium text-gray-200">・客製訂購：</span>
+                            歡迎聯繫訂購其他抹茶品項。
+                        </li>
+                        <li class="text-gray-400">
+                            <span class="font-medium text-gray-200">・退換政策：</span>
+                            預購商品不適用猶豫期，恕不接受取消或退貨。
+                        </li>
+                        <li class="text-gray-400">
+                            <span class="font-medium text-gray-200">・付款方式：</span>
+                            代購採 7-11 貨到付款；代撥服務採線上刷卡。
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 聯絡資訊 -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">聯絡資訊</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li>
+                            <span class="font-medium text-gray-200">Email:</span><br>
+                            <a href="mailto:keicha.nihoncha@gmail.com" class="hover:text-white hover:underline">keicha.nihoncha@gmail.com</a>
+                        </li>
+                        <li>
+                            <span class="font-medium text-gray-200">LINE ID:</span><br>
+                            @366qwylw
+                        </li>
+                        <li class="mt-4">
+                            <img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 官方帳號" class="w-24 h-24 rounded-lg">
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+            
+            <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700">
+                &copy; 2024 KEICHA. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ==== Javascript (★ 已合併) ==== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- [NEW] 導覽列邏輯 (手機選單) ---
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (menuButton) {
+                menuButton.addEventListener('click', () => {
+                    const currentState = mobileMenu.getAttribute('data-state');
+                    if (currentState === 'closed') {
+                        mobileMenu.setAttribute('data-state', 'open');
+                    } else {
+                        mobileMenu.setAttribute('data-state', 'closed');
+                    }
+                });
+            }
+
+            // --- [NEW] Web Share API 邏輯 ---
+            const desktopShareButton = document.getElementById('desktop-share-button');
+            const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
+            
+            const shareData = {
+                title: document.title, // 抓取此頁面的 <title>
+                text: 'KEICHA 電話代播服務 - 跨越語言障礙，為您代訂日本餐廳、預約活動。',
+                url: window.location.href // 抓取此頁面的完整網址
+            };
+
+            if (navigator.share) {
+                const showShareButton = (button) => {
+                    if (button) {
+                        button.classList.remove('hidden'); // 顯示按鈕
+                        button.addEventListener('click', async () => {
+                            try {
+                                await navigator.share(shareData);
+                                console.log('網站分享成功');
+                            } catch (err) {
+                                console.error('分享失敗: ', err);
+                            }
+                        });
+                    }
+                };
+                showShareButton(desktopShareButton);
+                showShareButton(mobileShareButtonFixed);
+            } else {
+                console.log('此瀏覽器不支援 Web Share API');
+            }
+
+            // --- [EXISTING] 頁面內部導覽 (TOC) 邏輯 ---
+            const sections = document.querySelectorAll('section[id^="section-"]'); // 更精確的選擇器
+            const navLinks = document.querySelectorAll('.nav-link');
+            const tocNav = document.getElementById('toc-nav');
+
+            if (tocNav && sections.length > 0 && navLinks.length > 0) {
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '-80px 0px -40% 0px', // 調整觸發範圍
+                    threshold: 0
+                };
+
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        const id = entry.target.getAttribute('id');
+                        const navLink = tocNav.querySelector(`a[href="#${id}"]`);
+                        
+                        if (entry.isIntersecting) {
+                            // 當區塊進入視窗
+                            navLinks.forEach(link => link.classList.remove('active'));
+                            if (navLink) {
+                                navLink.classList.add('active');
+                            }
+                        }
+                    });
+                }, observerOptions);
+
+                sections.forEach(section => {
+                    observer.observe(section);
+                });
+                
+                tocNav.addEventListener('click', (e) => {
+                    if(e.target.tagName === 'A') {
+                        e.preventDefault();
+                        const targetId = e.target.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        if(targetElement) {
+                            // 手動滾動到頂部，保留 sticky 導覽列的高度
+                            const headerOffset = 90; // 80px (導覽列) + 10px (間距)
+                            const elementPosition = targetElement.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            }
+
+            // --- [EXISTING] 輪播圖 (Slider) 邏輯 ---
+            const sliderWrapper = document.getElementById('slider-wrapper');
+            if (sliderWrapper) {
+                const slides = document.querySelectorAll('.slider-slide');
+                const prevBtn = document.getElementById('slider-prev');
+                const nextBtn = document.getElementById('slider-next');
+                const dots = document.querySelectorAll('.slider-dot');
+                
+                let currentSlide = 0;
+                const slideCount = slides.length;
+
+                const goToSlide = (slideIndex) => {
+                    if (slideCount === 0) return; // 避免沒有圖片時出錯
+                    if (slideIndex < 0) {
+                        slideIndex = slideCount - 1;
+                    } else if (slideIndex >= slideCount) {
+                        slideIndex = 0;
+                    }
+                    
+                    sliderWrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
+                    currentSlide = slideIndex;
+                    updateDots();
+                };
+
+                const updateDots = () => {
+                    dots.forEach((dot, index) => {
+                        if (index === currentSlide) {
+                            dot.classList.add('active', 'bg-brandGreen');
+                            dot.classList.remove('bg-white', 'bg-opacity-50');
+                        } else {
+                            dot.classList.remove('active', 'bg-brandGreen');
+                            dot.classList.add('bg-white', 'bg-opacity-50');
+                        }
+                    });
+                };
+
+                prevBtn.addEventListener('click', () => {
+                    goToSlide(currentSlide - 1);
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    goToSlide(currentSlide + 1);
+                });
+
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        goToSlide(index);
+                    });
+                });
+
+                // Initialize
+                goToSlide(0);
+            }
+            
+            // --- [EXISTING] 折疊選單 (Accordion) 邏輯 ---
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            if (accordionItems.length > 0) {
+                accordionItems.forEach(item => {
+                    const header = item.querySelector('.accordion-header');
+                    const content = item.querySelector('.accordion-content');
+                    const icon = header.querySelector('span:last-child'); // 抓取 '▼'
+                    
+                    header.addEventListener('click', () => {
+                        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+                        
+                        if (isOpen) {
+                            content.style.maxHeight = '0px';
+                            icon.style.transform = 'rotate(0deg)';
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                            icon.style.transform = 'rotate(180deg)';
+                        }
+                    });
+                });
+            }
+
+        });
+    </script>
+
+</body>
+</html>
