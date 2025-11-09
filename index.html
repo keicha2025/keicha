@@ -1,12 +1,43 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" class="scroll-smooth"> <!-- 'scroll-smooth' 已移至此處 -->
 <head>
     <meta charset="UTF-8">
+    
+    <!-- 1. SEO 基礎優化 -->
+    <title>KEICHA - 日本代購 | 抹茶選品 | 電話代播服務</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KEICHA - 專注細節，日本直送</title>
+    
+    <!-- 
+      SEO 描述 (Description): 這是顯示在 Google 搜尋結果的灰色文字，非常重要。
+    -->
+    <meta name="description" content="KEICHA 提供專業的日本代購服務與日本餐廳預約等電話代播服務。提供線上刷卡與7-11貨到付款。">
+    
+    <!-- 
+      SEO 關鍵字 (Keywords): 輔助 Google 了解頁面內容。
+    -->
+    <meta name="keywords" content="KEICHA, 日本代購, 抹茶代購, 電話代播, 日本餐廳預約, 日本抹茶, 山政小山園, 上林春松">
+
+    <!-- 
+      2. 社交媒體 (Open Graph) 優化 
+      當您將網址貼到 LINE, Facebook, IG 時，會顯示這些資訊。
+    -->
+    <meta property="og:title" content="KEICHA - 日本代購 | 抹茶選品 | 電話代播服務">
+    <meta property="og:description" content="KEICHA 提供專業的日本代購服務，專精於抹茶選品與電話代播。">
+    <meta property="og:type" content="website">
+    <!-- 
+      TODO: 請將 'YOUR_GITHUB_USERNAME' 和 'YOUR_REPO_NAME' 換成您的 GitHub 資訊
+      並確保 'og-preview.jpg' 圖片已上傳到您的 'images' 資料夾 
+    -->
+    <!-- 
+    <meta property="og:image" content="https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/images/og-preview.jpg">
+    <meta property="og:url" content="https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/">
+    -->
+    <meta property="og:site_name" content="KEICHA">
+
     <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 載入 Inter 字體 -->
+    
+    <!-- 載入字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -14,12 +45,27 @@
     <style>
         /* 應用字體 */
         html {
+            /* scroll-padding-top: 
+              讓頁面滾動到錨點 (如 #payment) 時，不會被頂部的導覽列擋住。
+              h-20 (導覽列高度) = 5rem 
+            */
             scroll-behavior: smooth;
+            scroll-padding-top: 5rem; 
         }
         body {
             font-family: 'Inter', 'Noto Sans TC', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* [data-state=open] 
+          用於 JavaScript 控制的輔助 class，讓下拉選單顯示 
+        */
+        .dropdown-menu[data-state="closed"] {
+            display: none;
+        }
+        .dropdown-menu[data-state="open"] {
+            display: block;
         }
     </style>
     
@@ -36,10 +82,117 @@
         }
     </script>
 </head>
-<body class="bg-white text-gray-800">
+<body class="bg-white text-gray-800" id="top">
 
-    <!-- 導覽列 (已刪除) -->
-    <!-- <header class="bg-white shadow-md sticky top-0 z-50"> ... </header> -->
+    <!-- 
+      ==== 新增的導覽列 (Header) ==== 
+      - sticky top-0: 固定在頂部
+      - h-20: 高度 80px
+      - z-50: 確保在最上層
+      - md:hidden: 手機版漢堡選單
+      - hidden md:flex: 電腦版導覽列
+    -->
+    <header class="bg-white shadow-md sticky top-0 z-50 h-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex justify-between items-center">
+            
+            <!-- Logo / 網站名稱 -->
+            <a href="#top" class="flex items-center"> <!-- 修改 <a> 標籤 -->
+                <!-- 將文字 LOGO 替換為圖片 -->
+                <img src="https://i.postimg.cc/jSKqfy5j/LOGO-zhi-zhong.jpg" alt="KEICHA Logo" class="h-14"> <!-- h-14 (3.5rem) -->
+            </a>
+
+            <!-- 電腦版導覽列 (md 以上尺寸顯示) -->
+            <nav class="hidden md:flex items-center space-x-3 lg:space-x-5">
+                
+                <!-- HOME (下拉選單) -->
+                <div class="relative">
+                    <!-- 
+                      data-dropdown-toggle: 用於 JS 抓取
+                      aria-haspopup: 增加可訪問性 (Accessibility)
+                    -->
+                    <button type="button" id="desktop-dropdown-button" data-dropdown-toggle="desktop-dropdown-menu" aria-haspopup="true" aria-expanded="false" class="flex items-center px-3 py-2 text-base font-medium text-gray-700 hover:text-brandGreen focus:outline-none">
+                        HOME
+                        <!-- 下拉箭頭 -->
+                        <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <!-- 
+                      下拉式選單內容
+                      - data-state="closed": 預設隱藏 (由 JS 控制)
+                    -->
+                    <div id="desktop-dropdown-menu" data-state="closed" class="dropdown-menu absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none py-1">
+                        <a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" rel="noopener noreferrer" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-brandGreen">
+                            抹茶代購狀況
+                        </a>
+                        <a href="https://sites.google.com/view/keicha/denwa" target="_blank" rel="noopener noreferrer" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-brandGreen">
+                            電話代播服務
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 貨到付款下單 -->
+                <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="px-3 py-2 text-base font-medium text-gray-700 hover:text-brandGreen">
+                    貨到付款下單
+                </a>
+
+                <!-- 款項支付 (錨點連結) -->
+                <a href="#payment" class="px-3 py-2 text-base font-medium text-gray-700 hover:text-brandGreen">
+                    款項支付
+                </a>
+
+                <!-- LINE 官方客服 (主要按鈕) -->
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="ml-2 inline-block bg-brandGreen text-white px-5 py-2 rounded-full text-base font-medium hover:bg-opacity-90 transition duration-300 shadow">
+                    LINE官方客服
+                </a>
+            </nav>
+
+            <!-- 手機版漢堡選單按鈕 (md 以下尺寸顯示) -->
+            <div class="md:hidden">
+                <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brandGreen" aria-controls="mobile-menu" aria-expanded="false">
+                    <span class="sr-only">開啟主選單</span>
+                    <!-- 漢堡圖示 (預設顯示) -->
+                    <svg id="icon-open" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <!-- 關閉圖示 (預設隱藏) -->
+                    <svg id="icon-close" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 手機版彈出選單 (預設隱藏) -->
+        <div class="hidden md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg absolute w-full">
+                <!-- HOME (標題，不可點) -->
+                <span class="block px-3 py-2 rounded-md text-sm font-semibold text-gray-400">HOME</span>
+                <!-- HOME 子項目 -->
+                <a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" rel="noopener noreferrer" class="block pl-6 pr-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    - 抹茶代購狀況
+                </a>
+                <a href="https://sites.google.com/view/keicha/denwa" target="_blank" rel="noopener noreferrer" class="block pl-6 pr-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    - 電話代播服務
+                </a>
+                
+                <hr class="my-2">
+                
+                <!-- 其他連結 -->
+                <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    貨到付款下單
+                </a>
+                <a href="#payment" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
+                    款項支付
+                </a>
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-brandGreen hover:bg-opacity-90">
+                    LINE官方客服
+                </a>
+            </div>
+        </div>
+    </header>
+    <!-- ==== 導覽列結束 ==== -->
+
 
     <main>
         <!-- 1. Hero 主視覺區塊 (已修改) -->
@@ -52,21 +205,19 @@
                 <p class="text-lg md:text-xl mt-2 text-gray-200">日本代購、抹茶選品、電話代打服務</p>
                 
                 <!-- 導覽連結 (新位置) -->
+                <!-- [註記] 這些連結已移至頂部導覽列，但此處保留可作為快速錨點 -->
                 <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 md:gap-x-6 mt-10">
                     <a href="#services" class="text-white font-medium hover:underline" target="_self">服務項目</a>
                     <span class="text-white opacity-50 hidden md:inline">|</span>
-                    <a href="#cases" class.
-="text-white font-medium hover:underline" target="_self">服務實績</a>
+                    <!-- 修正 class. -> class -->
+                    <a href="#cases" class="text-white font-medium hover:underline" target="_self">服務實績</a>
                     <span class="text-white opacity-50 hidden md:inline">|</span>
                     <a href="#payment" class="text-white font-medium hover:underline" target="_self">付款下單</a>
                     <span class="text-white opacity-50 hidden md:inline">|</span>
                     <a href="#notice" class="text-white font-medium hover:underline" target="_self">購買須知</a>
-                    <!-- <a href="https://lin.ee/QJU5mUO" target="_blank" class="ml-0 md:ml-2 bg-white text-brandGreen px-4 py-1 rounded-full font-medium text-sm hover:bg-gray-100 transition duration-300 shadow">
-                        加入 LINE 好友
-                    </a> --> <!-- 重複的按鈕已移除 -->
                 </div>
 
-                <a href="https://lin.ee/QJU5mUO" target="_blank" class="mt-10 inline-block bg-white text-brandGreen px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg">
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="mt-10 inline-block bg-white text-brandGreen px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg">
                     LINE官方客服
                 </a>
             </div>
@@ -74,8 +225,8 @@
 
         <!-- 2. 付款與下單專區 (新區塊) -->
         <section id="payment" class="py-16 md:py-24 bg-gray-50">
-            <div class.
-="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+            <!-- 修正 class. -> class -->
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
                 <h2 class="text-3xl font-bold text-center mb-12">付款與下單專區</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     
@@ -86,14 +237,14 @@
                             <!-- 預付款 -->
                             <div>
                                 <h4 class="font-semibold mb-2">預付款 (50元)</h4>
-                                <a href="https://pcpay.tw/EhQGv" target="_blank" class="inline-block hover:opacity-90 transition-opacity">
+                                <a href="https://pcpay.tw/EhQGv" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-90 transition-opacity">
                                     <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款50元"/>
                                 </a>
                             </div>
                             <!-- 基本方案 -->
                             <div>
                                 <h4 class="font-semibold mb-2">基本方案 (160元)</h4>
-                                <a href="https://pcpay.tw/ovM39" target="_blank" class="inline-block hover:opacity-90 transition-opacity">
+                                <a href="https://pcpay.tw/ovM39" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-90 transition-opacity">
                                     <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="基本費率160元"/>
                                 </a>
                                 <p class="text-xs text-gray-500 mt-1">(含50元預付款)</p>
@@ -101,7 +252,7 @@
                             <!-- 其他費用 -->
                             <div>
                                 <h4 class="font-semibold mb-2">其他費用支付</h4>
-                                <a href="https://pcpay.tw/NF4vv" target="_blank" class="inline-block hover:opacity-90 transition-opacity">
+                                <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-90 transition-opacity">
                                     <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付補款及尾款"/>
                                 </a>
                             </div>
@@ -117,8 +268,7 @@
                     <div class="bg-white p-8 rounded-lg shadow-lg">
                         <h3 class="text-2xl font-semibold text-center mb-8">7-11 貨到付款下單</h3>
                         <div class="text-center">
-                            <!-- 說明文 (已移除) -->
-                            <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
+                            <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
                                 前往 7-11 賣貨便
                             </a>
                         </div>
@@ -147,17 +297,15 @@
                             目前可代購上林春松，也曾代購過辻喜、山政小山園、一保堂等品牌，但目前由於供貨狀況不穩，暫停訂購中。歡迎隨時透過 LINE 官方帳號私訊，將為您確認。
                         </p>
                         <div class="mt-auto flex flex-col gap-3"> <!-- 按鈕容器 -->
-                            <a href="https://lin.ee/QJU5mUO" target="_blank" class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-medium hover:bg-opacity-90 transition duration-300">
+                            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-medium hover:bg-opacity-90 transition duration-300">
                                 私訊詢問抹茶
                             </a>
                             <!-- 新增按鈕 -->
-                            <a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition duration-300">
+                            <a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" rel="noopener noreferrer" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition duration-300">
                                 查看抹茶代購狀況
                             </a>
                         </div>
                     </div>
-                    
-                    <!-- 服務卡片 2: 日本代購 (已移除) -->
                     
                     <!-- 服務卡片 3: 日本電話代打 -->
                     <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col">
@@ -167,7 +315,7 @@
                             跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務，讓您的日本之行游刃有餘。
                         </p>
                         <div class="mt-auto"> <!-- 按鈕容器 (確保對齊) -->
-                            <a href="https://sites.google.com/view/keicha/denwa" target="_blank" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300">
+                            <a href="https://sites.google.com/view/keicha/denwa" target="_blank" rel="noopener noreferrer" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300">
                                 查看服務詳情
                             </a>
                         </div>
@@ -234,22 +382,23 @@
         </section>
 
         <!-- 5. 聯絡我們 (LINE) -->
-        <!-- 注意：這個區塊的資訊將被整合到新的 Footer 中，您可以選擇保留或刪除 -->
         <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
                 <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
                 
                 <!-- LINE 加入好友按鈕 -->
-                <a href="https://lin.ee/QJU5mUO" target="_blank" class="inline-block mb-4 transition-transform hover:scale-105">
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
                     <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
                 </a>
                 
-                <p class="text-gray-600">或手動輸入 ID: </p>
-                        <input type="text" value="@366qwylw" readonly 
-                               onclick="this.select()" 
-                               class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer" 
-                               title="點擊選取 ID">
+                <p class="text-gray-600">或手動輸入 ID:</p>
+                           <input type="text" value="@366qwylw" readonly
+                                  onclick="this.select()"
+                                  class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                                  title="點擊選取 ID"
+                                  onfocus="this.select()"> <!-- 修正 onfocus -->
+            </div>
         </section>
 
     </main>
@@ -263,8 +412,8 @@
                 <div>
                     <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
                     <ul class="space-y-3">
-                        <li><a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
-                        <li><a href="https://sites.google.com/view/keicha/denwa" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
+                        <li><a href="https://sites.google.com/view/keicha/home/maccha" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
+                        <li><a href="https://sites.google.com/view/keicha/denwa" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
                     </ul>
                 </div>
 
@@ -272,8 +421,8 @@
                 <div>
                     <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
                     <ul class="space-y-3">
-                        <li><a href="https://pcpay.tw/NF4vv" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
-                        <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
+                        <li><a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
+                        <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
                     </ul>
                 </div>
 
@@ -285,7 +434,8 @@
                             <span class="font-medium text-gray-200">・出貨時間：</span>
                             預購商品下單後約15~20天內出貨。
                         </li>
-                        <li class_Hant="text-gray-400">
+                        <!-- 修正 class_Hant -> class -->
+                        <li class="text-gray-400">
                             <span class="font-medium text-gray-200">・客製訂購：</span>
                             歡迎聯繫訂購其他抹茶品項。
                         </li>
@@ -326,6 +476,86 @@
         </div>
     </footer>
 
+    <!-- 
+      ==== 導覽列功能 JavaScript ==== 
+      這段程式碼必須放在 </body> 之前
+    -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- 手機選單控制 ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const iconOpen = document.getElementById('icon-open');
+            const iconClose = document.getElementById('icon-close');
+
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+                    this.setAttribute('aria-expanded', !expanded);
+                    
+                    // 切換選單的顯示
+                    mobileMenu.classList.toggle('hidden');
+                    
+                    // 切換圖示的顯示
+                    iconOpen.classList.toggle('hidden');
+                    iconClose.classList.toggle('hidden');
+                });
+            }
+
+            // --- 電腦版下拉選單控制 ---
+            const dropdownButton = document.getElementById('desktop-dropdown-button');
+            const dropdownMenu = document.getElementById('desktop-dropdown-menu');
+
+            if (dropdownButton) {
+                dropdownButton.addEventListener('click', function(event) {
+                    const state = dropdownMenu.getAttribute('data-state');
+                    if (state === 'closed') {
+                        dropdownMenu.setAttribute('data-state', 'open');
+                        this.setAttribute('aria-expanded', 'true');
+                    } else {
+                        dropdownMenu.setAttribute('data-state', 'closed');
+                        this.setAttribute('aria-expanded', 'false');
+                    }
+                    event.stopPropagation(); // 防止觸發 window 點擊事件
+                });
+            }
+
+            // --- 點擊選單外部時，關閉選單 ---
+            window.addEventListener('click', function(event) {
+                // 關閉電腦版下拉選單
+                if (dropdownMenu && dropdownMenu.getAttribute('data-state') === 'open') {
+                    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.setAttribute('data-state', 'closed');
+                        dropdownButton.setAttribute('aria-expanded', 'false');
+                    }
+                }
+
+                // 關閉手機版選單 (如果點擊的是選單外的區域)
+                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                    if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuButton.setAttribute('aria-expanded', 'false');
+                        iconOpen.classList.remove('hidden');
+                        iconClose.classList.add('hidden');
+                    }
+                }
+            });
+
+            // --- 點擊手機選單中的錨點連結時，自動關閉選單 ---
+            if (mobileMenu) {
+                const mobileLinks = mobileMenu.querySelectorAll('a[href^="#"]');
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuButton.setAttribute('aria-expanded', 'false');
+                        iconOpen.classList.remove('hidden');
+                        iconClose.classList.add('hidden');
+                    });
+                });
+            }
+        });
+    </script>
+
 </body>
 </html>
-
