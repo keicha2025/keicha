@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- ★ 新增：Favicon 圖示 -->
+    <link rel="icon" href="images/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="images/favicon.png">
+
     <!-- ★★★ SEO 優化 (denwa.html 專屬) ★★★ -->
     <!-- 1. 標題 (Title) -->
     <title>KEICHA 電話代播服務 | 日本餐廳預約、活動代訂</title>
@@ -242,9 +246,9 @@
                             </div>
                         </div>
                        <div class="mt-8 pt-6 border-t border-slate-200 text-center">
-                           <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請手動複製以下通用付款連結至瀏覽器開啟，並可自行輸入金額：</p>
-                           <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" class="w-full max-w-md p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
-                           <p class="text-sm text-slate-500 mt-2">謝謝您</p>
+                            <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請手動複製以下通用付款連結至瀏覽器開啟，並可自行輸入金額：</p>
+                            <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" class="w-full max-w-md p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
+                            <p class="text-sm text-slate-500 mt-2">謝謝您</p>
                        </div>
                     </section>
 
@@ -434,68 +438,144 @@
                     <section id="section-privacy" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm"> <!-- 調整 scroll-mt-28 -->
                         <h2 class="text-2xl font-bold text-brandGreen mb-4">隱私權條款</h2>
                         <p class="text-slate-600 mb-6">本店非常重視您的個人隱私與資料保護，為了讓您安心使用本服務，向您說明我們如何蒐集、使用及保護您的個人資訊。</p>
+
                         <div class="space-y-3">
-                            <div class="accordion-item">
-                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                    <span>一、資料蒐集方式</span>
-                                    <span class="transform transition-transform duration-300">▼</span>
-                                </button>
-                                <div class="accordion-content">
-                                    <div class="p-4 bg-white border rounded-b-lg">
-                                        <p>為完成交易需提供的聯絡資訊（如姓名、電話、電子郵件等）。</p>
-                                    </div>
-                                </div>
+                        
+                        <!-- 一、資料蒐集方式與項目 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>一、資料蒐集方式與項目</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <p>當您使用本服務時，我們可能會蒐集下列個人資料：</p>
+                              <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
+                                <li>聯絡資訊（如姓名、電話、電子郵件、地址等）</li>
+                                <li>交易資訊（如訂單內容、付款紀錄、配送資訊）</li>
+                                <li>網站使用資料（如瀏覽行為、IP位址、Cookie資訊）</li>
+                              </ul>
+                              <p class="mt-2">資料可能透過線上表單、訂購流程或客服聯繫等方式蒐集。</p>
                             </div>
-                             <div class="accordion-item">
-                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                    <span>二、資料使用範圍</span>
-                                    <span class="transform transition-transform duration-300">▼</span>
-                                </button>
-                                <div class="accordion-content">
-                                    <div class="p-4 bg-white border rounded-b-lg">
-                                        <ul class="list-disc list-inside space-y-1 pl-4">
-                                            <li>處理您的訂單與服務需求</li>
-                                            <li>聯繫您以確認或通知交易進度</li>
-                                            <li>回覆您的問題或提供售後服務</li>
-                                        </ul>
-                                    </div>
-                                </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 二、資料使用範圍 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>二、資料使用範圍</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>處理您的訂單與服務需求</li>
+                                <li>聯繫您以確認或通知交易進度</li>
+                                <li>回覆您的問題或提供售後服務</li>
+                                <li>改善網站服務與使用者體驗</li>
+                              </ul>
                             </div>
-                             <div class="accordion-item">
-                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                    <span>三、資料保護與安全</span>
-                                    <span class="transform transition-transform duration-300">▼</span>
-                                </button>
-                                <div class="accordion-content">
-                                    <div class="p-4 bg-white border rounded-b-lg">
-                                        <p>我們會採取合理的安全措施保護您的個人資料，您的個資使用僅限於完成服務所需。</p>
-                                    </div>
-                                </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 三、資料保存期間 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>三、資料保存期間</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <p>
+                                我們僅在達成蒐集目的所需期間內保存您的個人資料，或依相關法律規定保存最短必要期間。期滿後將採取安全刪除或匿名化處理。
+                              </p>
                             </div>
-                             <div class="accordion-item">
-                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                    <span>四、第三方服務</span>
-                                    <span class="transform transition-transform duration-300">▼</span>
-                                </button>
-                                <div class="accordion-content">
-                                    <div class="p-4 bg-white border rounded-b-lg">
-                                        <p>電話代撥服務可能涉及第三方平台（如餐廳、飯店、交通機構等），在這些平台上的個人資料使用，將依該平台的隱私政策處理，本商店不負擔第三方服務隱私風險之責任。</p>
-                                    </div>
-                                </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 四、資料保護與安全 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>四、資料保護與安全</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <p>
+                                我們採取合理的安全措施以保護您的個人資料，並限制資料的存取權限僅限於執行業務所需的相關人員。
+                              </p>
                             </div>
-                             <div class="accordion-item">
-                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                    <span>五、權益聲明</span>
-                                    <span class="transform transition-transform duration-300">▼</span>
-                                </button>
-                                <div class="accordion-content">
-                                    <div class="p-4 bg-white border rounded-b-lg">
-                                        <p>您可隨時要求查詢、更正或刪除您的個人資料。如您對本條款有任何疑問，請與我們聯繫。</p>
-                                    </div>
-                                </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 五、第三方服務與資料提供 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>五、第三方服務與資料提供</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <p>
+                                為完成交易與服務，我們可能在必要範圍內將您的資料提供給第三方（如金流服務商、物流公司）。 	
+                                本商店的部分服務可能透過第三方平台（如餐廳、飯店、交通機構等）提供，當您使用該等平台時，您的資料將依該平台之隱私政策處理。
+                              </p>
                             </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 六、Cookie 與追蹤技術 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>六、Cookie 與追蹤技術</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <p>
+                                為提升使用體驗，本網站可能使用 Cookie 或網站分析工具，以了解瀏覽行為並改善服務。 	
+                                您可於瀏覽器設定中停用 Cookie，但部分功能可能因此無法正常運作。
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 七、使用者權利 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>七、使用者權利</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <p>
+                                您可隨時依個人資料保護法規定，要求查詢、更正、刪除或停止使用您的個人資料。 	
+                                如有相關需求，請依下方聯絡方式與我們聯繫。
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- 八、聯絡我們 -->
+                        <div class="accordion-item">
+                          <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                            <span>八、聯絡我們</span>
+                            <span class="transform transition-transform duration-300">▼</span>
+                          </button>
+                          <div class="accordion-content">
+                            <div class="p-4 bg-white border rounded-b-lg">
+                              <p>若您對本隱私權條款有任何疑問，或欲行使您的個資權利，請與我們聯絡：</p>
+                              <ul class="list-disc list-inside pl-4 mt-2">
+                                <li>電子郵件：keicha.nihoncha@gmail.com</li>
+                                <li>LINE ID：@366qwylw</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        
                         </div>
                     </section>
+
 
                     <section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center"> <!-- 調整 scroll-mt-28 -->
                         <h2 class="text-2xl font-bold text-brandGreen mb-4">聯絡方式</h2>
@@ -515,7 +595,7 @@
         </div>
     </div>
 
-    <!-- ==== 頁尾 ==== -->
+    <!-- ==== 頁尾 (★ 已同步更新) ==== -->
     <footer id="notice" class="bg-gray-800 text-gray-300 py-16 mt-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -538,25 +618,35 @@
                     </ul>
                 </div>
 
-                <!-- 購買須知 -->
+                <!-- 購買須知 (★ 已修改) -->
                 <div>
                     <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
                     <ul class="space-y-3 text-sm">
                         <li class="text-gray-400">
-                            <span class="font-medium text-gray-200">・出貨時間：</span>
+                            <!-- ★ 移除・ -->
+                            <span class="font-medium text-gray-200">出貨時間：</span>
                             預購商品下單後約15~20天內出貨。
                         </li>
                         <li class="text-gray-400">
-                            <span class="font-medium text-gray-200">・客製訂購：</span>
+                            <!-- ★ 移除・ -->
+                            <span class="font-medium text-gray-200">客製訂購：</span>
                             歡迎聯繫訂購其他抹茶品項。
                         </li>
                         <li class="text-gray-400">
-                            <span class="font-medium text-gray-200">・退換政策：</span>
+                            <!-- ★ 移除・ -->
+                            <span class="font-medium text-gray-200">退換政策：</span>
                             預購商品不適用猶豫期，恕不接受取消或退貨。
                         </li>
                         <li class="text-gray-400">
-                            <span class="font-medium text-gray-200">・付款方式：</span>
+                            <!-- ★ 移除・ -->
+                            <span class="font-medium text-gray-200">付款方式：</span>
                             代購採 7-11 貨到付款；代撥服務採線上刷卡。
+                        </li>
+                        <!-- ★ 新增：隱私權條款連結 (從頁尾移動) -->
+                        <li>
+                            <a href="privacy.html" class="text-gray-400 hover:text-white hover:underline">
+                                隱私權條款
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -581,8 +671,9 @@
 
             </div>
             
-            <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700">
-                &copy; 2024 KEICHA. All Rights Reserved.
+            <!-- ★ 修改：版權 (移除隱私權條款) -->
+            <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700 text-sm">
+                <span>&copy; 2024 KEICHA. All Rights Reserved.</span>
             </div>
         </div>
     </footer>
@@ -648,13 +739,18 @@
             if (mobileMenu) {
                  mobileMenu.addEventListener('click', (event) => event.stopPropagation());
             }
-            // --- [EXISTING] Web Share API 邏輯 ---
+            
+            // --- [EXISTING] Web Share API 邏輯 (★ 已優化) ---
             const desktopShareButton = document.getElementById('desktop-share-button');
             const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
             
+            // ★ 優化：自動抓取 OG (Meta) 標籤的標題與描述
+            const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
+            const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
+
             const shareData = {
-                title: document.title, // 抓取此頁面的 <title>
-                text: 'KEICHA 電話代播服務 - 跨越語言障礙，為您代訂日本餐廳、預約活動。',
+                title: shareTitle,
+                text: shareText,
                 url: window.location.href // 抓取此頁面的完整網址
             };
 
