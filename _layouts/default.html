@@ -53,27 +53,8 @@
         .mobile-menu[data-state="open"] { display: block; }
         .mobile-menu[data-state="closed"] { display: none; }
 
-        /* denwa.html 頁面專用樣式 (如果您只在 denwa.html 使用，應移至該檔案) */
-        .nav-link.active {
-            background-color: #6ea44c; /* brandGreen */
-            color: white;
-            font-weight: 600;
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        .slider-dot.active {
-            background-color: #6ea44c; /* brandGreen */
-            opacity: 1;
-        }
-        .slider-slide img {
-            max-height: 500px;
-            margin: 0 auto;
-            width: auto;
-            object-fit: contain;
-        }
+        /* ★ 優化：已將 denwa.html 專屬樣式移至 denwa.html 檔案中 */
+
     </style>
     
     <script>
@@ -90,6 +71,7 @@
     </script>
     
     <!-- (特定頁面，如 maccha.html 的 CSS 應放在該檔案中) -->
+    <!-- ★ 這裡會插入 maccha.html, denwa.html, privacy.html 的專屬 <style> -->
     {{ page.styles }}
 
 </head>
@@ -197,6 +179,7 @@
     </script>
 
     <!-- (特定頁面，如 maccha.html 的 JS 應放在該檔案中) -->
+    <!-- ★ 這裡會插入 maccha.html, denwa.html 的專屬 <script> -->
     {{ page.scripts }}
 
 </body>
