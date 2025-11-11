@@ -1,71 +1,13 @@
-<!DOCTYPE html>
-<html lang="zh-Hant" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+---
+# 這是 Front Matter
+layout: default
+title: KEICHA 隱私權條款
+description: KEICHA 隱私權條款，說明我們如何蒐集、使用及保護您的個人資訊。
+keywords: KEICHA, 隱私權, 隱私權條款, 個資保護
 
-    <!-- ★ 新增：Favicon 圖示 -->
-    <link rel="icon" href="images/favicon.png" type="image/png">
-    <link rel="apple-touch-icon" href="images/favicon.png">
-
-    <!-- ★★★ SEO 優化 (privacy.html 專屬) ★★★ -->
-    <!-- 1. 標題 (Title) -->
-    <title>KEICHA 隱私權條款</title>
-    <!-- 2. 描述 (Description) -->
-    <meta name="description" content="KEICHA 隱私權條款，說明我們如何蒐集、使用及保護您的個人資訊。">
-    <!-- 3. 關鍵字 (Keywords) -->
-    <meta name="keywords" content="KEICHA, 隱私權, 隱私權條款, 個資保護">
-    <!-- 4. Google 網站驗證 -->
-    <meta name="google-site-verification" content="RSCsK8X-OoCTr2uKZ2oKz-QbY1SjZWYLZRIfQz9NKWY" />
-    
-    <!-- 5. Open Graph (OG) 社交分享標籤 -->
-    <meta property="og:title" content="KEICHA 隱私權條款">
-    <meta property="og:description" content="說明我們如何蒐集、使用及保護您的個人資訊。">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
-    <meta property="og:url" content="https://keicha2025.github.io/keicha/privacy.html">
-    <meta property="og:site_name" content="KEICHA">
-
-    <!-- 6. Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="KEICHA 隱私權條款">
-    <meta name="twitter:description" content="說明我們如何蒐集、使用及保護您的個人資訊。">
-    <meta name="twitter:image" content="https://keicha2025.github.io/keicha/images/KEICHA_LOGO_chuuouzoroe.jpg">
-    <!-- ★★★ SEO 結束 ★★★ -->
-
-    <!-- 載入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 載入 Inter 字體 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    
+# ★ 新增：將 privacy.html 專屬的 CSS 放在這裡
+styles: |
     <style>
-        /* 應用字體 */
-        html {
-            scroll-behavior: smooth;
-        }
-        body {
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background-color: #f8fafc; /* bg-gray-50 */
-        }
-        /* 導覽列下拉選單 */
-        .dropdown-menu[data-state="open"] {
-            display: block;
-        }
-        .dropdown-menu[data-state="closed"] {
-            display: none;
-        }
-        /* 手機選單 */
-        .mobile-menu[data-state="open"] {
-            display: block;
-        }
-        .mobile-menu[data-state="closed"] {
-            display: none;
-        }
-        /* 內容樣式 */
         .privacy-content h3 {
             @apply text-xl font-bold text-slate-800 mb-4 mt-8 pt-6 border-t border-slate-200 first:mt-0 first:pt-0 first:border-t-0;
         }
@@ -76,349 +18,97 @@
             @apply list-disc list-inside space-y-1 pl-4 text-slate-700;
         }
     </style>
-    
-    <script>
-        // 自訂 Tailwind 顏色
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brandGreen: '#6ea44c',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-gray-50 text-gray-800">
+---
 
-    <!-- ==== 導覽列 (與其他頁面同步) ==== -->
-    <header class="bg-white shadow-md sticky top-0 z-50 h-20">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex justify-between items-center">
-            
-            <!-- Logo -->
-            <a href="index.html" class="flex items-center">
-                <img src="images/KEICHA_LOGO_chuuouzoroe.jpg" alt="KEICHA Logo" class="h-14">
-            </a>
+<!-- ==== 頁面主要內容 (僅保留 content) ==== -->
+<main class="py-16 md:py-24">
+    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
+            <header class="text-center mb-10 pb-6 border-b border-gray-200">
+                <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">隱私權條款</h1>
+                <p class="mt-4 text-lg text-gray-600">Privacy Policy</p>
+            </header>
 
-            <!-- 電腦版導覽列 (md 以上尺寸顯示) -->
-            <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
-                
-                <!-- 1. HOME (下拉選單) -->
-                <div class="relative">
-                    <button id="desktop-dropdown-button" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50 flex items-center">
-                        <span>HOME</span>
-                        <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </button>
-                    <div id="desktop-dropdown-menu" data-state="closed" class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                        <a href="maccha.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            抹茶代購狀況
-                        </a>
-                        <a href="denwa.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            電話代播服務
-                        </a>
-                    </div>
-                </div>
+            <div class="privacy-content space-y-6">
+                <p>本店非常重視您的個人隱私與資料保護，為了讓您安心使用本服務，向您說明我們如何蒐集、使用及保護您的個人資訊。</p>
 
-                <!-- 2. 貨到付款 -->
-                <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
-                    貨到付款下單
-                </a>
+                <!-- 一、資料蒐集方式與項目 -->
+                <section>
+                    <h3>一、資料蒐集方式與項目</h3>
+                    <p>當您使用本服務時，我們可能會蒐集下列個人資料：</p>
+                    <ul>
+                        <li>聯絡資訊（如姓名、電話、電子郵件、地址等）</li>
+                        <li>交易資訊（如訂單內容、付款紀錄、配送資訊）</li>
+                        <li>網站使用資料（如瀏覽行為、IP位址、Cookie資訊）</li>
+                    </ul>
+                    <p class="mt-2">資料可能透過線上表單、訂購流程或客服聯繫等方式蒐集。</p>
+                </section>
 
-                <!-- 3. 款項支付 -->
-                <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
-                    款項支付
-                </a>
+                <!-- 二、資料使用範圍 -->
+                <section>
+                    <h3>二、資料使用範圍</h3>
+                    <ul>
+                        <li>處理您的訂單與服務需求</li>
+                        <li>聯繫您以確認或通知交易進度</li>
+                        <li>回覆您的問題或提供售後服務</li>
+                        <li>改善網站服務與使用者體驗</li>
+                    </ul>
+                </section>
 
-                <!-- 4. 分享按鈕 (電腦版) -->
-                <button type="button" id="desktop-share-button" class="p-2 text-gray-700 hover:text-brandGreen rounded-full focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
-                    <span class="sr-only">分享網站</span>
-                    <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
-                </button>
+                <!-- 三、資料保存期間 -->
+                <section>
+                    <h3>三、資料保存期間</h3>
+                    <p>
+                        我們僅在達成蒐集目的所需期間內保存您的個人資料，或依相關法律規定保存最短必要期間。期滿後將採取安全刪除或匿名化處理。
+                    </p>
+                </section>
 
-                <!-- 5. LINE 官方客服 (主要按鈕) -->
-                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="ml-2 inline-block bg-brandGreen text-white px-5 py-2 rounded-full text-base font-medium hover:bg-opacity-90 transition duration-300 shadow">
-                    LINE官方客服
-                </a>
-            </nav>
+                <!-- 四、資料保護與安全 -->
+                <section>
+                    <h3>四、資料保護與安全</h3>
+                    <p>
+                        我們採取合理的安全措施以保護您的個人資料，並限制資料的存取權限僅限於執行業務所需的相關人員。
+                    </p>
+                </section>
 
-            <!-- 手機版漢堡選單按鈕 (md 以下尺寸顯示) -->
-            <div class="md:hidden flex items-center space-x-2">
-                
-                <!-- 手機版分享按鈕 (固定) -->
-                <button type="button" id="mobile-share-button-fixed" class="p-2 text-gray-700 rounded-full hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
-                    <span class="sr-only">分享網站</span>
-                    <img src="images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
-                </button>
+                <!-- 五、第三方服務與資料提供 -->
+                <section>
+                    <h3>五、第三方服務與資料提供</h3>
+                    <p>
+                        為完成交易與服務，我們可能在必要範圍內將您的資料提供給第三方（如金流服務商、物流公司）。
+                        本商店的部分服務可能透過第三方平台（如餐廳、飯店、交通機構等）提供，當您使用該等平台時，您的資料將依該平台之隱私政策處理。
+                    </p>
+                </section>
 
-                <!-- 漢堡選單按鈕 -->
-                <button id="mobile-menu-button" class="p-2 text-gray-700 rounded-md hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen">
-                    <span class="sr-only">開啟選單</span>
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
+                <!-- 六、Cookie 與追蹤技術 -->
+                <section>
+                    <h3>六、Cookie 與追蹤技術</h3>
+                    <p>
+                        為提升使用體驗，本網站可能使用 Cookie 或網站分析工具，以了解瀏覽行為並改善服務。
+                        您可於瀏覽器設定中停用 Cookie，但部分功能可能因此無法正常運作。
+                    </p>
+                </section>
+
+                <!-- 七、使用者權利 -->
+                <section>
+                    <h3>七、使用者權利</h3>
+                    <p>
+                        您可隨時依個人資料保護法規定，要求查詢、更正、刪除或停止使用您的個人資料。
+                        如有相關需求，請依下方聯絡方式與我們聯繫。
+                    </p>
+                </section>
+
+                <!-- 八、聯絡我們 -->
+                <section>
+                    <h3>八、聯絡我們</h3>
+                    <p>若您對本隱私權條款有任何疑問，或欲行使您的個資權利，請與我們聯絡：</p>
+                    <ul>
+                        <li>電子郵件：keicha.nihoncha@gmail.com</li>
+                        <li>LINE ID：@366qwylw</li>
+                    </ul>
+                </section>
+
             </div>
         </div>
-
-        <!-- 手機版彈出選單 (預設隱藏) -->
-        <div id="mobile-menu" class="mobile-menu md:hidden absolute top-20 left-0 w-full bg-white shadow-lg z-40" data-state="closed">
-            <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">HOME</a>
-                <a href="maccha.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">抹茶代購狀況</a>
-                <a href="denwa.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">電話代播服務</a>
-                <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">貨到付款下單</a>
-                <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">款項支付</a>
-                <hr class="my-2">
-                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-brandGreen text-white px-4 py-2 rounded-md text-base font-medium hover:bg-opacity-90">
-                    LINE官方客服
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- ==== 頁面主要內容 ==== -->
-    <main class="py-16 md:py-24">
-        <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-            <div class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
-                <header class="text-center mb-10 pb-6 border-b border-gray-200">
-                    <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">隱私權條款</h1>
-                    <p class="mt-4 text-lg text-gray-600">Privacy Policy</p>
-                </header>
-
-                <div class="privacy-content space-y-6">
-                    <p>本店非常重視您的個人隱私與資料保護，為了讓您安心使用本服務，向您說明我們如何蒐集、使用及保護您的個人資訊。</p>
-
-                    <!-- 一、資料蒐集方式與項目 -->
-                    <section>
-                        <h3>一、資料蒐集方式與項目</h3>
-                        <p>當您使用本服務時，我們可能會蒐集下列個人資料：</p>
-                        <ul>
-                            <li>聯絡資訊（如姓名、電話、電子郵件、地址等）</li>
-                            <li>交易資訊（如訂單內容、付款紀錄、配送資訊）</li>
-                            <li>網站使用資料（如瀏覽行為、IP位址、Cookie資訊）</li>
-                        </ul>
-                        <p class="mt-2">資料可能透過線上表單、訂購流程或客服聯繫等方式蒐集。</p>
-                    </section>
-
-                    <!-- 二、資料使用範圍 -->
-                    <section>
-                        <h3>二、資料使用範圍</h3>
-                        <ul>
-                            <li>處理您的訂單與服務需求</li>
-                            <li>聯繫您以確認或通知交易進度</li>
-                            <li>回覆您的問題或提供售後服務</li>
-                            <li>改善網站服務與使用者體驗</li>
-                        </ul>
-                    </section>
-
-                    <!-- 三、資料保存期間 -->
-                    <section>
-                        <h3>三、資料保存期間</h3>
-                        <p>
-                            我們僅在達成蒐集目的所需期間內保存您的個人資料，或依相關法律規定保存最短必要期間。期滿後將採取安全刪除或匿名化處理。
-                        </p>
-                    </section>
-
-                    <!-- 四、資料保護與安全 -->
-                    <section>
-                        <h3>四、資料保護與安全</h3>
-                        <p>
-                            我們採取合理的安全措施以保護您的個人資料，並限制資料的存取權限僅限於執行業務所需的相關人員。
-                        </p>
-                    </section>
-
-                    <!-- 五、第三方服務與資料提供 -->
-                    <section>
-                        <h3>五、第三方服務與資料提供</h3>
-                        <p>
-                            為完成交易與服務，我們可能在必要範圍內將您的資料提供給第三方（如金流服務商、物流公司）。
-                            本商店的部分服務可能透過第三方平台（如餐廳、飯店、交通機構等）提供，當您使用該等平台時，您的資料將依該平台之隱私政策處理。
-                        </p>
-                    </section>
-
-                    <!-- 六、Cookie 與追蹤技術 -->
-                    <section>
-                        <h3>六、Cookie 與追蹤技術</h3>
-                        <p>
-                            為提升使用體驗，本網站可能使用 Cookie 或網站分析工具，以了解瀏覽行為並改善服務。
-                            您可於瀏覽器設定中停用 Cookie，但部分功能可能因此無法正常運作。
-                        </p>
-                    </section>
-
-                    <!-- 七、使用者權利 -->
-                    <section>
-                        <h3>七、使用者權利</h3>
-                        <p>
-                            您可隨時依個人資料保護法規定，要求查詢、更正、刪除或停止使用您的個人資料。
-                            如有相關需求，請依下方聯絡方式與我們聯繫。
-                        </p>
-                    </section>
-
-                    <!-- 八、聯絡我們 -->
-                    <section>
-                        <h3>八、聯絡我們</h3>
-                        <p>若您對本隱私權條款有任何疑問，或欲行使您的個資權利，請與我們聯絡：</p>
-                        <ul>
-                            <li>電子郵件：keicha.nihoncha@gmail.com</li>
-                            <li>LINE ID：@366qwylw</li>
-                        </ul>
-                    </section>
-
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- ==== 頁尾 (與其他頁面同步) ==== -->
-    <footer id="notice" class="bg-gray-800 text-gray-300 py-16">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-                
-                <!-- 服務連結 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
-                    <ul class="space-y-3">
-                        <li><a href="maccha.html" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
-                        <li><a href="denwa.html" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
-                    </ul>
-                </div>
-
-                <!-- 付款方式 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
-                    <ul class="space-y-3">
-                        <li><a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
-                        <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
-                    </ul>
-                </div>
-
-                <!-- 購買須知 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li class="text-gray-400"><span class="font-medium text-gray-200">出貨時間：</span> 預購商品下單後約15~20天內出貨。</li>
-                        <li class="text-gray-400"><span class="font-medium text-gray-200">客製訂購：</span> 歡迎聯繫訂購其他抹茶品項。</li>
-                        <li class="text-gray-400"><span class="font-medium text-gray-200">退換政策：</span> 預購商品不適用猶豫期，恕不接受取消或退貨。</li>
-                        <li class="text-gray-400"><span class="font-medium text-gray-200">付款方式：</span> 代購採 7-11 貨到付款；代撥服務採線上刷卡。</li>
-                        <li>
-                            <a href="privacy.html" class="text-gray-400 hover:text-white hover:underline">
-                                隱私權條款
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- 聯絡資訊 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">聯絡資訊</h4>
-                    <ul class="space-y-3 text-gray-400">
-                        <li><span class="font-medium text-gray-200">Email:</span><br> <a href="mailto:keicha.nihoncha@gmail.com" class="hover:text-white hover:underline">keicha.nihoncha@gmail.com</a></li>
-                        <li><span class="font-medium text-gray-200">LINE ID:</span><br> @366qwylw</li>
-                        <li class="mt-4"><img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 官方帳號" class="w-24 h-24 rounded-lg"></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700 text-sm">
-                <span>&copy; 2024 KEICHA. All Rights Reserved.</span>
-            </div>
-        </div>
-    </footer>
-
-
-    <!-- ==== JavaScript (導覽列 + 分享) ==== -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // --- 1. 導覽列邏輯 (手機選單) ---
-            const menuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-
-            if (menuButton) {
-                menuButton.addEventListener('click', () => {
-                    const currentState = mobileMenu.getAttribute('data-state');
-                    if (currentState === 'closed') {
-                        mobileMenu.setAttribute('data-state', 'open');
-                    } else {
-                        mobileMenu.setAttribute('data-state', 'closed');
-                    }
-                });
-            }
-
-            // --- 2. 導覽列邏輯 (電腦版 "HOME" 下拉選單) ---
-            const dropdownButton = document.getElementById('desktop-dropdown-button');
-            const dropdownMenu = document.getElementById('desktop-dropdown-menu');
-
-            if (dropdownButton && dropdownMenu) {
-                dropdownButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    const currentState = dropdownMenu.getAttribute('data-state');
-                    if (currentState === 'closed') {
-                        dropdownMenu.setAttribute('data-state', 'open');
-                    } else {
-                        dropdownMenu.setAttribute('data-state', 'closed');
-                    }
-                });
-
-                dropdownMenu.addEventListener('click', () => {
-                    dropdownMenu.setAttribute('data-state', 'closed');
-                });
-            }
-
-            // --- 3. 全域點擊監聽 (用來關閉選單) ---
-            window.addEventListener('click', () => {
-                if (dropdownMenu) {
-                    dropdownMenu.setAttribute('data-state', 'closed');
-                }
-                if (mobileMenu && mobileMenu.getAttribute('data-state') === 'open') {
-                    mobileMenu.setAttribute('data-state', 'closed');
-                }
-            });
-            
-            if (menuButton) {
-                menuButton.addEventListener('click', (event) => event.stopPropagation());
-            }
-            if (mobileMenu) {
-                mobileMenu.addEventListener('click', (event) => event.stopPropagation());
-            }
-
-            // --- 4. Web Share API 邏輯 ---
-            const desktopShareButton = document.getElementById('desktop-share-button');
-            const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
-            
-            const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
-            const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
-
-            const shareData = {
-                title: shareTitle,
-                text: shareText,
-                url: window.location.href
-            };
-
-            if (navigator.share) {
-                const showShareButton = (button) => {
-                    if (button) {
-                        button.classList.remove('hidden');
-                        button.addEventListener('click', async (event) => {
-                            event.stopPropagation();
-                            try {
-                                await navigator.share(shareData);
-                                console.log('網站分享成功');
-                            } catch (err) {
-                                console.error('分享失敗: ', err);
-                            }
-                        });
-                    }
-                };
-                showShareButton(desktopShareButton);
-                showShareButton(mobileShareButtonFixed);
-            } else {
-                console.log('此瀏覽器不支援 Web Share API');
-            }
-        
-        }); // 結束 DOMContentLoaded
-    </script>
-
-</body>
-</html>
+    </div>
+</main>
