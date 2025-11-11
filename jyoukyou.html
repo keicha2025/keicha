@@ -5,57 +5,11 @@ title: KEICHA 訂單追蹤 | 預購商品狀態查詢
 description: KEICHA 訂單追蹤系統。輸入您的訂單編號，即時查詢預購商品的最新處理進度。
 keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
 
-# ★ 新增：將 jyoukyou.html 專屬的 CSS 和 JS 放在這裡
+# ★ 新增：將 jyoukyou.html 專屬的 CSS 放在這裡
 styles: |
     <style>
         /* 專屬 jyoukyou.html 的樣式 */
-        #status-progress-bar {
-            counter-reset: step;
-        }
-        .status-step {
-            @apply relative flex flex-col items-center justify-center w-full;
-        }
-        .status-step::before {
-            /* 圓圈 */
-            counter-increment: step;
-            content: counter(step);
-            @apply w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold flex items-center justify-center z-10 transition-all duration-300;
-        }
-        .status-step::after {
-            /* 進度條 */
-            content: '';
-            @apply absolute w-full h-1 bg-gray-300 top-5 left-0 -translate-y-1/2 transition-all duration-300;
-        }
-        /* 移除第一個的左側進度條 */
-        .status-step:first-child::after {
-            @apply content-none;
-        }
-        .status-step.active::before,
-        .status-step.completed::before {
-            @apply bg-brandGreen text-white;
-        }
-        .status-step.completed::after {
-            @apply bg-brandGreen;
-        }
-        /* 符號 */
-        .status-step.completed::before {
-            content: '\2713'; /* Checkmark */
-            @apply text-2xl;
-        }
-        /* 狀態文字 */
-        .status-label {
-            @apply absolute top-12 text-center text-xs text-gray-500 w-32;
-        }
-
-        /* 手機版樣式 */
-        @media (max-width: 640px) {
-            .status-step::after {
-                @apply left-1/2; 
-            }
-            .status-label {
-                @apply w-20;
-            }
-        }
+        /* (已移除進度條樣式) */
     </style>
 scripts: |
     <script>
@@ -65,7 +19,8 @@ scripts: |
             const resultDiv = document.getElementById('order-result');
             const loader = document.getElementById('search-loader');
             const errorDiv = document.getElementById('search-error');
-            const progressBar = document.getElementById('status-progress-bar');
+            // ★ 移除 progressBar，新增 statusResultDiv
+            const statusResultDiv = document.getElementById('result-current-status');
             
             // ★★★ 您的 Google Sheet .csv 網址 ★★★
             // 請將 YOUR_GOOGLE_SHEET_URL_HERE 換成您發布到網路的 .csv 網址
@@ -116,7 +71,9 @@ scripts: |
                 showLoading(true);
                 showError(null);
                 resultDiv.classList.add('hidden');
-                progressBar.classList.add('hidden');
+                // ★ 重置新版狀態顯示區
+                if (statusResultDiv) statusResultDiv.innerHTML = '';
+
 
                 try {
                     // 使用 fetch 並加上 no-cache 確保抓到最新資料
@@ -185,36 +142,41 @@ scripts: |
                 if (orderNumberEl) orderNumberEl.textContent = order.order_number || 'N/A';
                 if (orderInfoEl) orderInfoEl.textContent = order.order_info || 'N/A';
 
-                updateProgressBar(order.status);
+                // ★ 改為呼叫新函式
+                displayCurrentStatus(order.status);
             }
 
-            // 6. 更新進度條
-            function updateProgressBar(currentStatus) {
-                progressBar.classList.remove('hidden');
-                const steps = document.querySelectorAll('.status-step');
-                
-                let currentStepIndex = ALL_STATUSES.indexOf(currentStatus);
-                
-                // 如果狀態不在列表中，顯示錯誤
-                if (currentStepIndex === -1 && currentStatus) {
-                    showError(`訂單狀態 "${currentStatus}" 無法辨識，請聯繫客服。`);
-                    progressBar.classList.add('hidden');
+            // ★ 函式 (6) 已修改：顯示目前狀態 (取代進度條)
+            function displayCurrentStatus(currentStatus) {
+                const statusResultDiv = document.getElementById('result-current-status');
+                if (!statusResultDiv) return;
+
+                // 重置
+                statusResultDiv.innerHTML = '';
+
+                if (!currentStatus) {
+                    statusResultDiv.innerHTML = '<p class="text-lg font-medium text-gray-500">狀態不明</p>';
                     return;
                 }
 
-                steps.forEach((step, index) => {
-                    step.classList.remove('active', 'completed');
-                    
-                    if (index < currentStepIndex) {
-                        // 已完成的步驟
-                        step.classList.add('completed');
-                    } else if (index === currentStepIndex) {
-                        // 當前步驟
-                        step.classList.add('active');
+                const isValidStatus = ALL_STATUSES.includes(currentStatus);
+
+                if (isValidStatus) {
+                    // 顯示綠色粗體大字
+                    statusResultDiv.innerHTML = `
+                        <p class="text-2xl font-bold text-brandGreen">${currentStatus}</p>
+                    `;
+                    // 檢查是否為最後一個狀態
+                    if (currentStatus === ALL_STATUSES[ALL_STATUSES.length - 1]) {
+                         statusResultDiv.innerHTML += '<p class="mt-2 text-gray-600">您的訂單已完成配送，感謝您的訂購！</p>';
                     }
-                    // 未來的步驟 (維持原樣)
-                });
+                } else {
+                    // 狀態不在列表中
+                    statusResultDiv.innerHTML = '<p class="text-lg font-medium text-red-600">狀態無法辨識</p>';
+                    showError(`訂單狀態 "${currentStatus}" 無法辨識，請聯繫客服。`);
+                }
             }
+
 
             // 7. 顯示/隱藏 讀取中
             function showLoading(isLoading) {
@@ -288,39 +250,16 @@ scripts: |
                 </div>
             </div>
 
-            <!-- 狀態進度條 -->
-            <h3 class="text-lg font-semibold text-gray-800 mb-8 text-center">目前狀態</h3>
-            <div id="status-progress-bar" class="w-full max-w-4xl mx-auto hidden mb-16">
-                <!-- 
-                  ★ 這 6 個步驟必須與 JS 中的 ALL_STATUSES 陣列完全對應 
-                -->
-                <div class="flex justify-between items-start px-4 sm:px-0">
-                    <!-- Step 1 -->
-                    <div class="status-step">
-                        <span class="status-label">訂單確認中</span>
-                    </div>
-                    <!-- Step 2 -->
-                    <div class="status-step">
-                        <span class="status-label">商品已從<br>日本寄出</span>
-                    </div>
-                    <!-- Step 3 -->
-                    <div class="status-step">
-                        <span class="status-label">商品抵台<br>清關中</span>
-                    </div>
-                    <!-- Step 4 -->
-                    <div class="status-step">
-                        <span class="status-label">倉儲轉交<br>物流</span>
-                    </div>
-                    <!-- Step 5 -->
-                    <div class="status-step">
-                        <span class="status-label">商品交付<br>寄送</span>
-                    </div>
-                    <!-- Step 6 -->
-                    <div class="status-step">
-                        <span class="status-label">訂單完成</span>
-                    </div>
+            <!-- ★ 已修改：狀態進度條 (改為純文字顯示) -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">目前狀態</h3>
+                <div id="result-current-status" class="text-center">
+                    <!-- JS 會將狀態填入此處 -->
+                    <!-- 範例: <p class="text-2xl font-bold text-brandGreen">商品抵台清關中</p> -->
                 </div>
             </div>
+            
+            <!-- (原進度條 HTML 已刪除) -->
 
         </section>
 
