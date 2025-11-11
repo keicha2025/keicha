@@ -1,0 +1,328 @@
+---
+# 這是 Front Matter
+layout: default
+title: KEICHA 訂單追蹤 | 預購商品狀態查詢
+description: KEICHA 訂單追蹤系統。輸入您的訂單編號，即時查詢預購商品的最新處理進度。
+keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
+
+# ★ 新增：將 jyoukyou.html 專屬的 CSS 和 JS 放在這裡
+styles: |
+    <style>
+        /* 專屬 jyoukyou.html 的樣式 */
+        #status-progress-bar {
+            counter-reset: step;
+        }
+        .status-step {
+            @apply relative flex flex-col items-center justify-center w-full;
+        }
+        .status-step::before {
+            /* 圓圈 */
+            counter-increment: step;
+            content: counter(step);
+            @apply w-10 h-10 rounded-full bg-gray-300 text-gray-600 font-bold flex items-center justify-center z-10 transition-all duration-300;
+        }
+        .status-step::after {
+            /* 進度條 */
+            content: '';
+            @apply absolute w-full h-1 bg-gray-300 top-5 left-0 -translate-y-1/2 transition-all duration-300;
+        }
+        /* 移除第一個的左側進度條 */
+        .status-step:first-child::after {
+            @apply content-none;
+        }
+        .status-step.active::before,
+        .status-step.completed::before {
+            @apply bg-brandGreen text-white;
+        }
+        .status-step.completed::after {
+            @apply bg-brandGreen;
+        }
+        /* 符號 */
+        .status-step.completed::before {
+            content: '\2713'; /* Checkmark */
+            @apply text-2xl;
+        }
+        /* 狀態文字 */
+        .status-label {
+            @apply absolute top-12 text-center text-xs text-gray-500 w-32;
+        }
+
+        /* 手機版樣式 */
+        @media (max-width: 640px) {
+            .status-step::after {
+                @apply left-1/2; 
+            }
+            .status-label {
+                @apply w-20;
+            }
+        }
+    </style>
+scripts: |
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchButton = document.getElementById('search-order-button');
+            const orderInput = document.getElementById('order-number-input');
+            const resultDiv = document.getElementById('order-result');
+            const loader = document.getElementById('search-loader');
+            const errorDiv = document.getElementById('search-error');
+            const progressBar = document.getElementById('status-progress-bar');
+            
+            // ★★★ 您的 Google Sheet .csv 網址 ★★★
+            // 請將 YOUR_GOOGLE_SHEET_URL_HERE 換成您發布到網路的 .csv 網址
+            const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEb5SDs5hEq76XXxcdCKQL_KYjPyUlHNKHqJEhblIskMEXHK3uRkUWXR-PbPdXf5H5sLq4e8oAJwfL/pub?gid=0&single=true&output=csv"; 
+            // ★★★★★★★★★★★★★★★★★★★★★★★★★
+
+            // ★ 狀態列表 (必須與 Google Sheet C 欄的內容完全一致)
+            const ALL_STATUSES = [
+                "訂單確認中",
+                "商品已從日本寄出",
+                "商品抵台清關中",
+                "倉儲轉交物流",
+                "商品交付寄送",
+                "訂單完成"
+            ];
+
+            // 檢查 Google Sheet 網址是否已設定
+            if (!sheetUrl || !sheetUrl.startsWith('http') || sheetUrl.includes("YOUR_GOOGLE_SHEET_URL")) {
+                showError("網站尚未設定訂單追蹤的 Google Sheet 網址。請聯繫管理員。");
+                if (orderInput) orderInput.disabled = true;
+                if (searchButton) searchButton.disabled = true;
+                return; // 終止後續執行
+            }
+
+            // 1. 搜尋按鈕點擊事件
+            if (searchButton) {
+                searchButton.addEventListener('click', handleSearch);
+            }
+
+            // 2. Enter 鍵盤事件
+            if (orderInput) {
+                orderInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        handleSearch();
+                    }
+                });
+            }
+
+            // 3. 執行搜尋的共用函式
+            async function handleSearch() {
+                const orderNumber = orderInput.value.trim().toUpperCase(); // 轉大寫
+                if (!orderNumber) {
+                    showError("請輸入您的訂單編號。");
+                    return;
+                }
+                
+                // 重置 UI
+                showLoading(true);
+                showError(null);
+                resultDiv.classList.add('hidden');
+                progressBar.classList.add('hidden');
+
+                try {
+                    // 使用 fetch 並加上 no-cache 確保抓到最新資料
+                    const response = await fetch(sheetUrl, { cache: 'no-store' });
+                    if (!response.ok) {
+                        throw new Error(`無法連接到訂單資料庫 (錯誤 ${response.status})`);
+                    }
+                    const csvText = await response.text();
+                    const orderData = parseCSV(csvText);
+                    
+                    // 尋找訂單
+                    const foundOrder = orderData.find(row => 
+                        row.order_number && 
+                        row.order_number.trim().toUpperCase() === orderNumber
+                    );
+
+                    if (foundOrder) {
+                        displayResult(foundOrder);
+                    } else {
+                        showError(`找不到訂單編號 "${orderNumber}"。請檢查您的編號是否正確，或聯繫客服。`);
+                    }
+
+                } catch (error) {
+                    console.error("查詢時發生錯誤:", error);
+                    showError(`查詢時發生錯誤: ${error.message}`);
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            // 4. 解析 CSV 資料
+            function parseCSV(text) {
+                const lines = text.split(/\r?\n/);
+                if (lines.length < 2) return [];
+                
+                // 清理標頭 (移除 BOM 和多餘引號)
+                const headers = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF"']/g, ''));
+                
+                // 驗證標頭
+                const requiredHeaders = ['order_number', 'order_info', 'status'];
+                if (!requiredHeaders.every(h => headers.includes(h))) {
+                    console.error("CSV 標頭不符。需要:", requiredHeaders, "實際:", headers);
+                    throw new Error("訂單資料庫格式錯誤，請聯繫管理員。");
+                }
+                
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    const values = lines[i].split(',');
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header] = values[index] ? values[index].trim().replace(/"/g, '') : '';
+                    });
+                    data.push(row);
+                }
+                return data;
+            }
+
+            // 5. 顯示結果
+            function displayResult(order) {
+                resultDiv.classList.remove('hidden');
+                
+                const orderNumberEl = document.getElementById('result-order-number');
+                const orderInfoEl = document.getElementById('result-order-info');
+                
+                if (orderNumberEl) orderNumberEl.textContent = order.order_number || 'N/A';
+                if (orderInfoEl) orderInfoEl.textContent = order.order_info || 'N/A';
+
+                updateProgressBar(order.status);
+            }
+
+            // 6. 更新進度條
+            function updateProgressBar(currentStatus) {
+                progressBar.classList.remove('hidden');
+                const steps = document.querySelectorAll('.status-step');
+                
+                let currentStepIndex = ALL_STATUSES.indexOf(currentStatus);
+                
+                // 如果狀態不在列表中，顯示錯誤
+                if (currentStepIndex === -1 && currentStatus) {
+                    showError(`訂單狀態 "${currentStatus}" 無法辨識，請聯繫客服。`);
+                    progressBar.classList.add('hidden');
+                    return;
+                }
+
+                steps.forEach((step, index) => {
+                    step.classList.remove('active', 'completed');
+                    
+                    if (index < currentStepIndex) {
+                        // 已完成的步驟
+                        step.classList.add('completed');
+                    } else if (index === currentStepIndex) {
+                        // 當前步驟
+                        step.classList.add('active');
+                    }
+                    // 未來的步驟 (維持原樣)
+                });
+            }
+
+            // 7. 顯示/隱藏 讀取中
+            function showLoading(isLoading) {
+                if (loader) {
+                    loader.classList.toggle('hidden', !isLoading);
+                }
+            }
+
+            // 8. 顯示錯誤訊息
+            function showError(message) {
+                if (errorDiv) {
+                    if (message) {
+                        errorDiv.textContent = message;
+                        errorDiv.classList.remove('hidden');
+                    } else {
+                        errorDiv.classList.add('hidden');
+                        errorDiv.textContent = '';
+                    }
+                }
+            }
+        });
+    </script>
+---
+
+<!-- ==== 頁面主要內容 (僅保留 content) ==== -->
+<main class="py-16 md:py-24">
+    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+
+        <!-- 1. 標題與查詢框 -->
+        <section class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
+            <header class="text-center mb-8 pb-6 border-b border-gray-200">
+                <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">訂單追蹤</h1>
+                <p class="mt-4 text-lg text-gray-600">輸入您的訂單編號，查詢預購商品最新進度。</p>
+            </header>
+            
+            <div class="max-w-xl mx-auto">
+                <label for="order-number-input" class="block text-sm font-medium text-gray-700 mb-2">訂單編號 (Order Number)</label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="order-number-input" placeholder="請輸入訂單編號 (例如: K2025001)"
+                           class="flex-grow w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brandGreen focus:border-transparent">
+                    <button id="search-order-button"
+                            class="w-full sm:w-auto px-6 py-3 bg-brandGreen text-white font-bold rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brandGreen focus:ring-offset-2">
+                        查詢
+                    </button>
+                </div>
+
+                <!-- 讀取中 & 錯誤訊息 -->
+                <div id="search-loader" class="text-center py-6 hidden">
+                    <p class="text-gray-600">查詢中，請稍候...</p>
+                </div>
+                <div id="search-error" class="hidden mt-4 text-center text-red-600 bg-red-100 p-4 rounded-lg">
+                    <!-- 錯誤訊息將由 JS 填入 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 查詢結果 -->
+        <section id="order-result" class="hidden mt-10 bg-white p-8 md:p-12 rounded-lg shadow-lg">
+            
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">查詢結果</h2>
+            
+            <!-- 訂單資訊 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-1">訂單編號</h3>
+                    <p id="result-order-number" class="text-lg font-bold text-brandGreen"></p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-1">訂購商品</h3>
+                    <p id="result-order-info" class="text-lg font-medium text-gray-800"></p>
+                </div>
+            </div>
+
+            <!-- 狀態進度條 -->
+            <h3 class="text-lg font-semibold text-gray-800 mb-8 text-center">目前狀態</h3>
+            <div id="status-progress-bar" class="w-full max-w-4xl mx-auto hidden mb-16">
+                <!-- 
+                  ★ 這 6 個步驟必須與 JS 中的 ALL_STATUSES 陣列完全對應 
+                -->
+                <div class="flex justify-between items-start px-4 sm:px-0">
+                    <!-- Step 1 -->
+                    <div class="status-step">
+                        <span class="status-label">訂單確認中</span>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="status-step">
+                        <span class="status-label">商品已從<br>日本寄出</span>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="status-step">
+                        <span class="status-label">商品抵台<br>清關中</span>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="status-step">
+                        <span class="status-label">倉儲轉交<br>物流</span>
+                    </div>
+                    <!-- Step 5 -->
+                    <div class="status-step">
+                        <span class="status-label">商品交付<br>寄送</span>
+                    </div>
+                    <!-- Step 6 -->
+                    <div class="status-step">
+                        <span class="status-label">訂單完成</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+</main>
