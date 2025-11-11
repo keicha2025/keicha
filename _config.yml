@@ -1,0 +1,11 @@
+# Jekyll 設定檔
+# 基礎設定
+title: KEICHA - 抹茶代購 | 日本電話代播服務
+description: KEICHA 提供最專業的日本代購服務，並提供日本電話代播，為您處理日本大小事。
+baseurl: "/keicha" # 您的 GitHub 儲存庫名稱
+url: "[https://keicha2025.github.io](https://keicha2025.github.io)" # 您的 GitHub Pages 網址
+
+# 建置設定
+# 告訴 Jekyll 保持您的 images 資料夾
+include:
+  - images
