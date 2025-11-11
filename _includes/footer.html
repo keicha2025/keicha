@@ -1,84 +1,82 @@
-    <!-- 頁尾 (注意事項) - 已更新為包含所有資訊的新 Footer -->
-    <footer id="notice" class="bg-gray-800 text-gray-300 py-16">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-                
-                <!-- 服務連結 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
-                    <ul class="space-y-3">
-                        <li><a href="maccha.html" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
-                        <li><a href="denwa.html" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
-                    </ul>
-                </div>
-
-
-                <!-- 付款方式 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
-                    <ul class="space-y-3">
-                        <li><a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
-                        <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
-                    </ul>
-                </div>
-
-
-                <!-- 購買須知 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li class="text-gray-400">
-                            <!-- ★ 移除・ -->
-                            <span class="font-medium text-gray-200">出貨時間：</span>
-                            預購商品下單後約15~20天內出貨。
-                        </li>
-                        <li class="text-gray-400">
-                            <!-- ★ 移除・ -->
-                            <span class="font-medium text-gray-200">客製訂購：</span>
-                            歡迎聯繫訂購其他抹茶品項。
-                        </li>
-                        <li class="text-gray-400">
-                            <!-- ★ 移除・ -->
-                            <span class="font-medium text-gray-200">退換政策：</span>
-                            預購商品不適用猶豫期，恕不接受取消或退貨。
-                        </li>
-                        <li class="text-gray-400">
-                            <!-- ★ 移除・ -->
-                            <span class="font-medium text-gray-200">付款方式：</span>
-                            代購採 7-11 貨到付款；代撥服務採線上刷卡。
-                        </li>
-        <li class="text-gray-400">
-            <span class="font-medium text-gray-200">隱私權條款：</span>
-            <a href="privacy.html" class="hover:text-white hover:underline">privacy.html</a>
-        </li>
-    </ul>
-</div>
-
-
-                <!-- 聯絡資訊 -->
-                <div>
-                    <h4 class="text-lg font-semibold text-white mb-4">聯絡資訊</h4>
-                    <ul class="space-y-3 text-gray-400">
-                        <li>
-                            <span class="font-medium text-gray-200">Email:</span><br>
-                            <a href="mailto:keicha.nihoncha@gmail.com" class="hover:text-white hover:underline">keicha.nihoncha@gmail.com</a>
-                        </li>
-                        <li>
-                            <span class="font-medium text-gray-200">LINE ID:</span><br>
-                            @366qwylw
-                        </li>
-                        <li class="mt-4">
-                            <img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 官方帳號" class="w-24 h-24 rounded-lg">
-                        </li>
-                    </ul>
-                </div>
-
-
-            </div>
+<!-- 頁尾 (模組化) -->
+<!-- 
+  注意: 
+  1. 圖片路徑已改為 {{ site.baseurl }}/images/...
+  2. 連結路徑已改為 {{ page.url | relative_url }} 
+-->
+<footer id="notice" class="bg-gray-800 text-gray-300 py-16">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             
-            <!-- ★ 修改：版權資訊 -->
-            <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700 text-sm">
-                <span>&copy; 2025 KEICHA. All Rights Reserved.</span>
+            <!-- 服務連結 -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">服務項目</h4>
+                <ul class="space-y-3">
+                    <li><a href="{{ site.baseurl }}/maccha.html" class="text-gray-400 hover:text-white hover:underline transition-colors">抹茶代購狀況</a></li>
+                    <li><a href="{{ site.baseurl }}/denwa.html" class="text-gray-400 hover:text-white hover:underline transition-colors">電話代播服務</a></li>
+                </ul>
             </div>
+
+            <!-- 付款方式 -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">付款與下單</h4>
+                <ul class="space-y-3">
+                    <li><a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">線上刷卡支付</a></li>
+                    <li><a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white hover:underline transition-colors">貨到付款下單</a></li>
+                </ul>
+            </div>
+
+            <!-- 購買須知 (★ 偵測到您修改過的格式) -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">購買須知</h4>
+                <ul class="space-y-3 text-sm">
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">出貨時間：</span>
+                        預購商品下單後約15~20天內出貨。
+                    </li>
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">客製訂購：</span>
+                        歡迎聯繫訂購其他抹茶品項。
+                    </li>
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">退換政策：</span>
+                        預購商品不適用猶豫期，恕不接受取消或退貨。
+                    </li>
+                    <li class="text-gray-400">
+                        <span class="font-medium text-gray-200">付款方式：</span>
+                        代購採 7-11 貨到付款；代撥服務採線上刷卡。
+                    </li>
+                    <li class="text-gray-400">
+                        <!-- ★ 偵測到您修改過的格式 -->
+                        <span class="font-medium text-gray-200">隱私權條款：</span>
+                        <a href="{{ site.baseurl }}/privacy.html" class="hover:text-white hover:underline">privacy.html</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 聯絡資訊 -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-4">聯絡資訊</h4>
+                <ul class="space-y-3 text-gray-400">
+                    <li>
+                        <span class="font-medium text-gray-200">Email:</span><br>
+                        <a href="mailto:keicha.nihoncha@gmail.com" class="hover:text-white hover:underline">keicha.nihoncha@gmail.com</a>
+                    </li>
+                    <li>
+                        <span class="font-medium text-gray-200">LINE ID:</span><br>
+                        @366qwylw
+                    </li>
+                    <li class="mt-4">
+                        <img src="https://qr-official.line.me/gs/M_366qwylw_BW.png?oat_content=qr" alt="加入 LINE 官方帳號" class="w-24 h-24 rounded-lg">
+                    </li>
+                </ul>
+            </div>
+
         </div>
-    </footer>
+        
+        <!-- ★ 偵測到您修改過的 2025 年版權 -->
+        <div class="text-center text-gray-500 mt-12 pt-8 border-t border-gray-700 text-sm">
+            <span>&copy; 2025 KEICHA. All Rights Reserved.</span>
+        </div>
+    </div>
+</footer>
