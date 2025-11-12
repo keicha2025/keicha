@@ -1,0 +1,4 @@
+# Netlify 導向規則
+# 將所有連到 Netlify 的請求，永久導向到 GitHub Pages
+
+/* https://keicha2025.github.io/keicha/:splat    301!
