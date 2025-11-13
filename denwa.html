@@ -9,13 +9,6 @@
     <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 
-      這裡是 Front Matter 區塊的模擬
-      實際的 Jekyll 網站中，
-      {{ site.baseurl }} 會被替換成您的網站根路徑。
-      在 Google 協作平台嵌入時，您需要手動替換圖片路徑。
-    -->
-    
     <!-- ▼ denwa.html 頁面專用樣式 ▼ -->
     <style>
         /* [NEW] Lightbox 燈箱樣式 */
@@ -115,15 +108,7 @@
 </head>
 <body class="bg-gray-100">
 
-<!-- 
-  [重要]
-  Jekyll 網站中，此檔案會被 layout (default.html) 引用。
-  但在這裡，我會建立一個完整的、可獨立運作的頁面。
-  我會假設 header 和 footer 是由 layout 提供的，
-  因此這裡只專注於您貼上的 content 部分。
--->
-
-<!-- ==== 頁面主要內容 (僅保留 content) ==== -->
+<!-- ==== 頁面主要內容 ==== -->
 <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
     <header class="text-center mb-8 md:mb-12">
         <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">KEICHA 電話代撥服務</h1>
@@ -186,12 +171,8 @@
                         <div class="space-y-4 text-slate-700">
                             <div>
                                 <h4 class="text-lg font-semibold mb-2 flex items-center">
-                                    <!-- ★ 提示：在Jekyll中, {{ site.baseurl }} 會運作。
-                                         在 Google 協作平台中, 您需要手動換成
-                                         https://sites.google.com/view/keicha/.../KEICHA_icon_denwa.png
-                                         之類的完整網址。
-                                    -->
-                                    <img src="{{ site.baseurl }}/images/KEICHA_icon_denwa.png" alt="電話代播" class="h-8 w-8 mr-3">
+                                    <!-- ★ [FIXED] 修正為 | relative_url 語法 ★ -->
+                                    <img src="{{ '/images/KEICHA_icon_denwa.png' | relative_url }}" alt="電話代播" class="h-8 w-8 mr-3">
                                     日本電話代撥服務
                                 </h4>
                                 <p class="mb-2">協助您處理以下單次可完成的日文溝通需求：</p>
@@ -245,17 +226,13 @@
                             <div id="slider-wrapper" class="flex transition-transform duration-500 ease-in-out">
                                 <!-- Slide 1 -->
                                 <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
-                                    <!-- 
-                                      ★ 提示：在Jekyll中, {{ site.baseurl }} 會運作。
-                                      在 Google 協作平台中, 您需要手動換成
-                                      https://sites.google.com/view/keicha/.../keicha_電話代播_服務案例1.png
-                                      之類的完整網址。
-                                    -->
-                                    <img src="{{ site.baseurl }}/images/keicha_電話代播_服務案例1.png" alt="服務案例1" class="w-full h-full object-contain lightbox-trigger">
+                                    <!-- ★ [FIXED] 修正為 | relative_url 語法 ★ -->
+                                    <img src="{{ '/images/keicha_電話代播_服務案例1.png' | relative_url }}" alt="服務案例1" class="w-full h-full object-contain lightbox-trigger">
                                 </div>
                                 <!-- Slide 2 -->
                                 <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
-                                    <img src="{{ site.baseurl }}/images/keicha_電話代播_服務案例2.png" alt="服務案例2" class="w-full h-full object-contain lightbox-trigger">
+                                    <!-- ★ [FIXED] 修正為 | relative_url 語法 ★ -->
+                                    <img src="{{ '/images/keicha_電話代播_服務案例2.png' | relative_url }}" alt="服務案例2" class="w-full h-full object-contain lightbox-trigger">
                                 </div>
                             </div>
                             
@@ -291,7 +268,7 @@
                             <div class="bg-[#f0f6ec] p-4 rounded-lg md:col-span-2">
                                 <h4 class="font-semibold text-lg text-brandGreen mb-2">服務費用標準</h4>
                                 <div class="space-y-2">
-                                    <p><strong>📞 電話代撥：</strong>每通 7 分鐘內 <strong>NT$160</strong>。7分鐘(含)以上則以每 10 分鐘 <strong>NT$200</strong>費率計。</p>
+                                    <p><strong>📞 電話代撥：</strong>每通 7 分鐘內 <strong>NT$160</strong>。超過部分每 10 分鐘加收 <strong>NT$200</strong>。</p>
                                     <p><strong>🌐 網路代訂：</strong>每筆訂單（單次操作）<strong>NT$150</strong>。</p>
                                     <!-- ★ [UPDATED] 已新增音檔費用 ★ -->
                                     <p><strong>🎧 調取音檔：</strong>每筆 <strong>NT$50</strong> (僅擷取音檔中可確定預約資訊內容)。</p>
@@ -519,10 +496,6 @@
 
 <!-- ▼ denwa.html 專屬的 JS ▼ -->
 <script>
-    // ★ 模擬 Jekyll 的 site.baseurl
-    // 在 Google 協作平台或實際部署時，您可能不需要這個
-    const site = { baseurl: '' }; 
-
     document.addEventListener('DOMContentLoaded', () => {
         
         // --- [NEW] Lightbox 燈箱邏輯 ---
@@ -535,7 +508,6 @@
             
             // 開啟燈箱
             const openLightbox = (e) => {
-                // 確保我們抓到的是 <img> 的 src
                 const imgElement = e.target;
                 const imgSrc = imgElement.src;
                 
@@ -548,7 +520,6 @@
             // 關閉燈箱
             const closeLightbox = () => {
                 lightbox.classList.remove('show', 'opacity-100');
-                // 等待動畫結束後才清除 src
                 setTimeout(() => {
                     lightboxImg.src = '';
                 }, 300);
@@ -561,7 +532,6 @@
 
             // 綁定關閉事件
             lightbox.addEventListener('click', (e) => {
-                // 確保點擊的是背景或關閉按鈕，而不是圖片本身
                 if (e.target === lightbox || e.target === lightboxClose) {
                     closeLightbox();
                 }
@@ -730,4 +700,3 @@
 
 </body>
 </html>
-
