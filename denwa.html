@@ -1,75 +1,15 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 標題來自您的 Front Matter -->
-    <title>KEICHA 電話代播服務 | 日本餐廳預約、活動代訂</title>
-    
-    <!-- 載入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- ▼ denwa.html 頁面專用樣式 ▼ -->
-    <style>
-        /* [NEW] Lightbox 燈箱樣式 */
-        .lightbox {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.9);
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-        }
-        .lightbox-content {
-            margin: auto;
-            display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            max-width: 90%;
-            max-height: 90vh;
-            transition: transform 0.3s ease;
-        }
-        .lightbox.show {
-            display: block;
-            opacity: 1;
-        }
-        .lightbox.show .lightbox-content {
-            transform: translate(-50%, -50%) scale(1);
-        }
-        .lightbox-close {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
-            cursor: pointer;
-            z-index: 1001;
-        }
-        .lightbox-close:hover,
-        .lightbox-close:focus {
-            color: #bbb;
-            text-decoration: none;
-        }
-        
-        /* [NEW] 讓輪播圖中的圖片可點擊 */
-        .slider-slide img {
-            cursor: pointer;
-            transition: opacity 0.2s ease;
-        }
-        .slider-slide img:hover {
-            opacity: 0.8;
-        }
 
-        /* [EXISTING] denwa.html 頁面專用樣式 */
+---
+# 這是 Front Matter
+layout: default
+title: KEICHA 電話代播服務 | 日本餐廳預約、活動代訂
+description: KEICHA 提供專業的日本電話代播服務，跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務。
+keywords: KEICHA, 電話代播, 電話代打, 日文電話, 餐廳預約, 日本預約, 日本代訂
+
+# ★ 新增：將 denwa.html 專屬的 CSS 和 JS 放在這裡
+styles: |
+    <style>
+        /* denwa.html 頁面專用樣式 */
         .nav-link.active {
             background-color: #6ea44c; /* brandGreen */
             color: white;
@@ -91,24 +31,166 @@
             object-fit: contain;
         }
     </style>
-    <!-- ▲ denwa.html 頁面專用樣式 ▲ -->
-
+scripts: |
     <script>
-        // 自訂 Tailwind 顏色 (模擬)
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brandGreen: '#6ea44c',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-gray-100">
+        // ★ denwa.html 專屬的 JS (頁面導覽、輪播圖、折疊選單)
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- [EXISTING] 頁面內部導覽 (TOC) 邏輯 ---
+            const sections = document.querySelectorAll('section[id^="section-"]'); // 更精確的選擇器
+            const navLinks = document.querySelectorAll('.nav-link');
+            const tocNav = document.getElementById('toc-nav');
 
-<!-- ==== 頁面主要內容 ==== -->
+            if (tocNav && sections.length > 0 && navLinks.length > 0) {
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '-80px 0px -40% 0px', // 調整觸發範圍
+                    threshold: 0
+                };
+
+                const observer = new IntersectionObserver((entries, observer) => {
+                    let visibleSections = [];
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            visibleSections.push(entry.target);
+                        }
+                    });
+
+                    // 只 highlight 最靠近頂部的可見 section
+                    if (visibleSections.length > 0) {
+                        const topSection = visibleSections.reduce((prev, curr) => {
+                            return prev.getBoundingClientRect().top < curr.getBoundingClientRect().top ? prev : curr;
+                        });
+
+                        const id = topSection.getAttribute('id');
+                        const navLink = tocNav.querySelector(`a[href="#${id}"]`);
+
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        if (navLink) {
+                            navLink.classList.add('active');
+                        }
+                    }
+                }, observerOptions);
+
+
+                sections.forEach(section => {
+                    observer.observe(section);
+                });
+                
+                tocNav.addEventListener('click', (e) => {
+                    if(e.target.tagName === 'A') {
+                        e.preventDefault();
+                        const targetId = e.target.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        if(targetElement) {
+                            // 手動滾動到頂部，保留 sticky 導覽列的高度
+                            const headerOffset = 90; // 80px (導覽列) + 10px (間距)
+                            const elementPosition = targetElement.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                            window.scrollTo({
+                                top: offsetPosition,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            }
+
+            // --- [EXISTING] 輪播圖 (Slider) 邏輯 ---
+            const sliderWrapper = document.getElementById('slider-wrapper');
+            if (sliderWrapper) {
+                const slides = document.querySelectorAll('.slider-slide');
+                const prevBtn = document.getElementById('slider-prev');
+                const nextBtn = document.getElementById('slider-next');
+                const dots = document.querySelectorAll('.slider-dot');
+                
+                let currentSlide = 0;
+                const slideCount = slides.length;
+
+                const goToSlide = (slideIndex) => {
+                    if (slideCount === 0) return; // 避免沒有圖片時出錯
+                    if (slideIndex < 0) {
+                        slideIndex = slideCount - 1;
+                    } else if (slideIndex >= slideCount) {
+                        slideIndex = 0;
+                    }
+                    
+                    sliderWrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
+                    currentSlide = slideIndex;
+                    updateDots();
+                };
+
+                const updateDots = () => {
+                    dots.forEach((dot, index) => {
+                        if (index === currentSlide) {
+                            dot.classList.add('active', 'bg-brandGreen');
+                            dot.classList.remove('bg-white', 'bg-opacity-50');
+                        } else {
+                            dot.classList.remove('active', 'bg-brandGreen');
+                            dot.classList.add('bg-white', 'bg-opacity-50');
+                        }
+                    });
+                };
+
+                prevBtn.addEventListener('click', () => {
+                    goToSlide(currentSlide - 1);
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    goToSlide(currentSlide + 1);
+                });
+
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        goToSlide(index);
+                    });
+                });
+
+                // Initialize
+                goToSlide(0);
+            }
+            
+            // --- [EXISTING] 折疊選單 (Accordion) 邏輯 ---
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            if (accordionItems.length > 0) {
+                accordionItems.forEach(item => {
+                    const header = item.querySelector('.accordion-header');
+                    const content = item.querySelector('.accordion-content');
+                    const icon = header.querySelector('span:last-child'); // 抓取 '▼'
+                    
+                    header.addEventListener('click', () => {
+                        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+                        
+                        // 關閉所有其他已開啟的項目
+                        if (!isOpen) {
+                            accordionItems.forEach(otherItem => {
+                                if (otherItem !== item) {
+                                    const otherContent = otherItem.querySelector('.accordion-content');
+                                    const otherIcon = otherItem.querySelector('.accordion-header span:last-child');
+                                    otherContent.style.maxHeight = '0px';
+                                    otherIcon.style.transform = 'rotate(0deg)';
+                                }
+                            });
+                        }
+
+                        // 切換當前點擊的項目
+                        if (isOpen) {
+                            content.style.maxHeight = '0px';
+                            icon.style.transform = 'rotate(0deg)';
+                        } else {
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                            icon.style.transform = 'rotate(180deg)';
+                        }
+                    });
+                });
+            }
+
+        }); // 結束 denwa.html 專屬的 DOMContentLoaded
+    </script>
+---
+
+<!-- ==== 頁面主要內容 (僅保留 content) ==== -->
 <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
     <header class="text-center mb-8 md:mb-12">
         <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">KEICHA 電話代撥服務</h1>
@@ -117,7 +199,7 @@
 
     <div class="flex flex-col md:flex-row gap-8">
         <!-- Sticky Navigation -->
-        <aside class="md:w-1/4 lg:w-1/5 md:sticky md:top-28 self-start">
+        <aside class="md:w-1/4 lg:w-1/5 md:sticky md:top-28 self-start"> <!-- 調整 top-28 (20 + 8) -->
             <nav id="toc-nav" class="bg-white rounded-lg shadow-sm p-4">
                 <h3 class="font-semibold text-lg mb-3 text-slate-700">頁面導覽</h3>
                 <ul class="space-y-2">
@@ -132,7 +214,7 @@
         <!-- Main Content -->
         <main class="md:w-3/4 lg:w-4/5">
             <div class="space-y-10">
-                <section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                <section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm"> <!-- 調整 scroll-mt-28 -->
                     <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
                     <p class="text-slate-600 mb-6">請根據您的需求選擇支付方案。所有服務皆須先支付預付款。若有疑問，請先洽詢官方客服。</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center justify-items-center text-center">
@@ -162,7 +244,7 @@
                    </div>
                 </section>
 
-                <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm"> <!-- 調整 scroll-mt-28 -->
                     <h2 class="text-2xl font-bold text-brandGreen mb-6">服務條款與介紹</h2>
                     
                     <!-- 服務內容 -->
@@ -226,10 +308,12 @@
                             <div id="slider-wrapper" class="flex transition-transform duration-500 ease-in-out">
                                 <!-- Slide 1 -->
                                 <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
+                                    <!-- ★ 修正路徑 -->
                                     <img src="{{ site.baseurl }}/images/keicha_電話代播_服務案例1.png" alt="服務案例1" class="w-full h-full object-contain">
                                 </div>
                                 <!-- Slide 2 -->
                                 <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
+                                    <!-- ★ 修正路徑 -->
                                     <img src="{{ site.baseurl }}/images/keicha_電話代播_服務案例2.png" alt="服務案例2" class="w-full h-full object-contain">
                                 </div>
                             </div>
@@ -268,8 +352,6 @@
                                 <div class="space-y-2">
                                     <p><strong>📞 電話代撥：</strong>每通 7 分鐘內 <strong>NT$160</strong>。超過部分每 10 分鐘加收 <strong>NT$200</strong>。</p>
                                     <p><strong>🌐 網路代訂：</strong>每筆訂單（單次操作）<strong>NT$150</strong>。</p>
-                                    <!-- ★ [UPDATED] 已新增音檔費用 ★ -->
-                                    <p><strong>🎧 調取音檔：</strong>每筆 <strong>NT$50</strong> (僅擷取音檔中可確定預約資訊內容)。</p>
                                 </div>
                             </div>
                         </div>
@@ -345,130 +427,149 @@
                     </div>
                 </section>
 
-                <section id="section-privacy" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                <section id="section-privacy" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm"> <!-- 調整 scroll-mt-28 -->
                     <h2 class="text-2xl font-bold text-brandGreen mb-4">隱私權條款</h2>
                     <p class="text-slate-600 mb-6">本店非常重視您的個人隱私與資料保護，為了讓您安心使用本服務，向您說明我們如何蒐集、使用及保護您的個人資訊。</p>
+
                     <div class="space-y-3">
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>一、資料蒐集方式與項目</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <p>當您使用本服務時，我們可能會蒐集下列個人資料：</p>
-                                    <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
-                                        <li>聯絡資訊（如姓名、電話、電子郵件、地址等）</li>
-                                        <li>交易資訊（如訂單內容、付款紀錄、配送資訊）</li>
-                                        <li>網站使用資料（如瀏覽行為、IP位址、Cookie資訊）</li>
-                                    </ul>
-                                    <p class="mt-2">資料可能透過線上表單、訂購流程或客服聯繫等方式蒐集。</p>
-                                </div>
-                            </div>
+                    
+                    <!-- 一、資料蒐集方式與項目 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>一、資料蒐集方式與項目</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <p>當您使用本服務時，我們可能會蒐集下列個人資料：</p>
+                          <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
+                            <li>聯絡資訊（如姓名、電話、電子郵件、地址等）</li>
+                            <li>交易資訊（如訂單內容、付款紀錄、配送資訊）</li>
+                            <li>網站使用資料（如瀏覽行為、IP位址、Cookie資訊）</li>
+                          </ul>
+                          <p class="mt-2">資料可能透過線上表單、訂購流程或客服聯繫等方式蒐集。</p>
                         </div>
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>二、資料使用範圍</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <ul class="list-disc list-inside space-y-1 pl-4">
-                                        <li>處理您的訂單與服務需求</li>
-                                        <li>聯繫您以確認或通知交易進度</li>
-                                        <li>回覆您的問題或提供售後服務</li>
-                                        <li>改善網站服務與使用者體驗</li>
-                                    </ul>
-                                </div>
-                            </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 二、資料使用範圍 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>二、資料使用範圍</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li>處理您的訂單與服務需求</li>
+                            <li>聯繫您以確認或通知交易進度</li>
+                            <li>回覆您的問題或提供售後服務</li>
+                            <li>改善網站服務與使用者體驗</li>
+                          </ul>
                         </div>
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>三、資料保存期間</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <p>
-                                        我們僅在達成蒐集目的所需期間內保存您的個人資料，或依相關法律規定保存最短必要期間。期滿後將採取安全刪除或匿名化處理。
-                                    </p>
-                                </div>
-                            </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 三、資料保存期間 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>三、資料保存期間</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <p>
+                            我們僅在達成蒐集目的所需期間內保存您的個人資料，或依相關法律規定保存最短必要期間。期滿後將採取安全刪除或匿名化處理。
+                          </p>
                         </div>
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>四、資料保護與安全</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <p>
-                                        我們採取合理的安全措施以保護您的個人資料，並限制資料的存取權限僅限於執行業務所需的相關人員。
-                                    </p>
-                                </div>
-                            </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 四、資料保護與安全 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>四、資料保護與安全</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <p>
+                            我們採取合理的安全措施以保護您的個人資料，並限制資料的存取權限僅限於執行業務所需的相關人員。
+                          </p>
                         </div>
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>五、第三方服務與資料提供</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <p>
-                                        為完成交易與服務，我們可能在必要範圍內將您的資料提供給第三方（如金流服務商、物流公司）。 	
-                                        本商店的部分服務可能透過第三方平台（如餐廳、飯店、交通機構等）提供，當您使用該等平台時，您的資料將依該平台之隱私政策處理。
-                                    </p>
-                                </div>
-                            </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 五、第三方服務與資料提供 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>五、第三方服務與資料提供</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <p>
+                            為完成交易與服務，我們可能在必要範圍內將您的資料提供給第三方（如金流服務商、物流公司）。 	
+                            本商店的部分服務可能透過第三方平台（如餐廳、飯店、交通機構等）提供，當您使用該等平台時，您的資料將依該平台之隱私政策處理。
+                          </p>
                         </div>
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>六、Cookie 與追蹤技術</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <p>
-                                        為提升使用體驗，本網站可能使用 Cookie 或網站分析工具，以了解瀏覽行為並改善服務。 	
-                                        您可於瀏覽器設定中停用 Cookie，但部分功能可能因此無法正常運作。
-                                    </p>
-                                </div>
-                            </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 六、Cookie 與追蹤技術 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>六、Cookie 與追蹤技術</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <p>
+                            為提升使用體驗，本網站可能使用 Cookie 或網站分析工具，以了解瀏覽行為並改善服務。 	
+                            您可於瀏覽器設定中停用 Cookie，但部分功能可能因此無法正常運作。
+                          </p>
                         </div>
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>七、使用者權利</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <p>
-                                        您可隨時依個人資料保護法規定，要求查詢、更正、刪除或停止使用您的個人資料。 	
-                                        如有相關需求，請依下方聯絡方式與我們聯繫。
-                                    </p>
-                                </div>
-                            </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 七、使用者權利 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>七、使用者權利</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <p>
+                            您可隨時依個人資料保護法規定，要求查詢、更正、刪除或停止使用您的個人資料。 	
+                            如有相關需求，請依下方聯絡方式與我們聯繫。
+                          </p>
                         </div>
-                        <div class="accordion-item">
-                            <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                <span>八、聯絡我們</span>
-                                <span class="transform transition-transform duration-300">▼</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="p-4 bg-white border rounded-b-lg">
-                                    <p>若您對本隱私權條款有任何疑問，或欲行使您的個資權利，請與我們聯絡：</p>
-                                    <ul class="list-disc list-inside pl-4 mt-2">
-                                        <li>電子郵件：keicha.nihoncha@gmail.com</li>
-                                        <li>LINE ID：@366qwylw</li>
-                                    </ul>
-                                </div>
-                            </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 八、聯絡我們 -->
+                    <div class="accordion-item">
+                      <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                        <span>八、聯絡我們</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                      </button>
+                      <div class="accordion-content">
+                        <div class="p-4 bg-white border rounded-b-lg">
+                          <p>若您對本隱私權條款有任何疑問，或欲行使您的個資權利，請與我們聯絡：</p>
+                          <ul class="list-disc list-inside pl-4 mt-2">
+                            <li>電子郵件：keicha.nihoncha@gmail.com</li>
+                            <li>LINE ID：@366qwylw</li>
+                          </ul>
                         </div>
+                      </div>
+                    </div>
+                    
                     </div>
                 </section>
 
-                <section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center">
+
+                <section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center"> <!-- 調整 scroll-mt-28 -->
                     <h2 class="text-2xl font-bold text-brandGreen mb-4">聯絡方式</h2>
                     <p class="mb-4 text-slate-600">本店保留隨時修改本服務條款之權利，修改後將公布於本網站。</p>
                     <p class="font-semibold mb-2">若有任何服務疑問，請透過官方客服聯繫：</p>
@@ -485,217 +586,3 @@
         </main>
     </div>
 </div>
-
-<!-- [NEW] Lightbox 燈箱 HTML 結構 (放在 </body> 標籤前) -->
-<div id="lightbox" class="lightbox">
-    <span class="lightbox-close">&times;</span>
-    <img class="lightbox-content" id="lightbox-img">
-</div>
-
-<!-- ▼ denwa.html 專屬的 JS ▼ -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        
-        // --- [NEW] Lightbox 燈箱邏輯 ---
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        const lightboxClose = document.querySelector('.lightbox-close');
-        const lightboxTriggers = document.querySelectorAll('.lightbox-trigger');
-
-        if (lightbox && lightboxImg && lightboxClose && lightboxTriggers.length > 0) {
-            
-            // 開啟燈箱
-            const openLightbox = (e) => {
-                const imgElement = e.target;
-                const imgSrc = imgElement.src;
-                
-                if (imgSrc) {
-                    lightboxImg.src = imgSrc;
-                    lightbox.classList.add('show', 'opacity-100');
-                }
-            };
-
-            // 關閉燈箱
-            const closeLightbox = () => {
-                lightbox.classList.remove('show', 'opacity-100');
-                setTimeout(() => {
-                    lightboxImg.src = '';
-                }, 300);
-            };
-
-            // 綁定觸發器
-            lightboxTriggers.forEach(trigger => {
-                trigger.addEventListener('click', openLightbox);
-            });
-
-            // 綁定關閉事件
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox || e.target === lightboxClose) {
-                    closeLightbox();
-                }
-            });
-            
-            // 按下 ESC 鍵關閉
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && lightbox.classList.contains('show')) {
-                    closeLightbox();
-                }
-            });
-        }
-        
-        // --- [EXISTING] 頁面內部導覽 (TOC) 邏輯 ---
-        const sections = document.querySelectorAll('section[id^="section-"]');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const tocNav = document.getElementById('toc-nav');
-
-        if (tocNav && sections.length > 0 && navLinks.length > 0) {
-            const observerOptions = {
-                root: null,
-                rootMargin: '-80px 0px -40% 0px',
-                threshold: 0
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                let visibleSections = [];
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        visibleSections.push(entry.target);
-                    }
-                });
-
-                if (visibleSections.length > 0) {
-                    const topSection = visibleSections.reduce((prev, curr) => {
-                        return prev.getBoundingClientRect().top < curr.getBoundingClientRect().top ? prev : curr;
-                    });
-
-                    const id = topSection.getAttribute('id');
-                    const navLink = tocNav.querySelector(`a[href="#${id}"]`);
-
-                    navLinks.forEach(link => link.classList.remove('active'));
-                    if (navLink) {
-                        navLink.classList.add('active');
-                    }
-                }
-            }, observerOptions);
-
-            sections.forEach(section => {
-                observer.observe(section);
-            });
-            
-            tocNav.addEventListener('click', (e) => {
-                if(e.target.tagName === 'A') {
-                    e.preventDefault();
-                    const targetId = e.target.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if(targetElement) {
-                        const headerOffset = 90;
-                        const elementPosition = targetElement.getBoundingClientRect().top;
-                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                }
-            });
-        }
-
-        // --- [EXISTING] 輪播圖 (Slider) 邏輯 ---
-        const sliderWrapper = document.getElementById('slider-wrapper');
-        if (sliderWrapper) {
-            const slides = document.querySelectorAll('.slider-slide');
-            const prevBtn = document.getElementById('slider-prev');
-            const nextBtn = document.getElementById('slider-next');
-            const dots = document.querySelectorAll('.slider-dot');
-            
-            let currentSlide = 0;
-            const slideCount = slides.length;
-
-            const goToSlide = (slideIndex) => {
-                if (slideCount === 0) return;
-                if (slideIndex < 0) {
-                    slideIndex = slideCount - 1;
-                } else if (slideIndex >= slideCount) {
-                    slideIndex = 0;
-                }
-                
-                sliderWrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
-                currentSlide = slideIndex;
-                updateDots();
-            };
-
-            const updateDots = () => {
-                dots.forEach((dot, index) => {
-                    if (index === currentSlide) {
-                        dot.classList.add('active', 'bg-brandGreen');
-                        dot.classList.remove('bg-white', 'bg-opacity-50');
-                    } else {
-                        dot.classList.remove('active', 'bg-brandGreen');
-                        dot.classList.add('bg-white', 'bg-opacity-50');
-                    }
-                });
-            };
-
-            if(prevBtn) {
-                prevBtn.addEventListener('click', () => {
-                    goToSlide(currentSlide - 1);
-                });
-            }
-
-            if(nextBtn) {
-                nextBtn.addEventListener('click', () => {
-                    goToSlide(currentSlide + 1);
-                });
-            }
-
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => {
-                    goToSlide(index);
-                });
-            });
-
-            // Initialize
-            goToSlide(0);
-        }
-        
-        // --- [EXISTING] 折疊選單 (Accordion) 邏輯 ---
-        const accordionItems = document.querySelectorAll('.accordion-item');
-        if (accordionItems.length > 0) {
-            accordionItems.forEach(item => {
-                const header = item.querySelector('.accordion-header');
-                const content = item.querySelector('.accordion-content');
-                const icon = header.querySelector('span:last-child');
-                
-                header.addEventListener('click', () => {
-                    const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
-                    
-                    if (!isOpen) {
-                        accordionItems.forEach(otherItem => {
-                            if (otherItem !== item) {
-                                const otherContent = otherItem.querySelector('.accordion-content');
-                                const otherIcon = otherItem.querySelector('.accordion-header span:last-child');
-                                otherContent.style.maxHeight = '0px';
-                                otherIcon.style.transform = 'rotate(0deg)';
-                            }
-                        });
-                    }
-
-                    if (isOpen) {
-                        content.style.maxHeight = '0px';
-                        icon.style.transform = 'rotate(0deg)';
-                    } else {
-                        content.style.maxHeight = content.scrollHeight + 'px';
-                        icon.style.transform = 'rotate(180deg)';
-                    }
-                });
-            });
-        }
-
-    }); // 結束 DOMContentLoaded
-</script>
-<!-- ▲ denwa.html 專屬的 JS ▲ -->
-
-</body>
-</html>
-
