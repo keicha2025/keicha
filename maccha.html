@@ -55,6 +55,23 @@ styles: |
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* 價格顯示樣式 */
+        .price-discount {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.4;
+        }
+        .price-original {
+            font-size: 0.9em;
+            color: #6b7280; /* text-gray-500 */
+            /* 移除刪除線 */
+            /* text-decoration: line-through; */ 
+        }
+        .price-current {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 700; /* font-bold */
+        }
     </style>
 scripts: |
     <script>
@@ -73,6 +90,35 @@ scripts: |
                 kanbayashi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=13600549&single=true&output=csv"
             };
             // --- 設定區結束 ---
+
+            // --- [NEW] 自動計算日期 ---
+            try {
+                const today = new Date();
+                const updateTime = new Date(today);
+                updateTime.setDate(today.getDate() - 4); // 自動減去 4 天
+                const month = updateTime.getMonth() + 1; // JS 月份是 0-11
+                const day = updateTime.getDate();
+                const dateEl = document.getElementById('update-date');
+                if(dateEl) dateEl.textContent = `${month}/${day}`;
+            } catch (e) {
+                console.error("日期計算錯誤:", e);
+                const dateEl = document.getElementById('update-date');
+                if(dateEl) dateEl.textContent = "錯誤";
+            }
+
+            /**
+             * 強制清除快取的 Fetch
+             */
+            function fetchWithCacheBust(url) {
+                const cacheBustUrl = url + (url.includes('?') ? '&' : '?') + '_cacheBust=' + new Date().getTime();
+                return fetch(cacheBustUrl, { cache: 'no-store' })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`網路回應錯誤 (status: ${response.status})`);
+                        }
+                        return response.text();
+                    });
+            }
 
             /**
              * 修正：清理 CSV 標頭中的隱藏字元
@@ -127,6 +173,7 @@ scripts: |
 
                 const isAvailable = status === 'available';
                 const statusText = isAvailable ? '可供訂購' : '缺貨中';
+                // [FIXED] 使用品牌色
                 const statusBg = isAvailable ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-700';
                 
                 card.innerHTML = `
@@ -174,7 +221,6 @@ scripts: |
                 const products = [];
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
-                    // 簡易 CSV 解析，假設欄位內沒有逗號
                     const data = lines[i].split(',');
                     const product = {
                         product_name: data[headerMap.product_name] ? data[headerMap.product_name].trim() : '',
@@ -214,6 +260,7 @@ scripts: |
                     const isAvailable = status === 'available';
                     const cardClasses = isAvailable ? 'bg-white transform hover:scale-105' : 'bg-gray-100 opacity-70';
                     
+                    // [FIXED] 使用品牌色
                     const statusBadge = isAvailable
                         ? `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">可訂購</span>`
                         : `<span class="absolute top-3 right-3 bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">缺貨中</span>`;
@@ -221,15 +268,22 @@ scripts: |
                     let priceHTML = '';
                     const priceTextClass = isAvailable ? 'text-brandGreen' : 'text-gray-500';
 
+                    // [FIXED] 價格顯示樣式 (無刪除線)
                     if (priceMulti > 0 && priceMulti < price) {
-                        priceHTML = `<div>
-                            <p class="text-sm text-gray-500">單罐: NT$ ${price.toLocaleString()}</p>
-                            <p class="text-lg font-bold ${priceTextClass}">2罐起單價: NT$ ${priceMulti.toLocaleString()}</p>
-                        </div>`;
+                        priceHTML = `
+                        <div class="price-discount">
+                            <span class="price-original">單罐: NT$ ${price.toLocaleString()}</span>
+                            <span class="${priceTextClass} price-current">2罐起單價: NT$ ${priceMulti.toLocaleString()}</span>
+                        </div>
+                    `;
                     } else if (price > 0) {
-                        priceHTML = `<p class="text-lg font-bold ${priceTextClass}">NT$ ${price.toLocaleString()}</p>`;
+                        priceHTML = `
+                        <p class="${priceTextClass} price-current" style="font-size: 1.125rem; font-weight: 700;">NT$ ${price.toLocaleString()}</p>
+                    `;
                     } else {
-                        priceHTML = `<p class="text-lg font-bold ${priceTextClass}">價格請洽詢</p>`;
+                        priceHTML = `
+                        <p class="${priceTextClass} price-current" style="font-size: 1.125rem; font-weight: 700;">價格請洽詢</p>
+                    `;
                     }
 
                     const cardHTML = `
@@ -269,7 +323,7 @@ scripts: |
                 renderStatusError(new Error("尚未設定「狀態總覽」的 Google Sheet 網址。"));
                 if (statusLoader) statusLoader.classList.add('hidden');
             } else {
-                fetch(statusSheetUrl, { cache: 'no-store' }) // 強制清除快取
+                fetchWithCacheBust(statusSheetUrl)
                     .then(response => response.ok ? response.text() : Promise.reject(new Error(`網路回應錯誤 (status: ${response.status})`)))
                     .then(csvText => {
                         const statuses = parseStatusCSV(csvText);
@@ -291,7 +345,7 @@ scripts: |
                     return;
                 }
 
-                fetch(url, { cache: 'no-store' }) // 強制清除快取
+                fetchWithCacheBust(url)
                     .then(response => response.ok ? response.text() : Promise.reject(new Error(`網路回應錯誤 (status: ${response.status})`)))
                     .then(csvText => {
                         const products = parseProductCSV(csvText);
@@ -307,15 +361,16 @@ scripts: |
     </script>
 ---
 
-<!-- ==== 頁面主要內容 (僅保留 content) ==== -->
+<!-- ==== 頁面主要內容 (HTML Content) ==== -->
 <main>
     <!-- 1. 頁面標題 -->
     <section class="bg-white pt-16 pb-12 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div class="flex justify-center items-center gap-4 mb-4">
-                <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
-            </div>
-            <p class="mt-4 text-lg text-gray-600">頁面資訊皆自動更新，請稍候載入</p>
+            <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
+            <p class="mt-4 text-lg text-gray-600">
+                狀態更新時間：<span id="update-date" class="font-semibold text-gray-700">計算中...</span>
+            </p>
+            <p class="mt-2 text-sm text-gray-500">(狀態由後台自動更新，約有 5 分鐘延遲)</p>
         </div>
     </section>
 
@@ -363,7 +418,8 @@ scripts: |
     <!-- 3. 品牌詳細品項 (來自 matcha-products.html) -->
     <div class="py-16 md:py-24 space-y-16">
         
-        <section id="marukyu" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28"> <!-- 加上 scroll-mt -->
+        <section id="marukyu" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
             <h2 class="text-3xl font-bold text-center mb-10">丸久小山園</h2>
             <div id="marukyu-loader" class="flex justify-center items-center h-32">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
@@ -372,6 +428,7 @@ scripts: |
         </section>
 
         <section id="yamamasa" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
             <h2 class="text-3xl font-bold text-center mb-10">山政小山園</h2>
             <div id="yamamasa-loader" class="flex justify-center items-center h-32">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
@@ -380,6 +437,7 @@ scripts: |
         </section>
 
         <section id="hoshino" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
             <h2 class="text-3xl font-bold text-center mb-10">星野製茶園</h2>
             <div id="hoshino-loader" class="flex justify-center items-center h-32">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
@@ -388,6 +446,7 @@ scripts: |
         </section>
 
         <section id="kanbayashi" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
             <h2 class="text-3xl font-bold text-center mb-10">上林春松本店</h2>
             <div id="kanbayashi-loader" class="flex justify-center items-center h-32">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
