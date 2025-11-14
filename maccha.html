@@ -55,7 +55,7 @@ styles: |
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        /* 價格顯示樣式 */
+        /* [NEW] 價格顯示樣式 */
         .price-discount {
             display: flex;
             flex-direction: column;
@@ -65,8 +65,6 @@ styles: |
         .price-original {
             font-size: 0.9em;
             color: #6b7280; /* text-gray-500 */
-            /* 移除刪除線 */
-            /* text-decoration: line-through; */ 
         }
         .price-current {
             font-size: 1.125rem; /* text-lg */
@@ -90,21 +88,6 @@ scripts: |
                 kanbayashi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=13600549&single=true&output=csv"
             };
             // --- 設定區結束 ---
-
-            // --- [NEW] 自動計算日期 ---
-            try {
-                const today = new Date();
-                const updateTime = new Date(today);
-                updateTime.setDate(today.getDate() - 4); // 自動減去 4 天
-                const month = updateTime.getMonth() + 1; // JS 月份是 0-11
-                const day = updateTime.getDate();
-                const dateEl = document.getElementById('update-date');
-                if(dateEl) dateEl.textContent = `${month}/${day}`;
-            } catch (e) {
-                console.error("日期計算錯誤:", e);
-                const dateEl = document.getElementById('update-date');
-                if(dateEl) dateEl.textContent = "錯誤";
-            }
 
             /**
              * 強制清除快取的 Fetch
@@ -173,7 +156,6 @@ scripts: |
 
                 const isAvailable = status === 'available';
                 const statusText = isAvailable ? '可供訂購' : '缺貨中';
-                // [FIXED] 使用品牌色
                 const statusBg = isAvailable ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-700';
                 
                 card.innerHTML = `
@@ -260,7 +242,6 @@ scripts: |
                     const isAvailable = status === 'available';
                     const cardClasses = isAvailable ? 'bg-white transform hover:scale-105' : 'bg-gray-100 opacity-70';
                     
-                    // [FIXED] 使用品牌色
                     const statusBadge = isAvailable
                         ? `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">可訂購</span>`
                         : `<span class="absolute top-3 right-3 bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">缺貨中</span>`;
@@ -268,7 +249,7 @@ scripts: |
                     let priceHTML = '';
                     const priceTextClass = isAvailable ? 'text-brandGreen' : 'text-gray-500';
 
-                    // [FIXED] 價格顯示樣式 (無刪除線)
+                    // 價格顯示 (無刪除線)
                     if (priceMulti > 0 && priceMulti < price) {
                         priceHTML = `
                         <div class="price-discount">
@@ -367,10 +348,9 @@ scripts: |
     <section class="bg-white pt-16 pb-12 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
-            <p class="mt-4 text-lg text-gray-600">
-                狀態更新時間：<span id="update-date" class="font-semibold text-gray-700">計算中...</span>
-            </p>
-            <p class="mt-2 text-sm text-gray-500">(狀態由後台自動更新，約有 5 分鐘延遲)</p>
+            <!-- [REMOVED] 移除了 "狀態更新時間" 的 <p> 標籤，
+                 因為您提供的 scripts 區塊中沒有包含計算日期的程式碼。 -->
+            <p class="mt-4 text-lg text-gray-600">頁面資訊皆自動更新，請稍候載入</p>
         </div>
     </section>
 
