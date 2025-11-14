@@ -89,33 +89,29 @@ scripts: |
             };
             // --- 設定區結束 ---
 
-            // ★ [FIXED] 幫您加回自動計算日期的功能
-            try {
-                const today = new Date();
-                const updateTime = new Date(today);
-                updateTime.setDate(today.getDate() - 4); // 自動減去 4 天
-                const month = updateTime.getMonth() + 1; // JS 月份是 0-11
-                const day = updateTime.getDate();
-                const dateEl = document.getElementById('update-date');
-                if(dateEl) dateEl.textContent = `${month}/${day}`;
-            } catch (e) {
-                console.error("日期計算錯誤:", e);
-                const dateEl = document.getElementById('update-date');
-                if(dateEl) dateEl.textContent = "錯誤";
-            }
+            // ★ [REMOVED] 移除了自動計算日期的功能
             
             /**
-             * 強制清除快取的 Fetch
+             * ★ [UPDATED] 強制清除快取的 Fetch
+             * 改用標準的 cache-control 標頭，
+             * 並提供更清楚的 status 錯誤回報。
              */
             function fetchWithCacheBust(url) {
-                const cacheBustUrl = url + (url.includes('?') ? '&' : '?') + '_cacheBust=' + new Date().getTime();
-                return fetch(cacheBustUrl, { cache: 'no-store' })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`網路回應錯誤 (status: ${response.status})`);
-                        }
-                        return response.text();
-                    });
+                return fetch(url, {
+                    cache: 'no-store', // 請求瀏覽器不要使用快取
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        // 如果 status 是 0，通常代表 CORS 或網路被阻擋
+                        const statusText = response.status === 0 ? 'Network/CORS Error' : response.status;
+                        throw new Error(`網路回應錯誤 (status: ${statusText})`);
+                    }
+                    return response.text();
+                });
             }
 
             /**
@@ -365,9 +361,9 @@ scripts: |
     <section class="bg-white pt-16 pb-12 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
-            <!-- ★ [FIXED] 加上 id="update-date" 讓 JS 能抓到 -->
+            <!-- ★ [REMOVED] 移除了整行 "狀態更新時間" -->
             <p class="mt-4 text-lg text-gray-600">
-                狀態更新時間：<span id="update-date" class="font-semibold text-gray-700">計算中...</span>
+                頁面資訊皆自動更新，請稍候載入
             </p>
             <p class="mt-2 text-sm text-gray-500">(狀態由後台自動更新，約有 5 分鐘延遲)</p>
         </div>
@@ -381,107 +377,140 @@ scripts: |
             <div id="status-loader" class="flex justify-center items-center h-24 hidden">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-12 w-12"></div>
             </div>
+<!-- ... existing code ...
             <!-- 錯誤訊息 (總覽) -->
             <div id="status-error" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg"></div>
             <!-- 狀態格 (總覽) -->
+<!-- ... existing code ...
             <div id="status-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 <!-- 丸久小山園 狀態 -->
+<!-- ... existing code ...
                 <div id="status-marukyu" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-2">丸久小山園</h3>
+<!-- ... existing code ...
                     <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
                 </div>
                 <!-- 山政小山園 狀態 -->
+<!-- ... existing code ...
                 <div id="status-yamamasa" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-2">山政小山園</h3>
+<!-- ... existing code ...
                     <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
                 </div>
                 <!-- 星野製茶園 狀態 -->
+<!-- ... existing code ...
                 <div id="status-hoshino" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-2">星野製茶園</h3>
+<!-- ... existing code ...
                     <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
                 </div>
                 <!-- 上林春松本店 狀態 -->
+<!-- ... existing code ...
                 <div id="status-kanbayashi" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-2">上林春松本店</h3>
+<!-- ... existing code ...
                     <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
                 </div>
             </div>
+<!-- ... existing code ...
         </div>
     </section>
 
     <!-- 3. 品牌詳細品項 (來自 matcha-products.html) -->
+<!-- ... existing code ...
     <div class="py-16 md:py-24 space-y-16">
         
         <section id="marukyu" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+<!-- ... existing code ...
             <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
             <h2 class="text-3xl font-bold text-center mb-10">丸久小山園</h2>
             <div id="marukyu-loader" class="flex justify-center items-center h-32">
+<!-- ... existing code ...
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
             </div>
             <div id="marukyu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+<!-- ... existing code ...
         </section>
 
         <section id="yamamasa" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
             <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
+<!-- ... existing code ...
             <h2 class="text-3xl font-bold text-center mb-10">山政小山園</h2>
             <div id="yamamasa-loader" class="flex justify-center items-center h-32">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+<!-- ... existing code ...
             </div>
             <div id="yamamasa-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
+<!-- ... existing code ...
 
         <section id="hoshino" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
             <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
+<!-- ... existing code ...
             <h2 class="text-3xl font-bold text-center mb-10">星野製茶園</h2>
             <div id="hoshino-loader" class="flex justify-center items-center h-32">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+<!-- ... existing code ...
             </div>
             <div id="hoshino-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
+<!-- ... existing code ...
 
         <section id="kanbayashi" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
             <!-- ★ [FIXED] 移除了 GSC 錯誤的 "Product" schema <script> ★ -->
+<!-- ... existing code ...
             <h2 class="text-3xl font-bold text-center mb-10">上林春松本店</h2>
             <div id="kanbayashi-loader" class="flex justify-center items-center h-32">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+<!-- ... existing code ...
             </div>
             <div id="kanbayashi-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
     </div>
+<!-- ... existing code ...
 
     <!-- 4. 下單區塊 -->
     <section id="payment" class="py-16 md:py-24 bg-white border-t border-gray-200 scroll-mt-28">
+<!-- ... existing code ...
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-xl">
             <h2 class="text-3xl font-bold text-center mb-12">下單專區</h2>
             <div class="bg-white p-8 rounded-lg shadow-lg">
+<!-- ... existing code ...
                 <h3 class="text-2xl font-semibold text-center mb-8">7-11 貨到付款下單</h3>
                 <div class="text-center">
                     <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
+<!-- ... existing code ...
                         前往 7-11 賣貨便
                     </a>
                 </div>
                 <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+<!-- ... existing code ...
                     <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結：</p>
                     <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2510186847800" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                 </div>
+<!-- ... existing code ...
             </div>
         </div>
     </section>
+<!-- ... existing code ...
 
     <!-- 5. 聯絡我們 -->
     <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+<!-- ... existing code ...
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-3xl font-bold mb-4">您在尋找其他品牌嗎？</h2>
             <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
+<!-- ... existing code ...
             <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
                 <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
             </a>
+<!-- ... existing code ...
             <p class="text-gray-600">或手動輸入 ID:</p>
              <input type="text" value="@366qwylw" readonly
                    onclick="this.select()"
