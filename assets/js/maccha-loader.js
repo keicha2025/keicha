@@ -7,6 +7,7 @@
  * 4. 動態建立 SEO 結構化資料 (JSON-LD)
  * 5. 異步抓取所有「詳細品項」的 CSV 並填入
  * * ★ Cloudflare 修正：
+ * - 此檔案在 HTML 中被 <script data-cf-async="false"> 載入
  * - 使用 'load' 事件確保在 Rocket Loader 之後執行
  * - fetch 時使用 'no-store' 標頭
  */
@@ -18,7 +19,7 @@ window.addEventListener('load', () => {
     // 只需要 1 個「總表」網址。
     // 這個總表必須包含 4 欄: key, name, status, product_csv_url
     //
-    const masterSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
+    const masterSheetUrl = "https.docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
     //
     // --- 設定區結束 ---
 
