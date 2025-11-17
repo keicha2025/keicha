@@ -57,5 +57,106 @@ scripts: |
 =====================================================
 -->
 <main>
-# ... (您所有的 HTML 內容都不變) ...
+    <!-- ★ [NEW] 動態 SEO 結構化資料的容器 -->
+    <div id="structured-data-container"></div>
+
+    <!-- 1. 頁面標題 -->
+    <section class="bg-white pt-16 pb-12 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
+            <p class="mt-4 text-lg text-gray-600">
+                頁面資訊皆自動更新，請稍候載入
+            </p>
+            <p class="mt-2 text-sm text-gray-500">(狀態由後台自動更新，約有 5 分鐘延遲)</p>
+        </div>
+    </section>
+
+    <!-- 2. 品牌總覽 (動態載入) -->
+    <section id="status-overview" class="py-16 md:py-24 bg-gray-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <h2 class="text-3xl font-bold text-center mb-12">品牌總覽</h2>
+            
+            <!-- 載入動畫 (總覽) -->
+            <div id="status-loader" class="flex justify-center items-center h-24 hidden">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-12 w-12"></div>
+            </div>
+            
+            <!-- 
+              ★ [UPDATED] 
+              總覽容器 (id="status-grid-container")
+              原有的 4 個品牌 div 已被刪除，改由 JS 動態填入。
+            -->
+            <div id="status-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 內容將由 JavaScript 動態產生 -->
+            </div>
+            
+            <!-- 錯誤訊息 (總覽) -->
+            <div id="status-error" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg mt-6"></div>
+        </div>
+    </section>
+
+    <!-- 
+      ★ [UPDATED] 
+      品牌詳細品項 (id="product-list-container")
+      原有的 4 個品牌 <section> 已被刪除，改由 JS 動態填入。
+    -->
+    <div id="product-list-container" class="py-16 md:py-24 space-y-16">
+        <!-- 品牌區塊將由 JavaScript 動態產生 -->
+    </div>
+
+    <!-- 4. 下單區塊 (不變) -->
+    <section id="payment" class="py-16 md:py-24 bg-white border-t border-gray-200 scroll-mt-28">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <h2 class="text-3xl font-bold text-center mb-12">抹茶下單專區</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- 方塊 1: 7-11 -->
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-center mb-8">7-11 貨到付款下單</h3>
+                    <div class="text-center">
+                        <a href="https://myship.7-11.com.tw/cart/easy/GM2511158406180" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
+                            前往 7-11 賣貨便
+                        </a>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                        <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結：</p>
+                        <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2511158406180" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
+                    </div>
+                </div>
+
+                <!-- 方塊 2: 全家 -->
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-center mb-8">全家貨到付款下單</h3>
+                    <div class="text-center">
+                        <a href="https://famistore.famiport.com.tw/famistore/users/3452062/merchandises/690709f0acc2d7a87173fde6" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
+                            前往全家好賣+
+                        </a>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                        <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結：</p>
+                        <input type="text" value="https://famistore.famiport.com.tw/famistore/users/3452062/merchandises/690709f0acc2d7a87173fde6" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 聯絡我們 (不變) -->
+    <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-4">您在尋找其他品牌嗎？</h2>
+            <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
+            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
+                <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+            </a>
+            <p class="text-gray-600">或手動輸入 ID:</p>
+             <input type="text" value="@366qwylw" readonly
+                   onclick="this.select()"
+                   class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                   title="點擊選取 ID"
+                   onfocus="this.select()">
+        </div>
+    </section>
 </main>
