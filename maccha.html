@@ -5,11 +5,45 @@ title: KEICHA 抹茶代購總覽 | 丸久小山園、山政小山園代購狀態
 description: KEICHA 抹茶代購總覽。即時查看丸久小山園、山政小山園、星野製茶園、上林春松本店的最新可訂購狀態。
 keywords: KEICHA, 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶園, 上林春松本店, 抹茶狀態, 日本抹茶
 
-# ★ [UPDATED] 移除靜態的 structured_data
-# 我們將改用 JavaScript 動態生成，以確保品牌列表永遠是最新
-structured_data: ""
+# ★ 這是您原本的 (正確的) Schema.org
+structured_data: >
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "KEICHA 抹茶代購總覽",
+      "description": "即時查看日本各大抹茶品牌（丸久小山園、山政小山園、星野製茶園、上林春松本店）的最新可訂購狀態。",
+      "url": "https://keicha2025.github.io/keicha/maccha.html",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "丸久小山園 (Marukyu Koyamaen)",
+          "url": "https://keicha2025.github.io/keicha/maccha.html#marukyu"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "山政小山園 (Yamamasa Koyamaen)",
+          "url": "https://keicha2025.github.io/keicha/maccha.html#yamamasa"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "星野製茶園 (Hoshino Seichaen)",
+          "url": "https://keicha2025.github.io/keicha/maccha.html#hoshino"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "上林春松本店 (Kanbayashi Shunsho Honten)",
+          "url": "https://keicha2025.github.io/keicha/maccha.html#kanbayashi"
+        }
+      ]
+    }
+    </script>
 
-# ★ [UPDATED] 簡化 CSS 和 JS
+# ★ 這是您原本的 (正確的) CSS 和 JS
 styles: |
     <style>
         /* 載入中動畫 */
@@ -37,33 +71,30 @@ styles: |
         }
     </style>
 scripts: |
-    <!-- ★ [FIX] 加上 data-cf-async="false" 屬性，防止 Cloudflare Rocket Loader 破壞腳本 ★ -->
+    <!-- ★ [FIX 1] 加上 data-cf-async="false" 屬性，防止 Cloudflare Rocket Loader 破壞腳本 ★ -->
     <script data-cf-async="false">
         // ★ maccha.html 專屬的 JS (Google Sheets 載入)
         
-        // ★ [FIX] 改用 'load' 事件，確保在 Cloudflare 之後才執行
+        // ★ [FIX 2] 改用 'load' 事件，確保在 Cloudflare 之後才執行
         window.addEventListener('load', () => {
             
-            // --- 您的後台設定區 ---
-            // ★ [UPDATED] 
-            // 只需要 1 個「總表」網址。
-            // 這個總表必須包含 4 欄: key, name, status, product_csv_url
-            //
-            const masterSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
-            //
+            // --- 您的後台設定區 (您原本的設定) ---
+            // 總覽
+            const statusSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
+            
+            // 各品牌品項
+            const productSheetUrls = {
+                marukyu: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=0&single=true&output=csv",
+                yamamasa: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=42307123&single=true&output=csv",
+                hoshino: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=1215737367&single=true&output=csv",
+                kanbayashi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRx9mgQepP4AAa5EHqyRcGz8XZywHw5C6Ifu576Jcm7JZpapP3d9UyBTnSL1JrXrqBYxjzhCuTbyjzH/pub?gid=13600549&single=true&output=csv"
+            };
             // --- 設定區結束 ---
 
-            
-            // --- 全自動載入邏輯 (請勿輕易修改) ---
-
             /**
-             * ★ [FIX] 強制清除快取的 Fetch
+             * ★ [FIX 3] 強制清除快取的 Fetch
              */
             function fetchWithCacheBust(url) {
-                if (!url || !url.startsWith('http') || url.includes("請貼上")) {
-                    return Promise.reject(new Error(`無效或缺失的 Google Sheet 網址: ${url}`));
-                }
-                
                 return fetch(url, {
                     cache: 'no-store', // 請求瀏覽器不要使用快取
                     headers: {
@@ -88,33 +119,36 @@ scripts: |
             }
 
             /**
-             * 統一的 CSV 解析器
+             * 解析「品牌總覽」CSV
              */
-            function parseCSV(text, requiredHeaders) {
+            function parseStatusCSV(text) {
                 const lines = text.split(/\r?\n/);
                 if (lines.length < 2) return [];
                 
                 let header = cleanHeader(lines[0].split(','));
                 
+                const requiredHeaders = ['key', 'name', 'status'];
                 if (!requiredHeaders.every(h => header.includes(h))) {
-                    console.error(`CSV 標頭缺少必要欄位:`, header, `應包含:`, requiredHeaders);
-                    throw new Error(`CSV 標頭缺少 ${requiredHeaders.join(', ')} 欄位。`);
+                    console.error('「總覽」CSV 標頭缺少 key, name, 或 status 欄位:', header);
+                    throw new Error('「總覽」CSV 標頭缺少 key, name, 或 status 欄位。');
                 }
                 
-                const headerMap = {};
-                requiredHeaders.forEach(h => {
-                    headerMap[h] = header.indexOf(h);
-                });
+                const headerMap = {
+                    key: header.indexOf('key'),
+                    name: header.indexOf('name'),
+                    status: header.indexOf('status')
+                };
 
                 const data = [];
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
                     const row = lines[i].split(',');
-                    const item = {};
-                    for (const key in headerMap) {
-                        item[key] = row[headerMap[key]] ? row[headerMap[key]].trim() : '';
-                    }
-                    if (item[requiredHeaders[0]]) { 
+                    const item = {
+                        key: row[headerMap.key] ? row[headerMap.key].trim() : '',
+                        name: row[headerMap.name] ? row[headerMap.name].trim() : '',
+                        status: row[headerMap.status] ? row[headerMap.status].trim() : ''
+                    };
+                    if (item.key && item.name) {
                         data.push(item);
                     }
                 }
@@ -122,68 +156,79 @@ scripts: |
             }
 
             /**
-             * 渲染「品牌總覽」區塊 (動態生成)
+             * 渲染「品牌總覽」
              */
-            function renderStatusOverview(brands) {
-                const container = document.getElementById('status-grid-container');
-                const loader = document.getElementById('status-loader');
-                if (!container || !loader) return;
-                
-                loader.style.display = 'none';
-                container.innerHTML = ''; 
+            function renderStatus(key, status, name) {
+                const card = document.getElementById(`status-${key}`);
+                if (!card) return;
 
-                if (brands.length === 0) {
-                    container.innerHTML = '<p class="text-center text-gray-500">目前沒有可顯示的品牌狀態。</p>';
-                    return;
+                const isAvailable = status === 'available';
+                const statusText = isAvailable ? '可供訂購' : '缺貨中';
+                const statusBg = isAvailable ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-700';
+                
+                card.innerHTML = `
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">${name}</h3>
+                    <span class="text-sm font-medium px-3 py-1 rounded-full ${statusBg}">${statusText}</span>
+                `;
+                card.style.opacity = 1;
+            }
+
+            /**
+             * 處理「品牌總覽」錯誤
+             */
+            function renderStatusError(error) {
+                const errorDiv = document.getElementById('status-error');
+                const gridDiv = document.getElementById('status-grid');
+                if (errorDiv) {
+                    errorDiv.innerHTML = `載入「品牌總覽」時發生錯誤。<br>(${error.message})<br><span class="text-sm text-gray-600">請確認 Google Sheet 第一行 A1, B1, C1 分別為 key, name, status (全小寫)。</span>`;
+                    errorDiv.classList.remove('hidden');
                 }
-
-                const statusText = { 'available': '可供訂購', 'out-of-stock': '缺貨中' };
-                const statusClass = { 'available': 'bg-brandGreen text-white', 'out-of-stock': 'bg-gray-200 text-gray-700' };
-
-                brands.forEach(brand => {
-                    const currentStatus = brand.status === 'available' ? 'available' : 'out-of-stock';
-                    const currentName = brand.name || '未知品牌';
-
-                    const itemHTML = `
-                        <a href="#${brand.key}" class="bg-white p-5 md:p-6 rounded-lg shadow-md flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:scale-105">
-                            <span class="text-lg md:text-xl font-medium text-gray-800">${currentName}</span>
-                            <span class="px-4 py-1.5 rounded-full text-sm font-bold ${statusClass[currentStatus]}">
-                                ${statusText[currentStatus]}
-                            </span>
-                        </a>
-                    `;
-                    container.innerHTML += itemHTML;
-                });
+                if (gridDiv) gridDiv.classList.add('hidden');
             }
 
             /**
-             * 渲染「詳細品項」區塊 (動態生成)
+             * 解析「詳細品項」CSV
              */
-            function renderProductSections(brands) {
-                const container = document.getElementById('product-list-container');
-                if (!container) return;
+            function parseProductCSV(text) {
+                const lines = text.split(/\r?\n/);
+                if (lines.length < 2) return [];
                 
-                container.innerHTML = ''; 
+                let header = cleanHeader(lines[0].split(','));
 
-                brands.forEach(brand => {
-                    const sectionHTML = `
-                        <section id="${brand.key}" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
-                            <h2 class="text-3xl font-bold text-center mb-10">${brand.name}</h2>
-                            <div id="${brand.key}-loader" class="flex justify-center items-center h-32">
-                                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-                            </div>
-                            <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            </div>
-                        </section>
-                    `;
-                    container.innerHTML += sectionHTML;
-                });
+                const requiredHeaders = ['product_name', 'price', 'price_multi', 'status'];
+                if (!requiredHeaders.every(h => header.includes(h))) {
+                    console.error('「品項」CSV 標頭缺少必要欄位:', header);
+                    throw new Error('「品項」CSV 標頭缺少 product_name, price, price_multi 或 status 欄位。');
+                }
+                
+                const headerMap = {
+                    product_name: header.indexOf('product_name'),
+                    price: header.indexOf('price'),
+                    price_multi: header.indexOf('price_multi'),
+                    status: header.indexOf('status')
+                };
+
+                const products = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    const data = lines[i].split(',');
+                    const product = {
+                        product_name: data[headerMap.product_name] ? data[headerMap.product_name].trim() : '',
+                        price: data[headerMap.price] ? data[headerMap.price].trim() : '',
+                        price_multi: data[headerMap.price_multi] ? data[headerMap.price_multi].trim() : '',
+                        status: data[headerMap.status] ? data[headerMap.status].trim() : ''
+                    };
+                    if (product.product_name) {
+                        products.push(product);
+                    }
+                }
+                return products;
             }
 
             /**
-             * 渲染「單一品牌」的品項卡片
+             * 渲染「詳細品項」
              */
-            function renderProductCards(brandKey, products) {
+            function renderProductBrand(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 const loader = document.getElementById(`${brandKey}-loader`);
                 if (!grid || !loader) return;
@@ -241,89 +286,58 @@ scripts: |
             }
 
             /**
-             * 處理錯誤
+             * 處理「詳細品項」錯誤
              */
-            function renderError(containerId, error) {
-                const container = document.getElementById(containerId);
-                const loader = document.getElementById(containerId.replace('-grid', '-loader').replace('-container', '-loader'));
-                
+            function renderProductError(brandKey, error) {
+                const grid = document.getElementById(`${brandKey}-grid`);
+                const loader = document.getElementById(`${brandKey}-loader`);
                 if (loader) loader.style.display = 'none';
-                if (container) {
-                    container.innerHTML = `<p class="text-red-500 text-center col-span-full">載入資料時發生錯誤。<br>(訊息: ${error.message})</p>`;
+                if (grid) {
+                    grid.innerHTML = `<p class="text-red-500 text-center col-span-full">載入 ${brandKey} 品項時發生錯誤。<br>(錯誤訊息: ${error.message})<br><span class="text-sm text-gray-600">請確認 Google Sheet 標頭為: product_name, price, price_multi, status (全小寫)</span></p>`;
                 }
             }
+
+            // --- 執行 Google Sheets 載入 (半自動) ---
             
-            /**
-             * 動態生成 SEO 結構化資料
-             */
-            function renderStructuredData(brands) {
-                const container = document.getElementById('structured-data-container');
-                if (!container) return;
-
-                const itemListElements = brands.map((brand, index) => ({
-                    "@type": "ListItem",
-                    "position": index + 1,
-                    "name": brand.name,
-                    "url": `https://keicha2025.github.io/keicha/maccha.html#${brand.key}` // 確保網址正確
-                }));
-
-                const schema = {
-                    "@context": "https://schema.org",
-                    "@type": "ItemList",
-                    "name": "KEICHA 抹茶代購總覽",
-                    "description": "即時查看日本各大抹茶品牌（丸久小山園、山政小山園、星野製茶園、上林春松本店）的最新可訂購狀態。",
-                    "url": "https://keicha2025.github.io/keicha/maccha.html",
-                    "itemListElement": itemListElements
-                };
-
-                container.innerHTML = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
-            }
-
-
-            // --- 主執行流程 ---
-            
+            // 觸發「品牌總覽」
             const statusLoader = document.getElementById('status-loader');
             if (statusLoader) statusLoader.classList.remove('hidden');
 
-            // 1. 抓取「總表」
-            fetchWithCacheBust(masterSheetUrl)
-                .then(csvText => {
-                    const masterBrandList = parseCSV(csvText, ['key', 'name', 'status', 'product_csv_url']);
-                    
-                    // 2. 渲染「總覽」HTML
-                    renderStatusOverview(masterBrandList);
-                    
-                    // 3. 渲染「品項區塊」的 HTML 骨架
-                    renderProductSections(masterBrandList);
-                    
-                    // 4. 動態生成 SEO <script>
-                    renderStructuredData(masterBrandList);
-
-                    // 5. 異步抓取所有「詳細品項」
-                    masterBrandList.forEach(brand => {
-                        const productUrl = brand.product_csv_url;
-                        if (productUrl && productUrl.startsWith('http')) {
-                            fetchWithCacheBust(productUrl)
-                                .then(productCsvText => {
-                                    const products = parseCSV(productCsvText, ['product_name', 'price', 'price_multi', 'status']);
-                                    renderProductCards(brand.key, products);
-                                })
-                                .catch(err => {
-                                    console.error(`抓取 ${brand.key} 品項時發生錯誤:`, err);
-                                    renderError(`${brand.key}-grid`, err);
-                                });
-                        } else {
-                            renderError(`${brand.key}-grid`, new Error(`總表中未提供 ${brand.name} 的品項網址。`));
-                        }
+            if (!statusSheetUrl || !statusSheetUrl.startsWith('http') || statusSheetUrl.includes("請貼上")) {
+                renderStatusError(new Error("尚未設定「狀態總覽」的 Google Sheet 網址。"));
+                if (statusLoader) statusLoader.classList.add('hidden');
+            } else {
+                fetchWithCacheBust(statusSheetUrl) // [FIX] 使用修正後的 fetch
+                    .then(csvText => {
+                        const statuses = parseStatusCSV(csvText);
+                        statuses.forEach(s => renderStatus(s.key, s.status, s.name));
+                        if (statusLoader) statusLoader.classList.add('hidden');
+                    })
+                    .catch(err => {
+                        console.error("抓取「品牌總覽」時發生錯誤:", err);
+                        renderStatusError(err);
+                        if (statusLoader) statusLoader.classList.add('hidden');
                     });
+            }
 
-                })
-                .catch(err => {
-                    console.error("抓取「總表」時發生嚴重錯誤:", err);
-                    renderError('status-grid-container', err); 
-                    const productListContainer = document.getElementById('product-list-container');
-                    if (productListContainer) productListContainer.innerHTML = '';
-                });
+            // 觸發「詳細品項」
+            Object.keys(productSheetUrls).forEach(brandKey => {
+                const url = productSheetUrls[brandKey];
+                if (!url || !url.startsWith('http') || url.includes("請貼上")) {
+                    renderProductError(brandKey, new Error(`尚未設定 ${brandKey} 的 Google Sheet 網址。`));
+                    return;
+                }
+
+                fetchWithCacheBust(url) // [FIX] 使用修正後的 fetch
+                    .then(csvText => {
+                        const products = parseProductCSV(csvText);
+                        renderProductBrand(brandKey, products);
+                    })
+                    .catch(error => {
+                        console.error(`抓取 ${brandKey} 品項時發生錯誤:`, error);
+                        renderProductError(brandKey, error);
+                    });
+            });
         
         }); // 結束 'load' 事件
     </script>
@@ -333,15 +347,13 @@ scripts: |
 =====================================================
   頁面主要內容 (HTML Content)
   
-  ★ [UPDATED]
-  HTML 內容已被大幅簡化為「全自動」架構。
-  原有的 "手動" 區塊已被移除，改為空的容器。
-  同時移除了所有會干擾 Jekyll 的 <!-- --> 註解。
+  ★ [REVERTED] 
+  這份 HTML 是您 "半自動" 版本所需的結構。
+  它包含了 "手動" 建立的 4 個品牌總覽 div 和 4 個品項 section。
 =====================================================
 -->
 <main>
-    <div id="structured-data-container"></div>
-    
+    <!-- 1. 頁面標題 -->
     <section class="bg-white pt-16 pb-12 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
@@ -351,27 +363,79 @@ scripts: |
             <p class="mt-2 text-sm text-gray-500">(狀態由後台自動更新，約有 5 分鐘延遲)</p>
         </div>
     </section>
-    
+
+    <!-- 2. 品牌總覽 (來自 matcha-status.html) -->
     <section id="status-overview" class="py-16 md:py-24 bg-gray-100">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
             <h2 class="text-3xl font-bold text-center mb-12">品牌總覽</h2>
-            
             <div id="status-loader" class="flex justify-center items-center h-24 hidden">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-12 w-12"></div>
             </div>
-            
-            <div id="status-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- 內容將由 JavaScript 動態產生 -->
+            <div id="status-error" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg"></div>
+            <div id="status-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div id="status-marukyu" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">丸久小山園</h3>
+                    <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                </div>
+                <div id="status-yamamasa" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">山政小山園</h3>
+                    <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                </div>
+                <div id="status-hoshino" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">星野製茶園</h3>
+                    <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                </div>
+                <div id="status-kanbayashi" class="p-6 bg-white rounded-lg shadow-lg text-center opacity-50 transition-all duration-300">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mx-auto mb-3"></div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">上林春松本店</h3>
+                    <span class="text-sm font-medium text-gray-500 px-3 py-1 rounded-full bg-gray-200">載入中...</span>
+                </div>
             </div>
-            
-            <div id="status-error" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg mt-6"></div>
         </div>
     </section>
-    
-    <div id="product-list-container" class="py-16 md:py-24 space-y-16">
-        <!-- 品牌區塊將由 JavaScript 動態產生 -->
+
+    <!-- 3. 品牌詳細品項 (來自 matcha-products.html) -->
+    <div class="py-16 md:py-24 space-y-16">
+        
+        <section id="marukyu" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <h2 class="text-3xl font-bold text-center mb-10">丸久小山園</h2>
+            <div id="marukyu-loader" class="flex justify-center items-center h-32">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            </div>
+            <div id="marukyu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <section id="yamamasa" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <h2 class="text-3xl font-bold text-center mb-10">山政小山園</h2>
+            <div id="yamamasa-loader" class="flex justify-center items-center h-32">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            </div>
+            <div id="yamamasa-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <section id="hoshino" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <h2 class="text-3xl font-bold text-center mb-10">星野製茶園</h2>
+            <div id="hoshino-loader" class="flex justify-center items-center h-32">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            </div>
+            <div id="hoshino-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <section id="kanbayashi" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
+            <h2 class="text-3xl font-bold text-center mb-10">上林春松本店</h2>
+            <div id="kanbayashi-loader" class="flex justify-center items-center h-32">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            </div>
+            <div id="kanbayashi-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
     </div>
-    
+
+    <!-- 4. 下單區塊 -->
     <section id="payment" class="py-16 md:py-24 bg-white border-t border-gray-200 scroll-mt-28">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
             <h2 class="text-3xl font-bold text-center mb-12">抹茶下單專區</h2>
@@ -390,7 +454,7 @@ scripts: |
                         <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2511158406180" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                     </div>
                 </div>
-                
+
                 <div class="bg-white p-8 rounded-lg shadow-lg">
                     <h3 class="text-2xl font-semibold text-center mb-8">全家貨到付款下單</h3>
                     <div class="text-center">
@@ -403,10 +467,12 @@ scripts: |
                         <input type="text" value="https://famistore.famiport.com.tw/famistore/users/3452062/merchandises/690709f0acc2d7a87173fde6" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
-    
+
+    <!-- 5. 聯絡我們 -->
     <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-3xl font-bold mb-4">您在尋找其他品牌嗎？</h2>
@@ -423,4 +489,5 @@ scripts: |
         </div>
     </section>
 </main>
+
 
