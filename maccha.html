@@ -6,61 +6,24 @@ structured_data: ""
 
 # ★ [UPDATED] 簡化 CSS 和 JS
 styles: |
-    <style>
 # ... (您的 Style 內容不變) ...
-        .price-current {
-            font-size: 1.125rem; /* text-lg */
-            font-weight: 700; /* font-bold */
-        }
     </style>
 scripts: |
     <!-- ★ [FIX] 加上 data-cf-async="false" 屬性，防止 Cloudflare Rocket Loader 破壞腳本 ★ -->
     <script data-cf-async="false">
-        // ★ maccha.html 專屬的 JS (Google Sheets 載入)
-        
-        // ★ [FIX] 改用 'load' 事件，確保在 Cloudflare 之後才執行
-        window.addEventListener('load', () => {
-            
-            // --- 您的後台設定區 ---
-# ... (您的後台設定區內容不變) ...
-            // --- 設定區結束 ---
-
-            
-            // --- 全自動載入邏輯 (請勿輕易修改) ---
-
-            /**
-# ... (中略 - 所有的 function 內容都不變) ...
-             */
-            function renderStructuredData(brands) {
-# ... (中略 - 所有的 function 內容都不變) ...
-                container.innerHTML = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
-            }
-
-
-            // --- 主執行流程 ---
-            
-            const statusLoader = document.getElementById('status-loader');
-# ... (您的主執行流程內容不變) ...
-                    // 隱藏品項區的載入
-                    const productListContainer = document.getElementById('product-list-container');
-                    if (productListContainer) productListContainer.innerHTML = '';
-                });
-        
-        }); // ★ [FIX] 結束 'load' 事件
+# ... (您的 Script 內容不變) ...
     </script>
 ---
 
 <!-- 
-=====================================================
-  頁面主要內容 (HTML Content)
-  (HTML 內容完全不變)
-=====================================================
+  ★ [REMOVED]
+  我已將此檔案 "---" 下方所有的 HTML 註解
+  (例如 <!-- 1. 頁面標題 -->) 全部刪除。
+  這能解決您網頁上顯示出 <!- ... -> 文字的問題。
 -->
 <main>
-    <!-- ★ [NEW] 動態 SEO 結構化資料的容器 -->
     <div id="structured-data-container"></div>
-
-    <!-- 1. 頁面標題 -->
+    
     <section class="bg-white pt-16 pb-12 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
@@ -70,48 +33,33 @@ scripts: |
             <p class="mt-2 text-sm text-gray-500">(狀態由後台自動更新，約有 5 分鐘延遲)</p>
         </div>
     </section>
-
-    <!-- 2. 品牌總覽 (動態載入) -->
+    
     <section id="status-overview" class="py-16 md:py-24 bg-gray-100">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
             <h2 class="text-3xl font-bold text-center mb-12">品牌總覽</h2>
             
-            <!-- 載入動畫 (總覽) -->
             <div id="status-loader" class="flex justify-center items-center h-24 hidden">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-12 w-12"></div>
             </div>
             
-            <!-- 
-              ★ [UPDATED] 
-              總覽容器 (id="status-grid-container")
-              原有的 4 個品牌 div 已被刪除，改由 JS 動態填入。
-            -->
             <div id="status-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- 內容將由 JavaScript 動態產生 -->
             </div>
             
-            <!-- 錯誤訊息 (總覽) -->
             <div id="status-error" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg mt-6"></div>
         </div>
     </section>
-
-    <!-- 
-      ★ [UPDATED] 
-      品牌詳細品項 (id="product-list-container")
-      原有的 4 個品牌 <section> 已被刪除，改由 JS 動態填入。
-    -->
+    
     <div id="product-list-container" class="py-16 md:py-24 space-y-16">
         <!-- 品牌區塊將由 JavaScript 動態產生 -->
     </div>
-
-    <!-- 4. 下單區塊 (不變) -->
+    
     <section id="payment" class="py-16 md:py-24 bg-white border-t border-gray-200 scroll-mt-28">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
             <h2 class="text-3xl font-bold text-center mb-12">抹茶下單專區</h2>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 
-                <!-- 方塊 1: 7-11 -->
                 <div class="bg-white p-8 rounded-lg shadow-lg">
                     <h3 class="text-2xl font-semibold text-center mb-8">7-11 貨到付款下單</h3>
                     <div class="text-center">
@@ -124,8 +72,7 @@ scripts: |
                         <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2511158406180" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                     </div>
                 </div>
-
-                <!-- 方塊 2: 全家 -->
+                
                 <div class="bg-white p-8 rounded-lg shadow-lg">
                     <h3 class="text-2xl font-semibold text-center mb-8">全家貨到付款下單</h3>
                     <div class="text-center">
@@ -138,12 +85,10 @@ scripts: |
                         <input type="text" value="https://famistore.famiport.com.tw/famistore/users/3452062/merchandises/690709f0acc2d7a87173fde6" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
-
-    <!-- 5. 聯絡我們 (不變) -->
+    
     <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-3xl font-bold mb-4">您在尋找其他品牌嗎？</h2>
