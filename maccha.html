@@ -9,7 +9,7 @@ keywords: KEICHA, 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野
 # 我們將改用 JavaScript 動態生成，以確保品牌列表永遠是最新
 structured_data: ""
 
-# ★ [UPDATED] 簡化 CSS 和 JS
+# ★ [UPDATED] 簡化 CSS
 styles: |
     <style>
         /* 載入中動畫 */
@@ -36,14 +36,10 @@ styles: |
             font-weight: 700; /* font-bold */
         }
     </style>
-scripts: |
-    <!-- 
-      ★ [FIX] 
-      我們不再把 300 行的 JS 放在這裡。
-      我們只載入外部的 JS 檔案，
-      並告訴 Cloudflare 不要干擾 (`data-cf-async="false"`)。
-    -->
-    <script src="{{ '/assets/js/maccha-loader.js' | relative_url }}" data-cf-async="false"></script>
+# ★ [UPDATED] 
+# 移除了 scripts: 區塊，因為您的 layout 似乎沒有載入它。
+# 我們將改用手動方式在 HTML 內容中載入 script。
+scripts: ""
 ---
 
 <!-- 
@@ -140,4 +136,10 @@ scripts: |
     </section>
 </main>
 
+<!-- 
+  ★ [FIX] 
+  我們將 <script> 標籤手動放在這裡 (main 之後, footer 之前)。
+  這能確保它 100% 被載入，並繞過 layout 的問題。
+-->
+<script src="{{ '/assets/js/maccha-loader.js' | relative_url }}" data-cf-async="false" defer></script>
 
