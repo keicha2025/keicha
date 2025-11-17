@@ -57,24 +57,18 @@ styles: |
         }
     </style>
 # ★ [UPDATED] 
-# 移除了 scripts: 區塊，因為您的 layout 似乎沒有載入它，
-# 或是無法正確解析 Liquid 語法。
+# 移除了 scripts: 區塊，因為您的 layout 似乎沒有載入它。
+# 我們將改用手動方式在 HTML 內容中載入 script。
 scripts: ""
 ---
-
 <!-- 
 =====================================================
   頁面主要內容 (HTML Content)
-  
-  這是「全自動」架構的 HTML "空殼"。
-  JS 檔案會抓取資料並自動填入以下 <div>
 =====================================================
 -->
 <main>
-    <!-- JS 會動態在此插入 SEO 結構化資料 -->
     <div id="structured-data-container"></div>
     
-    <!-- 1. 頁面標題 -->
     <section class="bg-white pt-16 pb-12 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-bold text-brandGreen">網路商店</h1>
@@ -85,7 +79,6 @@ scripts: ""
     </section>
 
     <!-- 2. 網路商店公告 (動態載入) -->
-    <!-- 如果 GSheet 'announcement' 欄位為空，此區塊會保持隱藏 -->
     <section id="announcement-section" class="hidden py-4 bg-yellow-100 border-y border-yellow-300">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <p id="announcement-content" class="text-center font-medium text-yellow-800"></p>
@@ -95,9 +88,6 @@ scripts: ""
     <!-- 3. 商品篩選與列表 (未來可擴充) -->
     <section class="py-16 md:py-24">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            
-            <!-- (未來可在此處加入 "分類" 或 "子分類" 的篩選按鈕) -->
-            <!-- <div id="filter-container" class="mb-12"> ... </div> -->
 
             <!-- 載入動畫 (主要) -->
             <div id="products-loader" class="flex justify-center items-center h-48">
@@ -118,11 +108,6 @@ scripts: ""
     <section class="py-16 md:py-24 bg-gray-100 border-t border-gray-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
             <h2 class="text-3xl font-bold text-center mb-8">服務與購買須知</h2>
-            <!-- 
-              'general-notes-content' 
-              JS 會將 GSheet 'general_notes' 欄位的內容填入此處。
-              GSheet 中的換行 (Ctrl+Enter) 或 <br> 都會被正確顯示。
-            -->
             <div id="general-notes-content" class="prose max-w-none text-gray-700 space-y-4">
                 <p class="text-center text-gray-500">正在載入規則條款...</p>
             </div>
