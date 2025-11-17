@@ -1,9 +1,10 @@
 /**
  * KEICHA 網路商店 - 全自動載入引擎
  * (已修正 Cloudflare 衝突 和 baseurl 問題)
+ * (★ 維持使用 CSV (逗號分隔) 邏輯)
  */
 
-// ★ [FIX 2] 改用 'load' 事件，確保在 Cloudflare 等所有資源載入後才執行
+// ★ [FIX] 改用 'load' 事件，確保在 Cloudflare 等所有資源載入後才執行
 window.addEventListener('load', () => {
 
     // --- 您的後台設定區 ---
@@ -14,7 +15,7 @@ window.addEventListener('load', () => {
     
     // --- 全自動載入邏輯 ---
 
-    // ★ [FIX 1] 
+    // ★ [FIX] 
     // 我們不再依賴 Jekyll 傳遞變數，直接在此寫死 baseurl
     // 根據您的 _config.yml，您的 baseurl 是 "/keicha"
     const BASE_URL = "/keicha";
@@ -49,6 +50,7 @@ window.addEventListener('load', () => {
 
     /**
      * 解析 Products CSV
+     * ★ [NOTE] 繼續使用 split(',') (逗號分隔)
      */
     function parseProductsCSV(text) {
         const lines = text.split(/\r?\n/);
@@ -74,7 +76,7 @@ window.addEventListener('load', () => {
         const data = [];
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
-            const row = lines[i].split(',');
+            const row = lines[i].split(','); // ★ (使用逗號分隔)
             const item = {};
             for (const key in headerMap) {
                 item[key] = row[headerMap[key]] ? row[headerMap[key]].trim() : '';
@@ -88,6 +90,7 @@ window.addEventListener('load', () => {
 
     /**
      * 解析 Settings CSV (Key-Value)
+     * ★ [NOTE] 繼續使用 split(',') (逗號分隔)
      */
     function parseSettingsCSV(text) {
         const lines = text.split(/\r?\n/);
@@ -109,7 +112,7 @@ window.addEventListener('load', () => {
         const settings = {};
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
-            const row = lines[i].split(',');
+            const row = lines[i].split(','); // ★ (使用逗號分隔)
             const key = row[headerMap.key] ? row[headerMap.key].trim() : '';
             const value = row[headerMap.value] ? row[headerMap.value].trim() : '';
             if (key) {
@@ -156,9 +159,25 @@ window.addEventListener('load', () => {
                 </div>`;
             }
 
-            const imageUrl = product.image_url.startsWith('http') 
-                ? product.image_url 
-                : BASE_URL + product.image_url;
+            // ★ [FIXED] 修正了圖片路徑組合邏輯 ★
+            let imageUrl;
+            if (product.image_url.startsWith('http')) {
+                // 1. 絕對路徑 (https://...) - 直接使用
+                imageUrl = product.image_url;
+            } else {
+                // 2. 相對路徑 (images/... 或 /images/...)
+                // 確保 image_url 有開頭斜線
+                const cleanImagePath = product.image_url.startsWith('/') 
+                    ? product.image_url 
+                    : '/' + product.image_url;
+                
+                // 組合 baseurl + path (例如 "/keicha" + "/images/...")
+                imageUrl = BASE_URL + cleanImagePath;
+            }
+
+            // [FIX] 確保 price 是純數字
+            const price = parseInt(product.price);
+            const priceText = isNaN(price) ? "價格請洽詢" : `NT$ ${price.toLocaleString()}`;
 
             const cardHTML = `
                 <div class="product-card flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${!isAvailable ? 'opacity-60' : 'hover:shadow-xl'}">
@@ -172,7 +191,7 @@ window.addEventListener('load', () => {
                         <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${product.subcategory || product.category}</p>
                         <h3 class="text-lg font-bold text-gray-900 mt-1 mb-2">${product.product_name}</h3>
                         <p class="text-xl font-bold text-brandGreen mb-3">
-                            NT$ ${parseInt(product.price).toLocaleString()}
+                            ${priceText}
                         </p>
                         ${specsHTML}
                         <div class="mt-auto">
@@ -225,9 +244,17 @@ window.addEventListener('load', () => {
         if (!container) return;
 
         const productItems = products.map(product => {
-            const imageUrl = product.image_url.startsWith('http') 
-                ? product.image_url 
-                : `https://keicha2025.github.io${BASE_URL}${product.image_url}`; // GSC 需要絕對路徑
+            // ★ [FIXED] 修正了圖片路徑組合邏輯 ★
+            let imageUrl;
+            if (product.image_url.startsWith('http')) {
+                imageUrl = product.image_url;
+            } else {
+                const cleanImagePath = product.image_url.startsWith('/') ? product.image_url : '/' + product.image_url;
+                imageUrl = `https://keicha2025.github.io${BASE_URL}${cleanImagePath}`; // GSC 需要絕對路徑
+            }
+            
+            // [FIX] 確保 price 是純數字
+            const price = parseInt(product.price);
 
             return {
                 "@type": "Product",
@@ -237,7 +264,7 @@ window.addEventListener('load', () => {
                 "image": imageUrl,
                 "offers": {
                     "@type": "Offer",
-                    "price": product.price,
+                    "price": isNaN(price) ? "0" : price.toString(), // GSC 需要一個數字字串
                     "priceCurrency": "TWD",
                     "availability": product.status === 'available' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
                     "url": "https://keicha2025.github.io/keicha/shop.html"
@@ -283,7 +310,9 @@ window.addEventListener('load', () => {
     // --- 主執行流程 ---
     
     Promise.all([
+        // ★ [NOTE] 繼續使用 parseSettingsCSV (逗號分隔)
         fetchWithCacheBust(settings_csv_url).then(text => parseSettingsCSV(text)),
+        // ★ [NOTE] 繼續使用 parseProductsCSV (逗號分隔)
         fetchWithCacheBust(products_csv_url).then(text => parseProductsCSV(text))
     ])
     .then(([settings, products]) => {
