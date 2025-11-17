@@ -19,13 +19,14 @@ window.addEventListener('load', () => {
     // 只需要 1 個「總表」網址。
     // 這個總表必須包含 4 欄: key, name, status, product_csv_url
     //
-    const masterSheetUrl = "https.docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
+    // ★ [FIX] 修正了 masterSheetUrl 漏掉 "://" 的錯誤
+    const masterSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
     //
     // --- 設定區結束 ---
 
     
     // --- 全自動載入邏輯 (請勿輕易修改) ---
-
+// ... (以下程式碼不變) ...
     /**
      * 強制清除快取的 Fetch
      */
