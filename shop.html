@@ -19,7 +19,6 @@ styles: |
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
         /* 1:1 圖片容器 */
         .product-image-container {
             position: relative;
@@ -37,7 +36,6 @@ styles: |
             height: 100%;
             object-fit: cover; /* 圖片會被裁切以填滿 1:1 容器 */
         }
-        
         /* 狀態標籤 */
         .product-status-badge {
             position: absolute;
@@ -58,19 +56,10 @@ styles: |
             color: #374151; /* text-gray-700 */
         }
     </style>
-scripts: |
-    <script>
-      // ★ 關鍵：將 Jekyll 的 baseurl 傳遞給 JS
-      // 這樣 JS 才能正確組合圖片的相對路徑
-      window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
-    </script>
-    
-    <!-- 
-      ★ 載入外部 JS 引擎
-      'defer' 確保 HTML 解析完畢才執行
-      'data-cf-async="false"' 告訴 Cloudflare 不要干擾
-    -->
-    <script src="{{ '/assets/js/shop-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+# ★ [UPDATED] 
+# 移除了 scripts: 區塊，因為您的 layout 似乎沒有載入它，
+# 或是無法正確解析 Liquid 語法。
+scripts: ""
 ---
 
 <!-- 
@@ -166,3 +155,25 @@ scripts: |
         </div>
     </section>
 </main>
+
+<!-- 
+=====================================================
+  ★ [CRITICAL FIX] ★
+  
+  我們將 <script> 標籤手動放在這裡 (main 之後, footer 之前)。
+  這能確保它 100% 被載入，並繞過 layout 的問題。
+  Jekyll 會正確解析這裡的 Liquid 語法。
+=====================================================
+-->
+<script>
+  // ★ 關鍵：將 Jekyll 的 baseurl 傳遞給 JS
+  // 這樣 JS 才能正確組合圖片的相對路徑
+  window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
+</script>
+
+<!-- 
+  ★ 載入外部 JS 引擎
+  'defer' 確保 HTML 解析完畢才執行
+  'data-cf-async="false"' 告訴 Cloudflare 不要干擾
+-->
+<script src="{{ '/assets/js/shop-loader.js' | relative_url }}" data-cf-async="false" defer></script>
