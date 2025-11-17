@@ -9,7 +9,7 @@ keywords: KEICHA, 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野
 # 我們將改用 JavaScript 動態生成，以確保品牌列表永遠是最新
 structured_data: ""
 
-# ★ [UPDATED] CSS 和 JS
+# ★ [UPDATED] 簡化 CSS 和 JS
 styles: |
     <style>
         /* 載入中動畫 */
@@ -39,12 +39,11 @@ styles: |
 scripts: |
     <!-- 
       ★ [FIX] 
-      我們不再把 200 行的 JS 放在這裡。
+      我們不再把 300 行的 JS 放在這裡。
       我們只載入外部的 JS 檔案，
       並告訴 Cloudflare 不要干擾 (`data-cf-async="false"`)。
-      `defer` 會讓它在 HTML 解析完畢後才執行。
     -->
-    <script src="{{ '/assets/js/maccha-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+    <script src="{{ '/assets/js/maccha-loader.js' | relative_url }}" data-cf-async="false"></script>
 ---
 
 <!-- 
