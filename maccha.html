@@ -58,8 +58,6 @@ scripts: |
 
             /**
              * ★ [FIX] 強制清除快取的 Fetch
-             * 改用標準的 cache-control 標頭，
-             * 並提供更清楚的 status 錯誤回報。
              */
             function fetchWithCacheBust(url) {
                 if (!url || !url.startsWith('http') || url.includes("請貼上")) {
@@ -116,7 +114,6 @@ scripts: |
                     for (const key in headerMap) {
                         item[key] = row[headerMap[key]] ? row[headerMap[key]].trim() : '';
                     }
-                    // 確保必要欄位有值
                     if (item[requiredHeaders[0]]) { 
                         data.push(item);
                     }
@@ -132,8 +129,8 @@ scripts: |
                 const loader = document.getElementById('status-loader');
                 if (!container || !loader) return;
                 
-                loader.style.display = 'none'; // 隱藏載入動畫
-                container.innerHTML = ''; // 清空
+                loader.style.display = 'none';
+                container.innerHTML = ''; 
 
                 if (brands.length === 0) {
                     container.innerHTML = '<p class="text-center text-gray-500">目前沒有可顯示的品牌狀態。</p>';
@@ -166,7 +163,7 @@ scripts: |
                 const container = document.getElementById('product-list-container');
                 if (!container) return;
                 
-                container.innerHTML = ''; // 清空
+                container.innerHTML = ''; 
 
                 brands.forEach(brand => {
                     const sectionHTML = `
@@ -176,7 +173,6 @@ scripts: |
                                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
                             </div>
                             <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <!-- 品項將異步載入 -->
                             </div>
                         </section>
                     `;
@@ -315,10 +311,8 @@ scripts: |
                                 .catch(err => {
                                     console.error(`抓取 ${brand.key} 品項時發生錯誤:`, err);
                                     renderError(`${brand.key}-grid`, err);
-Signature: 
                                 });
                         } else {
-                            // 如果總表沒有提供 URL，也顯示錯誤
                             renderError(`${brand.key}-grid`, new Error(`總表中未提供 ${brand.name} 的品項網址。`));
                         }
                     });
@@ -326,8 +320,7 @@ Signature:
                 })
                 .catch(err => {
                     console.error("抓取「總表」時發生嚴重錯誤:", err);
-                    renderError('status-grid-container', err); // [FIX] 錯誤訊息改顯示在總覽區
-                    // 隱藏品項區的載入
+                    renderError('status-grid-container', err); 
                     const productListContainer = document.getElementById('product-list-container');
                     if (productListContainer) productListContainer.innerHTML = '';
                 });
@@ -430,3 +423,4 @@ Signature:
         </div>
     </section>
 </main>
+
