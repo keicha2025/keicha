@@ -20,10 +20,10 @@ window.addEventListener('load', () => {
     // --- 您的後台設定區 ---
     //
     // ★ [必要] 請貼上您 GSheet 'products' 工作表的 .csv 網址
-    const products_csv_url = "請在這裡貼上 'products' 工作表的 .csv 網址";
+    const products_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8gwVZcW8WvKHAMPOO3qa2mjQzc_7JE7iy3NiMnjuQHVAW3pxg-s_a1qISsfwtfqqOGthHFp2omb_7/pub?gid=0&single=true&output=csv";
     
     // ★ [必要] 請貼上您 GSheet 'settings' 工作表的 .csv 網址
-    const settings_csv_url = "請在這裡貼上 'settings' 工作表的 .csv 網址";
+    const settings_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8gwVZcW8WvKHAMPOO3qa2mjQzc_7JE7iy3NiMnjuQHVAW3pxg-s_a1qISsfwtfqqOGthHFp2omb_7/pub?gid=1849246580&single=true&output=csv";
     //
     // --- 設定區結束 ---
 
