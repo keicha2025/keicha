@@ -1,0 +1,168 @@
+---
+# 這是 Front Matter
+layout: default
+title: KEICHA 網路商店 | 抹茶、茶具代購
+description: KEICHA 網路商店，提供專業的抹茶與茶具代購服務，商品狀態即時更新。
+keywords: KEICHA, 網路商店, 抹茶代購, 抹茶, 茶具, 丸久小山園, 山政小山園, 星野製茶園
+
+# ★ [UPDATED] 
+# 移除靜態 structured_data，JS 會自動生成
+structured_data: ""
+
+styles: |
+    <style>
+        /* 載入中動畫 */
+        .loader {
+            border-top-color: #6ea44c; /* brandGreen */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 1:1 圖片容器 */
+        .product-image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* 關鍵：建立 1:1 比例 */
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .product-image-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 圖片會被裁切以填滿 1:1 容器 */
+        }
+        
+        /* 狀態標籤 */
+        .product-status-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            z-index: 10;
+        }
+        .status-available {
+            background-color: #6ea44c; /* brandGreen */
+            color: white;
+        }
+        .status-out-of-stock {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #374151; /* text-gray-700 */
+        }
+    </style>
+scripts: |
+    <script>
+      // ★ 關鍵：將 Jekyll 的 baseurl 傳遞給 JS
+      // 這樣 JS 才能正確組合圖片的相對路徑
+      window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
+    </script>
+    
+    <!-- 
+      ★ 載入外部 JS 引擎
+      'defer' 確保 HTML 解析完畢才執行
+      'data-cf-async="false"' 告訴 Cloudflare 不要干擾
+    -->
+    <script src="{{ '/assets/js/shop-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+---
+
+<!-- 
+=====================================================
+  頁面主要內容 (HTML Content)
+  
+  這是「全自動」架構的 HTML "空殼"。
+  JS 檔案會抓取資料並自動填入以下 <div>
+=====================================================
+-->
+<main>
+    <!-- JS 會動態在此插入 SEO 結構化資料 -->
+    <div id="structured-data-container"></div>
+    
+    <!-- 1. 頁面標題 -->
+    <section class="bg-white pt-16 pb-12 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-bold text-brandGreen">網路商店</h1>
+            <p class="mt-4 text-lg text-gray-600">
+                所有商品皆由後台即時更新
+            </p>
+        </div>
+    </section>
+
+    <!-- 2. 網路商店公告 (動態載入) -->
+    <!-- 如果 GSheet 'announcement' 欄位為空，此區塊會保持隱藏 -->
+    <section id="announcement-section" class="hidden py-4 bg-yellow-100 border-y border-yellow-300">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <p id="announcement-content" class="text-center font-medium text-yellow-800"></p>
+        </div>
+    </section>
+
+    <!-- 3. 商品篩選與列表 (未來可擴充) -->
+    <section class="py-16 md:py-24">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            
+            <!-- (未來可在此處加入 "分類" 或 "子分類" 的篩選按鈕) -->
+            <!-- <div id="filter-container" class="mb-12"> ... </div> -->
+
+            <!-- 載入動畫 (主要) -->
+            <div id="products-loader" class="flex justify-center items-center h-48">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-16 w-16"></div>
+            </div>
+
+            <!-- 商品列表容器 -->
+            <div id="product-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+                <!-- 商品卡片將由 JavaScript 動態產生 -->
+            </div>
+            
+            <!-- 錯誤訊息容器 -->
+            <div id="products-error" class="hidden text-center text-red-600 bg-red-100 p-6 rounded-lg mt-6"></div>
+        </div>
+    </section>
+
+    <!-- 4. 固定規則條款 (動態載入) -->
+    <section class="py-16 md:py-24 bg-gray-100 border-t border-gray-200">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
+            <h2 class="text-3xl font-bold text-center mb-8">服務與購買須知</h2>
+            <!-- 
+              'general-notes-content' 
+              JS 會將 GSheet 'general_notes' 欄位的內容填入此處。
+              GSheet 中的換行 (Ctrl+Enter) 或 <br> 都會被正確顯示。
+            -->
+            <div id="general-notes-content" class="prose max-w-none text-gray-700 space-y-4">
+                <p class="text-center text-gray-500">正在載入規則條款...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 聯絡我們 (動態載入) -->
+    <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-2xl">
+            <h2 class="text-3xl font-bold mb-4">需要客製化服務嗎？</h2>
+            <p class="text-lg text-gray-700 mb-8">若您在尋找列表上沒有的商品，或有其他代購需求，請透過 LINE 官方帳號與我們聯繫。</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <!-- LINE -->
+                <div class="text-center">
+                    <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
+                        <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+                    </a>
+                    <p class="text-gray-600">LINE ID: 
+                        <strong id="contact-line-id" class="text-gray-800">@366qwylw</strong>
+                    </p>
+                </div>
+                <!-- Email -->
+                <div class="text-center">
+                    <p class="text-lg font-medium text-gray-800">Email 諮詢</p>
+                    <a id="contact-email-link" href="mailto:keicha.nihoncha@gmail.com" class="text-brandGreen hover:underline font-semibold">
+                        <span id="contact-email-text">keicha.nihoncha@gmail.com</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
