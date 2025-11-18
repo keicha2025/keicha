@@ -93,15 +93,16 @@ window.addEventListener('load', () => {
         return data;
     }
 
-    /**
+/**
      * 渲染「品牌總覽」區塊 (動態生成)
+     * [已更新：支援 2 欄佈局、奇數項目自動填滿、防止文字換行]
      */
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
         const loader = document.getElementById('status-loader');
         if (!container || !loader) {
-             console.error("找不到 'status-grid-container' 或 'status-loader'");
-             return;
+            console.error("找不到 'status-grid-container' 或 'status-loader'");
+            return;
         }
         
         loader.style.display = 'none';
@@ -115,14 +116,32 @@ window.addEventListener('load', () => {
         const statusText = { 'available': '可供訂購', 'out-of-stock': '缺貨中' };
         const statusClass = { 'available': 'bg-brandGreen text-white', 'out-of-stock': 'bg-gray-200 text-gray-700' };
 
-        brands.forEach(brand => {
+        // **修改 1: 加入 index 參數**
+        brands.forEach((brand, index) => {
             const currentStatus = brand.status === 'available' ? 'available' : 'out-of-stock';
             const currentName = brand.name || '未知品牌';
 
+            // **修改 2: 動態決定 class**
+            // 基本 class (移除了 justify-between)
+            let itemClasses = "bg-white p-5 md:p-6 rounded-lg shadow-md flex items-center transition-all duration-300 hover:shadow-lg hover:scale-105";
+
+            const isOddTotal = brands.length % 2 !== 0;
+            const isLastItem = index === brands.length - 1;
+
+            // 如果總數是奇數，且這是最後一項，則加上 'md:col-span-2'
+            if (isOddTotal && isLastItem) {
+                itemClasses += " md:col-span-2";
+            }
+
+            // **修改 3: 更新 HTML 模板**
             const itemHTML = `
-                <a href="#${brand.key}" class="bg-white p-5 md:p-6 rounded-lg shadow-md flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:scale-105">
-                    <span class="text-lg md:text-xl font-medium text-gray-800">${currentName}</span>
-                    <span class="px-4 py-1.5 rounded-full text-sm font-bold ${statusClass[currentStatus]}">
+                <a href="#${brand.key}" class="${itemClasses}">
+                    
+                    <span class="text-lg md:text-xl font-medium text-gray-800 flex-1 min-w-0 truncate mr-4">
+                        ${currentName}
+                    </span>
+                    
+                    <span class="px-4 py-1.5 rounded-full text-sm font-bold ${statusClass[currentStatus]} whitespace-nowrap flex-shrink-0">
                         ${statusText[currentStatus]}
                     </span>
                 </a>
