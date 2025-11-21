@@ -1,0 +1,44 @@
+---
+layout: default
+title: 付款結果 | KEICHA
+description: KEICHA 交易結果頁面
+---
+
+<div class="container mx-auto px-4 py-16 text-center max-w-2xl">
+    <div id="payment-status-icon" class="text-6xl mb-6">⌛</div>
+    <h1 id="payment-title" class="text-3xl font-bold text-gray-800 mb-4">正在確認交易結果...</h1>
+    <p id="payment-message" class="text-gray-600 mb-8">請稍候，我們正在與金流系統確認您的訂單狀態。</p>
+    
+    <div class="flex justify-center gap-4">
+        <a href="{{ '/shop.html' | relative_url }}" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition">
+            返回商店
+        </a>
+        <a href="https://lin.ee/QJU5mUO" target="_blank" class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full hover:opacity-90 transition">
+            聯繫客服
+        </a>
+    </div>
+</div>
+
+<script>
+    // 簡易的邏輯：抓取網址參數來判斷顯示什麼 (之後串接時會再強化)
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('RtnCode'); // 假設金流回傳 RtnCode (常見參數)
+        
+        const icon = document.getElementById('payment-status-icon');
+        const title = document.getElementById('payment-title');
+        const msg = document.getElementById('payment-message');
+
+        if (status === '1') { // 通常 1 代表成功，視金流商而定
+            icon.textContent = '✅';
+            title.textContent = '付款成功！';
+            title.classList.add('text-brandGreen');
+            msg.textContent = '感謝您的購買，我們將盡快為您安排出貨。';
+        } else if (status) {
+            icon.textContent = '❌';
+            title.textContent = '付款失敗';
+            title.classList.add('text-red-600');
+            msg.textContent = '交易未能完成，請嘗試更換卡片或聯繫發卡銀行。';
+        }
+    });
+</script>
