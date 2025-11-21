@@ -1,4 +1,3 @@
-
 /**
  * KEICHA 抹茶代購總覽 - 全自動載入引擎
  * * 功能：
@@ -6,7 +5,7 @@
  * 2. 動態建立「品牌總覽」HTML
  * 3. 動態建立「詳細品項」HTML 骨架
  * 4. 動態建立 SEO 結構化資料 (JSON-LD)
- * 5. 異步抓取所有「詳細品項」的 CSV 並填入
+ * 5. 異步抓取所有「詳細品項」的 CSV 並填入 (含下架過濾)
  * * ★ Cloudflare 修正：
  * - 此檔案在 HTML 中被 <script data-cf-async="false"> 載入
  * - 使用 'load' 事件確保在 Rocket Loader 之後執行
@@ -19,15 +18,13 @@ window.addEventListener('load', () => {
     // --- 您的後台設定區 ---
     // 只需要 1 個「總表」網址。
     // 這個總表必須包含 4 欄: key, name, status, product_csv_url
-    //
-    // ★ [FIX] 修正了 masterSheetUrl 漏掉 "://" 的錯誤
     const masterSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
     //
     // --- 設定區結束 ---
 
     
-    // --- 全自動載入邏輯 (請勿輕易修改) ---
-// ... (以下程式碼不變) ...
+    // --- 全自動載入邏輯 ---
+
     /**
      * 強制清除快取的 Fetch
      */
@@ -60,7 +57,7 @@ window.addEventListener('load', () => {
     }
 
     /**
-     * 統一的 CSV 解析器
+     * 統一的 CSV 解析器 (增強版：容許非關鍵欄位缺失)
      */
     function parseCSV(text, requiredHeaders) {
         const lines = text.split(/\r?\n/);
@@ -68,42 +65,58 @@ window.addEventListener('load', () => {
         
         let header = cleanHeader(lines[0].split(','));
         
-        if (!requiredHeaders.every(h => header.includes(h))) {
-            console.error(`CSV 標頭缺少必要欄位:`, header, `應包含:`, requiredHeaders);
-            throw new Error(`CSV 標頭缺少 ${requiredHeaders.join(', ')} 欄位。`);
+        // ★ [UPDATED] 檢查必要欄位，但允許 'hidden' 這種擴充欄位缺失 (向下相容)
+        const criticalHeaders = ['product_name', 'price', 'key', 'name']; // 絕對不能少的欄位
+        const missingCritical = requiredHeaders.filter(h => 
+            criticalHeaders.includes(h) && !header.includes(h)
+        );
+
+        if (missingCritical.length > 0) {
+            console.error(`CSV 標頭缺少關鍵欄位:`, missingCritical);
+            throw new Error(`CSV 標頭缺少 ${missingCritical.join(', ')} 欄位。`);
         }
         
         const headerMap = {};
         requiredHeaders.forEach(h => {
+            // 如果欄位存在才紀錄索引，不存在則為 -1
             headerMap[h] = header.indexOf(h);
         });
 
         const data = [];
+        // 判斷第一欄位的 key (通常是 product_name 或 key)
+        const primaryKey = requiredHeaders[0]; 
+
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
+            // 簡易 CSV 分割 (若欄位內有逗號需注意，此處假設單純價格表)
             const row = lines[i].split(',');
             const item = {};
+            
             for (const key in headerMap) {
-                item[key] = row[headerMap[key]] ? row[headerMap[key]].trim() : '';
+                const index = headerMap[key];
+                // 如果該欄位存在於 CSV 中，且該行有資料，則讀取；否則為空字串
+                if (index !== -1 && row[index] !== undefined) {
+                    item[key] = row[index].trim();
+                } else {
+                    item[key] = ''; // 預設值
+                }
             }
-            if (item[requiredHeaders[0]]) { 
+
+            // 確保主要欄位有值才加入 (過濾空行)
+            if (item[primaryKey]) { 
                 data.push(item);
             }
         }
         return data;
     }
 
-/**
+    /**
      * 渲染「品牌總覽」區塊 (動態生成)
-     * [已更新：支援 2 欄佈局、奇數項目自動填滿、防止文字換行]
      */
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
         const loader = document.getElementById('status-loader');
-        if (!container || !loader) {
-            console.error("找不到 'status-grid-container' 或 'status-loader'");
-            return;
-        }
+        if (!container || !loader) return;
         
         loader.style.display = 'none';
         container.innerHTML = ''; 
@@ -116,31 +129,23 @@ window.addEventListener('load', () => {
         const statusText = { 'available': '可供訂購', 'out-of-stock': '缺貨中' };
         const statusClass = { 'available': 'bg-brandGreen text-white', 'out-of-stock': 'bg-gray-200 text-gray-700' };
 
-        // **修改 1: 加入 index 參數**
         brands.forEach((brand, index) => {
             const currentStatus = brand.status === 'available' ? 'available' : 'out-of-stock';
             const currentName = brand.name || '未知品牌';
 
-            // **修改 2: 動態決定 class**
-            // 基本 class (移除了 justify-between)
             let itemClasses = "bg-white p-5 md:p-6 rounded-lg shadow-md flex items-center transition-all duration-300 hover:shadow-lg hover:scale-105";
-
             const isOddTotal = brands.length % 2 !== 0;
             const isLastItem = index === brands.length - 1;
 
-            // 如果總數是奇數，且這是最後一項，則加上 'md:col-span-2'
             if (isOddTotal && isLastItem) {
                 itemClasses += " md:col-span-2";
             }
 
-            // **修改 3: 更新 HTML 模板**
             const itemHTML = `
                 <a href="#${brand.key}" class="${itemClasses}">
-                    
                     <span class="text-lg md:text-xl font-medium text-gray-800 flex-1 min-w-0 truncate mr-4">
                         ${currentName}
                     </span>
-                    
                     <span class="px-4 py-1.5 rounded-full text-sm font-bold ${statusClass[currentStatus]} whitespace-nowrap flex-shrink-0">
                         ${statusText[currentStatus]}
                     </span>
@@ -155,10 +160,7 @@ window.addEventListener('load', () => {
      */
     function renderProductSections(brands) {
         const container = document.getElementById('product-list-container');
-        if (!container) {
-            console.error("找不到 'product-list-container'");
-            return;
-        }
+        if (!container) return;
         
         container.innerHTML = ''; 
 
@@ -180,14 +182,12 @@ window.addEventListener('load', () => {
 
     /**
      * 渲染「單一品牌」的品項卡片
+     * ★ [UPDATED] 支援 hidden 過濾功能
      */
     function renderProductCards(brandKey, products) {
         const grid = document.getElementById(`${brandKey}-grid`);
         const loader = document.getElementById(`${brandKey}-loader`);
-        if (!grid || !loader) {
-            console.warn(`找不到 ${brandKey} 的 grid 或 loader`);
-            return;
-        }
+        if (!grid || !loader) return;
 
         loader.style.display = 'none';
         grid.innerHTML = '';
@@ -198,6 +198,15 @@ window.addEventListener('load', () => {
         }
 
         products.forEach(product => {
+            // ★ [NEW] 下架過濾邏輯
+            // 如果 hidden 欄位包含 TRUE, 1, true, yes, 下架 等字眼，則跳過此商品
+            if (product.hidden) {
+                const h = product.hidden.toString().toLowerCase().trim();
+                if (['true', '1', 'yes', '下架'].includes(h)) {
+                    return; // 跳過此迴圈，不渲染
+                }
+            }
+
             const name = product.product_name || '未命名品項';
             const price = product.price ? parseInt(product.price) : 0;
             const priceMulti = product.price_multi ? parseInt(product.price_multi) : 0;
@@ -265,7 +274,7 @@ window.addEventListener('load', () => {
             "@type": "ListItem",
             "position": index + 1,
             "name": brand.name,
-            "url": `https://keicha2025.github.io/keicha/maccha.html#${brand.key}` // 確保網址正確
+            "url": `https://keicha2025.github.io/keicha/maccha.html#${brand.key}`
         }));
 
         const schema = {
@@ -306,7 +315,8 @@ window.addEventListener('load', () => {
                 if (productUrl && productUrl.startsWith('http')) {
                     fetchWithCacheBust(productUrl)
                         .then(productCsvText => {
-                            const products = parseCSV(productCsvText, ['product_name', 'price', 'price_multi', 'status']);
+                            // ★ [UPDATED] 加入 'hidden' 欄位讀取
+                            const products = parseCSV(productCsvText, ['product_name', 'price', 'price_multi', 'status', 'hidden']);
                             renderProductCards(brand.key, products);
                         })
                         .catch(err => {
