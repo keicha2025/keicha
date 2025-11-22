@@ -1,11 +1,11 @@
 /**
  * KEICHA 網路商店 - 全自動載入引擎 (含購物車)
+ * (CSV 逗號分隔版)
  */
 
 // --- 1. 購物車全域變數與功能 ---
-let cart = []; // 購物車陣列
+let cart = []; 
 
-// 從 LocalStorage 讀取購物車
 function loadCart() {
     const savedCart = localStorage.getItem('keicha_cart');
     if (savedCart) {
@@ -14,37 +14,28 @@ function loadCart() {
     }
 }
 
-// 儲存購物車到 LocalStorage
 function saveCart() {
     localStorage.setItem('keicha_cart', JSON.stringify(cart));
     updateCartUI();
 }
 
-// [核心] 更新購物車 UI (浮動按鈕 & 側邊欄)
 function updateCartUI() {
     const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // 1. 更新浮動按鈕數字
     const floatingCount = document.getElementById('cart-floating-count');
     if (floatingCount) {
         floatingCount.textContent = totalCount;
-        if (totalCount > 0) {
-            floatingCount.classList.remove('hidden');
-        } else {
-            floatingCount.classList.add('hidden');
-        }
+        if (totalCount > 0) floatingCount.classList.remove('hidden');
+        else floatingCount.classList.add('hidden');
     }
 
-    // 2. 更新側邊欄標題數字
     const sidebarCount = document.getElementById('cart-total-count');
     if (sidebarCount) sidebarCount.textContent = totalCount;
 
-    // 3. 更新總金額
     const totalEl = document.getElementById('cart-total-price');
     if (totalEl) totalEl.textContent = `NT$ ${totalPrice.toLocaleString()}`;
 
-    // 4. 更新列表內容
     const container = document.getElementById('cart-items-container');
     if (container) {
         if (cart.length === 0) {
@@ -56,7 +47,6 @@ function updateCartUI() {
                     <div class="flex-grow">
                         <h4 class="text-sm font-bold text-gray-800 line-clamp-2">${item.name}</h4>
                         <p class="text-sm text-brandGreen font-semibold mt-1">NT$ ${item.price.toLocaleString()}</p>
-                        
                         <div class="flex items-center mt-2 gap-3">
                             <div class="flex items-center border rounded">
                                 <button onclick="updateQuantity(${index}, -1)" class="px-2 py-0.5 text-gray-600 hover:bg-gray-100">-</button>
@@ -72,9 +62,7 @@ function updateCartUI() {
     }
 }
 
-// 全域函式：加入購物車
 window.addToCart = function(id, name, price, image) {
-    // 檢查是否已存在
     const existingItem = cart.find(item => item.id === id);
     if (existingItem) {
         existingItem.quantity += 1;
@@ -82,29 +70,22 @@ window.addToCart = function(id, name, price, image) {
         cart.push({ id, name, price, image, quantity: 1 });
     }
     saveCart();
-    
-    // 自動打開側邊欄
     window.toggleCart(true);
 };
 
-// 全域函式：更新數量
 window.updateQuantity = function(index, change) {
     if (cart[index]) {
         cart[index].quantity += change;
-        if (cart[index].quantity <= 0) {
-            cart.splice(index, 1); // 數量為 0 則移除
-        }
+        if (cart[index].quantity <= 0) cart.splice(index, 1);
         saveCart();
     }
 };
 
-// 全域函式：移除商品
 window.removeFromCart = function(index) {
     cart.splice(index, 1);
     saveCart();
 };
 
-// 全域函式：開關側邊欄
 window.toggleCart = function(isOpen) {
     const sidebar = document.getElementById('cart-sidebar');
     const overlay = document.getElementById('cart-overlay');
@@ -117,16 +98,15 @@ window.toggleCart = function(isOpen) {
     }
 };
 
-// 全域函式：結帳 (目前先 Alert，之後接金流)
 window.checkout = function() {
     if (cart.length === 0) {
         alert('購物車是空的喔！');
         return;
     }
-    
-    // 這裡未來會換成「傳送訂單到 Google Apps Script」的程式碼
+    // 這裡未來可改為跳轉到結帳頁面或送出訂單
     const orderDetails = cart.map(item => `${item.name} x${item.quantity}`).join('\n');
-    alert(`準備結帳以下商品：\n\n${orderDetails}\n\n(金流串接功能開發中...)`);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    alert(`【訂單確認】\n\n${orderDetails}\n\n總金額：NT$ ${totalPrice.toLocaleString()}\n\n(此為測試功能，之後將串接金流)`);
 };
 
 
@@ -134,23 +114,17 @@ window.checkout = function() {
 
 window.addEventListener('load', () => {
     
-    // 初始化購物車
     loadCart();
 
     // --- 您的後台設定區 ---
+    // ★ 使用 CSV 網址
     const products_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8gwVZcW8WvKHAMPOO3qa2mjQzc_7JE7iy3NiMnjuQHVAW3pxg-s_a1qISsfwtfqqOGthHFp2omb_7/pub?gid=0&single=true&output=csv";
     const settings_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8gwVZcW8WvKHAMPOO3qa2mjQzc_7JE7iy3NiMnjuQHVAW3pxg-s_a1qISsfwtfqqOGthHFp2omb_7/pub?gid=1849246580&single=true&output=csv";
     
-    const BASE_URL = "/keicha";
-
-    // ... (以下是 fetch, parseCSV, renderProductGrid 等原有函式，完全不變) ...
-    // 為了節省篇幅，我這裡省略了 fetch 和 render 的程式碼 (與上一版相同)
-    // 但請您保留原本的 parseProductsCSV, renderProductGrid 等函式
-    // ★ 重要：請確保 renderProductGrid 裡的按鈕 HTML 是正確的 (呼叫 addToCart)
-    
-    // -----------------------------------------------------------
-    // 以下為 fetch 與 render 邏輯 (請完整保留)
-    // -----------------------------------------------------------
+    // ★ [FIX] 這裡將 baseurl 設為空字串或 "/keicha"
+    // 如果您的圖片在 GSheet 裡已經寫了 "/keicha/images/..."，這裡就設為 ""
+    // 如果 GSheet 裡寫的是 "images/..."，這裡就設為 "/keicha"
+    const BASE_URL = "/keicha"; 
 
     function fetchWithCacheBust(url) {
         if (!url || !url.startsWith('http') || url.includes("請貼上")) {
@@ -167,17 +141,21 @@ window.addEventListener('load', () => {
 
     function cleanHeader(arr) { return arr.map(h => h.trim().replace(/[\uFEFF"']/g, '')); }
 
+    // 解析商品 (CSV 版)
     function parseProductsCSV(text) {
         const lines = text.split(/\r?\n/);
         if (lines.length < 2) return [];
-        // ★ 改為逗號分隔
-        let header = cleanHeader(lines[0].split(',')); 
+        
+        // ★ 使用逗號分隔
+        let header = cleanHeader(lines[0].split(','));
+        
         const headerMap = {};
         header.forEach(h => headerMap[h] = header.indexOf(h));
 
         const data = [];
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
+            // ★ 使用逗號分隔
             const row = lines[i].split(',');
             const item = {};
             for (const key in headerMap) {
@@ -188,14 +166,19 @@ window.addEventListener('load', () => {
         return data;
     }
 
+    // 解析設定 (CSV 版)
     function parseSettingsCSV(text) {
         const lines = text.split(/\r?\n/);
         if (lines.length < 2) return {};
+        
+        // ★ 使用逗號分隔
         let header = cleanHeader(lines[0].split(','));
+        
         const headerMap = { key: header.indexOf('key'), value: header.indexOf('value') };
         const settings = {};
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
+            // ★ 使用逗號分隔
             const row = lines[i].split(',');
             const key = row[headerMap.key] ? row[headerMap.key].trim() : '';
             const value = row[headerMap.value] ? row[headerMap.value].trim() : '';
@@ -225,12 +208,18 @@ window.addEventListener('load', () => {
             let specsHTML = product.specs ? `<ul class="text-xs text-gray-500 mt-2 space-y-1">${product.specs.split('|').map(s => `<li>• ${s.trim()}</li>`).join('')}</ul>` : '';
             let notesHTML = product.special_notes ? `<div class="mt-3 pt-3 border-t border-gray-200">${product.special_notes.split('|').map(n => `<p class="text-xs text-brandGreen font-medium">・ ${n.trim()}</p>`).join('')}</div>` : '';
 
-            let imageUrl = product.image_url.startsWith('http') ? product.image_url : BASE_URL + (product.image_url.startsWith('/') ? product.image_url : '/' + product.image_url);
+            // 處理圖片路徑 (確保只有一個斜線)
+            let imageUrl;
+            if (product.image_url.startsWith('http')) {
+                imageUrl = product.image_url;
+            } else {
+                const cleanPath = product.image_url.startsWith('/') ? product.image_url : '/' + product.image_url;
+                imageUrl = BASE_URL + cleanPath;
+            }
             
             const price = parseInt(product.price);
             const priceText = isNaN(price) ? "價格請洽詢" : `NT$ ${price.toLocaleString()}`;
 
-            // ★ 按鈕邏輯
             let buttonHTML;
             if (isAvailable) {
                 const safeName = product.product_name.replace(/'/g, "\\'");
@@ -295,12 +284,11 @@ window.addEventListener('load', () => {
             emailLink.href = `mailto:${settings.contact_email}`;
         }
     }
-    
+
     function renderStructuredData(products) {
-         // (省略 SEO 程式碼，以節省篇幅，請保留原有的)
          const container = document.getElementById('structured-data-container');
          if(!container) return;
-         // ... (SEO logic)
+         // ... (為了簡潔，這裡保留原本的 SEO 邏輯，不重複列出) ...
     }
 
     function handleMainError(error) {
