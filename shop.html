@@ -114,31 +114,25 @@ scripts: ""
         </div>
     </section>
 
-    <!-- 5. 聯絡我們 (動態載入) -->
-    <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-2xl">
-            <h2 class="text-3xl font-bold mb-4">需要客製化服務嗎？</h2>
-            <p class="text-lg text-gray-700 mb-8">若您在尋找列表上沒有的商品，或有其他代購需求，請透過 LINE 官方帳號與我們聯繫。</p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <!-- LINE -->
-                <div class="text-center">
-                    <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
-                        <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
-                    </a>
-                    <p class="text-gray-600">LINE ID: 
-                        <strong id="contact-line-id" class="text-gray-800">@366qwylw</strong>
-                    </p>
-                </div>
-                <!-- Email -->
-                <div class="text-center">
-                    <p class="text-lg font-medium text-gray-800">Email 諮詢</p>
-                    <a id="contact-email-link" href="mailto:keicha.nihoncha@gmail.com" class="text-brandGreen hover:underline font-semibold">
-                        <span id="contact-email-text">keicha.nihoncha@gmail.com</span>
-                    </a>
-                </div>
+        <!-- 5. 聯絡我們 (LINE) -->
+        <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
+                <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
+                
+                <!-- LINE 加入好友按鈕 -->
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
+                    <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+                </a>
+                
+                <p class="text-gray-600">或手動輸入 ID:</p>
+                <input type="text" value="@366qwylw" readonly
+                       onclick="this.select()"
+                       class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                       title="點擊選取 ID"
+                       onfocus="this.select()">
             </div>
-        </div>
-    </section>
+        </section>
 </main>
 
 <!-- 
