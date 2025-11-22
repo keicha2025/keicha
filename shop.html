@@ -5,25 +5,25 @@ title: KEICHA 網路商店 | 抹茶、茶具代購
 description: KEICHA 網路商店，提供專業的抹茶與茶具代購服務，商品狀態即時更新。
 keywords: KEICHA, 網路商店, 抹茶代購, 抹茶, 茶具, 丸久小山園, 山政小山園, 星野製茶園
 
-# ★ [UPDATED] 
-# 移除靜態 structured_data，JS 會自動生成
+# 移除靜態 structured_data
 structured_data: ""
 
 styles: |
     <style>
         /* 載入中動畫 */
         .loader {
-            border-top-color: #6ea44c; /* brandGreen */
+            border-top-color: #6ea44c;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
         /* 1:1 圖片容器 */
         .product-image-container {
             position: relative;
             width: 100%;
-            padding-top: 100%; /* 關鍵：建立 1:1 比例 */
+            padding-top: 100%;
             background-color: #f3f4f6;
             border-radius: 0.5rem;
             overflow: hidden;
@@ -34,8 +34,9 @@ styles: |
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 圖片會被裁切以填滿 1:1 容器 */
+            object-fit: cover;
         }
+        
         /* 狀態標籤 */
         .product-status-badge {
             position: absolute;
@@ -48,63 +49,151 @@ styles: |
             z-index: 10;
         }
         .status-available {
-            background-color: #6ea44c; /* brandGreen */
+            background-color: #6ea44c;
             color: white;
         }
         .status-out-of-stock {
-            background-color: #e5e7eb; /* bg-gray-200 */
-            color: #374151; /* text-gray-700 */
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        /* --- [NEW] 購物車 UI 樣式 --- */
+        
+        /* 1. 浮動按鈕 */
+        .cart-floating-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            background-color: #6ea44c; /* brandGreen */
+            color: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .cart-floating-btn:hover {
+            transform: scale(1.1);
+            background-color: #5a8f3c;
+        }
+        .cart-count-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* 2. 側邊欄 (預設隱藏) */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 100%;
+            max-width: 400px; /* 手機滿版，電腦版 400px */
+            background-color: white;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            transform: translateX(100%); /* 預設移出畫面 */
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-sidebar.open {
+            transform: translateX(0); /* 滑入 */
+        }
+        
+        /* 遮罩層 */
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 90;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+        .cart-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 購物車列表 */
+        .cart-items-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .cart-item img {
+            width: 4rem;
+            height: 4rem;
+            object-fit: cover;
+            border-radius: 0.25rem;
         }
     </style>
-# ★ [UPDATED] 
-# 移除了 scripts: 區塊，因為您的 layout 似乎沒有載入它。
-# 我們將改用手動方式在 HTML 內容中載入 script。
+# 移除 scripts 區塊，改用手動載入
 scripts: ""
 ---
-<!-- 
-=====================================================
-  頁面主要內容 (HTML Content)
-=====================================================
--->
+
+<!-- ==== 頁面主要內容 ==== -->
 <main>
     <div id="structured-data-container"></div>
     
+    <!-- 標題 -->
     <section class="bg-white pt-16 pb-12 shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-4xl font-bold text-brandGreen">網路商店</h1>
-            <p class="mt-4 text-lg text-gray-600">
-                所有商品皆由後台即時更新
-            </p>
+            <p class="mt-4 text-lg text-gray-600">所有商品皆由後台即時更新</p>
         </div>
     </section>
 
-    <!-- 2. 網路商店公告 (動態載入) -->
+    <!-- 公告 -->
     <section id="announcement-section" class="hidden py-4 bg-yellow-100 border-y border-yellow-300">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <p id="announcement-content" class="text-center font-medium text-yellow-800"></p>
         </div>
     </section>
 
-    <!-- 3. 商品篩選與列表 (未來可擴充) -->
+    <!-- 商品列表 -->
     <section class="py-16 md:py-24">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-
-            <!-- 載入動畫 (主要) -->
+            <!-- 載入動畫 -->
             <div id="products-loader" class="flex justify-center items-center h-48">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-16 w-16"></div>
             </div>
-
-            <!-- 商品列表容器 -->
-            <div id="product-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-                <!-- 商品卡片將由 JavaScript 動態產生 -->
-            </div>
-            
-            <!-- 錯誤訊息容器 -->
+            <!-- 列表容器 -->
+            <div id="product-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10"></div>
+            <!-- 錯誤訊息 -->
             <div id="products-error" class="hidden text-center text-red-600 bg-red-100 p-6 rounded-lg mt-6"></div>
         </div>
     </section>
 
-    <!-- 4. 固定規則條款 (動態載入) -->
+    <!-- 規則條款 -->
     <section class="py-16 md:py-24 bg-gray-100 border-t border-gray-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
             <h2 class="text-3xl font-bold text-center mb-8">服務與購買須知</h2>
@@ -114,45 +203,75 @@ scripts: ""
         </div>
     </section>
 
-        <!-- 5. 聯絡我們 (LINE) -->
-        <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
-                <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
-                
-                <!-- LINE 加入好友按鈕 -->
-                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
-                    <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
-                </a>
-                
-                <p class="text-gray-600">或手動輸入 ID:</p>
-                <input type="text" value="@366qwylw" readonly
-                       onclick="this.select()"
-                       class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
-                       title="點擊選取 ID"
-                       onfocus="this.select()">
+    <!-- 聯絡我們 -->
+    <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-2xl">
+            <h2 class="text-3xl font-bold mb-4">需要客製化服務嗎？</h2>
+            <p class="text-lg text-gray-700 mb-8">若您在尋找列表上沒有的商品，或有其他代購需求，請透過 LINE 官方帳號與我們聯繫。</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <div class="text-center">
+                    <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
+                        <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+                    </a>
+                    <p class="text-gray-600">LINE ID: <strong id="contact-line-id" class="text-gray-800">@366qwylw</strong></p>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg font-medium text-gray-800">Email 諮詢</p>
+                    <a id="contact-email-link" href="mailto:keicha.nihoncha@gmail.com" class="text-brandGreen hover:underline font-semibold">
+                        <span id="contact-email-text">keicha.nihoncha@gmail.com</span>
+                    </a>
+                </div>
             </div>
-        </section>
+        </div>
+    </section>
 </main>
 
-<!-- 
-=====================================================
-  ★ [CRITICAL FIX] ★
-  
-  我們將 <script> 標籤手動放在這裡 (main 之後, footer 之前)。
-  這能確保它 100% 被載入，並繞過 layout 的問題。
-  Jekyll 會正確解析這裡的 Liquid 語法。
-=====================================================
--->
+<!-- ★ [NEW] 購物車 UI 結構 ★ -->
+
+<!-- 遮罩層 -->
+<div id="cart-overlay" class="cart-overlay" onclick="toggleCart(false)"></div>
+
+<!-- 側邊欄 -->
+<div id="cart-sidebar" class="cart-sidebar">
+    <!-- 標題 -->
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+            🛒 購物車 <span id="cart-total-count" class="text-sm text-white bg-brandGreen px-2 py-0.5 rounded-full">0</span>
+        </h2>
+        <button onclick="toggleCart(false)" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+    </div>
+
+    <!-- 商品列表區 (JS 填入) -->
+    <div id="cart-items-container" class="cart-items-container">
+        <p class="text-center text-gray-500 mt-10">您的購物車是空的</p>
+    </div>
+
+    <!-- 底部結帳區 -->
+    <div class="p-4 border-t border-gray-200 bg-gray-50">
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-gray-600 font-medium">總計金額</span>
+            <span id="cart-total-price" class="text-2xl font-bold text-brandGreen">NT$ 0</span>
+        </div>
+        <!-- 結帳按鈕 (這裡目前還是假的，只會跳 Alert) -->
+        <button onclick="checkout()" class="w-full bg-brandGreen text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition shadow-md">
+            前往結帳
+        </button>
+    </div>
+</div>
+
+<!-- 浮動按鈕 -->
+<div id="cart-floating-btn" class="cart-floating-btn" onclick="toggleCart(true)">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <span id="cart-floating-count" class="cart-count-badge hidden">0</span>
+</div>
+
+
+<!-- 設定 Base URL -->
 <script>
-  // ★ 關鍵：將 Jekyll 的 baseurl 傳遞給 JS
-  // 這樣 JS 才能正確組合圖片的相對路徑
   window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
 </script>
 
-<!-- 
-  ★ 載入外部 JS 引擎
-  'defer' 確保 HTML 解析完畢才執行
-  'data-cf-async="false"' 告訴 Cloudflare 不要干擾
--->
+<!-- 載入 JS 引擎 -->
 <script src="{{ '/assets/js/shop-loader.js' | relative_url }}" data-cf-async="false" defer></script>
