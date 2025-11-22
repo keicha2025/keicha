@@ -2,7 +2,15 @@
  * KEICHA 網路商店 - 全自動載入引擎
  * (已修正 Cloudflare 衝突 和 baseurl 問題)
  * (★ 維持使用 CSV (逗號分隔) 邏輯)
+ * (★ 新增：加入購物車按鈕)
  */
+
+// ★ [NEW] 定義全域的加入購物車函式 (讓 HTML onclick 可以呼叫)
+window.addToCart = function(id, name, price, image) {
+    // 目前先用 alert 測試，之後會改寫成真的購物車邏輯
+    alert(`已將「${name}」加入購物車！\n價格: NT$ ${price}`);
+    console.log("加入購物車:", { id, name, price, image });
+};
 
 // ★ [FIX] 改用 'load' 事件，確保在 Cloudflare 等所有資源載入後才執行
 window.addEventListener('load', () => {
@@ -179,8 +187,33 @@ window.addEventListener('load', () => {
             const price = parseInt(product.price);
             const priceText = isNaN(price) ? "價格請洽詢" : `NT$ ${price.toLocaleString()}`;
 
+            // ★ [NEW] 建立加入購物車按鈕 HTML
+            // 如果缺貨，按鈕顯示灰色並停用
+            let buttonHTML;
+            if (isAvailable) {
+                // 為了避免引號衝突，將字串中的單引號跳脫
+                const safeName = product.product_name.replace(/'/g, "\\'");
+                const safeId = product.product_id;
+                
+                buttonHTML = `
+                    <button onclick="addToCart('${safeId}', '${safeName}', ${price}, '${imageUrl}')" 
+                        class="mt-4 w-full bg-brandGreen text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-200 flex justify-center items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        加入購物車
+                    </button>
+                `;
+            } else {
+                buttonHTML = `
+                    <button disabled class="mt-4 w-full bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded cursor-not-allowed">
+                        暫時缺貨
+                    </button>
+                `;
+            }
+
             const cardHTML = `
-                <div class="product-card flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${!isAvailable ? 'opacity-60' : 'hover:shadow-xl'}">
+                <div class="product-card flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${!isAvailable ? 'opacity-80' : 'hover:shadow-xl'}">
                     
                     <div class="product-image-container">
                         <img src="${imageUrl}" alt="${product.product_name}" loading="lazy">
@@ -196,6 +229,8 @@ window.addEventListener('load', () => {
                         ${specsHTML}
                         <div class="mt-auto">
                             ${notesHTML}
+                            <!-- ★ 插入按鈕 -->
+                            ${buttonHTML}
                         </div>
                     </div>
                 </div>
