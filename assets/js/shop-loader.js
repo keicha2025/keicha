@@ -27,13 +27,20 @@ function updateCartUI() {
 
     // 1. 更新浮動按鈕數字
     const floatingCount = document.getElementById('cart-floating-count');
+    const floatingBtn = document.getElementById('cart-floating-btn'); // 取得按鈕本體
+
     if (floatingCount) {
         floatingCount.textContent = totalCount;
-        if (totalCount > 0) {
-            floatingCount.classList.remove('hidden');
-        } else {
-            floatingCount.classList.add('hidden');
-        }
+        
+        // --- 修改處開始：原本是 0 就 hidden，現在改為「永遠顯示」 ---
+        // 移除 hidden class，讓紅點永遠顯示 (顯示 0)
+        floatingCount.classList.remove('hidden'); 
+        // --- 修改處結束 ---
+    }
+
+    // 確保按鈕本體也是顯示的 (雙重保險)
+    if (floatingBtn) {
+        floatingBtn.style.display = 'flex';
     }
 
     // 2. 更新側邊欄標題數字
