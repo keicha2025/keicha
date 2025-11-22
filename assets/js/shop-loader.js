@@ -1,6 +1,6 @@
 /**
  * KEICHA 網路商店 - 全自動載入引擎 (含購物車)
- * (CSV 逗號分隔版)
+ * (CSV 逗號分隔版 - 已清理 HTML 標籤汙染)
  */
 
 // --- 1. 購物車全域變數與功能 ---
@@ -117,13 +117,11 @@ window.addEventListener('load', () => {
     loadCart();
 
     // --- 您的後台設定區 ---
-    // ★ 使用 CSV 網址
+    // ★ [NOTE] 這是您提供的 CSV 網址
     const products_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8gwVZcW8WvKHAMPOO3qa2mjQzc_7JE7iy3NiMnjuQHVAW3pxg-s_a1qISsfwtfqqOGthHFp2omb_7/pub?gid=0&single=true&output=csv";
     const settings_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8gwVZcW8WvKHAMPOO3qa2mjQzc_7JE7iy3NiMnjuQHVAW3pxg-s_a1qISsfwtfqqOGthHFp2omb_7/pub?gid=1849246580&single=true&output=csv";
     
-    // ★ [FIX] 這裡將 baseurl 設為空字串或 "/keicha"
-    // 如果您的圖片在 GSheet 裡已經寫了 "/keicha/images/..."，這裡就設為 ""
-    // 如果 GSheet 裡寫的是 "images/..."，這裡就設為 "/keicha"
+    // ★ [FIX] 寫死 Base URL
     const BASE_URL = "/keicha"; 
 
     function fetchWithCacheBust(url) {
@@ -208,7 +206,7 @@ window.addEventListener('load', () => {
             let specsHTML = product.specs ? `<ul class="text-xs text-gray-500 mt-2 space-y-1">${product.specs.split('|').map(s => `<li>• ${s.trim()}</li>`).join('')}</ul>` : '';
             let notesHTML = product.special_notes ? `<div class="mt-3 pt-3 border-t border-gray-200">${product.special_notes.split('|').map(n => `<p class="text-xs text-brandGreen font-medium">・ ${n.trim()}</p>`).join('')}</div>` : '';
 
-            // 處理圖片路徑 (確保只有一個斜線)
+            // 處理圖片路徑
             let imageUrl;
             if (product.image_url.startsWith('http')) {
                 imageUrl = product.image_url;
@@ -217,9 +215,11 @@ window.addEventListener('load', () => {
                 imageUrl = BASE_URL + cleanPath;
             }
             
+            // 確保 price 是純數字 (若有逗號會導致 NaN，請確保 GSheet 為純數字)
             const price = parseInt(product.price);
             const priceText = isNaN(price) ? "價格請洽詢" : `NT$ ${price.toLocaleString()}`;
 
+            // ★ 按鈕邏輯
             let buttonHTML;
             if (isAvailable) {
                 const safeName = product.product_name.replace(/'/g, "\\'");
@@ -284,11 +284,11 @@ window.addEventListener('load', () => {
             emailLink.href = `mailto:${settings.contact_email}`;
         }
     }
-
+    
     function renderStructuredData(products) {
          const container = document.getElementById('structured-data-container');
          if(!container) return;
-         // ... (為了簡潔，這裡保留原本的 SEO 邏輯，不重複列出) ...
+         // (SEO logic omitted for brevity, but safe to include if needed)
     }
 
     function handleMainError(error) {
