@@ -1,7 +1,7 @@
 /**
  * KEICHA 7-11 賣貨便小幫手 - 全自動載入引擎 (Dev)
  * 功能：讀取 GSheet (總表+分頁)、購物車計算、產生賣貨便字串
- * 修正：配合抹茶代購頁面的特定欄位 (7欄)
+ * 修正：同品牌混搭優惠邏輯 (Mix and Match within Brand)
  */
 
 // --- 全域變數與設定 ---
@@ -35,13 +35,31 @@ function updateCartUI() {
     const bar = document.getElementById('myship-bar');
     const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
     
-    // 計算總金額 (考慮 price_multi 兩罐優惠)
+    // --- [NEW] 計算品牌總數與優惠 ---
+    
+    // 1. 先統計各品牌的件數
+    const brandCounts = {};
+    cart.forEach(item => {
+        // 如果沒有 brand 資料，歸類為 'other'
+        const brand = item.brand || 'other';
+        brandCounts[brand] = (brandCounts[brand] || 0) + item.qty;
+    });
+
+    // 2. 計算總金額 (依據同品牌件數 >= 2 判斷優惠)
     let grandTotal = 0;
     cart.forEach(item => {
-        // 判斷是否符合多件優惠
-        const unitPrice = (item.qty >= 2 && item.price_multi > 0) ? item.price_multi : item.price;
+        const itemBrand = item.brand || 'other';
+        // 判斷條件：該品牌總件數 >= 2 且該商品有設定優惠價
+        const isDiscountApplied = (brandCounts[itemBrand] >= 2 && item.price_multi > 0);
+        
+        const unitPrice = isDiscountApplied ? item.price_multi : item.price;
         grandTotal += unitPrice * item.qty;
+        
+        // 順便把計算結果存回 item (方便顯示明細)
+        item.finalPrice = unitPrice; 
+        item.isDiscounted = isDiscountApplied;
     });
+    // --------------------------------
 
     // 顯示/隱藏底部工具列
     if (bar) {
@@ -53,14 +71,13 @@ function updateCartUI() {
     const qtyEl = document.getElementById('bar-total-qty');
     if(qtyEl) qtyEl.textContent = totalQty;
 
-    // ★ [重點] 賣貨便品名產生邏輯
+    // ★ 賣貨便品名產生邏輯
     let nameStrParts = cart.map(item => {
         return item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
     });
     
     let finalNameStr = nameStrParts.join(' / ');
     
-    // 長度防呆
     if (cart.length > 3 || totalQty > 3) {
         finalNameStr = `(共${totalQty}件) ${finalNameStr}`;
     }
@@ -84,16 +101,21 @@ function renderCartDetailList() {
     }
 
     container.innerHTML = cart.map((item, idx) => {
-        const unitPrice = (item.qty >= 2 && item.price_multi > 0) ? item.price_multi : item.price;
-        const isDiscounted = unitPrice < item.price;
+        // 使用 updateCartUI 計算好的 finalPrice
+        const unitPrice = item.finalPrice || item.price; 
+        const isDiscounted = item.isDiscounted; 
         
         return `
             <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
                 <div class="flex-grow pr-2">
                     <div class="font-bold text-gray-800">${item.name}</div>
-                    <div class="text-xs text-gray-500">
-                        ${isDiscounted ? `<span class="text-brandGreen">優惠價 $${unitPrice}</span>` : `單價 $${unitPrice}`} 
-                        x ${item.qty}
+                    <div class="text-xs text-gray-500 flex gap-2 items-center">
+                        ${isDiscounted 
+                            ? `<span class="text-brandGreen font-bold">優惠價 $${unitPrice}</span>` 
+                            : `單價 $${unitPrice}`
+                        }
+                        <span>x ${item.qty}</span>
+                        ${item.brand ? `<span class="text-gray-300">| ${item.brand}</span>` : ''}
                     </div>
                 </div>
                 <div class="flex items-center gap-2 bg-white border rounded px-1">
@@ -108,7 +130,8 @@ function renderCartDetailList() {
 
 // --- 互動函式 ---
 
-window.addToCart = function(name, price, priceMulti, maxLimit) {
+// ★ [UPDATED] 增加 brand 參數
+window.addToCart = function(name, price, priceMulti, maxLimit, brand) {
     const existing = cart.find(i => i.name === name);
     const limit = maxLimit ? parseInt(maxLimit) : 99;
     
@@ -124,7 +147,8 @@ window.addToCart = function(name, price, priceMulti, maxLimit) {
             price: parseInt(price) || 0,
             price_multi: parseInt(priceMulti) || 0,
             qty: 1,
-            max_limit: limit
+            max_limit: limit,
+            brand: brand || '' // 記錄品牌
         });
     }
     saveCart();
@@ -192,7 +216,6 @@ window.addEventListener('load', () => {
         // 檢查必要欄位
         if(reqHeaders && !reqHeaders.every(h => headers.includes(h))) {
             console.error("CSV 欄位缺失:", headers, "需要:", reqHeaders);
-            // 如果缺失，回傳空陣列，避免當機，並在 Console 報錯
             return [];
         }
         
@@ -224,7 +247,6 @@ window.addEventListener('load', () => {
             for (const key in map) {
                 const index = map[key];
                 let val = (index < row.length) ? row[index].trim() : '';
-                // 處理金額逗號
                 if (key === 'price' || key === 'price_multi') {
                      val = val.replace(/,/g, '');
                 }
@@ -241,7 +263,7 @@ window.addEventListener('load', () => {
             .then(res => res.ok ? res.text() : Promise.reject(res.status));
     }
 
-    // 渲染品牌狀態總覽
+    // 渲染品牌狀態總覽 (★ 只顯示 available 品牌)
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
         const loader = document.getElementById('status-loader');
@@ -268,7 +290,7 @@ window.addEventListener('load', () => {
         }).join('');
     }
 
-    // 渲染品牌區塊與商品
+    // 渲染品牌區塊與商品 (★ 只渲染 available 品牌)
     async function renderProducts(brands) {
         const container = document.getElementById('product-list-container');
         if(!container) return;
@@ -305,6 +327,9 @@ window.addEventListener('load', () => {
                         p.status !== 'hidden' && 
                         p.hidden !== 'TRUE'
                     );
+                    
+                    // ★ [UPDATED] 將品牌名稱注入到商品物件中，供購物車使用
+                    validProducts.forEach(p => p.brand_ref = brand.name);
 
                     if(grid && validProducts.length > 0) {
                         section.classList.remove('hidden');
@@ -328,9 +353,10 @@ window.addEventListener('load', () => {
         
         // 您現在沒有 image_url 欄位，所以不處理圖片
         // let imgUrl = ...; 
-
+        
+        // ★ [UPDATED] 傳遞 p.brand_ref (品牌名稱) 給 addToCart
         const btnHtml = isAvailable 
-            ? `<button onclick="addToCart('${p.product_name.replace(/'/g, "\\'")}', ${price}, ${priceMulti}, '${p.max_limit}')" class="w-full bg-brandGreen text-white font-bold py-2 rounded hover:opacity-90 transition flex justify-center items-center gap-1">
+            ? `<button onclick="addToCart('${p.product_name.replace(/'/g, "\\'")}', ${price}, ${priceMulti}, '${p.max_limit}', '${p.brand_ref}')" class="w-full bg-brandGreen text-white font-bold py-2 rounded hover:opacity-90 transition flex justify-center items-center gap-1">
                 <span>+</span> 加入清單
                </button>`
             : '';
