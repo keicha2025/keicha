@@ -1,0 +1,232 @@
+---
+# 這是 Front Matter
+layout: default
+title: KEICHA 抹茶代購總覽 | 丸久小山園、山政小山園代購狀態
+description: KEICHA 抹茶代購總覽。即時查看丸久小山園、山政小山園、星野製茶園、上林春松本店的最新可訂購狀態。
+keywords: KEICHA, 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶園, 上林春松本店, 抹茶狀態, 日本抹茶
+
+# 移除靜態 structured_data
+structured_data: ""
+
+styles: |
+    <style>
+        /* 載入中動畫 */
+        .loader {
+            border-top-color: #6ea44c; /* brandGreen */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* 價格顯示樣式 */
+        .price-discount {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.4;
+        }
+        .price-original {
+            font-size: 0.9em;
+            color: #6b7280; /* text-gray-500 */
+        }
+        .price-current {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 700; /* font-bold */
+        }
+
+        /* --- [NEW] 賣貨便小幫手 UI --- */
+        
+        /* 底部懸浮工具列 */
+        .myship-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            transform: translateY(100%); /* 預設隱藏 */
+            transition: transform 0.3s ease-in-out;
+        }
+        .myship-bar.show {
+            transform: translateY(0);
+        }
+
+        /* 複製成功提示 (Toast) */
+        .toast-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+        .toast-notification.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 為了不讓底部工具列遮住內容，增加 main 的底部 padding */
+        main {
+            padding-bottom: 280px; /* 預留空間給底部工具列 */
+        }
+    </style>
+scripts: |
+    <!-- 載入外部 JS 引擎 -->
+    <script src="{{ '/assets/js/shop-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+---
+
+<!-- ==== 頁面主要內容 ==== -->
+<main>
+    <div id="structured-data-container"></div>
+    
+    <!-- 1. 頁面標題 -->
+    <section class="bg-white pt-16 pb-8 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-bold text-brandGreen">抹茶代購總覽</h1>
+            <p class="mt-4 text-lg text-gray-600">
+                所有商品皆由後台即時更新
+            </p>
+            <p class="mt-2 text-sm text-gray-500">(狀態由後台自動更新，約有 5 分鐘延遲)</p>
+        </div>
+    </section>
+
+    <!-- ★ [NEW] 操作流程說明區塊 -->
+    <section class="bg-green-50 py-8 border-b border-green-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-6">📦 7-11 賣貨便自填單小幫手</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">1</div>
+                    <h3 class="font-bold text-gray-800">選擇商品</h3>
+                    <p class="text-sm text-gray-600 mt-1">在下方列表點擊「加入購物車」，選擇您要代購的所有品項。</p>
+                </div>
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">2</div>
+                    <h3 class="font-bold text-gray-800">複製內容</h3>
+                    <p class="text-sm text-gray-600 mt-1">使用底部工具列，一鍵複製系統自動生成的「品名組合」與「總金額」。</p>
+                </div>
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">3</div>
+                    <h3 class="font-bold text-gray-800">前往下單</h3>
+                    <p class="text-sm text-gray-600 mt-1">點擊前往賣貨便，貼上剛剛複製的資訊。<br><span class="text-red-500 font-bold">注意：下單數量請填寫 1 即可。</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. 品牌總覽 -->
+    <section id="status-overview" class="py-12 bg-gray-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <h2 class="text-2xl font-bold text-center mb-8">品牌總覽</h2>
+            <div id="status-loader" class="flex justify-center items-center h-24">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-12 w-12"></div>
+            </div>
+            <div id="status-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- JS 動態產生 -->
+            </div>
+            <div id="status-error" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg mt-6"></div>
+        </div>
+    </section>
+    
+    <!-- 3. 詳細品項列表 -->
+    <div id="product-list-container" class="py-12 space-y-16">
+        <!-- JS 動態產生 -->
+    </div>
+    
+    <!-- 4. 聯絡我們 -->
+    <section id="contact" class="py-16 bg-brandGreen bg-opacity-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-2xl font-bold mb-4">找不到想要的商品？</h2>
+            <p class="text-lg text-gray-700 mb-6">請透過 LINE 官方帳號與我們聯繫。</p>
+            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
+                <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+            </a>
+            <p class="text-gray-600">或手動輸入 ID: <strong class="text-gray-800">@366qwylw</strong></p>
+        </div>
+    </section>
+</main>
+
+<!-- ★ [NEW] 底部懸浮複製工具列 (Sticky Generator Bar) ★ -->
+<div id="myship-bar" class="myship-bar">
+    <div class="container mx-auto max-w-3xl">
+        <!-- 提示文字 -->
+        <div class="flex justify-between items-center mb-3 border-b pb-2 border-gray-100">
+            <span class="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded">⚠️ 賣貨便下單數量請填 1</span>
+            <!-- 購物車折疊/展開按鈕 -->
+            <button onclick="toggleCartDetail()" class="text-xs text-gray-500 hover:text-brandGreen flex items-center">
+                已選 <span id="bar-total-count" class="font-bold text-gray-800 mx-1">0</span> 項商品
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- 欄位 1: 品名產生器 -->
+        <div class="mb-3">
+            <label class="block text-xs font-bold text-gray-500 mb-1">商品品名 (已自動組合)</label>
+            <div class="flex gap-2">
+                <input type="text" id="gen-name-input" readonly 
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brandGreen focus:border-brandGreen block p-2.5" 
+                    placeholder="尚未選擇商品...">
+                <button onclick="copyToClipboard('gen-name-input')" 
+                    class="bg-brandGreen text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition whitespace-nowrap text-sm">
+                    複製
+                </button>
+            </div>
+        </div>
+
+        <!-- 欄位 2: 總金額 -->
+        <div class="mb-4">
+            <label class="block text-xs font-bold text-gray-500 mb-1">訂單總金額 (NT$)</label>
+            <div class="flex gap-2">
+                <input type="text" id="gen-price-input" readonly 
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brandGreen focus:border-brandGreen block p-2.5" 
+                    value="0">
+                <button onclick="copyToClipboard('gen-price-input')" 
+                    class="bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-800 transition whitespace-nowrap text-sm">
+                    複製
+                </button>
+            </div>
+        </div>
+
+        <!-- 前往賣貨便按鈕 -->
+        <a href="https://myship.7-11.com.tw/cart/easy/GM2511158406180" target="_blank" rel="noopener noreferrer" 
+           class="block w-full text-center bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition shadow-sm">
+            前往 7-11 賣貨便貼上
+        </a>
+    </div>
+</div>
+
+<!-- 購物車詳細清單 (預設隱藏，點擊底部列展開) -->
+<div id="cart-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[150] hidden flex items-end sm:items-center justify-center">
+    <div class="bg-white w-full sm:max-w-lg rounded-t-xl sm:rounded-xl p-6 max-h-[80vh] flex flex-col">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h3 class="text-lg font-bold">已選商品清單</h3>
+            <button onclick="toggleCartDetail()" class="text-gray-500 text-2xl">&times;</button>
+        </div>
+        <div id="cart-detail-list" class="overflow-y-auto flex-grow space-y-3 mb-4">
+            <!-- JS 填入項目 -->
+        </div>
+        <button onclick="toggleCartDetail()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-bold">
+            關閉清單
+        </button>
+    </div>
+</div>
+
+<!-- Toast 提示 -->
+<div id="toast" class="toast-notification">已複製！</div>
+
+<!-- 設定 Base URL -->
+<script>
+  window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
+</script>
