@@ -1,7 +1,7 @@
 /**
  * KEICHA 7-11 賣貨便小幫手 - 全自動載入引擎 (Dev)
  * 功能：讀取 GSheet (總表+分頁)、購物車計算、產生賣貨便字串
- * 修正：完整閉合程式碼，修復 Unexpected end of input 錯誤
+ * 修正：配合抹茶代購頁面的特定欄位 (7欄)
  */
 
 // --- 全域變數與設定 ---
@@ -38,12 +38,9 @@ function updateCartUI() {
     // 計算總金額 (考慮 price_multi 兩罐優惠)
     let grandTotal = 0;
     cart.forEach(item => {
+        // 判斷是否符合多件優惠
         const unitPrice = (item.qty >= 2 && item.price_multi > 0) ? item.price_multi : item.price;
         grandTotal += unitPrice * item.qty;
-        
-        // 儲存計算後的單價供顯示用
-        item.finalPrice = unitPrice;
-        item.isDiscounted = (unitPrice < item.price);
     });
 
     // 顯示/隱藏底部工具列
@@ -87,15 +84,15 @@ function renderCartDetailList() {
     }
 
     container.innerHTML = cart.map((item, idx) => {
-        const unitPrice = item.finalPrice || item.price;
-        const isDiscounted = item.isDiscounted;
+        const unitPrice = (item.qty >= 2 && item.price_multi > 0) ? item.price_multi : item.price;
+        const isDiscounted = unitPrice < item.price;
         
         return `
             <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
                 <div class="flex-grow pr-2">
                     <div class="font-bold text-gray-800">${item.name}</div>
                     <div class="text-xs text-gray-500">
-                        ${isDiscounted ? `<span class="text-brandGreen font-bold">優惠價 $${unitPrice}</span>` : `單價 $${unitPrice}`} 
+                        ${isDiscounted ? `<span class="text-brandGreen">優惠價 $${unitPrice}</span>` : `單價 $${unitPrice}`} 
                         x ${item.qty}
                     </div>
                 </div>
@@ -185,7 +182,7 @@ function showToast(msg) {
 window.addEventListener('load', () => {
     loadCart();
     
-    // 簡單的 CSV 解析
+    // 簡單的 CSV 解析 (含 Regex 處理逗號)
     function parseCSV(text, reqHeaders) {
         const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         if (lines.length < 2) return [];
@@ -195,6 +192,7 @@ window.addEventListener('load', () => {
         // 檢查必要欄位
         if(reqHeaders && !reqHeaders.every(h => headers.includes(h))) {
             console.error("CSV 欄位缺失:", headers, "需要:", reqHeaders);
+            // 如果缺失，回傳空陣列，避免當機，並在 Console 報錯
             return [];
         }
         
@@ -202,7 +200,6 @@ window.addEventListener('load', () => {
         headers.forEach((h, i) => map[h] = i);
         
         const data = [];
-        // 正規表達式處理 CSV 內容中的逗號
         const regex = /("((?:[^"]|"")*)"|[^,]*)(,|$)/g;
 
         for (let i = 1; i < lines.length; i++) {
@@ -226,8 +223,8 @@ window.addEventListener('load', () => {
             const obj = {};
             for (const key in map) {
                 const index = map[key];
-                // 移除所有欄位中的逗號，避免金額運算錯誤
                 let val = (index < row.length) ? row[index].trim() : '';
+                // 處理金額逗號
                 if (key === 'price' || key === 'price_multi') {
                      val = val.replace(/,/g, '');
                 }
@@ -244,13 +241,14 @@ window.addEventListener('load', () => {
             .then(res => res.ok ? res.text() : Promise.reject(res.status));
     }
 
-    // 渲染品牌狀態總覽 (只顯示 available)
+    // 渲染品牌狀態總覽
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
         const loader = document.getElementById('status-loader');
         if(loader) loader.style.display = 'none';
         if(!container) return;
         
+        // 過濾：只顯示 available
         const activeBrands = brands.filter(b => b.status === 'available');
 
         if (activeBrands.length === 0) {
@@ -292,12 +290,21 @@ window.addEventListener('load', () => {
 
             if (brand.product_csv_url) {
                 fetchCSV(brand.product_csv_url).then(text => {
-                    // 讀取欄位
-                    const products = parseCSV(text, ['product_name', 'price', 'price_multi', 'status', 'image_url', 'max_limit', 'availability_note', 'specs']); 
+                    
+                    // ★ [UPDATED] 這裡改為您指定的 7 個欄位
+                    const requiredColumns = [
+                        'product_name', 'price', 'price_multi', 'status', 
+                        'hidden', 'max_limit', 'availability_note'
+                    ];
+
+                    const products = parseCSV(text, requiredColumns); 
                     const grid = document.getElementById(`${brand.key}-grid`);
                     
-                    // 過濾有效商品
-                    const validProducts = products.filter(p => p.hidden !== 'TRUE' && p.status === 'available');
+                    // 過濾有效商品 (status 不為 hidden 且 hidden 欄位不為 TRUE)
+                    const validProducts = products.filter(p => 
+                        p.status !== 'hidden' && 
+                        p.hidden !== 'TRUE'
+                    );
 
                     if(grid && validProducts.length > 0) {
                         section.classList.remove('hidden');
@@ -313,17 +320,14 @@ window.addEventListener('load', () => {
         }
     }
 
-    // 建立單一商品卡片 HTML (純白卡片)
+    // 建立單一商品卡片 HTML (★ 純白卡片)
     function createProductCard(p) {
         const isAvailable = p.status === 'available';
         const price = parseInt(p.price) || 0;
         const priceMulti = parseInt(p.price_multi) || 0;
-        const imgUrl = (p.image_url && p.image_url.trim()) ? p.image_url : '';
         
-        let finalImg = '';
-        if (imgUrl) {
-            finalImg = imgUrl.startsWith('http') ? imgUrl : `/keicha${imgUrl.startsWith('/')?'':'/'}${imgUrl}`;
-        }
+        // 您現在沒有 image_url 欄位，所以不處理圖片
+        // let imgUrl = ...; 
 
         const btnHtml = isAvailable 
             ? `<button onclick="addToCart('${p.product_name.replace(/'/g, "\\'")}', ${price}, ${priceMulti}, '${p.max_limit}')" class="w-full bg-brandGreen text-white font-bold py-2 rounded hover:opacity-90 transition flex justify-center items-center gap-1">
@@ -341,10 +345,7 @@ window.addEventListener('load', () => {
             `;
         }
 
-        const imgHtml = finalImg 
-            ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>`
-            : `<div class="h-4 bg-brandGreen/10"></div>`; 
-
+        // 備註 (現貨=綠色)
         let noteHtml = '';
         if (p.availability_note) {
             const isStock = p.availability_note.includes('現貨');
@@ -353,13 +354,13 @@ window.addEventListener('load', () => {
         }
 
         return `
-            <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden flex flex-col border border-gray-100">
-                ${imgHtml}
-                <div class="p-4 flex flex-col flex-grow">
+            <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden flex flex-col border border-gray-100 p-4">
+                <!-- 因為沒有圖片，直接顯示內容 -->
+                <div class="flex flex-col flex-grow">
                     ${noteHtml}
                     <h3 class="font-bold text-gray-800 mb-2 text-lg leading-tight">${p.product_name}</h3>
                     
-                    ${p.specs ? `<ul class="text-xs text-gray-500 mb-3 space-y-1 list-disc list-inside">${p.specs.split('|').map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
+                    <!-- 因為沒有 specs 欄位，移除 specs 顯示 -->
                     
                     <div class="mt-auto pt-3 border-t border-gray-100">
                         <div class="flex justify-between items-end mb-3">
@@ -375,6 +376,7 @@ window.addEventListener('load', () => {
     // --- 啟動 ---
     fetchCSV(MASTER_SHEET_URL)
         .then(text => {
+            // 總表有 4 個欄位
             const brands = parseCSV(text, ['key', 'name', 'status', 'product_csv_url']);
             renderStatusOverview(brands);
             renderProducts(brands);
