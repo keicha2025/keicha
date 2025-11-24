@@ -1,7 +1,7 @@
 ---
 # 這是 Front Matter
 layout: default
-title: KEICHA 抹茶代購總覽 | 賣貨便自填單小幫手
+title: KEICHA 抹茶代購總覽 | 賣貨便自填單小幫手 (Dev)
 description: 抹茶代購專用頁面。提供即時庫存查詢，並自動生成 7-11 賣貨便自填單所需的品名與金額。
 
 # 移除靜態 structured_data
@@ -106,9 +106,8 @@ styles: |
         }
     </style>
 
-# 載入您的 Dev 版 JS
-scripts: |
-    <script src="{{ '/assets/js/shop-loader_Dev.js' | relative_url }}" data-cf-async="false" defer></script>
+# ★ [FIX] 這裡清空，移到下方手動載入
+scripts: ""
 ---
 
 <main>
@@ -195,7 +194,8 @@ scripts: |
 
         <!-- 按鈕群 -->
         <div class="grid grid-cols-2 gap-3">
-            <a href="https://myship.7-11.com.tw/cart/easy/GM2511158406180" target="_blank" class="col-span-2 block w-full text-center bg-brandGreen text-white font-bold py-3 rounded-lg hover:opacity-90 shadow-md">
+            <a href="https://myship.7-11.com.tw/cart/easy/GM2511158406180" target="_blank" rel="noopener noreferrer" 
+               class="col-span-2 block w-full text-center bg-brandGreen text-white font-bold py-3 rounded-lg hover:opacity-90 shadow-md">
                 前往 7-11 賣貨便下單 ➔
             </a>
         </div>
@@ -209,7 +209,7 @@ scripts: |
             <h3 class="font-bold text-lg">已選商品清單</h3>
             <button onclick="toggleCartModal()" class="text-gray-500 text-2xl">&times;</button>
         </div>
-        <div id="cart-list-content" class="overflow-y-auto flex-grow space-y-3">
+        <div id="cart-list-content" class="overflow-y-auto flex-grow space-y-3 mb-4">
             <!-- JS 填入 -->
         </div>
     </div>
@@ -217,3 +217,6 @@ scripts: |
 
 <!-- Toast 提示 -->
 <div id="toast" class="toast">已複製！</div>
+
+<!-- ★ [CRITICAL FIX] 將 JS 載入移到這裡，Jekyll 才能正確解析 Liquid 語法 -->
+<script src="{{ '/assets/js/shop-loader_Dev.js' | relative_url }}" data-cf-async="false" defer></script>
