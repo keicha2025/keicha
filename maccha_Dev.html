@@ -51,7 +51,7 @@ styles: |
             position: relative;
             width: 100%;
             padding-top: 100%;
-            background-color: #fafafa; /* 極淡灰底，凸顯純白卡片 */
+            background-color: #fafafa; /* 極淡灰底 */
             overflow: hidden;
         }
         .product-img-box img {
@@ -125,29 +125,7 @@ scripts: ""
         </div>
     </section>
 
-    <!-- ★ [NEW] 操作流程說明區塊 -->
-    <section class="bg-green-50 py-8 border-b border-green-100">
-        <div class="container mx-auto px-4 max-w-4xl">
-            <h2 class="text-xl font-bold text-center text-gray-800 mb-6">📦 7-11 賣貨便自填單小幫手</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
-                <div class="flex flex-col items-center md:items-start">
-                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">1</div>
-                    <h3 class="font-bold text-gray-800">選擇商品</h3>
-                    <p class="text-sm text-gray-600 mt-1">在下方列表點擊「加入清單」，選擇您要代購的所有品項。</p>
-                </div>
-                <div class="flex flex-col items-center md:items-start">
-                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">2</div>
-                    <h3 class="font-bold text-gray-800">複製內容</h3>
-                    <p class="text-sm text-gray-600 mt-1">使用底部工具列，一鍵複製系統自動生成的「品名組合」與「總金額」。</p>
-                </div>
-                <div class="flex flex-col items-center md:items-start">
-                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">3</div>
-                    <h3 class="font-bold text-gray-800">前往下單</h3>
-                    <p class="text-sm text-gray-600 mt-1">點擊前往賣貨便，貼上剛剛複製的資訊。<br><span class="text-red-500 font-bold">注意：下單數量請填寫 1 即可。</span></p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- [已刪除] 上方的操作流程淺綠色區塊 -->
 
     <!-- 品牌總覽 (Status Overview) -->
     <section class="py-12 bg-gray-50">
@@ -169,6 +147,27 @@ scripts: ""
     <div id="product-list-container" class="py-12 space-y-16">
         <!-- 這裡會動態插入各品牌的商品區塊 -->
     </div>
+
+    <!-- 5. 聯絡我們 (已更新) -->
+    <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
+            <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
+            
+            <!-- LINE 加入好友按鈕 -->
+            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
+                <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
+            </a>
+            
+            <p class="text-gray-600">或手動輸入 ID:</p>
+            <input type="text" value="@366qwylw" readonly
+                   onclick="this.select()"
+                   class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                   title="點擊選取 ID"
+                   onfocus="this.select()">
+        </div>
+    </section>
+
 </main>
 
 <!-- ★ 底部懸浮複製工具列 (7-11 Generator) ★ -->
@@ -250,5 +249,5 @@ scripts: ""
   window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
 </script>
 
-<!-- 將 JS 載入放在這裡 -->
+<!-- JS 載入位置 -->
 <script src="{{ '/assets/js/shop-loader_Dev.js' | relative_url }}" data-cf-async="false" defer></script>
