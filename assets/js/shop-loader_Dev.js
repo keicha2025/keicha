@@ -1,305 +1,360 @@
 /**
- * KEICHA 網路商店 - 全自動載入引擎 (賣貨便小幫手版)
- * 功能：讀取 GSheet、產生商品卡片、自動計算賣貨便字串、底部懸浮工具列
+ * KEICHA 7-11 賣貨便小幫手 - 全自動載入引擎 (Dev)
+ * 功能：讀取 GSheet (總表+分頁)、購物車計算、產生賣貨便字串
  */
 
-// --- 1. 全域變數 ---
-let cart = []; 
+// --- 全域變數與設定 ---
+let cart = []; // 購物車內容
 
-// 初始化
+// ★ 後台設定：只需修改這裡的「總表」網址
+// 總表必須包含欄位: key, name, status, product_csv_url
+const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
+
+// --- 1. 購物車核心邏輯 ---
+
 function loadCart() {
-    const savedCart = localStorage.getItem('keicha_cart');
-    if (savedCart) {
-        cart = JSON.parse(savedCart);
-    }
-    updateCartUI(); // 即使是空的也要執行，以隱藏工具列
-}
-
-function saveCart() {
-    localStorage.setItem('keicha_cart', JSON.stringify(cart));
+    const saved = localStorage.getItem('keicha_cart_dev');
+    if (saved) cart = JSON.parse(saved);
     updateCartUI();
 }
 
-/**
- * ★ [CORE] 更新 UI 與 產生器邏輯
- */
-function updateCartUI() {
-    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+function saveCart() {
+    localStorage.setItem('keicha_cart_dev', JSON.stringify(cart));
+    updateCartUI();
+}
 
-    // 1. 控制底部工具列顯示
-    const myshipBar = document.getElementById('myship-bar');
-    if (myshipBar) {
-        if (totalCount > 0) {
-            myshipBar.classList.add('show');
-        } else {
-            myshipBar.classList.remove('show');
-        }
+function clearCart() {
+    if(confirm('確定要清空清單嗎？')) {
+        cart = [];
+        saveCart();
+    }
+}
+
+// ★ [核心] 更新 UI 與 字串產生器
+function updateCartUI() {
+    const bar = document.getElementById('myship-bar');
+    const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+    
+    // 計算總金額 (考慮 price_multi 兩罐優惠)
+    let grandTotal = 0;
+    cart.forEach(item => {
+        // 判斷是否符合多件優惠
+        // 如果單一品項數量 >= 2 且設定了 price_multi，則用優惠價
+        const unitPrice = (item.qty >= 2 && item.price_multi > 0) ? item.price_multi : item.price;
+        grandTotal += unitPrice * item.qty;
+    });
+
+    // 顯示/隱藏底部工具列
+    if (bar) {
+        if (totalQty > 0) bar.classList.add('show');
+        else bar.classList.remove('show');
     }
 
-    // 2. 更新數量顯示
-    const barCount = document.getElementById('bar-total-count');
-    if (barCount) barCount.textContent = totalCount;
+    // 更新數量顯示
+    const qtyEl = document.getElementById('bar-total-qty');
+    if(qtyEl) qtyEl.textContent = totalQty;
 
-    // 3. [重點] 產生品名組合字串
-    // 邏輯：
-    // - 分隔符號：' / '
-    // - 數量顯示：qty > 1 時顯示 (xN)
-    // - 防呆：總件數 > 3 時，最前方加入 (共N件)
-    let nameString = cart.map(item => {
-        return item.quantity > 1 ? `${item.name} (x${item.quantity})` : item.name;
-    }).join(' / ');
-
-    if (totalCount > 3) {
-        nameString = `(共${totalCount}件) ${nameString}`;
+    // ★ [重點] 賣貨便品名產生邏輯
+    // 格式：(共N件) 品名A (x2) / 品名B / 品名C
+    let nameStrParts = cart.map(item => {
+        return item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
+    });
+    
+    let finalNameStr = nameStrParts.join(' / ');
+    
+    // 長度防呆：如果超過 3 種不同品項，或是總件數 > 3，加註總件數
+    if (cart.length > 3 || totalQty > 3) {
+        finalNameStr = `(共${totalQty}件) ${finalNameStr}`;
     }
 
     // 填入 Input
     const nameInput = document.getElementById('gen-name-input');
-    if (nameInput) nameInput.value = nameString;
+    if(nameInput) nameInput.value = finalNameStr;
 
-    // 4. 更新總金額 Input
     const priceInput = document.getElementById('gen-price-input');
-    if (priceInput) priceInput.value = totalPrice; // 純數字，不加逗號方便複製
+    if(priceInput) priceInput.value = grandTotal; // 純數字
 
-    // 5. 更新購物車詳細清單 (Modal 內)
-    const detailList = document.getElementById('cart-detail-list');
-    if (detailList) {
-        if (cart.length === 0) {
-            detailList.innerHTML = '<p class="text-center text-gray-500">尚無商品</p>';
-        } else {
-            detailList.innerHTML = cart.map((item, index) => `
-                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
-                    <div class="flex-grow">
-                        <p class="font-bold text-sm text-gray-800">${item.name}</p>
-                        <p class="text-xs text-gray-500">單價 $${item.price}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center border bg-white rounded">
-                            <button onclick="updateQuantity(${index}, -1)" class="px-3 py-1 text-gray-600 hover:bg-gray-100">-</button>
-                            <span class="px-2 text-sm font-bold">${item.quantity}</span>
-                            <button onclick="updateQuantity(${index}, 1)" class="px-3 py-1 text-gray-600 hover:bg-gray-100">+</button>
-                        </div>
-                        <button onclick="removeFromCart(${index})" class="text-red-500 text-xl">&times;</button>
+    // 更新明細列表 (Modal)
+    renderCartDetailList();
+}
+
+function renderCartDetailList() {
+    const container = document.getElementById('cart-list-content');
+    if(!container) return;
+
+    if(cart.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-4">清單是空的</p>';
+        return;
+    }
+
+    container.innerHTML = cart.map((item, idx) => {
+        const unitPrice = (item.qty >= 2 && item.price_multi > 0) ? item.price_multi : item.price;
+        const isDiscounted = unitPrice < item.price;
+        
+        return `
+            <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                <div class="flex-grow pr-2">
+                    <div class="font-bold text-gray-800">${item.name}</div>
+                    <div class="text-xs text-gray-500">
+                        ${isDiscounted ? `<span class="text-brandGreen">優惠價 $${unitPrice}</span>` : `單價 $${unitPrice}`} 
+                        x ${item.qty}
                     </div>
                 </div>
-            `).join('');
-        }
-    }
+                <div class="flex items-center gap-2 bg-white border rounded px-1">
+                    <button onclick="updateItemQty(${idx}, -1)" class="px-2 py-1 text-gray-600 hover:bg-gray-100">-</button>
+                    <span class="text-sm font-mono w-4 text-center">${item.qty}</span>
+                    <button onclick="updateItemQty(${idx}, 1)" class="px-2 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
-// --- 使用者互動函式 ---
+// --- 互動函式 ---
 
-window.addToCart = function(id, name, price, image) {
-    const existingItem = cart.find(item => item.id === id);
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({ id, name, price, image, quantity: 1 });
-    }
-    saveCart();
-    // 加入後顯示 Toast 提示
-    showToast(`已加入：${name}`);
-};
-
-window.updateQuantity = function(index, change) {
-    if (cart[index]) {
-        cart[index].quantity += change;
-        if (cart[index].quantity <= 0) cart.splice(index, 1);
-        saveCart();
-    }
-};
-
-window.removeFromCart = function(index) {
-    cart.splice(index, 1);
-    saveCart();
-};
-
-// 切換購物車清單 Modal
-window.toggleCartDetail = function() {
-    const modal = document.getElementById('cart-detail-modal');
-    if (modal) {
-        modal.classList.toggle('hidden');
-    }
-};
-
-// 複製功能
-window.copyToClipboard = function(inputId) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
+window.addToCart = function(name, price, priceMulti, maxLimit) {
+    const existing = cart.find(i => i.name === name);
+    const limit = maxLimit ? parseInt(maxLimit) : 99;
     
-    // 選擇文字
-    input.select();
-    input.setSelectionRange(0, 99999); // 手機版相容
-
-    // 執行複製
-    try {
-        navigator.clipboard.writeText(input.value).then(() => {
-            showToast('已複製！');
+    if (existing) {
+        if (existing.qty >= limit) {
+            showToast(`已達限購上限 (${limit})`);
+            return;
+        }
+        existing.qty++;
+    } else {
+        cart.push({
+            name: name,
+            price: parseInt(price) || 0,
+            price_multi: parseInt(priceMulti) || 0,
+            qty: 1,
+            max_limit: limit
         });
-    } catch (err) {
-        // 備用方案
-        document.execCommand('copy');
-        showToast('已複製！');
     }
+    saveCart();
+    showToast('已加入清單');
 };
 
-function showToast(message) {
+window.updateItemQty = function(idx, delta) {
+    const item = cart[idx];
+    if (!item) return;
+    
+    const newQty = item.qty + delta;
+    const limit = item.max_limit || 99;
+
+    if (newQty > limit) {
+        showToast(`已達限購上限 (${limit})`);
+        return;
+    }
+
+    if (newQty <= 0) {
+        if(confirm(`確定要移除 ${item.name} 嗎？`)) {
+            cart.splice(idx, 1);
+        }
+    } else {
+        item.qty = newQty;
+    }
+    saveCart();
+};
+
+window.toggleCartModal = function() {
+    const modal = document.getElementById('cart-modal');
+    if(modal) modal.classList.toggle('hidden');
+};
+
+window.copyToClipboard = function(id) {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.select();
+    el.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(el.value).then(() => showToast('複製成功！'))
+        .catch(() => { document.execCommand('copy'); showToast('複製成功！'); });
+};
+
+function showToast(msg) {
     const toast = document.getElementById('toast');
-    if (toast) {
-        toast.textContent = message;
+    if(toast) {
+        toast.textContent = msg;
         toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2000);
+        setTimeout(() => toast.classList.remove('show'), 2000);
     }
 }
 
-// --- 2. 資料載入邏輯 (維持不變) ---
+
+// --- 2. 資料抓取邏輯 ---
 
 window.addEventListener('load', () => {
-    
     loadCart();
-
-    const masterSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
-    const BASE_URL = "/keicha";
-
-    function fetchWithCacheBust(url) {
-        if (!url || !url.startsWith('http') || url.includes("請貼上")) return Promise.reject(new Error("Invalid URL"));
-        return fetch(url, { cache: 'no-store' }).then(res => res.ok ? res.text() : Promise.reject(res.status));
-    }
-
-    function cleanHeader(arr) { return arr.map(h => h.trim().replace(/[\uFEFF"']/g, '')); }
-
-    function parseCSV(text, requiredHeaders) {
+    
+    // 簡單的 CSV 解析
+    function parseCSV(text, reqHeaders) {
         const lines = text.split(/\r?\n/);
         if (lines.length < 2) return [];
-        let header = cleanHeader(lines[0].split(','));
-        const headerMap = {};
-        requiredHeaders.forEach(h => headerMap[h] = header.indexOf(h));
+        const headers = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF"']/g, ''));
+        
+        // 檢查必要欄位
+        if(reqHeaders && !reqHeaders.every(h => headers.includes(h))) {
+            console.error("CSV 欄位缺失:", headers);
+            return [];
+        }
+        
+        const map = {};
+        headers.forEach((h, i) => map[h] = i);
+        
         const data = [];
         for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
             const row = lines[i].split(',');
-            const item = {};
-            for (const key in headerMap) item[key] = row[headerMap[key]] ? row[headerMap[key]].trim() : '';
-            if (item[requiredHeaders[0]]) data.push(item);
+            const obj = {};
+            for (const key in map) obj[key] = row[map[key]] ? row[map[key]].trim() : '';
+            data.push(obj);
         }
         return data;
     }
 
+    function fetchCSV(url) {
+        if(!url || !url.startsWith('http')) return Promise.reject('Invalid URL');
+        return fetch(url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now())
+            .then(res => res.ok ? res.text() : Promise.reject(res.status));
+    }
+
+    // 渲染品牌狀態總覽
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
         const loader = document.getElementById('status-loader');
-        if (!container || !loader) return;
-        loader.style.display = 'none';
-        container.innerHTML = ''; 
-
-        const statusText = { 'available': '可供訂購', 'out-of-stock': '缺貨中' };
-        const statusClass = { 'available': 'bg-brandGreen text-white', 'out-of-stock': 'bg-gray-200 text-gray-700' };
-
-        brands.forEach(brand => {
-            const currentStatus = brand.status === 'available' ? 'available' : 'out-of-stock';
-            const itemHTML = `
-                <a href="#${brand.key}" class="bg-white p-5 md:p-6 rounded-lg shadow-md flex items-center justify-between transition-all duration-300 hover:shadow-lg hover:scale-105">
-                    <span class="text-lg md:text-xl font-medium text-gray-800">${brand.name}</span>
-                    <span class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-bold ${statusClass[currentStatus]}">
-                        ${statusText[currentStatus]}
+        if(loader) loader.style.display = 'none';
+        if(!container) return;
+        
+        container.innerHTML = brands.map(b => {
+            const isOk = b.status === 'available';
+            return `
+                <a href="#${b.key}" class="block bg-white p-4 rounded-lg shadow hover:shadow-md transition border border-gray-100 flex justify-between items-center">
+                    <span class="font-bold text-gray-700">${b.name}</span>
+                    <span class="text-xs px-2 py-1 rounded-full ${isOk ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-500'}">
+                        ${isOk ? '可訂購' : '缺貨中'}
                     </span>
                 </a>
             `;
-            container.innerHTML += itemHTML;
-        });
+        }).join('');
     }
 
-    function renderProductSections(brands) {
+    // 渲染品牌區塊與商品
+    async function renderProducts(brands) {
         const container = document.getElementById('product-list-container');
-        if (!container) return;
-        container.innerHTML = ''; 
-        brands.forEach(brand => {
-            container.innerHTML += `
-                <section id="${brand.key}" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
-                    <h2 class="text-3xl font-bold text-center mb-10">${brand.name}</h2>
-                    <div id="${brand.key}-loader" class="flex justify-center items-center h-32">
-                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-                    </div>
-                    <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                </section>
-            `;
-        });
-    }
+        if(!container) return;
+        container.innerHTML = '';
 
-    function renderProductCards(brandKey, products) {
-        const grid = document.getElementById(`${brandKey}-grid`);
-        const loader = document.getElementById(`${brandKey}-loader`);
-        if (!grid || !loader) return;
-        loader.style.display = 'none';
-        grid.innerHTML = '';
-
-        products.forEach(product => {
-            const isAvailable = product.status === 'available';
-            const statusText = isAvailable ? '可訂購' : '缺貨中';
-            const statusClass = isAvailable ? 'status-available' : 'status-out-of-stock';
-            
-            let specsHTML = product.specs ? `<ul class="text-xs text-gray-500 mt-2 space-y-1">${product.specs.split('|').map(s => `<li>• ${s.trim()}</li>`).join('')}</ul>` : '';
-            let notesHTML = product.special_notes ? `<div class="mt-3 pt-3 border-t border-gray-200">${product.special_notes.split('|').map(n => `<p class="text-xs text-brandGreen font-medium">・ ${n.trim()}</p>`).join('')}</div>` : '';
-
-            let imageUrl = product.image_url.startsWith('http') ? product.image_url : BASE_URL + (product.image_url.startsWith('/') ? product.image_url : '/' + product.image_url);
-            const price = parseInt(product.price);
-            const priceText = isNaN(price) ? "價格請洽詢" : `NT$ ${price.toLocaleString()}`;
-
-            // ★ 按鈕邏輯 (呼叫 addToCart)
-            let buttonHTML;
-            if (isAvailable) {
-                const safeName = product.product_name.replace(/'/g, "\\'");
-                const safeId = product.product_id;
-                buttonHTML = `
-                    <button onclick="addToCart('${safeId}', '${safeName}', ${price}, '${imageUrl}')" 
-                        class="mt-4 w-full bg-brandGreen text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-200 flex justify-center items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        加入
-                    </button>
-                `;
-            } else {
-                buttonHTML = `<button disabled class="mt-4 w-full bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded cursor-not-allowed">缺貨</button>`;
-            }
-
-            grid.innerHTML += `
-                <div class="product-card flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${!isAvailable ? 'opacity-80' : 'hover:shadow-xl'}">
-                    <div class="product-image-container">
-                        <img src="${imageUrl}" alt="${product.product_name}" loading="lazy">
-                        <div class="product-status-badge ${statusClass}">${statusText}</div>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${product.subcategory || product.category}</p>
-                        <h3 class="text-lg font-bold text-gray-900 mt-1 mb-2">${product.product_name}</h3>
-                        <p class="text-xl font-bold text-brandGreen mb-3">${priceText}</p>
-                        ${specsHTML}
-                        <div class="mt-auto">${notesHTML}${buttonHTML}</div>
-                    </div>
+        for (const brand of brands) {
+            // 建立品牌區塊骨架
+            const section = document.createElement('section');
+            section.id = brand.key;
+            section.className = "container mx-auto px-4 max-w-6xl scroll-mt-24";
+            section.innerHTML = `
+                <h2 class="text-2xl font-bold text-center mb-8 text-gray-800 border-b pb-4">${brand.name}</h2>
+                <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[100px]">
+                    <div class="col-span-full text-center text-gray-400 text-sm py-10">載入中...</div>
                 </div>
             `;
-        });
+            container.appendChild(section);
+
+            // 抓取該品牌商品
+            if (brand.product_csv_url) {
+                fetchCSV(brand.product_csv_url).then(text => {
+                    // ★ [重要] 這裡定義我們要抓的欄位
+                    const products = parseCSV(text, ['product_name', 'price']); 
+                    const grid = document.getElementById(`${brand.key}-grid`);
+                    if(grid) {
+                        if(products.length === 0) {
+                            grid.innerHTML = '<div class="col-span-full text-center text-gray-400">目前無商品</div>';
+                        } else {
+                            grid.innerHTML = products.map(p => createProductCard(p)).join('');
+                        }
+                    }
+                }).catch(err => {
+                    console.error(brand.name, err);
+                    const grid = document.getElementById(`${brand.key}-grid`);
+                    if(grid) grid.innerHTML = '<div class="col-span-full text-center text-red-400">載入失敗</div>';
+                });
+            }
+        }
     }
 
-    // 主執行流程
-    fetchWithCacheBust(masterSheetUrl)
-        .then(csvText => {
-            const masterBrandList = parseCSV(csvText, ['key', 'name', 'status', 'product_csv_url']);
-            renderStatusOverview(masterBrandList);
-            renderProductSections(masterBrandList);
-            
-            masterBrandList.forEach(brand => {
-                const productUrl = brand.product_csv_url;
-                if (productUrl && productUrl.startsWith('http')) {
-                    fetchWithCacheBust(productUrl)
-                        .then(productCsvText => {
-                            const products = parseCSV(productCsvText, ['product_name', 'price', 'price_multi', 'status']);
-                            renderProductCards(brand.key, products);
-                        });
-                }
-            });
+    // 建立單一商品卡片 HTML
+    function createProductCard(p) {
+        // 處理隱藏
+        if (p.hidden === 'TRUE' || p.status === 'hidden') return '';
+
+        const isAvailable = p.status === 'available';
+        const price = parseInt(p.price) || 0;
+        const priceMulti = parseInt(p.price_multi) || 0;
+        const imgUrl = (p.image_url && p.image_url.trim()) ? p.image_url : '';
+        
+        // 處理圖片路徑 (如果是相對路徑，加上 baseurl)
+        let finalImg = '';
+        if (imgUrl) {
+            finalImg = imgUrl.startsWith('http') ? imgUrl : `/keicha${imgUrl.startsWith('/')?'':'/'}${imgUrl}`;
+        }
+
+        // 按鈕狀態
+        const btnHtml = isAvailable 
+            ? `<button onclick="addToCart('${p.product_name}', ${price}, ${priceMulti}, '${p.max_limit}')" class="w-full bg-brandGreen text-white font-bold py-2 rounded hover:opacity-90 transition flex justify-center items-center gap-1">
+                <span>+</span> 加入清單
+               </button>`
+            : `<button disabled class="w-full bg-gray-200 text-gray-400 font-bold py-2 rounded cursor-not-allowed">缺貨中</button>`;
+
+        // 價格顯示
+        let priceHtml = `<span class="text-lg font-bold text-brandGreen">$${price}</span>`;
+        if (priceMulti > 0 && priceMulti < price) {
+            priceHtml = `
+                <div class="flex flex-col items-start">
+                    <span class="text-xs text-gray-400 line-through">$${price}</span>
+                    <span class="text-lg font-bold text-brandGreen">2件起 $${priceMulti}</span>
+                </div>
+            `;
+        }
+
+        // 圖片區塊 (無圖則只顯示文字)
+        const imgHtml = finalImg 
+            ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>`
+            : `<div class="h-4 bg-brandGreen/10"></div>`; // 裝飾條
+
+        // 備註 (availability_note)
+        const noteHtml = p.availability_note 
+            ? `<div class="text-xs font-bold text-orange-500 mb-1">${p.availability_note}</div>` 
+            : '';
+
+        return `
+            <div class="product-card bg-white rounded-lg shadow overflow-hidden flex flex-col ${!isAvailable ? 'opacity-60 grayscale' : ''}">
+                ${imgHtml}
+                <div class="p-4 flex flex-col flex-grow">
+                    ${noteHtml}
+                    <h3 class="font-bold text-gray-800 mb-2 text-lg leading-tight">${p.product_name}</h3>
+                    
+                    <!-- 規格列表 -->
+                    ${p.specs ? `<ul class="text-xs text-gray-500 mb-3 space-y-1 list-disc list-inside">${p.specs.split('|').map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
+                    
+                    <div class="mt-auto pt-3 border-t border-gray-100">
+                        <div class="flex justify-between items-end mb-3">
+                            ${priceHtml}
+                        </div>
+                        ${btnHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- 啟動 ---
+    fetchCSV(MASTER_SHEET_URL)
+        .then(text => {
+            const brands = parseCSV(text, ['key', 'name', 'product_csv_url']);
+            renderStatusOverview(brands);
+            renderProducts(brands);
+        })
+        .catch(err => {
+            console.error('總表載入失敗', err);
+            document.getElementById('status-error').textContent = '系統維護中，暫時無法載入資料';
+            document.getElementById('status-error').classList.remove('hidden');
         });
+
 });
