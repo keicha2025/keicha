@@ -81,7 +81,7 @@ styles: |
 
         /* 為了不讓底部工具列遮住內容 */
         main {
-            padding-bottom: 320px;
+            padding-bottom: 350px; /* 預留空間給底部工具列 */
         }
         
         /* Toast 提示 */
@@ -193,9 +193,9 @@ scripts: ""
         </div>
 
         <!-- 按鈕群 -->
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 gap-3">
             <a href="https://myship.7-11.com.tw/cart/easy/GM2511158406180" target="_blank" rel="noopener noreferrer" 
-               class="col-span-2 block w-full text-center bg-brandGreen text-white font-bold py-3 rounded-lg hover:opacity-90 shadow-md">
+               class="block w-full text-center bg-brandGreen text-white font-bold py-3 rounded-lg hover:opacity-90 shadow-md">
                 前往 7-11 賣貨便下單 ➔
             </a>
         </div>
@@ -212,11 +212,17 @@ scripts: ""
         <div id="cart-list-content" class="overflow-y-auto flex-grow space-y-3 mb-4">
             <!-- JS 填入 -->
         </div>
+        <button onclick="toggleCartModal()" class="w-full bg-gray-200 text-gray-800 py-3 rounded-lg font-bold">關閉</button>
     </div>
 </div>
 
 <!-- Toast 提示 -->
 <div id="toast" class="toast">已複製！</div>
 
-<!-- ★ [CRITICAL FIX] 將 JS 載入移到這裡，Jekyll 才能正確解析 Liquid 語法 -->
+<!-- 設定 Base URL -->
+<script>
+  window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
+</script>
+
+<!-- ★ [CRITICAL FIX] 將 JS 載入移到這裡 -->
 <script src="{{ '/assets/js/shop-loader_Dev.js' | relative_url }}" data-cf-async="false" defer></script>
