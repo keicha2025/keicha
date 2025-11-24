@@ -1,7 +1,7 @@
 ---
 # 這是 Front Matter
 layout: default
-title: KEICHA 抹茶代購總覽 | 賣貨便自填單小幫手 (Dev)
+title: KEICHA 抹茶代購下單區 | 賣貨便自填單小幫手 (Dev)
 description: 抹茶代購專用頁面。提供即時庫存查詢，並自動生成 7-11 賣貨便自填單所需的品名與金額。
 
 # 移除靜態 structured_data
@@ -34,14 +34,16 @@ styles: |
             font-weight: 700;
         }
 
-        /* 商品卡片樣式優化 */
+        /* 商品卡片樣式優化 (純白卡片) */
         .product-card {
             transition: all 0.2s ease-in-out;
-            border: 1px solid transparent;
+            border: 1px solid #f3f4f6; /* 極淡的邊框 */
+            background-color: white;
         }
         .product-card:hover {
             border-color: #6ea44c;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         
         /* 圖片容器 (1:1) */
@@ -49,7 +51,7 @@ styles: |
             position: relative;
             width: 100%;
             padding-top: 100%;
-            background-color: #f9fafb;
+            background-color: #fafafa; /* 極淡灰底，凸顯純白卡片 */
             overflow: hidden;
         }
         .product-img-box img {
@@ -81,7 +83,7 @@ styles: |
 
         /* 為了不讓底部工具列遮住內容 */
         main {
-            padding-bottom: 350px; /* 預留空間給底部工具列 */
+            padding-bottom: 320px;
         }
         
         /* Toast 提示 */
@@ -106,7 +108,7 @@ styles: |
         }
     </style>
 
-# ★ [FIX] 這裡清空，移到下方手動載入
+# 這裡清空，移到下方手動載入
 scripts: ""
 ---
 
@@ -117,16 +119,40 @@ scripts: ""
     <!-- 標題區 -->
     <section class="bg-white pt-12 pb-8 shadow-sm">
         <div class="container mx-auto px-4 text-center">
-            <h1 class="text-3xl md:text-4xl font-bold text-brandGreen mb-2">抹茶代購總覽</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-brandGreen mb-2">抹茶代購下單區</h1>
             <p class="text-gray-600">點選商品加入清單，自動計算金額與產生賣貨便品名</p>
             <p class="mt-2 text-xs text-gray-400">資料自動更新中...</p>
+        </div>
+    </section>
+
+    <!-- ★ [NEW] 操作流程說明區塊 -->
+    <section class="bg-green-50 py-8 border-b border-green-100">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-6">📦 7-11 賣貨便自填單小幫手</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">1</div>
+                    <h3 class="font-bold text-gray-800">選擇商品</h3>
+                    <p class="text-sm text-gray-600 mt-1">在下方列表點擊「加入清單」，選擇您要代購的所有品項。</p>
+                </div>
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">2</div>
+                    <h3 class="font-bold text-gray-800">複製內容</h3>
+                    <p class="text-sm text-gray-600 mt-1">使用底部工具列，一鍵複製系統自動生成的「品名組合」與「總金額」。</p>
+                </div>
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3">3</div>
+                    <h3 class="font-bold text-gray-800">前往下單</h3>
+                    <p class="text-sm text-gray-600 mt-1">點擊前往賣貨便，貼上剛剛複製的資訊。<br><span class="text-red-500 font-bold">注意：下單數量請填寫 1 即可。</span></p>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- 品牌總覽 (Status Overview) -->
     <section class="py-12 bg-gray-50">
         <div class="container mx-auto px-4 max-w-5xl">
-            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">品牌狀態總覽</h2>
+            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">品牌總覽</h2>
             
             <div id="status-loader" class="flex justify-center h-20">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-10 w-10"></div>
@@ -193,9 +219,9 @@ scripts: ""
         </div>
 
         <!-- 按鈕群 -->
-        <div class="grid grid-cols-1 gap-3">
+        <div class="grid grid-cols-2 gap-3">
             <a href="https://myship.7-11.com.tw/cart/easy/GM2511158406180" target="_blank" rel="noopener noreferrer" 
-               class="block w-full text-center bg-brandGreen text-white font-bold py-3 rounded-lg hover:opacity-90 shadow-md">
+               class="col-span-2 block w-full text-center bg-brandGreen text-white font-bold py-3 rounded-lg hover:opacity-90 shadow-md">
                 前往 7-11 賣貨便下單 ➔
             </a>
         </div>
@@ -224,5 +250,5 @@ scripts: ""
   window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
 </script>
 
-<!-- ★ [CRITICAL FIX] 將 JS 載入移到這裡 -->
+<!-- 將 JS 載入放在這裡 -->
 <script src="{{ '/assets/js/shop-loader_Dev.js' | relative_url }}" data-cf-async="false" defer></script>
