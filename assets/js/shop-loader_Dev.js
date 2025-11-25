@@ -1,12 +1,13 @@
 /**
  * KEICHA 7-11 賣貨便小幫手 - 全自動載入引擎 (Dev)
  * 功能：讀取 GSheet (總表+分頁)、購物車計算、產生賣貨便字串
- * 修正：卡片備註顏色統一、欄位檢查寬容
+ * 修正：移除無圖時的淺綠色塊、備註文字統一品牌色
  */
 
 // --- 全域變數與設定 ---
 let cart = []; 
 
+// ★ 後台設定：您的總表網址 (CSV)
 const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
 
 // --- 1. 購物車核心邏輯 ---
@@ -39,12 +40,14 @@ function updateCartUI() {
     const bar = document.getElementById('myship-bar');
     const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
     
+    // 1. 統計各品牌件數
     const brandCounts = {};
     cart.forEach(item => {
         const brand = item.brand || 'other';
         brandCounts[brand] = (brandCounts[brand] || 0) + item.qty;
     });
 
+    // 2. 計算總金額
     let grandTotal = 0;
     cart.forEach(item => {
         const itemBrand = item.brand || 'other';
@@ -56,6 +59,7 @@ function updateCartUI() {
         item.isDiscounted = isDiscountApplied;
     });
 
+    // 顯示/隱藏底部工具列
     if (bar) {
         if (totalQty > 0) {
             bar.classList.add('show');
@@ -67,9 +71,11 @@ function updateCartUI() {
         }
     }
 
+    // 更新數量顯示
     const qtyEl = document.getElementById('bar-total-qty');
     if(qtyEl) qtyEl.textContent = totalQty;
 
+    // 賣貨便品名產生邏輯
     let nameStrParts = cart.map(item => {
         return item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
     });
@@ -239,13 +245,13 @@ function showToast(msg) {
 window.addEventListener('load', () => {
     loadCart();
     
+    // 簡單的 CSV 解析
     function parseCSV(text, reqHeaders) {
         const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         if (lines.length < 2) return [];
         
         const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').replace(/^\ufeff/, ''));
         
-        // 寬容模式: 不強制檢查欄位，只印出警告
         if(reqHeaders && !reqHeaders.every(h => headers.includes(h))) {
             console.warn("CSV 欄位不完全匹配:", headers, "預期:", reqHeaders);
         }
@@ -396,20 +402,24 @@ window.addEventListener('load', () => {
             `;
         }
 
+        // ★ [FIXED] 無圖時不顯示綠色裝飾條，改為空字串
         const imgHtml = finalImg 
             ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>`
-            : `<div class="h-4 bg-brandGreen/10"></div>`; 
+            : ``; 
 
-        // ★ [FIX] 備註一律使用品牌色 text-brandGreen
+        // ★ [FIXED] 備註文字一律使用品牌色
         let noteHtml = '';
         if (p.availability_note) {
             noteHtml = `<div class="text-xs font-bold text-brandGreen mb-1">${p.availability_note}</div>`;
         }
+        
+        const brandTitle = p.brand_ref ? `<p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${p.brand_ref}</p>` : '';
 
         return `
             <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden flex flex-col border border-gray-100 p-4">
                 ${imgHtml}
                 <div class="p-4 flex flex-col flex-grow">
+                    ${brandTitle}
                     ${noteHtml}
                     <h3 class="font-bold text-gray-800 mb-2 text-lg leading-tight">${p.product_name}</h3>
                     
@@ -426,6 +436,7 @@ window.addEventListener('load', () => {
         `;
     }
 
+    // --- 啟動 ---
     fetchCSV(MASTER_SHEET_URL)
         .then(text => {
             const brands = parseCSV(text, ['key', 'name', 'status', 'product_csv_url']);
