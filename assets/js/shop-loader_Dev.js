@@ -1,7 +1,7 @@
 /**
  * KEICHA 7-11 賣貨便小幫手 - 全自動載入引擎 (Dev)
  * 功能：讀取 GSheet (總表+分頁)、購物車計算、產生賣貨便字串
- * 修正：移除欄位強制檢查 (自動適應欄位數量)
+ * 修正：移除欄位強制檢查，解決 subcategory 缺失導致的錯誤
  */
 
 // --- 全域變數與設定 ---
@@ -43,7 +43,6 @@ function updateCartUI() {
     const bar = document.getElementById('myship-bar');
     const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
     
-    // 計算總金額 (考慮 price_multi 兩罐優惠)
     // 1. 統計各品牌件數
     const brandCounts = {};
     cart.forEach(item => {
@@ -51,6 +50,7 @@ function updateCartUI() {
         brandCounts[brand] = (brandCounts[brand] || 0) + item.qty;
     });
 
+    // 2. 計算總金額
     let grandTotal = 0;
     cart.forEach(item => {
         const itemBrand = item.brand || 'other';
@@ -68,7 +68,6 @@ function updateCartUI() {
             bar.classList.add('show');
         } else {
             bar.classList.remove('show');
-            // 沒商品時也關閉抽屜
             const drawer = document.getElementById('cart-drawer');
             if (drawer) drawer.classList.remove('open');
             updateToggleIcon(false);
@@ -137,18 +136,6 @@ function renderCartDetailList() {
 
 // --- 互動函式 ---
 
-// 切換底部工具列高度 (如果有的話，目前 HTML 結構未實作，保留函式無妨)
-window.toggleMyshipBarHeight = function() {
-    const bar = document.getElementById('myship-bar');
-    const icon = document.getElementById('bar-toggle-icon');
-    if(bar) {
-        bar.classList.toggle('minimized');
-        if(icon) {
-            icon.style.transform = bar.classList.contains('minimized') ? 'rotate(180deg)' : 'rotate(0deg)';
-        }
-    }
-};
-
 window.toggleCartModal = function() {
     window.toggleCartDetail(); 
 }
@@ -195,10 +182,6 @@ window.addToCart = function(name, price, priceMulti, maxLimit, brand) {
     }
     saveCart();
     showToast('已加入清單');
-    
-    // 加入商品時，確保工具列是展開的
-    const bar = document.getElementById('myship-bar');
-    if(bar) bar.classList.add('show');
 };
 
 window.updateItemQty = function(idx, delta) {
@@ -254,11 +237,8 @@ window.addEventListener('load', () => {
         
         const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').replace(/^\ufeff/, ''));
         
-        // ★ [FIXED] 將這裡改為寬容模式：只警告，不中斷
-        if(reqHeaders && !reqHeaders.every(h => headers.includes(h))) {
-            console.warn("CSV 欄位不完全匹配:", headers, "預期包含:", reqHeaders);
-            // return []; <--- 註解掉這行，讓程式繼續執行
-        }
+        // ★ [FIXED] 移除強制檢查邏輯
+        // 只要有 headers 就可以，不強制檢查 reqHeaders 是否全部存在
         
         const map = {};
         headers.forEach((h, i) => map[h] = i);
@@ -311,7 +291,6 @@ window.addEventListener('load', () => {
         if(loader) loader.style.display = 'none';
         if(!container) return;
         
-        // 過濾：只顯示 available
         const activeBrands = brands.filter(b => b.status === 'available');
 
         if (activeBrands.length === 0) {
@@ -354,8 +333,7 @@ window.addEventListener('load', () => {
             if (brand.product_csv_url) {
                 fetchCSV(brand.product_csv_url).then(text => {
                     
-                    // ★ [FIXED] 這裡不傳入第二個參數 (requiredColumns)，讓它自動讀取所有存在的欄位
-                    // 這樣就算 CSV 少了欄位也不會報錯停止
+                    // ★ [UPDATED] 不傳入第二個參數，讓它自動讀取所有存在的欄位
                     const products = parseCSV(text); 
                     
                     const grid = document.getElementById(`${brand.key}-grid`);
@@ -409,13 +387,14 @@ window.addEventListener('load', () => {
             `;
         }
 
+        // 預設無圖
         const imgHtml = finalImg 
             ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>`
             : `<div class="h-4 bg-brandGreen/10"></div>`; 
 
         let noteHtml = '';
         if (p.availability_note) {
-            // ★ [FIX] 備註一律使用品牌色
+            // 備註一律使用品牌色
             noteHtml = `<div class="text-xs font-bold text-brandGreen mb-1">${p.availability_note}</div>`;
         }
         
@@ -445,7 +424,6 @@ window.addEventListener('load', () => {
     // --- 啟動 ---
     fetchCSV(MASTER_SHEET_URL)
         .then(text => {
-            // 總表還是會檢查 4 個關鍵欄位
             const brands = parseCSV(text, ['key', 'name', 'status', 'product_csv_url']);
             renderStatusOverview(brands);
             renderProducts(brands);
