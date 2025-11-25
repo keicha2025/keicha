@@ -1,11 +1,11 @@
 /**
  * KEICHA 7-11 賣貨便小幫手 - 全自動載入引擎 (Dev)
  * 功能：讀取 GSheet (總表+分頁)、購物車計算、產生賣貨便字串
- * 修正：購物車改為抽屜式 (Drawer)
+ * 修正：欄位檢查調整為 7 欄 (移除 subcategory)
  */
 
 // --- 全域變數與設定 ---
-let cart = []; // 購物車內容
+let cart = []; 
 
 // ★ 後台設定：您的總表網址 (CSV)
 const MASTER_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
@@ -27,19 +27,16 @@ function clearCart() {
     if(confirm('確定要清空清單嗎？')) {
         cart = [];
         saveCart();
-        // 清空時自動關閉抽屜
         const drawer = document.getElementById('cart-drawer');
         if (drawer) drawer.classList.remove('open');
         updateToggleIcon(false);
     }
 }
 
-// ★ [核心] 更新 UI 與 字串產生器
 function updateCartUI() {
     const bar = document.getElementById('myship-bar');
     const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
     
-    // 計算總金額 (考慮 price_multi 兩罐優惠)
     // 1. 統計各品牌件數
     const brandCounts = {};
     cart.forEach(item => {
@@ -47,6 +44,7 @@ function updateCartUI() {
         brandCounts[brand] = (brandCounts[brand] || 0) + item.qty;
     });
 
+    // 2. 計算總金額
     let grandTotal = 0;
     cart.forEach(item => {
         const itemBrand = item.brand || 'other';
@@ -58,23 +56,19 @@ function updateCartUI() {
         item.isDiscounted = isDiscountApplied;
     });
 
-    // 顯示/隱藏底部工具列
     if (bar) {
         if (totalQty > 0) bar.classList.add('show');
         else {
             bar.classList.remove('show');
-            // 沒商品時也關閉抽屜
             const drawer = document.getElementById('cart-drawer');
             if (drawer) drawer.classList.remove('open');
             updateToggleIcon(false);
         }
     }
 
-    // 更新數量顯示
     const qtyEl = document.getElementById('bar-total-qty');
     if(qtyEl) qtyEl.textContent = totalQty;
 
-    // 賣貨便品名產生邏輯
     let nameStrParts = cart.map(item => {
         return item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
     });
@@ -132,9 +126,8 @@ function renderCartDetailList() {
 
 // --- 互動函式 ---
 
-// ★ [UPDATED] 切換抽屜開關
 window.toggleCartModal = function() {
-    window.toggleCartDetail(); // Alias for backward compatibility if needed
+    window.toggleCartDetail(); 
 }
 
 window.toggleCartDetail = function() {
@@ -283,6 +276,7 @@ window.addEventListener('load', () => {
             .then(res => res.ok ? res.text() : Promise.reject(res.status));
     }
 
+    // 渲染品牌狀態總覽 (★ 只顯示 available 品牌)
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
         const loader = document.getElementById('status-loader');
@@ -308,6 +302,7 @@ window.addEventListener('load', () => {
         }).join('');
     }
 
+    // 渲染品牌區塊與商品
     async function renderProducts(brands) {
         const container = document.getElementById('product-list-container');
         if(!container) return;
@@ -329,9 +324,11 @@ window.addEventListener('load', () => {
 
             if (brand.product_csv_url) {
                 fetchCSV(brand.product_csv_url).then(text => {
+                    
+                    // ★ [UPDATED] 這裡修正為您實際的 7 個欄位 (移除 subcategory)
                     const requiredColumns = [
                         'product_name', 'price', 'price_multi', 'status', 
-                        'hidden', 'max_limit', 'availability_note', 'subcategory'
+                        'hidden', 'max_limit', 'availability_note'
                     ];
 
                     const products = parseCSV(text, requiredColumns); 
@@ -342,6 +339,7 @@ window.addEventListener('load', () => {
                         p.hidden !== 'TRUE'
                     );
                     
+                    // 傳遞品牌名稱給商品卡片
                     validProducts.forEach(p => p.brand_ref = brand.name);
 
                     if(grid && validProducts.length > 0) {
@@ -358,19 +356,12 @@ window.addEventListener('load', () => {
         }
     }
 
+    // 建立單一商品卡片 HTML (純白卡片)
     function createProductCard(p) {
         const isAvailable = p.status === 'available';
         const price = parseInt(p.price) || 0;
         const priceMulti = parseInt(p.price_multi) || 0;
-        const imgUrl = (p.image_url && p.image_url.trim()) ? p.image_url : '';
         
-        const productBrand = p.subcategory || 'other';
-        
-        let finalImg = '';
-        if (imgUrl) {
-            finalImg = imgUrl.startsWith('http') ? imgUrl : `/keicha${imgUrl.startsWith('/')?'':'/'}${imgUrl}`;
-        }
-
         const btnHtml = isAvailable 
             ? `<button onclick="addToCart('${p.product_name.replace(/'/g, "\\'")}', ${price}, ${priceMulti}, '${p.max_limit}', '${p.brand_ref}')" class="w-full bg-brandGreen text-white font-bold py-2 rounded hover:opacity-90 transition flex justify-center items-center gap-1">
                 <span>+</span> 加入清單
@@ -387,9 +378,8 @@ window.addEventListener('load', () => {
             `;
         }
 
-        const imgHtml = finalImg 
-            ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>`
-            : `<div class="h-4 bg-brandGreen/10"></div>`; 
+        // 預設無圖
+        const imgHtml = `<div class="h-4 bg-brandGreen/10"></div>`; 
 
         let noteHtml = '';
         if (p.availability_note) {
@@ -397,15 +387,17 @@ window.addEventListener('load', () => {
             const noteColor = isStock ? 'text-brandGreen' : 'text-orange-500';
             noteHtml = `<div class="text-xs font-bold ${noteColor} mb-1">${p.availability_note}</div>`;
         }
+        
+        // 因為沒有 subcategory 欄位，我們改顯示 brand_ref (如果有的話)
+        const brandTitle = p.brand_ref ? `<p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${p.brand_ref}</p>` : '';
 
         return `
             <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden flex flex-col border border-gray-100 p-4">
                 ${imgHtml}
                 <div class="p-4 flex flex-col flex-grow">
+                    ${brandTitle}
                     ${noteHtml}
                     <h3 class="font-bold text-gray-800 mb-2 text-lg leading-tight">${p.product_name}</h3>
-                    
-                    ${p.specs ? `<ul class="text-xs text-gray-500 mb-3 space-y-1 list-disc list-inside">${p.specs.split('|').map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
                     
                     <div class="mt-auto pt-3 border-t border-gray-100">
                         <div class="flex justify-between items-end mb-3">
@@ -418,6 +410,7 @@ window.addEventListener('load', () => {
         `;
     }
 
+    // --- 啟動 ---
     fetchCSV(MASTER_SHEET_URL)
         .then(text => {
             const brands = parseCSV(text, ['key', 'name', 'status', 'product_csv_url']);
