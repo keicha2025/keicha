@@ -34,24 +34,25 @@ styles: |
             font-weight: 700;
         }
 
-        /* 商品卡片樣式優化 */
+        /* 商品卡片樣式優化 (純白卡片) */
         .product-card {
             transition: all 0.2s ease-in-out;
             border: 1px solid #f3f4f6;
             background-color: white;
         }
         .product-card:hover {
-            border-color: #6ea44c;
+            /* ★ [FIXED] 移除綠色邊框，改用陰影加深，保持乾淨 */
+            /* border-color: #6ea44c; */
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         
-        /* 圖片容器 */
+        /* 圖片容器 (1:1) */
         .product-img-box {
             position: relative;
             width: 100%;
             padding-top: 100%;
-            background-color: #fafafa;
+            background-color: #fafafa; /* 極淡灰底 */
             overflow: hidden;
         }
         .product-img-box img {
@@ -72,15 +73,16 @@ styles: |
             background-color: white;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
             z-index: 100;
+            padding: 1rem;
             border-top: 1px solid #e5e7eb;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateY(120%); /* 預設隱藏 */
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .myship-bar.show {
             transform: translateY(0);
         }
         
-        /* 收合狀態：隱藏內容區，只留標題列 */
+        /* 收縮狀態 (只顯示標題列) */
         .myship-bar.minimized #myship-content {
             display: none;
         }
@@ -91,19 +93,18 @@ styles: |
             bottom: 100%; /* 貼在 bar 的上方 */
             left: 0;
             width: 100%;
-            background-color: white; /* 與 bar 同色 */
+            background-color: white;
             border-top: 1px solid #e5e7eb;
             box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
             max-height: 0; /* 預設收起 */
             overflow: hidden;
             transition: max-height 0.3s ease-in-out, padding 0.3s ease;
-            z-index: -1; /* 在 bar 下層 */
+            z-index: -1;
         }
         .cart-drawer.open {
-            max-height: 50vh; /* 展開最大高度 */
+            max-height: 60vh;
             padding: 1rem;
             overflow-y: auto;
-            border-bottom: 1px solid #f3f4f6;
         }
 
         /* Toast 提示 */
@@ -145,24 +146,21 @@ scripts: ""
         </div>
     </section>
 
-    <!-- ★ [UPDATED] 操作步驟說明區塊 (改為品牌淺綠色) ★ -->
+    <!-- 操作步驟說明區塊 -->
     <section class="bg-brandGreen bg-opacity-10 py-8 border-b border-green-100">
         <div class="container mx-auto px-4 max-w-4xl">
             <h2 class="text-xl font-bold text-center text-gray-800 mb-6">📦 7-11 賣貨便自填單小幫手</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
-                <!-- 步驟 1 -->
                 <div class="flex flex-col items-center md:items-start">
                     <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3 text-lg">1</div>
                     <h3 class="font-bold text-gray-800">選擇商品</h3>
                     <p class="text-sm text-gray-600 mt-1">在下方列表點擊「加入清單」，選擇您要代購的所有品項。</p>
                 </div>
-                <!-- 步驟 2 -->
                 <div class="flex flex-col items-center md:items-start">
                     <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3 text-lg">2</div>
                     <h3 class="font-bold text-gray-800">複製內容</h3>
                     <p class="text-sm text-gray-600 mt-1">使用底部工具列，一鍵複製系統自動生成的「品名組合」與「總金額」。</p>
                 </div>
-                <!-- 步驟 3 -->
                 <div class="flex flex-col items-center md:items-start">
                     <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-brandGreen font-bold shadow-sm mb-3 text-lg">3</div>
                     <h3 class="font-bold text-gray-800">前往下單</h3>
@@ -209,26 +207,24 @@ scripts: ""
 
 </main>
 
-<!-- ★ 底部懸浮複製工具列 (7-11 Generator) ★ -->
+<!-- 底部懸浮複製工具列 -->
 <div id="myship-bar" class="myship-bar hidden-bar">
     
-    <!-- ★ [UPDATED] 購物車抽屜 (點擊展開，內部無縮小按鈕) -->
+    <!-- 購物車抽屜 -->
     <div id="cart-drawer" class="cart-drawer">
         <div id="cart-list-content" class="space-y-3"></div>
     </div>
 
     <div class="container mx-auto max-w-3xl relative">
         
-        <!-- ★ [UPDATED] 標題/控制列 (點擊可收合/展開整個產生器) -->
+        <!-- 標題/控制列 -->
         <div class="flex justify-between items-center py-2 cursor-pointer border-b border-gray-100 mb-3" onclick="toggleMyshipBarHeight()">
             <div class="flex items-center gap-2">
-                <!-- 展開/收合 Icon -->
                 <svg id="bar-toggle-icon" class="w-5 h-5 text-gray-500 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 <span class="bg-brandGreen text-white text-xs px-2 py-1 rounded font-bold">已選 <span id="bar-total-qty">0</span> 件</span>
                 <span class="font-bold text-gray-700 text-sm">賣貨便產生器</span>
             </div>
             <div class="flex items-center gap-3">
-                <!-- 查看明細按鈕 (控制抽屜) -->
                 <button id="toggle-cart-btn" onclick="event.stopPropagation(); toggleCartDetail()" class="text-xs text-brandGreen font-bold flex items-center hover:underline mr-2">
                     <span>查看明細</span>
                 </button>
@@ -238,8 +234,7 @@ scripts: ""
 
         <!-- 可收合的內容區 -->
         <div id="myship-content" class="myship-content">
-
-            <!-- 欄位 1: 品名產生器 -->
+            <!-- 欄位 1 -->
             <div class="mb-3">
                 <label class="block text-xs text-gray-500 mb-1 flex justify-between">
                     <span class="font-bold text-gray-800">品名組合 (賣貨便用)</span>
@@ -256,7 +251,7 @@ scripts: ""
                 </div>
             </div>
 
-            <!-- 欄位 2: 總金額 -->
+            <!-- 欄位 2 -->
             <div class="mb-4">
                 <label class="block text-xs text-gray-500 mb-1">
                     <span class="font-bold text-gray-800">總金額 (NT$)</span>
@@ -272,7 +267,7 @@ scripts: ""
                 </div>
             </div>
 
-            <!-- 按鈕群 -->
+            <!-- 按鈕 -->
             <div class="grid grid-cols-1 gap-3">
                 <a href="https://myship.7-11.com.tw/cart/easy/GM2511158406180" target="_blank" rel="noopener noreferrer" 
                    class="block w-full text-center bg-brandGreen text-white font-bold py-3 rounded-lg hover:opacity-90 shadow-md">
@@ -283,13 +278,11 @@ scripts: ""
     </div>
 </div>
 
-<!-- Toast 提示 -->
+<!-- Toast -->
 <div id="toast" class="toast">已複製！</div>
 
-<!-- 設定 Base URL -->
+<!-- JS 載入 -->
 <script>
   window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
 </script>
-
-<!-- JS 載入位置 -->
 <script src="{{ '/assets/js/shop-loader_Dev.js' | relative_url }}" data-cf-async="false" defer></script>
