@@ -1,7 +1,7 @@
 /**
  * KEICHA 7-11 賣貨便小幫手 - 全自動載入引擎 (Dev)
  * 功能：讀取 GSheet (總表+分頁)、購物車計算、產生賣貨便字串
- * 修正：移除欄位強制檢查，改為自動讀取存在的欄位 (寬容模式)
+ * 修正：卡片標示顏色、工具列收合功能
  */
 
 // --- 全域變數與設定 ---
@@ -27,9 +27,9 @@ function clearCart() {
     if(confirm('確定要清空清單嗎？')) {
         cart = [];
         saveCart();
-        const drawer = document.getElementById('cart-drawer');
-        if (drawer) drawer.classList.remove('open');
-        updateToggleIcon(false);
+        // 清空後隱藏工具列
+        const bar = document.getElementById('myship-bar');
+        if (bar) bar.classList.add('hidden-bar');
     }
 }
 
@@ -38,19 +38,20 @@ function updateCartUI() {
     const bar = document.getElementById('myship-bar');
     const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
     
-    // 1. 統計各品牌件數 (Group Counting)
+    // 計算總金額 (考慮 price_multi 兩罐優惠)
+    let grandTotal = 0;
+    
+    // 1. 統計各品牌件數
     const brandCounts = {};
     cart.forEach(item => {
         const brand = item.brand || 'other';
         brandCounts[brand] = (brandCounts[brand] || 0) + item.qty;
     });
 
-    // 2. 計算總金額 (Mix and Match logic)
-    let grandTotal = 0;
+    // 2. 計算
     cart.forEach(item => {
         const itemBrand = item.brand || 'other';
         const isDiscountApplied = (brandCounts[itemBrand] >= 2 && item.price_multi > 0);
-        
         const unitPrice = isDiscountApplied ? item.price_multi : item.price;
         grandTotal += unitPrice * item.qty;
         
@@ -60,12 +61,10 @@ function updateCartUI() {
 
     // 顯示/隱藏底部工具列
     if (bar) {
-        if (totalQty > 0) bar.classList.add('show');
-        else {
-            bar.classList.remove('show');
-            const drawer = document.getElementById('cart-drawer');
-            if (drawer) drawer.classList.remove('open');
-            updateToggleIcon(false);
+        if (totalQty > 0) {
+            bar.classList.remove('hidden-bar');
+        } else {
+            bar.classList.add('hidden-bar');
         }
     }
 
@@ -73,7 +72,7 @@ function updateCartUI() {
     const qtyEl = document.getElementById('bar-total-qty');
     if(qtyEl) qtyEl.textContent = totalQty;
 
-    // ★ 賣貨便品名產生邏輯
+    // 賣貨便品名產生邏輯
     let nameStrParts = cart.map(item => {
         return item.qty > 1 ? `${item.name} (x${item.qty})` : item.name;
     });
@@ -131,29 +130,28 @@ function renderCartDetailList() {
 
 // --- 互動函式 ---
 
-window.toggleCartModal = function() {
-    window.toggleCartDetail(); 
-}
-
-window.toggleCartDetail = function() {
-    const drawer = document.getElementById('cart-drawer');
-    if (drawer) {
-        drawer.classList.toggle('open');
-        const isOpen = drawer.classList.contains('open');
-        updateToggleIcon(isOpen);
+// ★ [NEW] 切換底部工具列高度
+window.toggleMyshipBarHeight = function() {
+    const bar = document.getElementById('myship-bar');
+    const icon = document.getElementById('bar-toggle-icon');
+    if(bar) {
+        bar.classList.toggle('minimized');
+        
+        // 旋轉箭頭
+        if(icon) {
+            if(bar.classList.contains('minimized')) {
+                icon.style.transform = 'rotate(180deg)'; // 縮小時箭頭朝上
+            } else {
+                icon.style.transform = 'rotate(0deg)'; // 展開時箭頭朝下
+            }
+        }
     }
 };
 
-function updateToggleIcon(isOpen) {
-    const icon = document.getElementById('toggle-icon');
-    const btnText = document.querySelector('#toggle-cart-btn span');
-    if (icon) {
-        icon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-    }
-    if (btnText) {
-        btnText.textContent = isOpen ? '隱藏明細' : '查看明細';
-    }
-}
+window.toggleCartModal = function() {
+    const modal = document.getElementById('cart-modal');
+    if(modal) modal.classList.toggle('hidden');
+};
 
 window.addToCart = function(name, price, priceMulti, maxLimit, brand) {
     const existing = cart.find(i => i.name === name);
@@ -177,6 +175,14 @@ window.addToCart = function(name, price, priceMulti, maxLimit, brand) {
     }
     saveCart();
     showToast('已加入清單');
+    
+    // 加入商品時，確保工具列是展開的
+    const bar = document.getElementById('myship-bar');
+    const icon = document.getElementById('bar-toggle-icon');
+    if(bar && bar.classList.contains('minimized')) {
+        bar.classList.remove('minimized');
+        if(icon) icon.style.transform = 'rotate(0deg)';
+    }
 };
 
 window.updateItemQty = function(idx, delta) {
@@ -225,21 +231,19 @@ function showToast(msg) {
 window.addEventListener('load', () => {
     loadCart();
     
-    // 簡單的 CSV 解析 (含 Regex 處理逗號)
+    // 簡單的 CSV 解析
     function parseCSV(text, reqHeaders) {
         const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         if (lines.length < 2) return [];
         
         const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').replace(/^\ufeff/, ''));
         
-        // ★ [FIX] 移除強制錯誤，改為警告 (寬容模式)
         if(reqHeaders && !reqHeaders.every(h => headers.includes(h))) {
-            console.warn("CSV 欄位不完全匹配:", headers, "預期:", reqHeaders, "將自動讀取存在的欄位。");
-            // return [];  <-- 註解掉這行，不中斷程式
+            console.error("CSV 欄位缺失:", headers, "需要:", reqHeaders);
+            return [];
         }
         
         const map = {};
-        // 建立所有存在標頭的索引
         headers.forEach((h, i) => map[h] = i);
         
         const data = [];
@@ -272,8 +276,6 @@ window.addEventListener('load', () => {
                 }
                 obj[key] = val;
             }
-            
-            // 只要有資料就加入
             if (Object.keys(obj).length > 0) data.push(obj);
         }
         return data;
@@ -285,14 +287,13 @@ window.addEventListener('load', () => {
             .then(res => res.ok ? res.text() : Promise.reject(res.status));
     }
 
-    // 渲染品牌狀態總覽 (★ 只顯示 available 品牌)
+    // 渲染品牌狀態總覽
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
         const loader = document.getElementById('status-loader');
         if(loader) loader.style.display = 'none';
         if(!container) return;
         
-        // 過濾：只顯示 available
         const activeBrands = brands.filter(b => b.status === 'available');
 
         if (activeBrands.length === 0) {
@@ -334,19 +335,19 @@ window.addEventListener('load', () => {
 
             if (brand.product_csv_url) {
                 fetchCSV(brand.product_csv_url).then(text => {
-                    
-                    // ★ [UPDATED] 這裡不再傳入欄位清單，讓 parseCSV 自動讀取所有存在的欄位
-                    const products = parseCSV(text); 
-                    
+                    const requiredColumns = [
+                        'product_name', 'price', 'price_multi', 'status', 
+                        'hidden', 'max_limit', 'availability_note', 'subcategory'
+                    ];
+
+                    const products = parseCSV(text, requiredColumns); 
                     const grid = document.getElementById(`${brand.key}-grid`);
                     
-                    // 過濾有效商品 (status 不為 hidden 且 hidden 欄位不為 TRUE)
                     const validProducts = products.filter(p => 
                         p.status !== 'hidden' && 
                         p.hidden !== 'TRUE'
                     );
                     
-                    // 傳遞品牌名稱給商品卡片
                     validProducts.forEach(p => p.brand_ref = brand.name);
 
                     if(grid && validProducts.length > 0) {
@@ -363,7 +364,7 @@ window.addEventListener('load', () => {
         }
     }
 
-    // 建立單一商品卡片 HTML (★ 純白卡片)
+    // 建立單一商品卡片 HTML
     function createProductCard(p) {
         const isAvailable = p.status === 'available';
         const price = parseInt(p.price) || 0;
@@ -391,26 +392,20 @@ window.addEventListener('load', () => {
             `;
         }
 
-        // 預設無圖
-        const imgHtml = finalImg
+        const imgHtml = finalImg 
             ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>`
             : `<div class="h-4 bg-brandGreen/10"></div>`; 
 
+        // ★ [UPDATED] 備註一律使用品牌色 text-brandGreen
         let noteHtml = '';
         if (p.availability_note) {
-            const isStock = p.availability_note.includes('現貨');
-            const noteColor = isStock ? 'text-brandGreen' : 'text-orange-500';
-            noteHtml = `<div class="text-xs font-bold ${noteColor} mb-1">${p.availability_note}</div>`;
+            noteHtml = `<div class="text-xs font-bold text-brandGreen mb-1">${p.availability_note}</div>`;
         }
-        
-        // 因為沒有 subcategory 欄位，我們改顯示 brand_ref (如果有的話)
-        const brandTitle = p.brand_ref ? `<p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${p.brand_ref}</p>` : '';
 
         return `
             <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden flex flex-col border border-gray-100 p-4">
                 ${imgHtml}
                 <div class="p-4 flex flex-col flex-grow">
-                    ${brandTitle}
                     ${noteHtml}
                     <h3 class="font-bold text-gray-800 mb-2 text-lg leading-tight">${p.product_name}</h3>
                     
