@@ -1,0 +1,689 @@
+---
+# 這是 Front Matter
+layout: default
+title: KEICHA 電話代播服務 | 日本餐廳預約、活動代訂
+description: KEICHA 提供專業的日本電話代播服務，跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務。
+keywords: KEICHA, 電話代播, 電話代打, 日文電話, 餐廳預約, 日本預約, 日本代訂
+
+# ★ denwa.html 專屬的 CSS 和 JS
+styles: |
+    <style>
+        /* [NEW] Lightbox 燈箱樣式 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            max-width: 90%;
+            max-height: 90vh;
+            transition: transform 0.3s ease;
+        }
+        .lightbox.show {
+            display: block;
+            opacity: 1;
+        }
+        .lightbox.show .lightbox-content {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .lightbox-close:hover,
+        .lightbox-close:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
+        
+        /* [NEW] 讓輪播圖中的圖片可點擊 */
+        .slider-slide img {
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+        .slider-slide img:hover {
+            opacity: 0.8;
+        }
+
+        /* [EXISTING] denwa.html 頁面專用樣式 */
+        .nav-link.active {
+            background-color: #6ea44c; /* brandGreen */
+            color: white;
+            font-weight: 600;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .slider-dot.active {
+            background-color: #6ea44c; /* brandGreen */
+            opacity: 1;
+        }
+        .slider-slide img {
+            max-height: 500px;
+            margin: 0 auto;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* ★ [NEW] 隱私權條款樣式 (對應 privacy-loader.js 生成的內容) */
+        .privacy-content h3 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #1e293b; /* text-slate-800 */
+            margin-bottom: 0.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0; /* border-slate-200 */
+        }
+        /* 第一個標題不需上方線條 */
+        .privacy-content section:first-child h3 {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: 0;
+        }
+        .privacy-content div, .privacy-content p {
+            color: #334155; /* text-slate-700 */
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        .privacy-content ul {
+            list-style-type: disc;
+            list-style-position: inside;
+            padding-left: 1rem;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+        /* 隱私權區塊的載入動畫 */
+        .loader {
+            border-top-color: #6ea44c;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+
+# ★ 清空 scripts 區塊，改用手動載入
+scripts: ""
+---
+
+<!-- ==== 頁面主要內容 ==== -->
+<div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <header class="text-center mb-8 md:mb-12">
+        <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">KEICHA 電話代播服務</h1>
+        <p class="mt-2 text-slate-600">感謝您選擇 KEICHA，請在使用服務前詳閱以下條款並完成支付。</p>
+    </header>
+
+    <div class="flex flex-col md:flex-row gap-8">
+        <!-- Sticky Navigation -->
+        <aside class="md:w-1/4 lg:w-1/5 md:sticky md:top-28 self-start">
+            <nav id="toc-nav" class="bg-white rounded-lg shadow-sm p-4">
+                <h3 class="font-semibold text-lg mb-3 text-slate-700">頁面導覽</h3>
+                <ul class="space-y-2">
+                    <li><a href="#section-payment" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200 font-bold">服務費用支付</a></li>
+                    <li><a href="#section-terms" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務條款與介紹</a></li>
+                    <li><a href="#section-privacy" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">隱私權條款</a></li>
+                    <li><a href="#section-contact" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">聯絡方式</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="md:w-3/4 lg:w-4/5">
+            <div class="space-y-10">
+<section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+    <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
+    <p class="text-slate-600 mb-6">請根據您的需求選擇支付方案。所有服務皆須先支付預付款。若有疑問，請先洽詢官方客服。</p>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center justify-items-center text-center">
+        <div>
+            <h3 class="font-semibold mb-2">預付款 (50元)</h3>
+            <button onclick="initiatePayment(50, '預付款')" class="hover:opacity-90 transition-opacity focus:outline-none">
+                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款50元"/>
+            </button>
+        </div>
+
+        <div>
+            <h3 class="font-semibold mb-2">基本方案 (160元)</h3>
+            <button onclick="initiatePayment(160, '基本方案')" class="hover:opacity-90 transition-opacity focus:outline-none">
+                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款+基本費率160元"/>
+            </button>
+            <p class="text-xs text-slate-500 mt-1">(含50元預付款)</p>
+        </div>
+
+        <div>
+            <h3 class="font-semibold mb-2">補款及尾款</h3>
+            <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer">
+                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付補款及尾款"/>
+            </a>
+        </div>
+
+        <div>
+            <h3 class="font-semibold mb-2">官方客服</h3>
+            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer">
+                <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0">
+            </a>
+            <p class="text-xs text-slate-500 mt-1">LINE ID：@366qwylw</p>
+        </div>
+    </div>
+
+    <div id="payment-status" class="hidden mt-4 p-3 bg-gray-50 text-sm text-center rounded text-slate-600"></div>
+
+    <div class="mt-8 pt-6 border-t border-slate-200 text-center">
+        <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請手動複製以下通用付款連結至瀏覽器開啟，並可自行輸入金額：</p>
+        <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" class="w-full max-w-md p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
+        <p class="text-sm text-slate-500 mt-2">謝謝您</p>
+    </div>
+</section>
+
+                <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-brandGreen mb-6">服務條款與介紹</h2>
+                    
+                    <!-- 服務內容 -->
+                    <div class="service-subsection">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">服務內容</h3>
+                        <div class="space-y-4 text-slate-700">
+                            <div>
+                                <h4 class="text-lg font-semibold mb-2 flex items-center">
+                                    <img src="{{ '/images/KEICHA_icon_denwa.png' | relative_url }}" alt="電話代播" class="h-8 w-8 mr-3">
+                                    日本電話代撥服務
+                                </h4>
+                                <p class="mb-2">協助您處理以下單次可完成的日文溝通需求：</p>
+                                <ul class="list-disc list-inside space-y-1 pl-4">
+                                    <li>餐廳訂位、預訂變更或取消。</li>
+                                    <li>向商家（飯店、餐廳等）進行各類詢問。</li>
+                                    <li>其他需要日文溝通的代辦事項。</li>
+                                </ul>
+                            </div>
+                            <div class="border-t pt-4">
+                                <h4 class="text-lg font-semibold mb-2 flex items-center">
+                                    <img src="{{ '/images/KEICHA_icon_netdaikou.png' | relative_url }}" alt="網路代訂" class="h-8 w-8 mr-3">
+                                    網路代訂服務
+                                </h4>
+                                <p>協助您代為操作日本網站進行餐廳、飯店等預訂。</p>
+                                <ul class="list-disc list-inside space-y-1 pl-4">
+                                    <li><strong>服務限制：</strong>僅限無須事先付款、或由本店代為付款的內容。所有後續的兌換、現場付款、領取等操作、均須由客戶自行處理。</li>
+                                    <li><strong>服務包含：</strong>訂單完成後、提供簡要的中文翻譯說明。</li>
+                                </ul>
+                            </div>
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg mt-4">
+                                <h4 class="text-lg font-semibold text-red-800 mb-2">無法受理之服務</h4>
+                                <p class="text-red-700">請於下單前確認，若下單後發現屬於此類，將依退款規則處理：</p>
+                                <ul class="list-disc list-inside space-y-1 pl-4 text-red-700 mt-2">
+                                    <li>撥打非商家之私人電話。</li>
+                                    <li>依法規或商家規定，需本人親自辦理之業務。</li>
+                                    <li>無法接收國際來電之商家。</li>
+                                    <li>各類網路平台、App 註冊所需之電話號碼認證服務。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 服務實績 -->
+                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">服務實績</h3>
+                        <p class="text-slate-600 mb-4">我們已成功協助眾多客戶處理日本大小事宜：</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-slate-700">
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>炉ばた焼ウタリ 餐廳預約</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>登別溫泉旅館 詢問取消費用事宜</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>ヒヨク之トリ (燒肉店) 餐廳預約</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>能登屋旅館 停車資訊詢問</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>よろにく (燒肉店) 預約取消</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>熱海花火大會 觀覽船預約</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>民宿ムラナカ 預約詢問</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>三嶋亭 (壽喜燒) 餐廳預約詢問</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>涸沢ヒュッテ (上高地山小屋) 住宿預約</div>
+                            <div class="flex items-center"><span class="text-green-600 font-bold mr-2">✓</span>燒肉五苑 餐廳取消預約</div>
+                        </div>
+
+                        <!-- Carousel Start -->
+                        <div id="slider-container" class="relative w-full max-w-2xl mx-auto rounded-lg overflow-hidden shadow-lg bg-gray-100 mt-8">
+                            <!-- Slider Wrapper -->
+                            <div id="slider-wrapper" class="flex transition-transform duration-500 ease-in-out">
+                                <!-- Slide 1 -->
+                                <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
+                                    <img src="{{ '/images/keicha_電話代播_服務案例1.png' | relative_url }}" alt="服務案例1" class="w-full h-full object-contain lightbox-trigger">
+                                </div>
+                                <!-- Slide 2 -->
+                                <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center bg-gray-200" style="height: 400px;">
+                                    <img src="{{ '/images/keicha_電話代播_服務案例2.png' | relative_url }}" alt="服務案例2" class="w-full h-full object-contain lightbox-trigger">
+                                </div>
+                            </div>
+                            
+                            <!-- Prev/Next Buttons -->
+                            <button id="slider-prev" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
+                                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                            <button id="slider-next" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
+                                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                            
+                            <!-- Dots -->
+                            <div id="slider-dots" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                                <button class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
+                                <button class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
+                            </div>
+                        </div>
+                        <!-- Carousel End -->
+                    </div>
+
+                    <!-- 費用與支付 -->
+                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">服務費用與支付方式</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700">
+                            <div class="bg-slate-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-lg mb-2">支付方式</h4>
+                                <p>所有服務皆透過 <strong>信用卡</strong> 付款。</p>
+                            </div>
+                            <div class="bg-slate-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-lg mb-2">預付款（行政處理費）</h4>
+                                <p>所有訂單均須先支付預付款 <strong>新台幣 50 元</strong>。此費用訂單受理後概不退還。</p>
+                            </div>
+                            <div class="bg-[#f0f6ec] p-4 rounded-lg md:col-span-2">
+                                <h4 class="font-semibold text-lg text-brandGreen mb-2">服務費用標準</h4>
+                                <div class="space-y-2">
+                                    <p><strong>📞 電話代撥：</strong>每通 7 分鐘內 <strong>NT$160</strong>。超過部分每 10 分鐘加收 <strong>NT$200</strong>。</p>
+                                    <p><strong>🌐 網路代訂：</strong>每筆訂單（單次操作）<strong>NT$150</strong>。</p>
+                                    <p><strong>🎧 調取音檔：</strong>每筆 <strong>NT$50</strong> (僅擷取音檔中可確定預約資訊內容)。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 border-t pt-4">
+                            <h4 class="font-semibold text-lg mb-2">計費原則</h4>
+                            <ul class="list-disc list-inside space-y-1 pl-4">
+                                <li>電話代撥以「<strong>每通電話</strong>」為單位計費。</li>
+                                <li>若需再次致電，將視為一筆新服務訂單，並重新計費（包含預付款與服務尾款）。</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 變更與取消 -->
+                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">變更訂位與取消相關</h3>
+                        <div class="space-y-4 text-slate-700">
+                            <p>訂單成立後，若客戶需要變更原先提供的預約資訊或需本店再次聯繫店家，均視為一筆 <strong>新服務訂單</strong>，需另行支付全額服務費用。</p>
+                            <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                                <h4 class="font-semibold text-amber-800">商家取消費用</h4>
+                                <p class="text-amber-700">若因取消預訂而產生商家取消費，該費用將由 <strong>客戶全額負擔</strong>。若商家向本店請求支付，本店保留向客戶求償該筆實付金額之權利。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 退款規則 -->
+                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">退款規則</h3>
+                        <div class="space-y-3">
+                            <div class="accordion-item">
+                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                    <span>不予退款之情況</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 bg-white border rounded-b-lg">
+                                        <p>除「部分退款」所列情況外，凡電話成功接通商家，無論最終結果如何，所有已付費用（含預付款及服務尾款）<strong>概不退還</strong>。</p>
+                                        <p class="mt-2 text-sm text-slate-500">服務費用為支付本店「代撥/代訂行為」所耗費之時間與人力成本，並不保證「預訂必然成功」。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
+                                    <span>部分退款之情況</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 bg-white border rounded-b-lg">
+                                        <p>僅限發生以下情況時，本店將收取「<strong>服務尾款之一半</strong>」，預付款 50 元恕不退還：</p>
+                                        <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
+                                            <li>於商家公告之營業時間内，本店連續撥打三次，商家均無人接聽。</li>
+                                            <li>商家表示不接受代撥、代訂服務或不接受電話預約。</li>
+                                            <li>商家無法接收或不接受國際電話。</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 免責聲明 -->
+                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">免責聲明</h3>
+                        <div class="space-y-4 text-slate-700">
+                            <div>
+                                <h4 class="font-semibold text-lg mb-1">資訊正確性</h4>
+                                <p>客戶應確保提供所有預訂資訊之完整性與正確性。若因資訊錯誤導致預訂失敗、權益受損或產生額外費用，本店概不負責。</p>
+                            </div>
+                            <div class="border-t pt-4">
+                                <h4 class="font-semibold text-lg mb-1">服務性質</h4>
+                                <p>本店僅提供「代客溝通」及「代客操作」之服務。所有預訂之履約、服務品質等，均由您與該商家負責。</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+<!-- ★ [UPDATED] 隱私權條款區塊 (預設隱藏折疊版) ★ -->
+                <section id="section-privacy" class="scroll-mt-28 bg-white rounded-lg shadow-sm overflow-hidden">
+                    <!-- 使用現有的 accordion-item 結構 -->
+                    <div class="accordion-item border-0">
+                        
+                        <!-- 標題按鈕 -->
+                        <button class="accordion-header flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition-colors">
+                            <h2 class="text-2xl font-bold text-brandGreen m-0">隱私權條款</h2>
+                            <!-- 下拉箭頭 -->
+                            <span class="transform transition-transform duration-300 text-gray-400 text-xl">▼</span>
+                        </button>
+
+                        <!-- 折疊內容區 (預設隱藏) -->
+                        <div class="accordion-content">
+                            <div class="px-6 pb-6 pt-0 border-t border-gray-100 mt-2">
+                                <!-- 載入動畫 -->
+                                <div id="privacy-loader" class="flex justify-center items-center h-24">
+                                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-10 w-10"></div>
+                                </div>
+
+                                <!-- 內容容器 (privacy-loader.js 會將資料填入這裡) -->
+                                <div id="privacy-container" class="space-y-3 privacy-content"></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </section>
+
+                <section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center">
+                    <h2 class="text-2xl font-bold text-brandGreen mb-4">聯絡方式</h2>
+                    <p class="mb-4 text-slate-600">本店保留隨時修改本服務條款之權利，修改後將公布於本網站。</p>
+                    <p class="font-semibold mb-2">若有任何服務疑問，請透過官方客服聯繫：</p>
+                    <div class="inline-block">
+                        <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
+                    </div>
+                    <p class="mt-4 text-slate-600 text-sm">如按鈕無法開啟，請手動輸入ID加入官方客服：</p>
+                    <input type="text" value="@366qwylw" readonly
+                           onclick="this.select()"
+                           class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
+                           title="點擊選取 ID">
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- [NEW] Lightbox 燈箱 HTML 結構 (放在 </body> 標籤前) -->
+<div id="lightbox" class="lightbox">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-content" id="lightbox-img">
+</div>
+
+<!-- 
+  ★ [設定 Base URL] 
+  讓 JS 知道網址根目錄在哪裡 (這裡也需要設定，因為 privacy-loader.js 會用到)
+-->
+<script>
+  window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
+</script>
+
+<!-- ▼ denwa.html 專屬的 JS ▼ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // --- [NEW] Lightbox 燈箱邏輯 ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.querySelector('.lightbox-close');
+        const lightboxTriggers = document.querySelectorAll('.lightbox-trigger');
+
+        if (lightbox && lightboxImg && lightboxClose && lightboxTriggers.length > 0) {
+            
+            // 開啟燈箱
+            const openLightbox = (e) => {
+                const imgElement = e.target;
+                const imgSrc = imgElement.src;
+                
+                if (imgSrc) {
+                    lightboxImg.src = imgSrc;
+                    lightbox.classList.add('show', 'opacity-100');
+                }
+            };
+
+            // 關閉燈箱
+            const closeLightbox = () => {
+                lightbox.classList.remove('show', 'opacity-100');
+                setTimeout(() => {
+                    lightboxImg.src = '';
+                }, 300);
+            };
+
+            // 綁定觸發器
+            lightboxTriggers.forEach(trigger => {
+                trigger.addEventListener('click', openLightbox);
+            });
+
+            // 綁定關閉事件
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox || e.target === lightboxClose) {
+                    closeLightbox();
+                }
+            });
+            
+            // 按下 ESC 鍵關閉
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && lightbox.classList.contains('show')) {
+                    closeLightbox();
+                }
+            });
+        }
+        
+        // --- [EXISTING] 頁面內部導覽 (TOC) 邏輯 ---
+        const sections = document.querySelectorAll('section[id^="section-"]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const tocNav = document.getElementById('toc-nav');
+
+        if (tocNav && sections.length > 0 && navLinks.length > 0) {
+            const observerOptions = {
+                root: null,
+                rootMargin: '-80px 0px -40% 0px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                let visibleSections = [];
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visibleSections.push(entry.target);
+                    }
+                });
+
+                if (visibleSections.length > 0) {
+                    const topSection = visibleSections.reduce((prev, curr) => {
+                        return prev.getBoundingClientRect().top < curr.getBoundingClientRect().top ? prev : curr;
+                    });
+
+                    const id = topSection.getAttribute('id');
+                    const navLink = tocNav.querySelector(`a[href="#${id}"]`);
+
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    if (navLink) {
+                        navLink.classList.add('active');
+                    }
+                }
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            
+            tocNav.addEventListener('click', (e) => {
+                if(e.target.tagName === 'A') {
+                    e.preventDefault();
+                    const targetId = e.target.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        const headerOffset = 90;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        }
+
+        // --- [EXISTING] 輪播圖 (Slider) 邏輯 ---
+        const sliderWrapper = document.getElementById('slider-wrapper');
+        if (sliderWrapper) {
+            const slides = document.querySelectorAll('.slider-slide');
+            const prevBtn = document.getElementById('slider-prev');
+            const nextBtn = document.getElementById('slider-next');
+            const dots = document.querySelectorAll('.slider-dot');
+            
+            let currentSlide = 0;
+            const slideCount = slides.length;
+
+            const goToSlide = (slideIndex) => {
+                if (slideCount === 0) return;
+                if (slideIndex < 0) {
+                    slideIndex = slideCount - 1;
+                } else if (slideIndex >= slideCount) {
+                    slideIndex = 0;
+                }
+                
+                sliderWrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
+                currentSlide = slideIndex;
+                updateDots();
+            };
+
+            const updateDots = () => {
+                dots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.add('active', 'bg-brandGreen');
+                        dot.classList.remove('bg-white', 'bg-opacity-50');
+                    } else {
+                        dot.classList.remove('active', 'bg-brandGreen');
+                        dot.classList.add('bg-white', 'bg-opacity-50');
+                    }
+                });
+            };
+
+            if(prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    goToSlide(currentSlide - 1);
+                });
+            }
+
+            if(nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    goToSlide(currentSlide + 1);
+                });
+            }
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    goToSlide(index);
+                });
+            });
+
+            // Initialize
+            goToSlide(0);
+        }
+        
+        // --- [EXISTING] 折疊選單 (Accordion) 邏輯 ---
+        // ★ [UPDATED] 這個邏輯現在也會被應用到由 JS 產生的隱私權條款區塊
+        // 我們需要使用「事件委派 (Event Delegation)」來處理動態生成的元素
+        const privacyContainer = document.getElementById('privacy-container');
+        
+        // 處理靜態的 Accordion (退款規則等)
+        const staticAccordionItems = document.querySelectorAll('.accordion-item');
+        if (staticAccordionItems.length > 0) {
+            staticAccordionItems.forEach(item => {
+                const header = item.querySelector('.accordion-header');
+                const content = item.querySelector('.accordion-content');
+                const icon = header.querySelector('span:last-child');
+                
+                header.addEventListener('click', () => {
+                    const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+                    // 關閉其他 (選擇性)
+                    // ...
+                    if (isOpen) {
+                        content.style.maxHeight = '0px';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        }
+
+    }); // 結束 DOMContentLoaded
+</script>
+<!-- ▲ denwa.html 專屬的 JS ▲ -->
+
+<!-- 
+  ★ [NEW] 載入隱私權條款的 JS 引擎
+  它會自動去抓取 /assets/data/privacy.tsv 並填入 #privacy-container
+-->
+<script src="{{ '/assets/js/privacy-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+<script>
+    // 您的 Google Apps Script 部署網址
+    const GAS_PAYMENT_URL = "https://script.google.com/macros/s/AKfycbym-kge7fb2YUPShVWM50bNn9RyDKouEXVtXcrGAD28mZGJEO7eFh3p3RF2Aw0ngCxbUA/exec";
+
+    async function initiatePayment(amount, itemName) {
+        const statusDiv = document.getElementById('payment-status');
+        
+        // 1. 顯示讀取中狀態
+        statusDiv.innerHTML = `
+            <div class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-brandGreen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                正在建立訂單，請稍候...
+            </div>`;
+        statusDiv.classList.remove('hidden');
+
+        try {
+            // 2. 呼叫 GAS (使用 JSONP 或 CORS 模式，視您的 GAS 設定而定，這裡使用標準 POST/GET 嘗試)
+            // 注意：為了簡化 GAS 處理，這裡示範用 GET 傳遞參數，讓 GAS 處理跳轉或回傳 URL
+            // 您需要在 GAS 的 doGet(e) 函式中處理這些參數
+            
+            // 建立帶有參數的 URL
+            const targetUrl = `${GAS_PAYMENT_URL}?action=create_order&amount=${amount}&item_name=${encodeURIComponent(itemName)}`;
+            
+            // 直接導向到 GAS，由 GAS 處理完後轉址去付款頁面 (這是最簡單且不用擔心 CORS 的方法)
+            window.location.href = targetUrl;
+
+            /* 註：如果希望不跳轉，而是透過 fetch 拿回 URL，GAS 需要設定 CORS header。
+            為了相容性，目前採用「直接導向 GAS -> GAS 導向付款頁」的作法。
+            */
+
+        } catch (error) {
+            console.error('Payment Error:', error);
+            statusDiv.innerText = "建立訂單失敗，請稍後再試或使用下方通用連結。";
+            statusDiv.classList.add('text-red-600');
+        }
+    }
+</script>
+
+
