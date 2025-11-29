@@ -326,6 +326,38 @@ function renderProductCards(brandKey, products) {
         container.innerHTML = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
     }
 
+/**
+     * 渲染「品牌狀態總覽」區塊 (補回遺失的函式)
+     */
+    function renderStatusOverview(brands) {
+        const container = document.getElementById('status-grid-container');
+        const loader = document.getElementById('status-loader');
+        
+        if (loader) loader.style.display = 'none';
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        brands.forEach(brand => {
+            // 判斷狀態顏色：假設 status 為 'open' 或 '開團' 時顯示綠色
+            const isOpen = ['open', '開團', '接收訂單中'].includes(brand.status);
+            const statusColor = isOpen ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-600';
+            const statusText = brand.status || '未定';
+
+            const cardHTML = `
+                <a href="#${brand.key}" class="block group">
+                    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
+                        <span class="font-bold text-gray-800 text-lg group-hover:text-brandGreen transition-colors">${brand.name}</span>
+                        <span class="${statusColor} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                            ${statusText}
+                        </span>
+                    </div>
+                </a>
+            `;
+            container.innerHTML += cardHTML;
+        });
+    }
+
 
     // --- 主執行流程 ---
     
