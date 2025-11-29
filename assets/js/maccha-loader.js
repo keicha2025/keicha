@@ -326,8 +326,9 @@ function renderProductCards(brandKey, products) {
         container.innerHTML = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
     }
 
-/**
      * 渲染「品牌狀態總覽」區塊 (補回遺失的函式)
+     * ★ [REPAIRED & UPDATED] 渲染「品牌狀態總覽」
+     * 加入中文化翻譯：available -> 可訂購, out-of-stock -> 缺貨中
      */
     function renderStatusOverview(brands) {
         const container = document.getElementById('status-grid-container');
@@ -339,16 +340,30 @@ function renderProductCards(brandKey, products) {
         container.innerHTML = '';
 
         brands.forEach(brand => {
-            // 判斷狀態顏色：假設 status 為 'open' 或 '開團' 時顯示綠色
-            const isOpen = ['open', '開團', '接收訂單中'].includes(brand.status);
-            const statusColor = isOpen ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-600';
-            const statusText = brand.status || '未定';
+            // 1. 取得原始狀態並轉小寫
+            const rawStatus = (brand.status || '').toLowerCase().trim();
+            
+            // 2. 設定預設值 (灰底、原始文字)
+            let statusText = brand.status || '未定';
+            let statusColor = 'bg-gray-200 text-gray-600'; // 預設灰色
+
+            // 3. 判斷邏輯與翻譯
+            // 綠色：可訂購
+            if (['available', 'open', '開團', '接收訂單中'].includes(rawStatus)) {
+                statusText = '可訂購';
+                statusColor = 'bg-brandGreen text-white';
+            } 
+            // 灰色：缺貨中
+            else if (['out-of-stock', 'sold out', 'close', '關閉', '缺貨'].includes(rawStatus)) {
+                statusText = '缺貨中';
+                statusColor = 'bg-gray-200 text-gray-600';
+            }
 
             const cardHTML = `
-                <a href="#${brand.key}" class="block group">
+                <a href="#${brand.key}" class="block group transform hover:-translate-y-1 transition-transform duration-300">
                     <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
                         <span class="font-bold text-gray-800 text-lg group-hover:text-brandGreen transition-colors">${brand.name}</span>
-                        <span class="${statusColor} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                        <span class="${statusColor} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
                             ${statusText}
                         </span>
                     </div>
