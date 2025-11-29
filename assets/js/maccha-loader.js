@@ -346,14 +346,21 @@ function renderProductCards(brandKey, products) {
             // 4. 動態生成 SEO <script>
             renderStructuredData(masterBrandList);
 
-            // 5. 異步抓取所有「詳細品項」
+            // 5. 抓取所有「詳細品項」
             masterBrandList.forEach(brand => {
                 const productUrl = brand.product_csv_url;
                 if (productUrl && productUrl.startsWith('http')) {
                     fetchWithCacheBust(productUrl)
                         .then(productCsvText => {
-                            // ★ [UPDATED] 加入 'hidden' 欄位讀取
-                            const products = parseCSV(productCsvText, ['product_name', 'price', 'price_multi', 'status', 'hidden']);
+                            // ★ [FIXED] 這裡原本漏掉了 'availability_note'，請補上！
+                            const products = parseCSV(productCsvText, [
+                                'product_name', 
+                                'price', 
+                                'price_multi', 
+                                'status', 
+                                'hidden', 
+                                'availability_note' // <--- 加上這個
+                            ]); 
                             renderProductCards(brand.key, products);
                         })
                         .catch(err => {
