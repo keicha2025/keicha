@@ -392,49 +392,50 @@ window.addEventListener('load', () => {
                </button>`
             : '';
 
-        let priceHtml = `<span class="text-lg font-bold text-brandGreen">$${price.toLocaleString()}</span>`;
-        if (priceMulti > 0 && priceMulti < price) {
-            priceHtml = `
-                <div class="flex flex-col items-start">
-                    <span class="text-xs text-gray-400 line-through">$${price.toLocaleString()}</span>
-                    <span class="text-lg font-bold text-brandGreen">2件起 $${priceMulti.toLocaleString()}</span>
-                </div>
-            `;
-        }
+    // ✅ 修改 1：多件優惠價顯示方式
+    let priceHtml = `<span class="text-lg font-bold text-brandGreen">單件價格 $${price.toLocaleString()}</span>`;
+    if (priceMulti > 0 && priceMulti < price) {
+        priceHtml = `
+            <div class="flex flex-col items-start">
+                <span class="text-sm text-gray-600">單件價格 $${price.toLocaleString()}</span>
+                <span class="text-lg font-bold text-brandGreen">2件起 $${priceMulti.toLocaleString()}</span>
+            </div>
+        `;
+    }
 
         // ★ [FIXED] 無圖時不顯示綠色裝飾條，改為空字串
         const imgHtml = finalImg 
             ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>`
             : ``; 
 
-        // ★ [FIXED] 備註文字一律使用品牌色
-        let noteHtml = '';
-        if (p.availability_note) {
-            noteHtml = `<div class="text-xs font-bold text-brandGreen mb-1">${p.availability_note}</div>`;
-        }
-        
-        const brandTitle = p.brand_ref ? `<p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${p.brand_ref}</p>` : '';
+    // ✅ 修改 2：備註顯示在右上角徽章
+    let noteHtml = '';
+    if (p.availability_note) {
+        noteHtml = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">${p.availability_note}</span>`;
+    }
 
-        return `
-            <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden flex flex-col border border-gray-100 p-4">
-                ${imgHtml}
-                <div class="p-4 flex flex-col flex-grow">
-                    ${brandTitle}
-                    ${noteHtml}
-                    <h3 class="font-bold text-gray-800 mb-2 text-lg leading-tight">${p.product_name}</h3>
-                    
-                    ${p.specs ? `<ul class="text-xs text-gray-500 mb-3 space-y-1 list-disc list-inside">${p.specs.split('|').map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
-                    
-                    <div class="mt-auto pt-3 border-t border-gray-100">
-                        <div class="flex justify-between items-end mb-3">
-                            ${priceHtml}
-                        </div>
-                        ${btnHtml}
+    const brandTitle = p.brand_ref ? `<p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">${p.brand_ref}</p>` : '';
+
+    return `
+        <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden flex flex-col border border-gray-100 p-4 relative">
+            ${imgUrl ? `<div class="product-img-box"><img src="${finalImg}" loading="lazy" alt="${p.product_name}"></div>` : ''}
+            ${noteHtml}
+            <div class="p-4 flex flex-col flex-grow">
+                ${brandTitle}
+                <h3 class="font-bold text-gray-800 mb-2 text-lg leading-tight">${p.product_name}</h3>
+                
+                ${p.specs ? `<ul class="text-xs text-gray-500 mb-3 space-y-1 list-disc list-inside">${p.specs.split('|').map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
+                
+                <div class="mt-auto pt-3 border-t border-gray-100">
+                    <div class="flex justify-between items-end mb-3">
+                        ${priceHtml}
                     </div>
+                    ${btnHtml}
                 </div>
             </div>
-        `;
-    }
+        </div>
+    `;
+}
 
     // --- 啟動 ---
     fetchCSV(MASTER_SHEET_URL)
