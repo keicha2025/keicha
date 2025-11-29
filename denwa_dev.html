@@ -156,37 +156,29 @@ scripts: ""
     <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
     <p class="text-slate-600 mb-6">請根據您的需求選擇支付方案。所有服務皆須先支付預付款。若有疑問，請先洽詢官方客服。</p>
     
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center justify-items-center text-center">
-        <div>
-            <h3 class="font-semibold mb-2">預付款 (50元)</h3>
-            <button onclick="initiatePayment(50, '預付款')" class="hover:opacity-90 transition-opacity focus:outline-none">
-                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款50元"/>
-            </button>
-        </div>
-
-        <div>
-            <h3 class="font-semibold mb-2">基本方案 (160元)</h3>
-            <button onclick="initiatePayment(160, '基本方案')" class="hover:opacity-90 transition-opacity focus:outline-none">
-                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款+基本費率160元"/>
-            </button>
-            <p class="text-xs text-slate-500 mt-1">(含50元預付款)</p>
-        </div>
-
-        <div>
-            <h3 class="font-semibold mb-2">補款及尾款</h3>
-            <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer">
-                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付補款及尾款"/>
-            </a>
-        </div>
-
-        <div>
-            <h3 class="font-semibold mb-2">官方客服</h3>
-            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer">
-                <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0">
-            </a>
-            <p class="text-xs text-slate-500 mt-1">LINE ID：@366qwylw</p>
-        </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start justify-items-center text-center">
+    <div class="flex flex-col items-center w-full">
+        <h3 class="font-semibold mb-3 text-slate-700">預付款 (50元)</h3>
+        <button onclick="initiatePayment(50, '預付款')" class="w-full max-w-[200px] bg-[#6ea44c] text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity focus:outline-none shadow-sm tracking-wide">
+            支付 NT$50
+        </button>
     </div>
+
+    <div class="flex flex-col items-center w-full">
+        <h3 class="font-semibold mb-3 text-slate-700">基本方案 (160元)</h3>
+        <button onclick="initiatePayment(160, '基本方案')" class="w-full max-w-[200px] bg-[#6ea44c] text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity focus:outline-none shadow-sm tracking-wide">
+            支付 NT$160
+        </button>
+        <p class="text-xs text-slate-500 mt-2">(含50元預付款)</p>
+    </div>
+
+    <div class="flex flex-col items-center w-full">
+        <h3 class="font-semibold mb-3 text-slate-700">補款及尾款</h3>
+        <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="block w-full max-w-[200px] bg-[#6ea44c] text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity text-center shadow-sm decoration-0 tracking-wide">
+            輸入金額支付
+        </a>
+    </div>
+</div>
 
     <div id="payment-status" class="hidden mt-4 p-3 bg-gray-50 text-sm text-center rounded text-slate-600"></div>
 
