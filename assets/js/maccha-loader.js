@@ -110,51 +110,86 @@ window.addEventListener('load', () => {
         return data;
     }
 
-    /**
-     * 渲染「品牌總覽」區塊 (動態生成)
-     */
-    function renderStatusOverview(brands) {
-        const container = document.getElementById('status-grid-container');
-        const loader = document.getElementById('status-loader');
-        if (!container || !loader) return;
-        
-        loader.style.display = 'none';
-        container.innerHTML = ''; 
+/**
+ * 渲染「單一品牌」的品項卡片
+ * ★ [UPDATED] 支援 hidden 過濾、移除預設「可訂購」徽章，僅顯示 availability_note
+ */
+function renderProductCards(brandKey, products) {
+    const grid = document.getElementById(`${brandKey}-grid`);
+    const loader = document.getElementById(`${brandKey}-loader`);
+    if (!grid || !loader) return;
 
-        if (brands.length === 0) {
-            container.innerHTML = '<p class="text-center text-gray-500">目前沒有可顯示的品牌狀態。</p>';
-            return;
-        }
+    loader.style.display = 'none';
+    grid.innerHTML = '';
 
-        const statusText = { 'available': '可供訂購', 'out-of-stock': '缺貨中' };
-        const statusClass = { 'available': 'bg-brandGreen text-white', 'out-of-stock': 'bg-gray-200 text-gray-700' };
+    // 1. 先過濾出「要顯示」的商品
+    const visibleProducts = products.filter(product => {
+        if (!product.hidden) return true;
+        const h = product.hidden.toString().toLowerCase().trim();
+        return !['true', '1', 'yes', '下架'].includes(h);
+    });
 
-        brands.forEach((brand, index) => {
-            const currentStatus = brand.status === 'available' ? 'available' : 'out-of-stock';
-            const currentName = brand.name || '未知品牌';
-
-            let itemClasses = "bg-white p-5 md:p-6 rounded-lg shadow-md flex items-center transition-all duration-300 hover:shadow-lg hover:scale-105";
-            const isOddTotal = brands.length % 2 !== 0;
-            const isLastItem = index === brands.length - 1;
-
-            if (isOddTotal && isLastItem) {
-                itemClasses += " md:col-span-2";
-            }
-
-            const itemHTML = `
-                <a href="#${brand.key}" class="${itemClasses}">
-                    <span class="text-lg md:text-xl font-medium text-gray-800 flex-1 min-w-0 truncate mr-4">
-                        ${currentName}
-                    </span>
-                    <span class="px-4 py-1.5 rounded-full text-sm font-bold ${statusClass[currentStatus]} whitespace-nowrap flex-shrink-0">
-                        ${statusText[currentStatus]}
-                    </span>
-                </a>
-            `;
-            container.innerHTML += itemHTML;
-        });
+    // 2. 判斷過濾後的數量
+    if (visibleProducts.length === 0) {
+        grid.innerHTML = `<p class="text-gray-500 text-center col-span-full">目前此品牌尚無代購品項，或暫時缺貨中。</p>`;
+        return;
     }
 
+    // 3. 渲染清單
+    visibleProducts.forEach(product => {
+        const name = product.product_name || '未命名品項';
+        const price = product.price ? parseInt(product.price) : 0;
+        const priceMulti = product.price_multi ? parseInt(product.price_multi) : 0;
+        const status = product.status || 'out-of-stock';
+        
+        const isAvailable = status === 'available';
+        const cardClasses = isAvailable ? 'bg-white transform hover:scale-105' : 'bg-gray-100 opacity-70';
+        
+        // ★ [MODIFIED] 狀態徽章邏輯更新
+        let statusBadge = '';
+
+        if (isAvailable) {
+            // 如果是可訂購狀態，檢查是否有 availability_note
+            if (product.availability_note && product.availability_note.trim() !== '') {
+                // 有備註才顯示綠色徽章
+                statusBadge = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">${product.availability_note}</span>`;
+            }
+            // 如果沒有備註，statusBadge 維持空字串 (不顯示「可訂購」)
+        } else {
+            // 如果是缺貨/下架狀態，維持顯示灰色「缺貨中」
+            statusBadge = `<span class="absolute top-3 right-3 bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">缺貨中</span>`;
+        }
+
+        let priceHTML = '';
+        const priceTextClass = isAvailable ? 'text-brandGreen' : 'text-gray-500';
+
+        if (priceMulti > 0 && priceMulti < price) {
+            priceHTML = `
+                <div class="price-discount">
+                    <span class="price-original">單罐: NT$ ${price.toLocaleString()}</span>
+                    <span class="${priceTextClass} price-current">2罐起單價: NT$ ${priceMulti.toLocaleString()}</span>
+                </div>
+            `;
+        } else if (price > 0) {
+            priceHTML = `<p class="${priceTextClass} price-current" style="font-size: 1.125rem; font-weight: 700;">NT$ ${price.toLocaleString()}</p>`;
+        } else {
+            priceHTML = `<p class="${priceTextClass} price-current" style="font-size: 1.125rem; font-weight: 700;">價格請洽詢</p>`;
+        }
+
+        const cardHTML = `
+            <div class="${cardClasses} relative shadow-lg rounded-lg overflow-hidden transition-all duration-300 flex flex-col">
+                ${statusBadge}
+                <div class="p-6 flex-grow">
+                    <h3 class="text-xl font-bold mb-2 ${isAvailable ? 'text-gray-900' : 'text-gray-600'}">${name}</h3>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    ${priceHTML}
+                </div>
+            </div>
+        `;
+        grid.innerHTML += cardHTML;
+    });
+}
     /**
      * 渲染「詳細品項」區塊 (動態生成)
      */
