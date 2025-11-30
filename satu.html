@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植薯於你 | Sweet Potato For You - 天然手作甜點</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        potato: {
+                            flesh: '#FFD166', // 蕃薯黃 (明亮)
+                            deep: '#F4A261',  // 熟蕃薯橘
+                            skin: '#5D4037',  // 蕃薯皮咖 (深棕)
+                            light: '#FFF8E1', // 米黃背景
+                            green: '#6A994E', // 植物綠 (點綴)
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        rounded: ['"Zen Maru Gothic"', 'sans-serif'], // 圓體，適合年輕可愛風格
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FFF8E1;
+            color: #5D4037;
+        }
+        .font-brand {
+            font-family: 'Zen Maru Gothic', sans-serif;
+        }
+        .scroll-hidden::-webkit-scrollbar {
+            display: none;
+        }
+        .blob-shape {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+        /* Custom Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-potato-light/90 backdrop-blur-md shadow-sm transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="scrollToSection('hero')">
+                    <div class="w-10 h-10 bg-potato-deep rounded-full flex items-center justify-center mr-2 text-white">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <span class="font-brand text-2xl font-bold text-potato-skin tracking-wide">植薯於你</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="#story" class="text-potato-skin hover:text-potato-deep font-medium transition">品牌故事</a>
+                    <a href="#products" class="text-potato-skin hover:text-potato-deep font-medium transition">美味櫥窗</a>
+                    <a href="#values" class="text-potato-skin hover:text-potato-deep font-medium transition">安心承諾</a>
+                    <a href="#footer" class="text-potato-skin hover:text-potato-deep font-medium transition">店鋪資訊</a>
+                </div>
+
+                <!-- CTA Button -->
+                <div class="hidden md:block">
+                    <button onclick="scrollToSection('products')" class="bg-potato-skin text-potato-flesh px-6 py-2 rounded-full font-bold hover:bg-potato-deep hover:text-white transition shadow-lg transform hover:scale-105">
+                        <i class="fa-solid fa-utensils mr-2"></i>我要吃甜甜
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-potato-skin hover:text-potato-deep focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-potato-flesh absolute w-full">
+            <div class="px-4 pt-2 pb-6 space-y-2 text-center">
+                <a href="#story" class="block px-3 py-3 rounded-md text-base font-medium text-potato-skin hover:bg-potato-light" onclick="toggleMobileMenu()">品牌故事</a>
+                <a href="#products" class="block px-3 py-3 rounded-md text-base font-medium text-potato-skin hover:bg-potato-light" onclick="toggleMobileMenu()">美味櫥窗</a>
+                <a href="#values" class="block px-3 py-3 rounded-md text-base font-medium text-potato-skin hover:bg-potato-light" onclick="toggleMobileMenu()">安心承諾</a>
+                <a href="#footer" class="block px-3 py-3 rounded-md text-base font-medium text-potato-skin hover:bg-potato-light" onclick="toggleMobileMenu()">聯絡我們</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="hero" class="relative pt-24 pb-16 md:pt-32 md:pb-24 flex items-center min-h-[90vh] overflow-hidden">
+        <!-- Background Decor -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-potato-flesh rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-float"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-potato-deep rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <!-- Text Content -->
+                <div class="text-center md:text-left space-y-6">
+                    <div class="inline-block px-4 py-1 bg-potato-green/20 text-potato-green rounded-full text-sm font-bold tracking-wider mb-2">
+                        <i class="fa-solid fa-seedling mr-1"></i> 天然系甜點專門店
+                    </div>
+                    <h1 class="font-brand text-5xl md:text-7xl font-bold text-potato-skin leading-tight">
+                        不只屬於你，<br>
+                        更<span class="text-potato-deep">植薯</span>於你。
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 max-w-md mx-auto md:mx-0">
+                        獻給愛吃甜點又怕負擔的你。<br>
+                        嚴選在地台農57號黃金地瓜，<br>
+                        打造低糖、不甜膩、滿滿植感的療癒滋味。
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
+                        <button onclick="scrollToSection('products')" class="px-8 py-4 bg-potato-deep text-white rounded-2xl font-bold text-lg shadow-lg hover:bg-potato-skin transition transform hover:-translate-y-1">
+                            來份下午茶
+                        </button>
+                        <button onclick="scrollToSection('story')" class="px-8 py-4 border-2 border-potato-skin text-potato-skin rounded-2xl font-bold text-lg hover:bg-potato-skin hover:text-white transition">
+                            了解更多
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Image Content (Placeholder for tasty dessert) -->
+                <div class="relative">
+                    <div class="relative w-full aspect-square max-w-md mx-auto">
+                        <!-- Simulated Product Image using abstract shapes and colors if no image provided, but here we simulate a frame -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-potato-flesh to-potato-deep rounded-[2rem] transform rotate-3 shadow-2xl"></div>
+                        <div class="absolute inset-0 bg-white rounded-[2rem] transform -rotate-3 overflow-hidden shadow-inner flex items-center justify-center">
+                            <!-- Placeholder visual -->
+                            <div class="text-center p-8">
+                                <div class="text-9xl text-potato-deep mb-4 animate-float">🍠</div>
+                                <p class="text-gray-400 font-brand">Delicious Sweet Potato</p>
+                            </div>
+                        </div>
+                        <!-- Floating Badges -->
+                        <div class="absolute -top-4 -right-4 bg-white p-4 rounded-full shadow-xl animate-float" style="animation-delay: 1s;">
+                            <span class="text-2xl">😋</span>
+                        </div>
+                        <div class="absolute -bottom-6 -left-2 bg-potato-skin text-white px-6 py-2 rounded-xl shadow-lg transform rotate-[-5deg]">
+                            每日現做
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Brand Story Section -->
+    <section id="story" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center gap-16">
+                <div class="w-full md:w-1/2 order-2 md:order-1">
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3] bg-gray-100 flex items-center justify-center">
+                        <!-- Placeholder for Founder/Making Image -->
+                         <div class="text-center">
+                            <i class="fa-solid fa-plant-wilt text-6xl text-potato-green mb-4"></i>
+                            <p class="text-gray-500">老闆正在照顧植物...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 order-1 md:order-2">
+                    <h2 class="font-brand text-4xl font-bold text-potato-skin mb-6">因為愛植物，<br>所以更懂天然的甜。</h2>
+                    <div class="space-y-4 text-gray-600 leading-relaxed text-lg">
+                        <p>
+                            「植薯於你」的誕生，源自於一個簡單的任性：<br>
+                            <span class="font-bold text-potato-deep">想吃甜點，但不想有罪惡感。</span>
+                        </p>
+                        <p>
+                            店主是一個標準的「植人」，家裡陽台種滿了龜背芋和鹿角蕨。對植物的熱愛，延伸到了對食材的堅持。我們發現，外表樸實的「蕃薯」，其實是大自然最棒的糖果。
+                        </p>
+                        <p>
+                            不需要過多的人工糖精，地瓜本身的綿密與焦糖香氣，就是最完美的基底。我們致力於將這份來自土地的禮物，轉化為年輕人喜愛的時尚甜點。
+                        </p>
+                        <p class="font-bold text-potato-skin pt-4">
+                            這裡沒有負擔，只有滿滿的膳食纖維與快樂。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-24 bg-potato-light relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-potato-deep font-bold tracking-widest uppercase">Menu</span>
+                <h2 class="font-brand text-4xl font-bold text-potato-skin mt-2">招牌植感甜點</h2>
+                <div class="w-24 h-1 bg-potato-deep mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Product 1 -->
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-64 bg-gray-200 relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-yellow-100 to-orange-100">
+                        <div class="text-8xl transform group-hover:scale-110 transition duration-500">🍮</div>
+                        <div class="absolute top-4 right-4 bg-red-400 text-white text-xs font-bold px-3 py-1 rounded-full">人氣 No.1</div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-brand text-2xl font-bold text-potato-skin mb-2">甜薯考不雷</h3>
+                        <p class="text-sm text-gray-400 mb-4 font-mono">Sweet Potato Brûlée</p>
+                        <p class="text-gray-600 mb-6 line-clamp-2">
+                            不是真的考不雷，是好吃的烤布蕾！
+                            底層是綿密細緻的台農57號地瓜泥，表層是現烤焦糖脆片。口感層次豐富，絕不踩雷。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-potato-deep">NT$ 85</span>
+                            <button onclick="addToCart('甜薯考不雷')" class="w-10 h-10 rounded-full bg-potato-light text-potato-skin flex items-center justify-center hover:bg-potato-skin hover:text-white transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-64 bg-gray-200 relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-yellow-100 to-orange-100">
+                        <div class="text-8xl transform group-hover:scale-110 transition duration-500">🍡</div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-brand text-2xl font-bold text-potato-skin mb-2">植人地瓜球</h3>
+                        <p class="text-sm text-gray-400 mb-4 font-mono">Sweet Potato Balls</p>
+                        <p class="text-gray-600 mb-6 line-clamp-2">
+                            堅持天然發酵麵團，手工揉製。
+                            外酥內Q，咬下去有空氣感，放涼了也不會硬梆梆。追劇神器，一顆接一顆停不下來。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-potato-deep">NT$ 50</span>
+                            <button onclick="addToCart('植人地瓜球')" class="w-10 h-10 rounded-full bg-potato-light text-potato-skin flex items-center justify-center hover:bg-potato-skin hover:text-white transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 transform hover:-translate-y-2 group">
+                    <div class="h-64 bg-gray-200 relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-yellow-100 to-orange-100">
+                        <div class="text-8xl transform group-hover:scale-110 transition duration-500">🥧</div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-brand text-2xl font-bold text-potato-skin mb-2">棉花糖薯泥派</h3>
+                        <p class="text-sm text-gray-400 mb-4 font-mono">Marshmallow Potato Pie</p>
+                        <p class="text-gray-600 mb-6 line-clamp-2">
+                            雲朵般的烤棉花糖，覆蓋在溫熱的肉桂地瓜餡上。
+                            甜蜜與辛香的完美平衡，是冬日裡最溫暖的擁抱，螞蟻人必點。
+                        </p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-potato-deep">NT$ 120</span>
+                            <button onclick="addToCart('棉花糖薯泥派')" class="w-10 h-10 rounded-full bg-potato-light text-potato-skin flex items-center justify-center hover:bg-potato-skin hover:text-white transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="text-center mt-12">
+                <p class="text-potato-skin opacity-70 mb-4">* 每日手工限量製作，售完為止 *</p>
+                <button class="border-b-2 border-potato-skin text-potato-skin hover:text-potato-deep hover:border-potato-deep transition pb-1">查看完整菜單 PDF</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values / Features -->
+    <section id="values" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                <div class="p-6">
+                    <div class="w-20 h-20 bg-potato-light rounded-full flex items-center justify-center mx-auto mb-6 text-3xl text-potato-green">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h3 class="font-brand text-xl font-bold text-potato-skin mb-3">天然無添加</h3>
+                    <p class="text-gray-600">堅持使用原型食物，拒絕人工色素與香精。每一口都是大自然原本的味道。</p>
+                </div>
+                <div class="p-6">
+                    <div class="w-20 h-20 bg-potato-light rounded-full flex items-center justify-center mx-auto mb-6 text-3xl text-potato-deep">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h3 class="font-brand text-xl font-bold text-potato-skin mb-3">減糖更健康</h3>
+                    <p class="text-gray-600">針對現代人飲食習慣調整配方，利用地瓜本身甜度取代部分砂糖，輕盈不甜膩。</p>
+                </div>
+                <div class="p-6">
+                    <div class="w-20 h-20 bg-potato-light rounded-full flex items-center justify-center mx-auto mb-6 text-3xl text-potato-skin">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="font-brand text-xl font-bold text-potato-skin mb-3">手作的溫度</h3>
+                    <p class="text-gray-600">從削皮、蒸煮到烘烤，每日新鮮現做，將我們對甜點的熱愛揉進每一份餐點裡。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-potato-skin text-potato-light py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                
+                <!-- Brand Info -->
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 bg-potato-deep rounded-full flex items-center justify-center mr-2 text-white text-xs">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <span class="font-brand text-xl font-bold">植薯於你</span>
+                    </div>
+                    <p class="text-sm opacity-80 leading-relaxed">
+                        用植物療癒心情，用甜薯滿足味蕾。<br>
+                        你身邊最親切的天然甜點店。
+                    </p>
+                </div>
+
+                <!-- Links -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4 text-potato-flesh">快速連結</h4>
+                    <ul class="space-y-2 text-sm opacity-80">
+                        <li><a href="#hero" class="hover:text-white transition">回到首頁</a></li>
+                        <li><a href="#products" class="hover:text-white transition">熱銷商品</a></li>
+                        <li><a href="#story" class="hover:text-white transition">關於我們</a></li>
+                        <li><button onclick="openModal('serviceModal')" class="hover:text-white transition">服務說明</button></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4 text-potato-flesh">聯絡我們</h4>
+                    <ul class="space-y-2 text-sm opacity-80">
+                        <li><i class="fa-solid fa-location-dot mr-2"></i> 台北市某某區植薯路57號</li>
+                        <li><i class="fa-solid fa-phone mr-2"></i> (02) 2345-6789</li>
+                        <li><i class="fa-solid fa-envelope mr-2"></i> hello@sweetpotato.tw</li>
+                        <li><i class="fa-solid fa-clock mr-2"></i> 11:00 - 20:00 (週一公休)</li>
+                    </ul>
+                </div>
+
+                <!-- Social -->
+                <div>
+                    <h4 class="font-bold text-lg mb-4 text-potato-flesh">追蹤我們</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-potato-deep transition">
+                            <i class="fa-brands fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-potato-deep transition">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-potato-deep transition">
+                            <i class="fa-brands fa-line"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm opacity-60">
+                <p>&copy; 2023 植薯於你 Sweet Potato For You. All Rights Reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <button onclick="openModal('privacyModal')" class="hover:text-white">隱私權條款</button>
+                    <button onclick="openModal('termsModal')" class="hover:text-white">使用者條款</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Privacy Policy Modal -->
+    <div id="privacyModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal('privacyModal')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-xl leading-6 font-bold text-potato-skin mb-4" id="modal-title">隱私權政策</h3>
+                    <div class="mt-2 text-sm text-gray-600 h-64 overflow-y-auto pr-2">
+                        <p class="mb-2">歡迎您使用「植薯於你」網站。我們非常重視您的隱私權，以下簡要說明我們如何處理資料：</p>
+                        <ul class="list-disc ml-5 space-y-1">
+                            <li><strong>資料收集：</strong>我們僅在您主動聯絡或訂購時收集必要的聯絡資訊。</li>
+                            <li><strong>資料使用：</strong>您的資料僅用於訂單處理與客戶服務，絕不外洩給第三方。</li>
+                            <li><strong>Cookie 使用：</strong>本網站使用少量 Cookie 以優化瀏覽體驗，不涉及個人敏感資料。</li>
+                            <li><strong>資料安全：</strong>我們採用標準安全措施保護您的個人資料。</li>
+                        </ul>
+                        <p class="mt-4">若有任何疑問，請透過聯絡我們頁面與我們聯繫。</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-potato-skin text-base font-medium text-white hover:bg-potato-deep focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal('privacyModal')">
+                        我了解了
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="termsModal" class="fixed inset-0 z-[60] hidden overflow-y-auto">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeModal('termsModal')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-xl leading-6 font-bold text-potato-skin mb-4">服務條款</h3>
+                    <div class="mt-2 text-sm text-gray-600 h-64 overflow-y-auto pr-2">
+                        <p class="mb-2">感謝您支持「植薯於你」，請詳閱以下消費須知：</p>
+                        <ol class="list-decimal ml-5 space-y-2">
+                            <li><strong>產品性質：</strong>本點產品皆為手工製作，外觀與圖片可能略有差異，以實物為準。</li>
+                            <li><strong>賞味期限：</strong>產品不含防腐劑，購買後請盡速食用，冷藏保存不超過 2 天。</li>
+                            <li><strong>過敏原資訊：</strong>產品可能含有蛋、奶、堅果等過敏原，購買前請先確認。</li>
+                            <li><strong>退換貨：</strong>食品類商品基於衛生考量，售出後除嚴重瑕疵外，恕不接受退換貨。</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-potato-skin text-base font-medium text-white hover:bg-potato-deep focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal('termsModal')">
+                        同意並關閉
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div id="serviceModal" class="fixed inset-0 z-[60] hidden overflow-y-auto">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeModal('serviceModal')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-xl leading-6 font-bold text-potato-skin mb-4">服務說明</h3>
+                    <div class="mt-2 text-sm text-gray-600 h-64 overflow-y-auto pr-2">
+                        <p class="mb-2">我們提供以下服務：</p>
+                        <ul class="list-disc ml-5 space-y-1">
+                            <li><strong>店內內用：</strong>低消為每人一份甜點或飲品。</li>
+                            <li><strong>外帶服務：</strong>歡迎自備容器，可享折扣 5 元（響應環保）。</li>
+                            <li><strong>大量訂購：</strong>活動餐盒、會議點心請於 3 天前預訂。</li>
+                            <li><strong>植物交流：</strong>店內植物歡迎觀賞，偶爾會有分株小苗贈送活動，詳情請詢問店員。</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-potato-skin text-base font-medium text-white hover:bg-potato-deep focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal('serviceModal')">
+                        了解了
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-[70]">
+        <div class="bg-potato-skin text-white px-6 py-3 rounded-lg shadow-lg flex items-center">
+            <i class="fa-solid fa-check-circle text-potato-flesh mr-3"></i>
+            <div>
+                <h4 class="font-bold text-sm">已加入購物車！</h4>
+                <p class="text-xs text-gray-300" id="toast-message">商品名稱</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth Scroll
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                const navHeight = document.getElementById('navbar').offsetHeight;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+        
+        function toggleMobileMenu() {
+            menu.classList.add('hidden');
+        }
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.replace('bg-potato-light/90', 'bg-white/95');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.replace('bg-white/95', 'bg-potato-light/90');
+            }
+        });
+
+        // Modal Logic
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Add to Cart Interaction
+        function addToCart(productName) {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-message');
+            
+            msg.textContent = `「${productName}」已放入您的甜點胃`;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
