@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字文字MOJIMOJI - 字體風格預覽</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DotGothic16&family=Klee+One:wght@400;600&family=M+PLUS+Rounded+1c:wght@400;700&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&family=Shippori+Mincho+B1&family=Zen+Maru+Gothic:wght@400;700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom Font Classes */
+        .font-noto-sans { font-family: 'Noto Sans TC', sans-serif; }
+        .font-noto-serif { font-family: 'Noto Serif TC', serif; }
+        .font-rounded { font-family: 'M PLUS Rounded 1c', sans-serif; }
+        .font-rounded-zen { font-family: 'Zen Maru Gothic', sans-serif; }
+        .font-hand-klee { font-family: 'Klee One', cursive; }
+        .font-hand-calligraphy { font-family: 'Zhi Mang Xing', cursive; }
+        .font-retro-pixel { font-family: 'DotGothic16', sans-serif; }
+        .font-display-heavy { font-family: 'Dela Gothic One', cursive; }
+        .font-display-elegant { font-family: 'Shippori Mincho B1', serif; }
+
+        .preview-card {
+            transition: all 0.3s ease;
+        }
+        .preview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Control Panel -->
+    <div class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm p-4">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-lg font-bold text-gray-700">網站標題字體選單</h1>
+                <p class="text-xs text-gray-500">預覽文字：MOJImoji內文</p>
+            </div>
+            
+            <div class="flex flex-wrap gap-4 items-center">
+                <!-- Size Slider -->
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600"><i class="fas fa-text-height"></i> 大小</span>
+                    <input type="range" id="sizeSlider" min="24" max="72" value="42" class="w-32 accent-indigo-600">
+                </div>
+
+                <!-- Weight Toggle -->
+                <div class="flex items-center gap-2">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="boldToggle" class="sr-only peer">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-700">粗體</span>
+                    </label>
+                </div>
+
+                <!-- Background Selector -->
+                <div class="flex items-center gap-2 border-l pl-4 border-gray-300">
+                    <span class="text-sm text-gray-600">背景模擬:</span>
+                    <button onclick="changeBg('white')" class="w-6 h-6 rounded-full border border-gray-300 bg-white hover:ring-2 ring-indigo-400" title="白底"></button>
+                    <button onclick="changeBg('dark')" class="w-6 h-6 rounded-full border border-gray-600 bg-gray-900 hover:ring-2 ring-indigo-400" title="黑底"></button>
+                    <button onclick="changeBg('warm')" class="w-6 h-6 rounded-full border border-orange-200 bg-orange-50 hover:ring-2 ring-indigo-400" title="暖色"></button>
+                    <button onclick="changeBg('gradient')" class="w-6 h-6 rounded-full border border-purple-300 bg-gradient-to-r from-indigo-100 to-purple-100 hover:ring-2 ring-indigo-400" title="漸層"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow p-4 md:p-8 overflow-y-auto" id="mainContainer">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- Category: Hei / Sans (Modern) -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-wider text-xs mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> 基礎黑體 (Sans-Serif)
+                </div>
+                
+                <!-- Noto Sans -->
+                <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: Noto Sans TC</div>
+                    <p class="preview-text font-noto-sans text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                    <div class="flex justify-between items-end">
+                        <p class="text-sm text-gray-500 font-light">現代、乾淨、理性。適合科技、生活風格或資訊量大的網站。</p>
+                        <span class="text-xs text-indigo-400 font-mono opacity-0 group-hover:opacity-100 transition">.font-noto-sans</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Ming / Serif (Classic) -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-wider text-xs mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> 基礎明體 (Serif)
+                </div>
+
+                <!-- Noto Serif -->
+                <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: Noto Serif TC</div>
+                    <p class="preview-text font-noto-serif text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                    <div class="flex justify-between items-end">
+                        <p class="text-sm text-gray-500 font-light">文學、經典、優雅。適合閱讀、文學創作或情感細膩的雜記。</p>
+                        <span class="text-xs text-indigo-400 font-mono opacity-0 group-hover:opacity-100 transition">.font-noto-serif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Rounded (Friendly) -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-wider text-xs mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> 圓潤風格 (Rounded)
+                </div>
+
+                <!-- M Plus Rounded -->
+                <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: M PLUS Rounded 1c</div>
+                    <p class="preview-text font-rounded text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                    <div class="flex justify-between items-end">
+                        <p class="text-sm text-gray-500 font-light">親切、柔和、無距離感。非常適合輕鬆的日常分享。</p>
+                        <span class="text-xs text-indigo-400 font-mono opacity-0 group-hover:opacity-100 transition">.font-rounded</span>
+                    </div>
+                </div>
+
+                <!-- Zen Maru Gothic -->
+                <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: Zen Maru Gothic</div>
+                    <p class="preview-text font-rounded-zen text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                    <div class="flex justify-between items-end">
+                        <p class="text-sm text-gray-500 font-light">比一般圓體更幾何、更具現代設計感的圓體。</p>
+                        <span class="text-xs text-indigo-400 font-mono opacity-0 group-hover:opacity-100 transition">.font-rounded-zen</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Handwriting (Personal) -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-wider text-xs mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> 手寫風格 (Handwriting)
+                </div>
+
+                <!-- Klee One -->
+                <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: Klee One</div>
+                    <p class="preview-text font-hand-klee text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                    <div class="flex justify-between items-end">
+                        <p class="text-sm text-gray-500 font-light">硬筆字感、整齊但有溫度。像是在筆記本上隨手寫下的標題。</p>
+                        <span class="text-xs text-indigo-400 font-mono opacity-0 group-hover:opacity-100 transition">.font-hand-klee</span>
+                    </div>
+                </div>
+
+                <!-- Zhi Mang Xing -->
+                <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: Zhi Mang Xing</div>
+                    <p class="preview-text font-hand-calligraphy text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                    <div class="flex justify-between items-end">
+                        <p class="text-sm text-gray-500 font-light">書法風格、豪邁奔放。適合強調個性或傳統文化的內容。</p>
+                        <span class="text-xs text-indigo-400 font-mono opacity-0 group-hover:opacity-100 transition">.font-hand-calligraphy</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: AI Suggestions -->
+            <div class="space-y-4 md:col-span-2 mt-8 pt-8 border-t border-gray-200">
+                 <div class="flex items-center gap-2 text-indigo-600 font-bold uppercase tracking-wider text-xs mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span> 推薦的特殊風格 (Special Suggestions)
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Shippori Mincho -->
+                    <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: Shippori Mincho B1</div>
+                        <p class="preview-text font-display-elegant text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                        <p class="text-sm text-gray-500 font-light">流暢且帶有圓潤墨跡的明體，極具氣質。</p>
+                    </div>
+
+                    <!-- Dela Gothic One -->
+                    <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: Dela Gothic One</div>
+                        <p class="preview-text font-display-heavy text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                        <p class="text-sm text-gray-500 font-light">極粗黑體，視覺衝擊強，適合海報或潮流感。</p>
+                    </div>
+
+                    <!-- DotGothic16 -->
+                    <div class="preview-card bg-white p-6 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-bl-lg">Google: DotGothic16</div>
+                        <p class="preview-text font-retro-pixel text-4xl mb-4 text-gray-800 transition-all duration-300">MOJImoji內文</p>
+                        <p class="text-sm text-gray-500 font-light">像素風格，適合遊戲、懷舊或技術類網站。</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="max-w-6xl mx-auto mt-12 text-center text-gray-400 text-sm pb-8">
+            <p>※ 附註：部分字體為日系字體（如 Klee, Zen Maru），但支援大部分繁體中文字符。如果遇到缺字會自動退回標準黑體。</p>
+        </div>
+    </div>
+
+    <script>
+        const sizeSlider = document.getElementById('sizeSlider');
+        const boldToggle = document.getElementById('boldToggle');
+        const texts = document.querySelectorAll('.preview-text');
+        const cards = document.querySelectorAll('.preview-card');
+        const mainContainer = document.getElementById('mainContainer');
+
+        // Size Adjustment
+        sizeSlider.addEventListener('input', (e) => {
+            const size = e.target.value + 'px';
+            texts.forEach(text => {
+                text.style.fontSize = size;
+            });
+        });
+
+        // Bold Toggle
+        boldToggle.addEventListener('change', (e) => {
+            const weight = e.target.checked ? '700' : '400';
+            texts.forEach(text => {
+                // Some fonts like Zhi Mang Xing only have one weight, so this affects only supported ones
+                text.style.fontWeight = weight;
+            });
+        });
+
+        // Background Changer
+        function changeBg(type) {
+            cards.forEach(card => {
+                // Reset classes
+                card.className = 'preview-card p-6 rounded-xl border shadow-sm relative overflow-hidden group transition-all duration-300';
+                
+                const textElement = card.querySelector('.preview-text');
+                const descElement = card.querySelector('div > p'); // description
+                const labelElement = card.querySelector('.absolute'); // label top right
+
+                if (type === 'white') {
+                    card.classList.add('bg-white', 'border-gray-100');
+                    textElement.classList.remove('text-white');
+                    textElement.classList.add('text-gray-800');
+                    descElement.classList.remove('text-gray-400');
+                    descElement.classList.add('text-gray-500');
+                    labelElement.classList.add('bg-gray-100', 'text-gray-500');
+                    labelElement.classList.remove('bg-gray-700', 'text-gray-300');
+                    mainContainer.className = "flex-grow p-4 md:p-8 overflow-y-auto bg-gray-50";
+                } else if (type === 'dark') {
+                    card.classList.add('bg-gray-800', 'border-gray-700');
+                    textElement.classList.remove('text-gray-800');
+                    textElement.classList.add('text-white');
+                    descElement.classList.remove('text-gray-500');
+                    descElement.classList.add('text-gray-400');
+                    labelElement.classList.remove('bg-gray-100', 'text-gray-500');
+                    labelElement.classList.add('bg-gray-700', 'text-gray-300');
+                    mainContainer.className = "flex-grow p-4 md:p-8 overflow-y-auto bg-gray-900";
+                } else if (type === 'warm') {
+                    card.classList.add('bg-[#fffaf0]', 'border-orange-100');
+                    textElement.classList.remove('text-white');
+                    textElement.classList.add('text-gray-800');
+                    descElement.classList.remove('text-gray-400');
+                    descElement.classList.add('text-[#8c8070]');
+                    labelElement.classList.add('bg-orange-100', 'text-[#8c8070]');
+                    labelElement.classList.remove('bg-gray-700', 'text-gray-300');
+                    mainContainer.className = "flex-grow p-4 md:p-8 overflow-y-auto bg-[#fdfbf7]";
+                } else if (type === 'gradient') {
+                    card.classList.add('bg-white', 'border-indigo-100');
+                    card.style.backgroundImage = 'linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%)';
+                    textElement.classList.remove('text-white');
+                    textElement.classList.add('text-indigo-900');
+                    descElement.classList.remove('text-gray-400');
+                    descElement.classList.add('text-indigo-400');
+                    labelElement.classList.add('bg-indigo-50', 'text-indigo-400');
+                    labelElement.classList.remove('bg-gray-700', 'text-gray-300');
+                    mainContainer.className = "flex-grow p-4 md:p-8 overflow-y-auto bg-gradient-to-br from-indigo-50 to-purple-50";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
