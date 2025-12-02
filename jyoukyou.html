@@ -5,13 +5,18 @@ title: KEICHA 訂單追蹤 | 預購商品狀態查詢
 description: KEICHA 訂單追蹤系統。輸入您的訂單編號，即時查詢預購商品的最新處理進度。
 keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
 
-# ★ 新增：將 jyoukyou.html 專屬的 CSS 和 JS 放在這裡
+# ★ CSS 與 JS 區塊
 styles: |
     <style>
         /* 專屬 jyoukyou.html 的樣式 */
         .note-box {
             background-color: #f9fafb; /* gray-50 */
             border-left: 4px solid #d1d5db; /* gray-300 */
+        }
+        /* 異常狀態專用樣式 */
+        .error-box {
+            background-color: #fef2f2; /* red-50 */
+            border-left: 4px solid #ef4444; /* red-500 */
         }
     </style>
 scripts: |
@@ -28,9 +33,7 @@ scripts: |
             const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEb5SDs5hEq76XXxcdCKQL_KYjPyUlHNKHqJEhblIskMEXHK3uRkUWXR-PbPdXf5H5sLq4e8oAJwfL/pub?gid=0&single=true&output=csv"; 
             // ★★★★★★★★★★★★★★★★★★★★★★★★★
 
-            // ★ 已移除 ALL_STATUSES 限制，現在直接讀取 Sheet 內容顯示
-
-            // 檢查 Google Sheet 網址是否已設定
+            // 檢查 Google Sheet 網址
             if (!sheetUrl || !sheetUrl.startsWith('http') || sheetUrl.includes("YOUR_GOOGLE_SHEET_URL")) {
                 showError("網站尚未設定訂單追蹤的 Google Sheet 網址。請聯繫管理員。");
                 if (orderInput) orderInput.disabled = true;
@@ -38,21 +41,15 @@ scripts: |
                 return; 
             }
 
-            // 1. 搜尋按鈕點擊事件
-            if (searchButton) {
-                searchButton.addEventListener('click', handleSearch);
-            }
-
-            // 2. Enter 鍵盤事件
+            // 按鈕事件
+            if (searchButton) searchButton.addEventListener('click', handleSearch);
             if (orderInput) {
                 orderInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        handleSearch();
-                    }
+                    if (e.key === 'Enter') handleSearch();
                 });
             }
 
-            // 3. 執行搜尋的共用函式
+            // 搜尋函式
             async function handleSearch() {
                 const orderNumber = orderInput.value.trim().toUpperCase(); 
                 if (!orderNumber) {
@@ -60,25 +57,20 @@ scripts: |
                     return;
                 }
                 
-                // 重置 UI
                 showLoading(true);
                 showError(null);
                 resultDiv.classList.add('hidden');
                 if (statusResultDiv) statusResultDiv.innerHTML = ''; 
 
                 try {
-                    // 使用 fetch 並加上 no-cache 確保抓到最新資料
                     const response = await fetch(sheetUrl, { cache: 'no-store' });
-                    if (!response.ok) {
-                        throw new Error(`無法連接到訂單資料庫 (錯誤 ${response.status})`);
-                    }
+                    if (!response.ok) throw new Error(`無法連接資料庫 (${response.status})`);
+                    
                     const csvText = await response.text();
                     const orderData = parseCSV(csvText);
                     
-                    // 尋找訂單
                     const foundOrder = orderData.find(row => 
-                        row.order_number && 
-                        row.order_number.trim().toUpperCase() === orderNumber
+                        row.order_number && row.order_number.trim().toUpperCase() === orderNumber
                     );
 
                     if (foundOrder) {
@@ -88,35 +80,29 @@ scripts: |
                     }
 
                 } catch (error) {
-                    console.error("查詢時發生錯誤:", error);
+                    console.error("查詢錯誤:", error);
                     showError(`查詢時發生錯誤: ${error.message}`);
                 } finally {
                     showLoading(false);
                 }
             }
 
-            // 4. 解析 CSV 資料
+            // CSV 解析
             function parseCSV(text) {
                 const lines = text.split(/\r?\n/);
                 if (lines.length < 2) return [];
                 
-                // 清理標頭
                 const headers = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF"']/g, ''));
+                const minimalHeaders = ['order_number', 'order_info', 'status']; // note 為非必要
                 
-                // ★ 更新：驗證標頭，加入 'note'
-                const requiredHeaders = ['order_number', 'order_info', 'status', 'note'];
-                
-                // 這裡改為寬鬆檢查：只要有前三個主要欄位即可，以免舊的快取導致 note 欄位還沒出現時報錯
-                const minimalHeaders = ['order_number', 'order_info', 'status'];
                 if (!minimalHeaders.every(h => headers.includes(h))) {
                     console.error("CSV 標頭不符。需要:", minimalHeaders, "實際:", headers);
-                    throw new Error("訂單資料庫格式錯誤 (缺少必要欄位)，請聯繫管理員。");
+                    throw new Error("訂單資料庫格式錯誤，請聯繫管理員。");
                 }
                 
                 const data = [];
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
-                    // 注意：簡單的 split(',') 無法處理內容中含有逗號的情況，建議 Sheet 中備註盡量不要用半形逗號
                     const values = lines[i].split(',');
                     const row = {};
                     headers.forEach((header, index) => {
@@ -127,7 +113,7 @@ scripts: |
                 return data;
             }
 
-            // 5. 顯示結果
+            // ★ 顯示結果 (含異常邏輯判定)
             function displayResult(order) {
                 resultDiv.classList.remove('hidden');
                 
@@ -135,31 +121,53 @@ scripts: |
                 const orderInfoEl = document.getElementById('result-order-info');
                 
                 if (orderNumberEl) orderNumberEl.textContent = order.order_number || 'N/A';
-                if (orderInfoEl) orderInfoEl.textContent = order.order_info || 'N/A';
 
-                // ★ 傳入 status 和 note
-                displayCurrentStatus(order.status, order.note);
+                // ★ 檢查品名是否異常 (空值 或 "異常")
+                const isInfoAbnormal = !order.order_info || order.order_info.trim() === '' || order.order_info === '異常';
+
+                if (orderInfoEl) {
+                    if (isInfoAbnormal) {
+                        orderInfoEl.innerHTML = '<span class="text-red-600 font-bold">資料異常 (請聯繫客服)</span>';
+                    } else {
+                        orderInfoEl.textContent = order.order_info;
+                    }
+                }
+
+                // 顯示狀態，並傳入「品名是否異常」的標記，讓下方也能連動顯示
+                displayCurrentStatus(order.status, order.note, isInfoAbnormal);
             }
 
-            // ★ 函式 (6) 已修改：直接顯示文字 + 備註
-            function displayCurrentStatus(currentStatus, note) {
+            // ★ 狀態顯示函式 (含異常處理)
+            function displayCurrentStatus(currentStatus, note, isInfoAbnormal) {
                 const statusResultDiv = document.getElementById('result-current-status');
                 if (!statusResultDiv) return;
 
-                // 重置
                 statusResultDiv.innerHTML = '';
 
-                if (!currentStatus) {
-                    statusResultDiv.innerHTML = '<p class="text-lg font-medium text-gray-500">狀態不明</p>';
-                    return;
+                // ★ 判定異常：(1) 狀態為空 (2) 狀態為"異常" (3) 品名異常
+                const isStatusAbnormal = !currentStatus || currentStatus.trim() === '' || currentStatus === '異常';
+                
+                if (isStatusAbnormal || isInfoAbnormal) {
+                    // === 顯示異常畫面 ===
+                    statusResultDiv.innerHTML = `
+                        <p class="text-2xl font-bold text-red-600 mb-2">狀態異常</p>
+                        <div class="error-box mt-4 p-4 text-left mx-auto max-w-md rounded-r-lg">
+                            <p class="text-red-700 font-bold mb-1">訂單資訊需進一步確認</p>
+                            <p class="text-gray-700 text-sm mb-2">請您聯繫客服專員協助處理。</p>
+                            <div class="bg-white bg-opacity-50 p-2 rounded border border-red-200">
+                                <p class="text-gray-800 font-bold text-center select-all">LINE ID：@366qwylw</p>
+                            </div>
+                        </div>
+                    `;
+                    return; // 結束，不顯示正常狀態
                 }
 
-                // ★ 1. 顯示主要狀態 (不再檢查 isValidStatus)
+                // === 顯示正常狀態 ===
                 let htmlContent = `
                     <p class="text-2xl font-bold text-brandGreen mb-2">${currentStatus}</p>
                 `;
 
-                // ★ 2. 如果有備註 (note 有值)，則顯示備註區塊
+                // 顯示備註
                 if (note && note.trim() !== "") {
                     htmlContent += `
                         <div class="note-box mt-4 p-4 text-left mx-auto max-w-md rounded-r-lg">
@@ -172,14 +180,10 @@ scripts: |
                 statusResultDiv.innerHTML = htmlContent;
             }
 
-            // 7. 顯示/隱藏 讀取中
             function showLoading(isLoading) {
-                if (loader) {
-                    loader.classList.toggle('hidden', !isLoading);
-                }
+                if (loader) loader.classList.toggle('hidden', !isLoading);
             }
 
-            // 8. 顯示錯誤訊息
             function showError(message) {
                 if (errorDiv) {
                     if (message) {
@@ -246,27 +250,19 @@ scripts: |
 
         </section>
 
-
-        <!-- 5. 聯絡我們 (LINE) -->
-        <section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
-                <p class="text-lg text-gray-700 mb-8">所有代購需求與詢問，請透過 LINE 官方帳號與我們聯繫，將有專人為您服務。</p>
-                
-                <!-- LINE 加入好友按鈕 -->
-                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block mb-4 transition-transform hover:scale-105">
-                    <img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="50" border="0">
-                </a>
-                
-                <p class="text-gray-600">或手動輸入 ID:</p>
-                <input type="text" value="@366qwylw" readonly
-                       onclick="this.select()"
-                       class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
-                       title="點擊選取 ID"
-                       onfocus="this.select()">
+        <section class="mt-16 text-center">
+            <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">需要協助嗎？</h2>
+                    <p class="text-gray-600 mb-6">查詢不到訂單，或對訂單有任何疑問嗎？</p>
+                    
+                    <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" 
+                       class="inline-block bg-brandGreen text-white px-8 py-3 rounded-lg text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-md transform hover:scale-105">
+                        LINE 官方客服
+                    </a>
+                </div>
             </div>
         </section>
-
 
     </div>
 
