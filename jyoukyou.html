@@ -93,7 +93,7 @@ scripts: |
                 if (lines.length < 2) return [];
                 
                 const headers = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF"']/g, ''));
-                const minimalHeaders = ['order_number', 'order_info', 'status']; // note 為非必要
+                const minimalHeaders = ['order_number', 'order_info', 'status']; 
                 
                 if (!minimalHeaders.every(h => headers.includes(h))) {
                     console.error("CSV 標頭不符。需要:", minimalHeaders, "實際:", headers);
@@ -113,7 +113,7 @@ scripts: |
                 return data;
             }
 
-            // ★ 顯示結果 (含異常邏輯判定)
+            // 顯示結果
             function displayResult(order) {
                 resultDiv.classList.remove('hidden');
                 
@@ -122,7 +122,6 @@ scripts: |
                 
                 if (orderNumberEl) orderNumberEl.textContent = order.order_number || 'N/A';
 
-                // ★ 檢查品名是否異常 (空值 或 "異常")
                 const isInfoAbnormal = !order.order_info || order.order_info.trim() === '' || order.order_info === '異常';
 
                 if (orderInfoEl) {
@@ -133,33 +132,32 @@ scripts: |
                     }
                 }
 
-                // 顯示狀態，並傳入「品名是否異常」的標記，讓下方也能連動顯示
                 displayCurrentStatus(order.status, order.note, isInfoAbnormal);
             }
 
-            // ★ 狀態顯示函式 (含異常處理)
+            // ★ 狀態顯示函式 (已修改異常顯示邏輯)
             function displayCurrentStatus(currentStatus, note, isInfoAbnormal) {
                 const statusResultDiv = document.getElementById('result-current-status');
                 if (!statusResultDiv) return;
 
                 statusResultDiv.innerHTML = '';
 
-                // ★ 判定異常：(1) 狀態為空 (2) 狀態為"異常" (3) 品名異常
                 const isStatusAbnormal = !currentStatus || currentStatus.trim() === '' || currentStatus === '異常';
                 
                 if (isStatusAbnormal || isInfoAbnormal) {
-                    // === 顯示異常畫面 ===
+                    // === 顯示異常畫面 (已更新文字與 select-all 範圍) ===
                     statusResultDiv.innerHTML = `
                         <p class="text-2xl font-bold text-red-600 mb-2">狀態異常</p>
                         <div class="error-box mt-4 p-4 text-left mx-auto max-w-md rounded-r-lg">
                             <p class="text-red-700 font-bold mb-1">訂單資訊需進一步確認</p>
-                            <p class="text-gray-700 text-sm mb-2">請您聯繫客服專員協助處理。</p>
-                            <div class="bg-white bg-opacity-50 p-2 rounded border border-red-200">
-                                <p class="text-gray-800 font-bold text-center select-all">LINE ID：@366qwylw</p>
+                            <p class="text-gray-700 text-sm mb-2">請您聯繫客服協助處理。</p>
+                            <div class="bg-white bg-opacity-50 p-2 rounded border border-red-200 text-center">
+                                <span class="text-gray-800 font-bold">LINE ID：</span>
+                                <span class="text-gray-800 font-bold select-all">@366qwylw</span>
                             </div>
                         </div>
                     `;
-                    return; // 結束，不顯示正常狀態
+                    return; 
                 }
 
                 // === 顯示正常狀態 ===
@@ -167,7 +165,6 @@ scripts: |
                     <p class="text-2xl font-bold text-brandGreen mb-2">${currentStatus}</p>
                 `;
 
-                // 顯示備註
                 if (note && note.trim() !== "") {
                     htmlContent += `
                         <div class="note-box mt-4 p-4 text-left mx-auto max-w-md rounded-r-lg">
@@ -251,16 +248,14 @@ scripts: |
         </section>
 
         <section class="mt-16 text-center">
-            <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-                <div class="bg-white p-8 rounded-lg shadow-lg">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">需要協助嗎？</h2>
-                    <p class="text-gray-600 mb-6">查詢不到訂單，或對訂單有任何疑問嗎？</p>
-                    
-                    <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" 
-                       class="inline-block bg-brandGreen text-white px-8 py-3 rounded-lg text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-md transform hover:scale-105">
-                        LINE 官方客服
-                    </a>
-                </div>
+            <div class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">需要協助嗎？</h2>
+                <p class="text-gray-600 mb-6">查詢不到訂單，或對訂單有任何疑問嗎？</p>
+                
+                <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" 
+                   class="inline-block bg-brandGreen text-white px-8 py-3 rounded-lg text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-md transform hover:scale-105">
+                    LINE 官方客服
+                </a>
             </div>
         </section>
 
