@@ -409,10 +409,14 @@ scripts: ""
                         <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
                     </div>
                     <p class="mt-4 text-slate-600 text-sm">如按鈕無法開啟，請手動輸入ID加入官方客服：</p>
-                    <input type="text" value="@366qwylw" readonly
-                           onclick="this.select()"
-                           class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
-                           title="點擊選取 ID">
+<input 
+  type="text" 
+  value="@366qwylw" 
+  readonly
+  onclick="this.select()"
+  class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brandGreen"
+  title="點擊選取 ID"
+  onfocus="this.select()">
                 </section>
             </div>
         </main>
