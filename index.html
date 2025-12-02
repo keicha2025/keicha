@@ -4,18 +4,29 @@ layout: default
 title: KEICHA - 抹茶代購 | 日本電話代播服務
 description: KEICHA 提供最專業的日本代購服務，並提供日文電話代播，為您處理日本大小事。
 keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, 日本電話代播, 日本電話代打, 日文電話, 餐廳預約, 山政小山園, 代購
+
+# ★ 新增：引入 Zen Maru Gothic 字體並套用
+styles: |
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 強制將全站字體改為 Zen Maru Gothic Medium */
+    body, h1, h2, h3, h4, h5, h6, p, a, span, button, input, div {
+        font-family: 'Zen Maru Gothic', sans-serif !important;
+        font-weight: 500 !important;
+    }
+  </style>
 ---
     <main>
-        <!-- 1. Hero 主視覺區塊 (已修改) -->
         <section class="relative h-auto py-16 md:py-24 flex items-center justify-center text-center text-white px-4 bg-brandGreen">
-            <!-- 調整 h-auto 並增加 py-16/py-24 讓高度自適應 -->
             
             <div class="relative z-10">
                 <h1 class="text-4xl md:text-6xl font-bold">KEICHA</h1>
                 <p class="text-xl md:text-2xl mt-4 font-medium">專注細節，日本直送。</p>
                 <p class="text-lg md:text-xl mt-2 text-gray-200">日本代購、抹茶選品、電話代播服務</p>
                 
-                <!-- 導覽連結 (新位置) -->
                 <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 md:gap-x-6 mt-10">
                     <a href="#services" class="text-white font-medium hover:underline" target="_self">服務項目</a>
                     <span class="text-white opacity-50 hidden md:inline">|</span>
@@ -26,70 +37,48 @@ keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, �
                     <a href="#notice" class="text-white font-medium hover:underline" target="_self">購買須知</a>
                 </div>
 
-
                 <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="mt-10 inline-block bg-white text-brandGreen px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg">
                     LINE官方客服
                 </a>
             </div>
         </section>
 
-
-        <!-- 2. 付款與下單專區 (新區塊) -->
         <section id="payment" class="py-16 md:py-24 bg-gray-50">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
                 <h2 class="text-3xl font-bold text-center mb-12">付款與下單專區</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     
-                    <!-- 左欄: 線上刷卡 -->
                     <div class="bg-white p-8 rounded-lg shadow-lg">
                         <h3 class="text-2xl font-semibold text-center mb-8">線上刷卡支付</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-                            <!-- 預付款 -->
+                        
+                        <div class="flex flex-col items-center justify-center text-center">
                             <div>
-                                <h4 class="font-semibold mb-2">預付款 (50元)</h4>
-                                <a href="https://pcpay.tw/EhQGv" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-90 transition-opacity">
-                                    <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付預付款50元"/>
-                                </a>
-                            </div>
-                            <!-- 基本方案 -->
-                            <div>
-                                <h4 class="font-semibold mb-2">基本方案 (160元)</h4>
-                                <a href="https://pcpay.tw/ovM39" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-90 transition-opacity">
-                                    <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="基本費率160元"/>
-                                </a>
-                                <p class="text-xs text-gray-500 mt-1">(含50元預付款)</p>
-                            </div>
-                            <!-- 其他費用 -->
-                            <div>
-                                <h4 class="font-semibold mb-2">其他費用支付</h4>
+                                <h4 class="font-semibold mb-3">費用支付</h4>
                                 <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-90 transition-opacity">
                                     <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付補款及尾款"/>
                                 </a>
+                                <p class="text-sm text-gray-500 mt-2">請進入後輸入付款金額</p>
                             </div>
                         </div>
-                        <!-- 備用付款 -->
+
                         <div class="mt-8 pt-6 border-t border-gray-200 text-center">
                             <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結並手動輸入金額：</p>
                             <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                         </div>
                     </div>
 
-
-                    <!-- 右欄: 7-11 貨到付款 -->
                     <div class="bg-white p-8 rounded-lg shadow-lg">
-                        <h3 class="text-2xl font-semibold text-center mb-8">7-11 貨到付款下單</h3>
+                        <h3 class="text-2xl font-semibold text-center mb-8">店到店貨到付款下單</h3>
                         <div class="text-center">
                             <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
                                 前往 7-11 賣貨便
                             </a>
                         </div>
-                        <!-- 備用付款 (新增) -->
                         <div class="mt-8 pt-6 border-t border-gray-200 text-center">
                             <p class="text-sm text-gray-500 mb-3">如付款按鈕無法正常開啟，請複製通用連結：</p>
                             <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2510186847800" readonly onclick="this.select()" class="w-full max-w-sm p-3 text-center bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen" onfocus="this.select()">
                         </div>
                     </div>
-
 
                 </div>
             </div>
@@ -225,4 +214,5 @@ keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, �
 <!-- (特定於此頁的 JS 可以放這裡) -->
 
 <!-- (但共用的 JS 應放在 _layouts/default.html) -->
+
 
