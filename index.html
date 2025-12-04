@@ -5,17 +5,19 @@ title: KEICHA - 抹茶代購 | 日本電話代播服務
 description: KEICHA 提供最專業的日本代購服務，並提供日文電話代播，為您處理日本大小事。
 keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, 日本電話代播, 日本電話代打, 日文電話, 餐廳預約, 山政小山園, 代購
 
-# ★ 修改：只引入 Zen Maru Gothic 500 weight，並定義專屬 Class
+# ★ 這裡不需要再寫 font-family 了，因為已經由 layout 統一載入
+# ★ 只需要保留該頁面特有的 CSS (例如列印修正)
 styles: |
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500&display=swap" rel="stylesheet">
-  
   <style>
-    /* 定義專屬的品牌字體 Class，只用於 KEICHA 標題 */
-    .brand-title-font {
-        font-family: 'Zen Maru Gothic', sans-serif !important;
-        font-weight: 500 !important; /* 指定使用 Medium 500 */
+    /* 這裡只放「首頁專用」或「列印修正」的樣式 */
+    
+    /* 列印優化設定 (防止跑版) */
+    @media print {
+        body, main, section, div {
+            position: relative !important;
+            display: block !important;
+        }
+        /* ... 其他列印設定 ... */
     }
   </style>
 ---
@@ -24,8 +26,16 @@ styles: |
             
             <div class="relative z-10">
                 <h1 class="text-4xl md:text-6xl brand-title-font">KEICHA</h1>
+                
                 <p class="text-xl md:text-2xl mt-4 font-medium">專注細節，日本直送。</p>
                 <p class="text-lg md:text-xl mt-2 text-gray-200">日本代購、抹茶選品、電話代播服務</p>
+                
+                
+
+### 結果確認
+1.  **品牌名稱 (KEICHA)**：會顯示為 **Zen Maru Gothic**。
+2.  **其他所有文字**：會顯示為 **昭源圓體 (Chiron GoRound TC)**。
+3.  **維護性**：未來如果要換字體，只要改 `_includes/font-settings.html` 一個檔案即可。
                 
                 <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 md:gap-x-6 mt-10">
                     <a href="#services" class="text-white font-medium hover:underline" target="_self">服務項目</a>
@@ -216,6 +226,7 @@ styles: |
 <!-- (特定於此頁的 JS 可以放這裡) -->
 
 <!-- (但共用的 JS 應放在 _layouts/default.html) -->
+
 
 
 
