@@ -37,6 +37,8 @@
     
     <link href="https://cdn.jsdelivr.net/npm/chiron-go-round-tc-webfont@1.0.6/css/vf.min.css" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
     <style>
         /* 定義字體變數 */
         :root {
@@ -48,19 +50,18 @@
         html { scroll-behavior: smooth; }
 
         body { 
-            /* ★ 全站預設改用 昭源圓體 */
             font-family: var(--font-body), 'Noto Sans TC', sans-serif; 
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f8fafc; /* bg-gray-50 */
+            background-color: #f8fafc;
         }
 
-        /* ★ 強制所有元件繼承昭源圓體 (覆蓋瀏覽器預設) */
+        /* 強制所有元件繼承昭源圓體 */
         h1, h2, h3, h4, h5, h6, p, a, span, button, input, div, li {
             font-family: var(--font-body), sans-serif;
         }
 
-        /* ★ 品牌標準字專用類別：維持 Zen Maru Gothic */
+        /* 品牌標準字專用類別 */
         .brand-title-font {
             font-family: var(--font-brand) !important;
             font-weight: 500 !important;
@@ -70,20 +71,38 @@
         .dropdown-menu[data-state="closed"] { display: none; }
         .mobile-menu[data-state="open"] { display: block; }
         .mobile-menu[data-state="closed"] { display: none; }
-    </style> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    <style>
-        /* 定義圖示的預設樣式 */
+        /* ★★★ 圖示樣式設定 (修正版) ★★★ */
         .material-symbols-rounded {
-          font-variation-settings:
-          'FILL' 0,      /* 0=空心, 1=實心 */
-          'wght' 400,    /* 線條粗細 */
-          'GRAD' 0,      /* 梯度 */
-          'opsz' 24;     /* 大小 */
+          /* 關鍵修正：必須指定字體名稱，瀏覽器才知道要把文字變成圖案 */
+          font-family: 'Material Symbols Rounded' !important;
           
+          font-weight: normal;
+          font-style: normal;
+          font-size: 24px;  /* 預設大小 */
+          display: inline-block;
+          line-height: 1;
+          text-transform: none;
+          letter-spacing: normal;
+          word-wrap: normal;
+          white-space: nowrap;
+          direction: ltr;
+
           /* 讓圖示垂直置中 */
           vertical-align: middle;
-          line-height: 1;
+
+          /* 支援性設定 */
+          -webkit-font-smoothing: antialiased;
+          text-rendering: optimizeLegibility;
+          -moz-osx-font-smoothing: grayscale;
+          font-feature-settings: 'liga';
+
+          /* 可變字體設定 */
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
         }
     </style>
     
@@ -120,7 +139,7 @@
 
             if (menuButton && mobileMenu) {
                 menuButton.addEventListener('click', (event) => {
-                    event.stopPropagation(); // 阻止冒泡
+                    event.stopPropagation();
                     const currentState = mobileMenu.getAttribute('data-state');
                     if (currentState === 'closed') {
                         mobileMenu.setAttribute('data-state', 'open');
@@ -136,7 +155,7 @@
 
             if (dropdownButton && dropdownMenu) {
                 dropdownButton.addEventListener('click', (event) => {
-                    event.stopPropagation(); // 阻止冒泡
+                    event.stopPropagation();
                     const currentState = dropdownMenu.getAttribute('data-state');
                     if (currentState === 'closed') {
                         dropdownMenu.setAttribute('data-state', 'open');
@@ -167,7 +186,6 @@
             const desktopShareButton = document.getElementById('desktop-share-button');
             const mobileShareButtonFixed = document.getElementById('mobile-share-button-fixed');
             
-            // 自動抓取 Meta 標籤
             const shareTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || document.title;
             const shareText = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '查看 KEICHA 的服務';
             const shareUrl = document.querySelector('meta[property="og:url"]')?.getAttribute('content') || window.location.href;
@@ -199,11 +217,10 @@
                 console.log('此瀏覽器不支援 Web Share API');
             }
         
-        }); // 結束共用 DOMContentLoaded
+        });
     </script>
 
     {{ page.scripts }}
 
 </body>
 </html>
-
