@@ -1,22 +1,12 @@
-<!-- ==== 導覽列 (模組化) ==== -->
-<!-- 
-  注意: 
-  1. 圖片路徑已改為 {{ site.baseurl }}/images/...
-  2. 連結路徑已改為 {{ page.url | relative_url }} 
-     (Jekyll 會自動處理相對路徑)
--->
 <header class="bg-white shadow-md sticky top-0 z-50 h-20">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex justify-between items-center">
         
-        <!-- Logo -->
-<a href="{{ site.baseurl }}/index.html" class="flex items-center">
+        <a href="{{ site.baseurl }}/index.html" class="flex items-center">
             <img src="{{ site.baseurl }}/images/KEICHA_LOGO.svg" alt="KEICHA Logo" class="h-14 rounded-lg">
         </a>
 
-        <!-- 電腦版導覽列 (md 以上尺寸顯示) -->
         <nav class="hidden md:flex items-center space-x-2 lg:space-x-4">
             
-            <!-- 1. HOME (下拉選單) -->
             <div class="relative">
                 <button id="desktop-dropdown-button" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50 flex items-center">
                     <span>HOME</span>
@@ -29,45 +19,37 @@
                     <a href="{{ site.baseurl }}/denwa.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         電話代播服務
                     </a>
-                    <!-- ★ 偵測到您新增的「訂單追蹤」連結 -->
                     <a href="{{ site.baseurl }}/jyoukyou.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         訂單追蹤
                     </a>
                 </div>
             </div>
 
-            <!-- 2. 貨到付款 (外部連結) -->
             <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
                 貨到付款下單
             </a>
 
-            <!-- 3. 款項支付 (外部連結) -->
             <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
                 款項支付
             </a>
 
-            <!-- 4. 分享按鈕 (電腦版) -->
-            <button type="button" id="desktop-share-button" class="p-2 text-gray-700 hover:text-brandGreen rounded-full focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
+            <button type="button" id="desktop-share-button" class="p-2 text-brandGreen hover:text-opacity-80 rounded-full focus:outline-none focus:ring-2 focus:ring-brandGreen hidden" title="分享網站">
                 <span class="sr-only">分享網站</span>
-                <img src="{{ site.baseurl }}/images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
+                <span class="material-symbols-rounded text-2xl">ios_share</span>
             </button>
 
-            <!-- 5. LINE 官方客服 (主要按鈕) -->
             <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="ml-2 inline-block bg-brandGreen text-white px-5 py-2 rounded-full text-base font-medium hover:bg-opacity-90 transition duration-300 shadow">
                 LINE官方客服
             </a>
         </nav>
 
-        <!-- 手機版漢堡選單按鈕 (md 以下尺寸顯示) -->
         <div class="md:hidden flex items-center space-x-2">
             
-            <!-- 手機版分享按鈕 (固定) -->
-            <button type="button" id="mobile-share-button-fixed" class="p-2 text-gray-700 rounded-full hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen hidden">
+            <button type="button" id="mobile-share-button-fixed" class="p-2 text-brandGreen rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen hidden" title="分享網站">
                 <span class="sr-only">分享網站</span>
-                <img src="{{ site.baseurl }}/images/KEICHA_icon_shea.png" alt="分享網站" class="h-6 w-6">
+                <span class="material-symbols-rounded text-2xl">ios_share</span>
             </button>
 
-            <!-- 漢堡選單按鈕 -->
             <button id="mobile-menu-button" class="p-2 text-gray-700 rounded-md hover:text-brandGreen hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brandGreen">
                 <span class="sr-only">開啟選單</span>
                 <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -77,13 +59,11 @@
         </div>
     </div>
 
-    <!-- 手機版彈出選單 (預設隱藏) -->
     <div id="mobile-menu" class="mobile-menu md:hidden absolute top-20 left-0 w-full bg-white shadow-lg z-40" data-state="closed">
         <div class="px-2 pt-2 pb-3 space-y-1">
             <a href="{{ site.baseurl }}/index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">HOME</a>
             <a href="{{ site.baseurl }}/maccha.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">抹茶代購狀況</a>
             <a href="{{ site.baseurl }}/denwa.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">電話代播服務</a>
-            <!-- ★ 偵測到您新增的「訂單追蹤」連結 -->
             <a href="{{ site.baseurl }}/jyoukyou.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brandGreen hover:bg-gray-50">
                 訂單追蹤
             </a>
@@ -99,4 +79,3 @@
     </div>
 
 </header>
-
