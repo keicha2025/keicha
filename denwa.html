@@ -132,13 +132,13 @@ scripts: ""
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/chiron-go-round-tc-webfont@1.0.6/css/vf.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
     /* 定義字體變數 */
     :root {
         --font-brand: 'Zen Maru Gothic', sans-serif;
-        --font-body: 'Chiron GoRound TC', sans-serif;
+        --font-body: 'Noto Sans TC', sans-serif; /* 改回思源黑體 */
     }
 
     /* 強制覆蓋所有元素的字體 */
@@ -176,7 +176,8 @@ scripts: ""
             <div class="space-y-10">
                 <section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
                     <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
-                    <p class="text-slate-600 mb-8 text-center">請根據您的需求選擇支付方案，服務皆須先支付預付款。</p>
+                    
+                    <p class="text-slate-600 mb-8 text-left">請根據您的需求選擇支付方案，服務皆須先支付預付款。</p>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 items-start justify-items-center text-center">
                         
@@ -203,24 +204,24 @@ scripts: ""
                                class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">
                                 支付款項
                             </a>
+                            <p class="text-xs text-slate-500 mt-2">進入後請自行填寫金額</p>
                         </div>
 
                     </div>
 
-<div class="mt-10 pt-8 border-t border-slate-200 text-center flex flex-col items-center">
-    <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請複製以下付款連結至瀏覽器開啟，並自行輸入金額：</p>
-    <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" 
-           class="w-full max-w-md p-3 text-center bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 mb-8" 
-           onfocus="this.select()">
-    
-    <p class="text-slate-600 mb-3 font-medium">如有任何疑問，歡迎聯絡我們</p>
+                    <div class="mt-10 pt-8 border-t border-slate-200 text-center flex flex-col items-center">
+                        <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請複製以下付款連結至瀏覽器開啟，並自行填寫金額：</p>
+                        <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" 
+                               class="w-full max-w-md p-3 text-center bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 mb-8" 
+                               onfocus="this.select()">
+                        
+                        <p class="text-slate-600 mb-3 font-medium">如有任何疑問，歡迎聯絡我們</p>
 
-    <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" 
-       class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition shadow-md">
-        LINE官方客服
-    </a>
-    <p class="text-xs text-slate-500 mt-2">LINE ID：@366qwylw</p>
-</div>
+                        <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" 
+                           class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition shadow-md">
+                            LINE官方客服
+                        </a>
+                    </div>
                 </section>
 
                 <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
@@ -435,19 +436,25 @@ scripts: ""
                     </div>
                 </section>
 
-                <section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center">
-                    <h2 class="text-2xl font-bold text-brandGreen mb-4">聯絡方式</h2>
-                    <p class="mb-4 text-slate-600">本店保留隨時修改本服務條款之權利，修改後將公布於本網站。</p>
-                    <p class="font-semibold mb-2">若有任何服務疑問，請透過官方客服聯繫：</p>
-                    <div class="inline-block">
-                        <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
-                    </div>
-                    <p class="mt-4 text-slate-600 text-sm">如按鈕無法開啟，請手動輸入ID加入官方客服：</p>
-                    <input type="text" value="@366qwylw" readonly
-                           onclick="this.select()"
-                           class="mt-2 font-mono bg-slate-100 p-2 rounded border border-slate-300 text-center w-48 cursor-pointer"
-                           title="點擊選取 ID">
-                </section>
+<section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center">
+    <h2 class="text-2xl font-bold text-brandGreen mb-4">聯絡方式</h2>
+    <p class="mb-4 text-slate-600">本店保留隨時修改本服務條款之權利，修改後將公布於本網站。</p>
+    
+    <p class="font-semibold mb-4">若有任何服務疑問，請透過官方客服聯繫：</p>
+    
+    <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" 
+       class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition shadow-md mb-6">
+        LINE 官方客服
+    </a>
+    
+    <p class="text-slate-600 text-sm mb-2">如按鈕無法開啟，請手動輸入 ID 加入官方客服：</p>
+    
+    <input type="text" value="@366qwylw" readonly
+           onclick="this.select()"
+           class="font-mono bg-gray-50 p-2 rounded border border-gray-300 text-center w-48 focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 cursor-pointer"
+           title="點擊選取 ID"
+           onfocus="this.select()">
+</section>
             </div>
         </main>
     </div>
@@ -671,6 +678,7 @@ scripts: ""
   它會自動去抓取 /assets/data/privacy.tsv 並填入 #privacy-container
 -->
 <script src="{{ '/assets/js/privacy-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+
 
 
 
