@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 📞 日本電話代播服務預約表單 | KEICHA
+title: 📞 日本電話代播服務預約表單 | KEICHA (DEV)
 description: KEICHA 日本電話代播服務線上預約表單，需使用 LINE 登入以確保訂單通知與個人化服務。
 keywords: 電話代播, 日本預約, LINE 登入, 認證表單, 客服, 代撥服務
 styles: |
@@ -32,71 +32,50 @@ styles: |
     </style>
 scripts: |
     <script>
-        // 🚨 【重要】請務必聯繫後端工程師配置以下金鑰和網址
-        const LINE_LOGIN_CHANNEL_ID = 'YOUR_LINE_LOGIN_CHANNEL_ID'; 
-        const LINE_LOGIN_REDIRECT_URI = 'YOUR_LINE_LOGIN_REDIRECT_URI'; // 接收授權碼的後端網址
-        const BACKEND_API_URL = "YOUR_ORDER_PROCESSING_API_ENDPOINT"; 
-
-        let userLineID = null; // 儲存登入後取得的 User ID
+        // 🚨 【前端配置區】已填入您的 GAS Web App URL
+        const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
+        
+        // 模擬登入成功後取得的客戶 LINE User ID (用於推播訂單確認給客戶)
+        let userLineID = null; 
         
         document.addEventListener('DOMContentLoaded', () => {
             generateTimeOptions();
             toggleAccommodationAlert();
-            checkLineLoginStatus(); // 檢查登入狀態
+            // 初始化時檢查登入狀態 (目前為模擬)
+            checkLineLoginStatus(); 
         });
 
-        // 檢查 URL 中的授權碼 (模擬登入回傳)
+        // 檢查登入狀態並控制 UI 顯示
         function checkLineLoginStatus() {
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            const state = params.get('state');
-
             const loginArea = document.getElementById('line-login-area');
             const formArea = document.getElementById('form-area');
-            const successMessage = document.getElementById('success-message');
+            
+            // 🚨 這裡應該是真實的 OAuth 檢查
+            // 為了測試，我們檢查 sessionStorage 是否有模擬的 ID
+            userLineID = sessionStorage.getItem('line_user_id') || null;
 
-            if (code && state) {
-                // 這裡模擬：如果成功從後端取得 userLineID
-                // 🚨 實際應用中，前端應該發送 code 到後端，由後端取得 userLineID。
-                // 為了展示邏輯，我們假設登入成功並取得 ID
-                
-                // 假設後端處理 code 後，將 User ID 存入 sessionStorage 或作為參數返回
-                // 實際操作請依循後端規劃
-                
-                userLineID = 'Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // 🚨 替換為實際取得的 ID
-                
-                if (userLineID) {
-                    loginArea.classList.add('hidden');
-                    formArea.classList.remove('hidden');
-                    successMessage.classList.add('hidden'); // 隱藏成功訊息，防止頁面刷新後仍顯示
-                    console.log(`LINE 登入成功，User ID: ${userLineID}`);
-                }
+            if (userLineID) {
+                 // 模擬已登入
+                 loginArea.classList.add('hidden');
+                 formArea.classList.remove('hidden');
+                 console.log(`LINE 登入成功，User ID: ${userLineID}`);
             } else {
-                 // 未登入狀態，顯示登入按鈕
+                 // 未登入，顯示登入按鈕
                  formArea.classList.add('hidden');
                  loginArea.classList.remove('hidden');
             }
         }
         
-        // 啟動 LINE 登入流程
+        // 啟動 LINE 登入流程 (目前為模擬，將直接跳轉到表單)
         window.startLineLogin = function() {
-            if (LINE_LOGIN_CHANNEL_ID === 'YOUR_LINE_LOGIN_CHANNEL_ID') {
-                alert("【錯誤】LINE Login 參數未設定！");
-                return;
-            }
+            // 模擬登入成功後，取得一個測試用的 User ID (通常是當前時間戳)
+            const mockUserId = 'U_TEST_' + Date.now();
+            sessionStorage.setItem('line_user_id', mockUserId);
             
-            // 隨機生成 state (安全性需求)
-            const state = Math.random().toString(36).substring(2, 15);
+            // 重新檢查狀態，顯示表單
+            checkLineLoginStatus();
             
-            const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?` +
-                `response_type=code&` +
-                `client_id=${LINE_LOGIN_CHANNEL_ID}&` +
-                `redirect_uri=${LINE_LOGIN_REDIRECT_URI}&` +
-                `state=${state}&` +
-                `scope=profile%20openid&` + // 僅需基本 profile
-                `bot_prompt=aggressive`; // 強制引導加入好友
-
-            window.location.href = lineAuthUrl;
+            alert("LINE 登入成功！已模擬將您的 User ID 存入系統，請開始填寫表單。");
         }
 
 
@@ -112,6 +91,7 @@ scripts: |
                     const hour = h.toString().padStart(2, '0');
                     const minute = m.toString().padStart(2, '0');
                     const time = `${hour}:${minute}`;
+
                     const option = document.createElement('option');
                     option.value = time;
                     option.textContent = time;
@@ -151,11 +131,11 @@ scripts: |
             const successMessage = document.getElementById('success-message');
             
             if (!userLineID) {
-                alert("請先完成 LINE 登入認證。");
+                alert("請先完成 LINE 登入認證，才能提交表單！");
                 return;
             }
-            if (BACKEND_API_URL === "YOUR_ORDER_PROCESSING_API_ENDPOINT") {
-                 alert("【錯誤】請先聯繫工程師配置後端 API 網址！");
+            if (BACKEND_API_URL.includes("YOUR_GAS_WEB_APP_URL_HERE")) {
+                 alert("【錯誤】請先聯繫客服，配置後端 API 網址！");
                  return;
             }
 
@@ -168,7 +148,7 @@ scripts: |
             const data = {};
             formData.forEach((value, key) => { data[key] = value.trim(); });
             
-            // ★ [NEW] 嵌入 LINE User ID
+            // ★ [NEW] 嵌入 LINE User ID (此 ID 用於後端推播給客戶本人)
             data.line_user_id = userLineID; 
             
             // 2. 發送到後端 API Endpoint
@@ -185,17 +165,17 @@ scripts: |
                     successMessage.scrollIntoView({ behavior: 'smooth' });
                     toggleAccommodationAlert();
                     
-                    // 🚨 這裡應由後端執行：自動推播「訂單確認訊息」給 line_user_id
-                    console.log(`後端應推播訂單確認訊息給客戶: ${userLineID}`); 
+                    // 成功後，您應該在 LINE 上收到通知 (客服通知)
+                    // 客戶應該會收到訂單確認通知 (自動回傳)
 
                 } else {
                     const errorText = await response.text();
-                    alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。');
+                    alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫LINE客服。');
                     console.error('API Error:', response.status, errorText);
                 }
 
             } catch (error) {
-                alert('網路錯誤，無法連線到伺服器。');
+                alert('網路錯誤，無法連線到伺服器。請檢查您的連線或直接LINE客服。');
                 console.error('Fetch Error:', error);
             } finally {
                 submitBtn.disabled = false;
@@ -205,7 +185,6 @@ scripts: |
             return false;
         }
     </script>
----
 <main class="p-4 md:p-8">
     <div class="form-card mx-auto bg-white rounded-xl shadow-2xl overflow-hidden p-6 md:p-10">
 
@@ -240,11 +219,11 @@ scripts: |
                         <div class="flex flex-wrap gap-4" onchange="toggleAccommodationAlert()">
                             <label class="inline-flex items-center">
                                 <input type="radio" name="service_item" value="預約" class="form-radio text-brandGreen focus:ring-brandGreen" required>
-                                <span class="ml-2">預約（餐廳/活動/接駁車）</span>
+                                <span class="ml-2">預約（餐廳/活動）</span>
                             </label>
                             <label class="inline-flex items-center">
                                 <input type="radio" name="service_item" value="詢問" class="form-radio text-brandGreen focus:ring-brandGreen">
-                                <span class="ml-2">各類詢問</span>
+                                <span class="ml-2">詢問（營業時間/庫存）</span>
                             </label>
                             <label class="inline-flex items-center">
                                 <input type="radio" name="service_item" value="預約更改" class="form-radio text-brandGreen focus:ring-brandGreen">
@@ -278,7 +257,7 @@ scripts: |
                         <input type="text" id="store_name" name="store_name" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
                             placeholder="例如：六厘舎 東京駅店 / X X 飯店 - 台北店">
-                        <p class="text-xs text-gray-500 mt-1">若為連鎖店，請註明分店名稱。</p>
+                        <p class="text-xs text-gray-500 mt-1">若為連鎖店，請務必註明**分店名稱**。</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -314,18 +293,18 @@ scripts: |
                     
                     <!-- II-1 訂位人英文姓名 -->
                     <div class="mb-4">
-                        <label for="res_en_name" class="required block text-sm font-medium text-gray-700 mb-1">訂位人英文姓名</label>
+                        <label for="res_en_name" class="required block text-sm font-medium text-gray-700 mb-1">訂位人英文姓名 (護照格式)</label>
                         <input type="text" id="res_en_name" name="res_en_name" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="例如：WANG DA MING (與入住/用餐者一致)">
+                            placeholder="例如：WANG, DA-MING (與入住/用餐者一致)">
                     </div>
 
                     <!-- II-2 訂位人聯絡電話 -->
                     <div class="mb-4">
-                        <label for="res_phone" class="required block text-sm font-medium text-gray-700 mb-1">您的電話</label>
+                        <label for="res_phone" class="required block text-sm font-medium text-gray-700 mb-1">您的緊急聯絡電話</label>
                         <input type="tel" id="res_phone" name="res_phone" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="例如：+886912345678">
+                            placeholder="例如：+886912345678 (方便我們在緊急時聯繫您)">
                     </div>
 
                     <!-- II-3 備用聯絡資訊 (日方電話) -->
@@ -334,7 +313,7 @@ scripts: |
                         <textarea id="hotel_info" name="hotel_info" rows="3" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
                                 placeholder="請填寫您在日本的聯絡電話，或預定入住的飯店名稱與電話。"></textarea>
-                        <p class="text-xs text-brandGreen mt-1 font-semibold">提醒：部分店家只接受留日本電話號碼，未填寫可能造成代播無法成功。</p>
+                        <p class="text-xs text-brandGreen mt-1 font-semibold">★ 重要提醒：部分店家只接受留日本電話號碼，未填寫可能造成代播無法成功。</p>
                     </div>
                 </fieldset>
 
@@ -346,13 +325,15 @@ scripts: |
                     <div class="mb-6">
                         <label class="required block text-sm font-medium text-gray-700 mb-2">預付款支付方案 (必選)</label>
                         <div class="space-y-3">
+                            <!-- 方案 A -->
                             <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition bg-white">
                                 <input type="radio" name="payment_plan" value="7分鐘/$160元費率" class="form-radio text-brandGreen focus:ring-brandGreen" required>
-                                <span class="ml-2 font-medium text-gray-800">預先支付 7 分鐘/$160 元費率，服務完成後多退少補。</span>
+                                <span class="ml-2 font-medium text-gray-800">預先支付 **7 分鐘/$160 元**費率，服務完成後多退少補。</span>
                             </label>
+                            <!-- 方案 B -->
                             <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition">
                                 <input type="radio" name="payment_plan" value="$50元基礎預付款" class="form-radio text-brandGreen focus:ring-brandGreen">
-                                <span class="ml-2 font-medium text-gray-800">預先支付 50 元預付款，服務完成後向您收取差額。</span>
+                                <span class="ml-2 font-medium text-gray-800">預先支付 **50 元基礎預付款**，服務完成後向您收取差額。</span>
                             </label>
                         </div>
                     </div>
@@ -378,7 +359,7 @@ scripts: |
             <!-- 表單提交成功提示 -->
             <div id="success-message" class="hidden mt-8 p-6 bg-brandGreen/10 border-l-4 border-brandGreen text-gray-700 rounded-lg">
                 <p class="font-bold text-lg mb-2 flex items-center"><span class="material-symbols-rounded text-brandGreen mr-2">check_circle</span> 預約需求已送出！</p>
-                <p>您的電話代播需求已成功記錄。我們已將訂單確認訊息發送至您的 LINE 帳號。請回到 LINE 官方帳號查看細節，客服將會盡快與您聯繫確認處理進度。</p>
+                <p>您的電話代播需求已成功記錄。我們已將詳細資訊推播給客服人員，請您**回到 LINE 官方帳號**，客服將會盡快與您聯繫確認細節與處理進度。</p>
             </div>
         </div>
     </div>
