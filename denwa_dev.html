@@ -68,9 +68,18 @@ scripts: |
 
             liff.init({ liffId: LINE_LIFF_ID })
                 .then(() => {
+                    // 初始化成功後，檢查是否有登入狀態
                     if (liff.isLoggedIn()) {
                         getLineProfile();
                     } else {
+                        // 檢查是否有剛才登入重定向的參數 (處理未完全登入成功的狀態)
+                        const params = new URLSearchParams(window.location.search);
+                        if (params.get('code') && params.get('liffClientId')) {
+                             // 如果有 code 但 LIFF 說未登入，這就是需要手動重開的情況
+                             sessionStorage.setItem('show_reload_prompt', 'true');
+                             // 清理 URL 參數，避免再次觸發檢查
+                             history.replaceState(null, '', window.location.pathname);
+                        }
                         showLoginButton();
                     }
                 })
@@ -88,13 +97,6 @@ scripts: |
                     userAuthData.uid = profile.userId;
                     
                     showForm();
-                    
-                    // UX 修正：登入成功後，檢查是否為重定向跳轉 (避免重複導航問題)
-                    const params = new URLSearchParams(window.location.search);
-                    if (params.get('code') && params.get('liffClientId')) {
-                         displaySystemMessage("⚠️ 提示：若表單內容未立即載入，請關閉後從 LINE 聊天室重新開啟。", 'warning');
-                         history.replaceState(null, '', window.location.pathname); 
-                    }
                 })
                 .catch(err => {
                     console.error('取得個資失敗:', err);
@@ -102,9 +104,9 @@ scripts: |
                 });
         }
         
-        // 輔助函式：顯示系統提示訊息
+        // 輔助函式：顯示系統提示訊息 (目標是登入區塊)
         function displaySystemMessage(message, type) {
-            const alertDiv = document.getElementById('system-alert-message');
+            const alertDiv = document.getElementById('system-alert-message-login'); // ★ 修正目標 ID
             if (!alertDiv) return;
 
             let bgColor = 'bg-yellow-100';
@@ -131,6 +133,15 @@ scripts: |
             formArea.classList.add('hidden');
             loginArea.classList.remove('hidden');
             if(userStatusDisplay) userStatusDisplay.textContent = '請登入';
+
+            // ★ 修正邏輯：如果剛才在跳轉時偵測到問題，顯示提示
+            if (sessionStorage.getItem('show_reload_prompt') === 'true') {
+                displaySystemMessage("若表單內容未立即載入，請關閉後從 LINE 聊天室重新開啟。", 'warning'); // ★ 修正文字
+                sessionStorage.removeItem('show_reload_prompt');
+            } else {
+                const alertDiv = document.getElementById('system-alert-message-login');
+                if (alertDiv) alertDiv.classList.add('hidden');
+            }
         }
 
         function showForm() {
@@ -277,18 +288,26 @@ scripts: |
         <!-- 頂部狀態顯示區 -->
         <div class="text-right text-sm text-gray-500 mb-4 border-b pb-2">
              <span id="user-status-display">請登入</span> 
-             <button onclick="handleLogout()" class="text-xs text-red-500 hover:underline ml-2">登出</button>
+             <!-- ★ 登出按鈕加上框線樣式 -->
+             <button onclick="handleLogout()" class="text-xs ml-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-2 py-0.5 rounded transition">登出</button>
         </div>
 
-        <!-- 步驟 1: LINE 登入區 -->
-        <div id="line-login-area" class="text-center p-8 border border-brandGreen rounded-lg bg-brandGreen/5">
+        <!-- 步驟 1: LINE 登入區 (無背景/邊框) -->
+        <div id="line-login-area" class="text-center p-8">
             <p class="text-xl font-bold text-gray-800 mb-4 flex items-center justify-center">
-                <span class="material-symbols-rounded mr-2">lock</span> 需使用 LINE 登入以開始預約
+                <span class="material-symbols-rounded mr-2 text-brandGreen">lock</span> 登入後預約 <!-- ★ 修正文字 -->
             </p>
+            
+            <!-- ★ NEW: 系統提示訊息區塊 (在登入前顯示) -->
+            <div id="system-alert-message-login" class="hidden p-3 mb-4 border-l-4 rounded">
+                <!-- 訊息內容由 JavaScript 注入 -->
+            </div>
+
             <p class="text-sm text-gray-600 mb-6">為確保訂單即時通知與後續客服能順利對接，請點擊下方按鈕登入您的 LINE 帳號。</p>
-            <button type="button" onclick="startLineLogin()" class="bg-[#00B900] text-white py-3 px-8 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-80 transition duration-300">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Line_corporation_logo.svg/100px-Line_corporation_logo.svg.png" class="h-6 w-6 inline-block mr-2 align-middle" alt="LINE Logo">
-                LINE 快速登入
+            
+            <!-- ★ 登入按鈕改為純文字/品牌色 -->
+            <button type="button" onclick="startLineLogin()" class="bg-brandGreen text-white py-3 px-12 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-80 transition duration-300">
+                LINE 登入
             </button>
         </div>
 
@@ -300,7 +319,7 @@ scripts: |
                 <p class="text-lg text-gray-600">已成功登入會員，您的訂單將會綁定您的 LINE 帳號。</p>
             </div>
             
-            <!-- 系統提示訊息區塊 -->
+            <!-- 舊的系統提示訊息區塊 (現在幾乎用不到，但保留結構) -->
             <div id="system-alert-message" class="hidden p-3 mb-4 border-l-4 rounded">
                 <!-- 訊息內容由 JavaScript 注入 -->
             </div>
