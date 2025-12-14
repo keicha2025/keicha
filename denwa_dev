@@ -1,0 +1,473 @@
+---
+layout: default
+title: 📞 日本電話代播服務預約表單 | KEICHA (DEV)
+description: KEICHA 日本電話代播服務線上預約表單，需使用 LINE 登入以確保訂單通知與個人化服務。
+keywords: 電話代播, 日本預約, LINE 登入, 認證表單, 客服, 代撥服務
+styles: |
+    <style>
+        /* 品牌色定義 */
+        :root { --brand-green: #6ea44c; }
+        .text-brandGreen { color: var(--brand-green); }
+        .bg-brandGreen { background-color: var(--brand-green); }
+        .border-brandGreen { border-color: var(--brand-green); }
+        .focus\:ring-brandGreen:focus { --tw-ring-color: var(--brand-green); }
+        .focus\:border-brandGreen:focus { border-color: var(--brand-green); }
+
+        .form-card { max-width: 800px; }
+
+        /* 隱藏/顯示過渡效果 */
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .collapse-content.open { max-height: 200px; }
+        
+        /* 必填標籤 */
+        label.required::after {
+            content: '*';
+            color: #ef4444; 
+            margin-left: 0.25rem;
+        }
+    </style>
+scripts: |
+    <script type="module">
+        // ---------------------------------------------------
+        // 1. FIREBASE SDK 匯入 (引入 Authentication & Firestore)
+        // ---------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, OAuthProvider } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // 🚨 您的 Firebase Configuration (已從您提供的值填入)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBF50fJPE-QL3yV4KaVIWzDmDPFRAkpwT4",
+            authDomain: "keicha-membership-system.firebaseapp.com",
+            projectId: "keicha-membership-system",
+            storageBucket: "keicha-membership-system.firebasestorage.app",
+            messagingSenderId: "941650156322",
+            appId: "1:941650156322:web:5c7473aeaa184e0b94637b",
+            measurementId: "G-H3CT3S2LDE"
+        };
+        
+        // 🚨 您的 GAS API Endpoint (用於 LINE 推播通知客服)
+        const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
+
+        // ---------------------------------------------------
+        // 2. 全域變數初始化
+        // ---------------------------------------------------
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let userAuthData = { 
+            uid: null, 
+            displayName: '訪客',
+            lineProviderUid: null // 儲存 LINE User ID 關鍵欄位
+        }; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generateTimeOptions();
+            toggleAccommodationAlert();
+            handleLineLoginResult(); // 處理從 LINE 認證頁面跳轉回來的結果
+            initializeAuthListener(); // 監聽登入狀態變化
+        });
+
+        // ---------------------------------------------------
+        // 3. 核心 Firebase 登入與狀態管理
+        // ---------------------------------------------------
+
+        // A. 啟動 LINE 登入流程
+        window.startLineLogin = function() {
+            const provider = new OAuthProvider('line.me');
+            
+            // 🚨 【重要】如果您的 LINE Login 尚未在 Firebase 設定完成，這裡可能會失敗。
+            // 請確認 Firebase Auth 的 LINE Login 頁面已貼入正確的 LINE Channel ID/Secret。
+            
+            // 強制引導加入好友 (bot_prompt=aggressive) 確保能推播訊息
+            provider.addScope('profile');
+            provider.addScope('openid');
+            
+            signInWithRedirect(auth, provider).catch(error => {
+                console.error("LINE 登入啟動失敗:", error);
+                alert("LINE 登入失敗：請確認網路或聯繫客服。");
+            });
+        }
+        
+        // B. 處理 LINE 認證頁面跳轉回來後的結果
+        function handleLineLoginResult() {
+             getRedirectResult(auth)
+                .then((result) => {
+                    if (result) {
+                        const credential = OAuthProvider.credentialFromResult(result);
+                        
+                        // 這是 LINE Login 的關鍵，從 Provider 數據中獲取 LINE User ID
+                        const lineProviderId = result.user.providerData.find(p => p.providerId === 'line.me')?.uid;
+                        
+                        console.log("登入成功，正在寫入用戶資料...", result.user.uid);
+                        
+                        // 將用戶資料寫入 Firestore
+                        setDoc(doc(db, "users", result.user.uid), {
+                            uid: result.user.uid,
+                            line_user_id: lineProviderId,
+                            displayName: result.user.displayName,
+                            lastLogin: new Date(),
+                            res_en_name: "", // 預留欄位，方便管理員填寫
+                            res_phone: ""
+                        }, { merge: true }); // 使用 merge: true 避免覆蓋現有資料
+
+                        alert(`歡迎回來，${result.user.displayName || '會員'}！表單已啟用。`);
+                    }
+                })
+                .catch((error) => {
+                    // 處理登入失敗，例如用戶取消或網路錯誤
+                    console.error("LINE 登入回傳處理錯誤:", error);
+                    alert("登入處理失敗，請稍後重試。");
+                });
+        }
+        
+        // C. 監聽登入狀態並控制 UI 顯示
+        function initializeAuthListener() {
+            const loginArea = document.getElementById('line-login-area');
+            const formArea = document.getElementById('form-area');
+            const userStatusDisplay = document.getElementById('user-status-display');
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // 已登入
+                    userAuthData.uid = user.uid;
+                    userAuthData.displayName = user.displayName || '會員';
+                    
+                    // 再次從 Firebase User 物件中提取 LINE User ID
+                    userAuthData.lineProviderUid = user.providerData.find(p => p.providerId === 'line.me')?.uid;
+                    
+                    loginArea.classList.add('hidden');
+                    formArea.classList.remove('hidden');
+                    userStatusDisplay.textContent = `歡迎，${userAuthData.displayName} (UID: ${user.uid.substring(0, 8)}...)`;
+
+                } else {
+                    // 未登入
+                    userAuthData.uid = null;
+                    userAuthData.lineProviderUid = null;
+                    loginArea.classList.remove('hidden');
+                    formArea.classList.add('hidden');
+                    userStatusDisplay.textContent = '請登入';
+                }
+            });
+        }
+        
+        // D. 登出功能
+        window.handleLogout = function() {
+            signOut(auth).then(() => {
+                alert("您已登出。");
+            }).catch((error) => {
+                console.error("登出失敗:", error);
+            });
+        }
+
+
+        // ---------------------------------------------------
+        // 4. 表單輔助函式
+        // ---------------------------------------------------
+
+        // I-4 服務時間生成 (不變)
+        function generateTimeOptions() {
+            const select = document.getElementById('service_time');
+            if (!select) return;
+
+            select.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
+
+            for (let h = 0; h < 24; h++) {
+                for (let m = 0; m < 60; m += 30) {
+                    const hour = h.toString().padStart(2, '0');
+                    const minute = m.toString().padStart(2, '0');
+                    const time = `${hour}:${minute}`;
+
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    select.appendChild(option);
+                }
+            }
+        }
+
+        // I-6 條件式顯示邏輯 (不變)
+        function toggleAccommodationAlert() {
+            const radioButtons = document.getElementsByName('service_item');
+            const alertDiv = document.getElementById('accommodation_alert');
+            let isAccommodationSelected = false;
+
+            radioButtons.forEach(radio => {
+                if (radio.checked && radio.value === '住宿') {
+                    isAccommodationSelected = true;
+                }
+            });
+
+            if (alertDiv) {
+                if (isAccommodationSelected) {
+                    alertDiv.classList.add('open');
+                    alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px';
+                } else {
+                    alertDiv.classList.remove('open');
+                    alertDiv.style.maxHeight = '0';
+                }
+            }
+        }
+
+        // ---------------------------------------------------
+        // 5. 表單提交處理 (新增 Firebase 數據)
+        // ---------------------------------------------------
+        async function handleFormSubmission(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = document.getElementById('submit-btn');
+            const successMessage = document.getElementById('success-message');
+            
+            // 驗證登入
+            if (!userAuthData.uid || !userAuthData.lineProviderUid) {
+                alert("請先完成 LINE 登入認證，才能提交表單！");
+                return;
+            }
+
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '訂單發送中...';
+
+            // 1. 收集數據
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value.trim(); });
+            
+            // ★ 核心數據：綁定會員系統資訊
+            data.firebase_uid = userAuthData.uid;
+            data.line_user_id = userAuthData.lineProviderUid; 
+            data.customer_name = userAuthData.displayName; 
+
+            // 2. 發送到 GAS (用於 LINE 推播通知客服)
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    // ★ 3. 寫入 Firestore 訂單歷史紀錄 (用於會員管理)
+                    const orderDocRef = doc(collection(db, "orders"));
+                    await setDoc(orderDocRef, {
+                        ...data,
+                        order_id: orderDocRef.id,
+                        status: 'Received',
+                        createdAt: new Date()
+                    });
+
+                    // 4. UI 反饋
+                    form.reset();
+                    successMessage.classList.remove('hidden');
+                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                    toggleAccommodationAlert();
+                    
+                    console.log(`Firestore 訂單寫入成功！ID: ${orderDocRef.id}`);
+
+                } else {
+                    const errorText = await response.text();
+                    alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫LINE客服。');
+                    console.error('API Error:', response.status, errorText);
+                }
+
+            } catch (error) {
+                alert('系統錯誤，無法完成訂單提交。請檢查主控台。');
+                console.error('致命錯誤:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+            }
+
+            return false;
+        }
+    </script>
+<main class="p-4 md:p-8">
+    <div class="form-card mx-auto bg-white rounded-xl shadow-2xl overflow-hidden p-6 md:p-10">
+        
+        <!-- 頂部狀態顯示區 -->
+        <div class="text-right text-sm text-gray-500 mb-4 border-b pb-2">
+             <span id="user-status-display">請登入</span> 
+             <button onclick="handleLogout()" class="text-xs text-red-500 hover:underline ml-2">登出</button>
+        </div>
+
+        <!-- 步驟 1: LINE 登入區 -->
+        <div id="line-login-area" class="text-center p-8 border border-brandGreen rounded-lg bg-brandGreen/5">
+            <p class="text-xl font-bold text-gray-800 mb-4 flex items-center justify-center">
+                <span class="material-symbols-rounded mr-2">lock</span> 需使用 LINE 登入以開始預約
+            </p>
+            <p class="text-sm text-gray-600 mb-6">為確保訂單即時通知與後續客服能順利對接，請點擊下方按鈕登入您的 LINE 帳號。</p>
+            <button type="button" onclick="startLineLogin()" class="bg-[#00B900] text-white py-3 px-8 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-80 transition duration-300">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Line_corporation_logo.svg/100px-Line_corporation_logo.svg.png" class="h-6 w-6 inline-block mr-2 align-middle" alt="LINE Logo">
+                LINE 快速登入
+            </button>
+        </div>
+
+
+        <!-- 步驟 2: 表單區 (登入成功後才顯示) -->
+        <div id="form-area" class="hidden">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-bold text-brandGreen mb-3">日本電話代播預約</h1>
+                <p class="text-lg text-gray-600">已成功登入會員，您的訂單將會綁定您的 LINE 帳號。</p>
+            </div>
+
+            <form id="denwa-form" onsubmit="handleFormSubmission(event)">
+                
+                <!-- 區塊 I: 預約服務核心資訊 -->
+                <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
+                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">I. 預約服務核心資訊</legend>
+                    
+                    <div class="mb-6">
+                        <label class="required block text-sm font-medium text-gray-700 mb-2">服務項目</label>
+                        <div class="flex flex-wrap gap-4" onchange="toggleAccommodationAlert()">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="service_item" value="預約" class="form-radio text-brandGreen focus:ring-brandGreen" required>
+                                <span class="ml-2">預約（餐廳/活動）</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="service_item" value="詢問" class="form-radio text-brandGreen focus:ring-brandGreen">
+                                <span class="ml-2">詢問（營業時間/庫存）</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="service_item" value="預約更改" class="form-radio text-brandGreen focus:ring-brandGreen">
+                                <span class="ml-2">預約更改/取消</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="service_item" value="住宿" class="form-radio text-brandGreen focus:ring-brandGreen">
+                                <span class="ml-2">住宿預約</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="service_item" value="其他服務" class="form-radio text-brandGreen focus:ring-brandGreen">
+                                <span class="ml-2">其他服務</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 住宿服務風險提示 -->
+                    <div id="accommodation_alert" class="collapse-content bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
+                        <div class="flex">
+                            <span class="material-symbols-rounded mr-3">warning</span>
+                            <div>
+                                <p class="font-bold">重要提醒：住宿服務風險</p>
+                                <p class="text-sm">大多數飯店不接受代播服務以電話預約住宿。請確認您的需求是否符合代播範圍，以避免服務費用的產生。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- I-2 商家名稱 -->
+                    <div class="mb-4">
+                        <label for="store_name" class="required block text-sm font-medium text-gray-700 mb-1">商家名稱</label>
+                        <input type="text" id="store_name" name="store_name" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                            placeholder="例如：六厘舎 東京駅店 / X X 飯店 - 台北店">
+                        <p class="text-xs text-gray-500 mt-1">若為連鎖店，請務必註明**分店名稱**。</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- I-3 服務日期 -->
+                        <div class="mb-4">
+                            <label for="service_date" class="required block text-sm font-medium text-gray-700 mb-1">服務日期</label>
+                            <input type="date" id="service_date" name="service_date" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border">
+                        </div>
+
+                        <!-- I-4 服務時間 -->
+                        <div class="mb-4">
+                            <label for="service_time" class="required block text-sm font-medium text-gray-700 mb-1">服務時間</label>
+                            <select id="service_time" name="service_time" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border bg-white">
+                                <!-- JS 會自動生成時間選項 -->
+                            </select>
+                        </div>
+
+                        <!-- I-5 預約人數 -->
+                        <div class="mb-4">
+                            <label for="party_size" class="required block text-sm font-medium text-gray-700 mb-1">預約人數</label>
+                            <input type="number" id="party_size" name="party_size" min="1" max="20" value="1" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                                placeholder="1">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 區塊 II: 訂位人與聯絡資訊 -->
+                <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg">
+                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">II. 訂位人與聯絡資訊</legend>
+                    
+                    <!-- II-1 訂位人英文姓名 -->
+                    <div class="mb-4">
+                        <label for="res_en_name" class="required block text-sm font-medium text-gray-700 mb-1">訂位人英文姓名 (護照格式)</label>
+                        <input type="text" id="res_en_name" name="res_en_name" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                            placeholder="例如：WANG, DA-MING (與入住/用餐者一致)">
+                    </div>
+
+                    <!-- II-2 訂位人聯絡電話 -->
+                    <div class="mb-4">
+                        <label for="res_phone" class="required block text-sm font-medium text-gray-700 mb-1">您的緊急聯絡電話</label>
+                        <input type="tel" id="res_phone" name="res_phone" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                            placeholder="例如：+886912345678 (方便我們在緊急時聯繫您)">
+                    </div>
+
+                    <!-- II-3 備用聯絡資訊 (日方電話) -->
+                    <div class="mb-4">
+                        <label for="hotel_info" class="block text-sm font-medium text-gray-700 mb-1">備用聯絡資訊 (日方電話/飯店)</label>
+                        <textarea id="hotel_info" name="hotel_info" rows="3" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                                placeholder="請填寫您在日本的聯絡電話，或預定入住的飯店名稱與電話。"></textarea>
+                        <p class="text-xs text-brandGreen mt-1 font-semibold">★ 重要提醒：部分店家只接受留日本電話號碼，未填寫可能造成代播無法成功。</p>
+                    </div>
+                </fieldset>
+
+                <!-- 區塊 III: 費用與特殊要求 -->
+                <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
+                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">III. 費用與特殊要求</legend>
+
+                    <!-- III-1 預付款支付方案 -->
+                    <div class="mb-6">
+                        <label class="required block text-sm font-medium text-gray-700 mb-2">預付款支付方案 (必選)</label>
+                        <div class="space-y-3">
+                            <!-- 方案 A -->
+                            <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition bg-white">
+                                <input type="radio" name="payment_plan" value="7分鐘/$160元費率" class="form-radio text-brandGreen focus:ring-brandGreen" required>
+                                <span class="ml-2 font-medium text-gray-800">預先支付 **7 分鐘/$160 元**費率，服務完成後多退少補。</span>
+                            </label>
+                            <!-- 方案 B -->
+                            <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition">
+                                <input type="radio" name="payment_plan" value="$50元基礎預付款" class="form-radio text-brandGreen focus:ring-brandGreen">
+                                <span class="ml-2 font-medium text-gray-800">預先支付 **50 元基礎預付款**，服務完成後向您收取差額。</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- III-2 其他備註與要求 -->
+                    <div class="mb-4">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">其他備註與要求 (選填)</label>
+                        <textarea id="notes" name="notes" rows="4" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                                placeholder="例如：備用預約時段 (18:30)、偏好套餐選擇、特殊飲食限制等。"></textarea>
+                    </div>
+                </fieldset>
+                
+                <!-- 提交按鈕 -->
+                <div class="mt-8">
+                    <button type="submit" id="submit-btn" class="w-full bg-brandGreen text-white py-4 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-90 transition duration-300 flex items-center justify-center">
+                        <span class="material-symbols-rounded mr-2">send</span> 確認提交並發送 LINE 通知
+                    </button>
+                </div>
+                
+            </form>
+            
+            <!-- 表單提交成功提示 -->
+            <div id="success-message" class="hidden mt-8 p-6 bg-brandGreen/10 border-l-4 border-brandGreen text-gray-700 rounded-lg">
+                <p class="font-bold text-lg mb-2 flex items-center"><span class="material-symbols-rounded text-brandGreen mr-2">check_circle</span> 預約需求已送出！</p>
+                <p>您的電話代播需求已成功記錄。我們已將詳細資訊推播給客服人員，請您**回到 LINE 官方帳號**，客服將會盡快與您聯繫確認細節與處理進度。</p>
+            </div>
+        </div>
+    </div>
+</main>
