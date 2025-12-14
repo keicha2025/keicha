@@ -147,7 +147,7 @@ scripts: |
 
             // ★ 修正邏輯：如果剛才在跳轉時偵測到問題，顯示提示
             if (sessionStorage.getItem('show_reload_prompt') === 'true') {
-                displaySystemMessage("若表單內容未立即載入，請關閉後從 LINE 聊天室重新開啟。", 'warning'); // ★ 修正文字
+                displaySystemMessage("若表單內容未立即載入，請關閉後從 LINE 聊天室重新開啟。", 'warning');
                 sessionStorage.removeItem('show_reload_prompt');
             } else {
                 const alertDiv = document.getElementById('system-alert-message-login');
@@ -375,7 +375,7 @@ scripts: |
                         <label for="store_name" class="required block text-sm font-medium text-gray-700 mb-1">商家名稱</label>
                         <input type="text" id="store_name" name="store_name" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="例如：敘敘苑澀谷店 / X X 飯店 - 台北店">
+                            placeholder="例如：敘敘苑澀谷店"> <!-- ★ 修正範例文字 -->
                         <p class="text-xs text-gray-500 mt-1">若為連鎖店，請務必註明**分店名稱**。</p>
                     </div>
 
