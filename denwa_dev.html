@@ -19,9 +19,20 @@ styles: |
         .collapse-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
+            /* 修正：增加 padding/margin/border 過渡，確保完全隱藏 */
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease, margin 0.3s ease, border-left 0.3s ease; 
+            padding: 0; /* 預設 padding 歸零 */
+            margin-bottom: 0; /* 預設 margin 歸零 */
+            border-left: 0px solid transparent; /* 預設 border 歸零 */
         }
-        .collapse-content.open { max-height: 200px; }
+        /* 打開時，套用 Tailwind 的 p-4 和 mb-6 效果 */
+        .collapse-content.open { 
+            max-height: 200px; 
+            padding: 1rem; /* Tailwind p-4 */
+            margin-bottom: 1.5rem; /* Tailwind mb-6 */
+            border-left-width: 4px; /* Tailwind border-l-4 */
+            border-color: #ef4444; /* red-500 */
+        }
         
         /* 必填標籤 */
         label.required::after {
@@ -203,7 +214,8 @@ scripts: |
             if (alertDiv) {
                 if (isAccommodationSelected) {
                     alertDiv.classList.add('open');
-                    alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px';
+                    // 必須計算 scrollHeight 才能實現 max-height 過渡
+                    alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px'; 
                 } else {
                     alertDiv.classList.remove('open');
                     alertDiv.style.maxHeight = '0';
@@ -295,7 +307,7 @@ scripts: |
         <!-- 步驟 1: LINE 登入區 (無背景/邊框) -->
         <div id="line-login-area" class="text-center p-8">
             <p class="text-xl font-bold text-gray-800 mb-4 flex items-center justify-center">
-                <span class="material-symbols-rounded mr-2 text-brandGreen">lock</span> 登入後預約 <!-- ★ 修正文字 -->
+                <span class="material-symbols-rounded mr-2 text-brandGreen">lock</span> 登入後預約
             </p>
             
             <!-- ★ NEW: 系統提示訊息區塊 (在登入前顯示) -->
@@ -348,11 +360,11 @@ scripts: |
                     </div>
 
                     <!-- 住宿服務風險提示 (條件式顯示) -->
-                    <div id="accommodation_alert" class="collapse-content bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
+                    <div id="accommodation_alert" class="collapse-content bg-red-100 border-red-500 text-red-700 rounded" role="alert">
                         <div class="flex">
                             <span class="material-symbols-rounded mr-3">warning</span>
                             <div>
-                                <p class="font-bold">重要提醒：住宿服務風險</p>
+                                <p class="font-bold">重要提醒：關於住宿預約</p> <!-- ★ 修正文字 -->
                                 <p class="text-sm">大多數飯店不接受代播服務以電話預約住宿。請確認您的需求是否符合代播範圍，以避免服務費用的產生。</p>
                             </div>
                         </div>
