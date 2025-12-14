@@ -29,6 +29,10 @@ styles: |
             color: #ef4444; 
             margin-left: 0.25rem;
         }
+
+        /* 確保下拉選單樣式一致 */
+        .select-container { position: relative; }
+        .select-container select { appearance: none; padding-right: 2.5rem; }
     </style>
 scripts: |
     <!-- 引入 LINE LIFF SDK -->
@@ -85,11 +89,10 @@ scripts: |
                     
                     showForm();
                     
-                    // ★ UX 修正：登入成功後，檢查是否為重定向跳轉
+                    // UX 修正：登入成功後，檢查是否為重定向跳轉 (避免重複導航問題)
                     const params = new URLSearchParams(window.location.search);
                     if (params.get('code') && params.get('liffClientId')) {
-                         displaySystemMessage("⚠️ 提示：若表單內容未立即載入，請關閉此網頁後，從 LINE 聊天室重新開啟。", 'warning');
-                         // 清理 URL 參數
+                         displaySystemMessage("⚠️ 提示：若表單內容未立即載入，請關閉後從 LINE 聊天室重新開啟。", 'warning');
                          history.replaceState(null, '', window.location.pathname); 
                     }
                 })
@@ -99,9 +102,7 @@ scripts: |
                 });
         }
         
-        // ---------------------------------------------------
-        // 輔助函式：顯示系統提示訊息 (取代 alert)
-        // ---------------------------------------------------
+        // 輔助函式：顯示系統提示訊息
         function displaySystemMessage(message, type) {
             const alertDiv = document.getElementById('system-alert-message');
             if (!alertDiv) return;
@@ -159,7 +160,7 @@ scripts: |
         }
 
         // ---------------------------------------------------
-        // 2. 表單輔助函式 (不變)
+        // 2. 表單輔助函式
         // ---------------------------------------------------
 
         function generateTimeOptions() {
@@ -182,16 +183,11 @@ scripts: |
             }
         }
 
+        // 條件式顯示邏輯 (修正為讀取 Select 值)
         function toggleAccommodationAlert() {
-            const radioButtons = document.getElementsByName('service_item');
+            const select = document.getElementById('service_item_select');
             const alertDiv = document.getElementById('accommodation_alert');
-            let isAccommodationSelected = false;
-
-            radioButtons.forEach(radio => {
-                if (radio.checked && radio.value === '住宿') {
-                    isAccommodationSelected = true;
-                }
-            });
+            let isAccommodationSelected = (select && select.value === '住宿預約');
 
             if (alertDiv) {
                 if (isAccommodationSelected) {
@@ -231,12 +227,18 @@ scripts: |
             // ★ 核心數據：綁定 LINE User ID
             data.line_user_id = userAuthData.lineProviderUid; 
             data.customer_name = userAuthData.displayName || '貴賓'; 
+            
+            // 新增總人數欄位 (供 GAS 紀錄)
+            const adults = parseInt(document.getElementById('party_size_adults').value) || 0;
+            const children = parseInt(document.getElementById('party_size_children').value) || 0;
+            data.party_size_total = `${adults}大人, ${children}小孩`;
+
 
             // 2. 發送到 GAS 進行 LINE 推播和數據儲存
             try {
                 const response = await fetch(BACKEND_API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // GAS 有時需要 text/plain 避免 CORS
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify(data)
                 });
                 
@@ -298,44 +300,35 @@ scripts: |
                 <p class="text-lg text-gray-600">已成功登入會員，您的訂單將會綁定您的 LINE 帳號。</p>
             </div>
             
-            <!-- ★ NEW: 系統提示訊息區塊 -->
-            <div id="system-alert-message" class="hidden p-3 mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
+            <!-- 系統提示訊息區塊 -->
+            <div id="system-alert-message" class="hidden p-3 mb-4 border-l-4 rounded">
                 <!-- 訊息內容由 JavaScript 注入 -->
             </div>
 
             <form id="denwa-form" onsubmit="handleFormSubmission(event)">
                 
-                <!-- 區塊 I: 預約服務核心資訊 -->
+                <!-- 區塊: 預約服務核心資訊 -->
                 <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
-                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">I. 預約服務核心資訊</legend>
+                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">預約服務核心資訊</legend>
                     
-                    <div class="mb-6">
-                        <label class="required block text-sm font-medium text-gray-700 mb-2">服務項目</label>
-                        <div class="flex flex-wrap gap-4" onchange="toggleAccommodationAlert()">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="service_item" value="預約" class="form-radio text-brandGreen focus:ring-brandGreen" required>
-                                <span class="ml-2">預約（餐廳/活動）</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="service_item" value="詢問" class="form-radio text-brandGreen focus:ring-brandGreen">
-                                <span class="ml-2">詢問（營業時間/庫存）</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="service_item" value="預約更改" class="form-radio text-brandGreen focus:ring-brandGreen">
-                                <span class="ml-2">預約更改/取消</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="service_item" value="住宿" class="form-radio text-brandGreen focus:ring-brandGreen">
-                                <span class="ml-2">住宿預約</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="service_item" value="其他服務" class="form-radio text-brandGreen focus:ring-brandGreen">
-                                <span class="ml-2">其他服務</span>
-                            </label>
+                    <!-- 服務項目 (下拉選單) -->
+                    <div class="mb-6 select-container">
+                        <label for="service_item_select" class="required block text-sm font-medium text-gray-700 mb-2">服務項目</label>
+                        <select id="service_item_select" name="service_item" required onchange="toggleAccommodationAlert()"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border bg-white">
+                            <option value="" disabled selected>請選擇服務項目</option>
+                            <option value="預約">預約（餐廳/活動）</option>
+                            <option value="詢問">詢問（營業時間/庫存）</option>
+                            <option value="預約更改">預約更改/取消</option>
+                            <option value="住宿預約">住宿預約</option>
+                            <option value="其他服務">其他服務</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                            <span class="material-symbols-rounded">arrow_drop_down</span>
                         </div>
                     </div>
 
-                    <!-- 住宿服務風險提示 -->
+                    <!-- 住宿服務風險提示 (條件式顯示) -->
                     <div id="accommodation_alert" class="collapse-content bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
                         <div class="flex">
                             <span class="material-symbols-rounded mr-3">warning</span>
@@ -346,106 +339,126 @@ scripts: |
                         </div>
                     </div>
 
-                    <!-- I-2 商家名稱 -->
+                    <!-- 商家名稱 -->
                     <div class="mb-4">
                         <label for="store_name" class="required block text-sm font-medium text-gray-700 mb-1">商家名稱</label>
                         <input type="text" id="store_name" name="store_name" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="例如：六厘舎 東京駅店 / X X 飯店 - 台北店">
+                            placeholder="例如：敘敘苑澀谷店 / X X 飯店 - 台北店">
                         <p class="text-xs text-gray-500 mt-1">若為連鎖店，請務必註明**分店名稱**。</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- I-3 服務日期 -->
+                        <!-- 服務日期 -->
                         <div class="mb-4">
                             <label for="service_date" class="required block text-sm font-medium text-gray-700 mb-1">服務日期</label>
                             <input type="date" id="service_date" name="service_date" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border">
                         </div>
 
-                        <!-- I-4 服務時間 -->
-                        <div class="mb-4">
+                        <!-- 服務時間 -->
+                        <div class="mb-4 select-container">
                             <label for="service_time" class="required block text-sm font-medium text-gray-700 mb-1">服務時間</label>
                             <select id="service_time" name="service_time" required
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border bg-white">
                                 <!-- JS 會自動生成時間選項 -->
                             </select>
+                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <span class="material-symbols-rounded">arrow_drop_down</span>
+                            </div>
                         </div>
 
-                        <!-- I-5 預約人數 -->
+                        <!-- 預約人數 (大人/小孩) -->
                         <div class="mb-4">
-                            <label for="party_size" class="required block text-sm font-medium text-gray-700 mb-1">預約人數</label>
-                            <input type="number" id="party_size" name="party_size" min="1" max="20" value="1" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                                placeholder="1">
+                            <label class="required block text-sm font-medium text-gray-700 mb-1">預約人數</label>
+                            <div class="flex space-x-2">
+                                <div class="w-1/2">
+                                    <input type="number" id="party_size_adults" name="party_size_adults" min="1" max="20" value="1" required
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                                           placeholder="1">
+                                    <p class="text-xs text-gray-500 mt-1">大人 (必填)</p>
+                                </div>
+                                <div class="w-1/2">
+                                    <input type="number" id="party_size_children" name="party_size_children" min="0" max="20" value="0"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                                           placeholder="0">
+                                    <p class="text-xs text-gray-500 mt-1">小孩 (選填)</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </fieldset>
 
-                <!-- 區塊 II: 訂位人與聯絡資訊 -->
+                <!-- 區塊: 訂位人與聯絡資訊 -->
                 <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg">
-                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">II. 訂位人與聯絡資訊</legend>
+                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">訂位人與聯絡資訊</legend>
                     
-                    <!-- II-1 訂位人英文姓名 -->
+                    <!-- 訂位人英文姓名 -->
                     <div class="mb-4">
                         <label for="res_en_name" class="required block text-sm font-medium text-gray-700 mb-1">訂位人英文姓名 (護照格式)</label>
                         <input type="text" id="res_en_name" name="res_en_name" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="例如：WANG, DA-MING (與入住/用餐者一致)">
+                            placeholder="例如：WANG DA MING (與入住/用餐者一致)">
                     </div>
 
-                    <!-- II-2 訂位人聯絡電話 -->
+                    <!-- 聯絡電話 -->
                     <div class="mb-4">
-                        <label for="res_phone" class="required block text-sm font-medium text-gray-700 mb-1">您的緊急聯絡電話</label>
+                        <label for="res_phone" class="required block text-sm font-medium text-gray-700 mb-1">聯絡電話</label>
                         <input type="tel" id="res_phone" name="res_phone" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="例如：+886912345678 (方便我們在緊急時聯繫您)">
+                            placeholder="例如：+886912345678">
                     </div>
 
-                    <!-- II-3 備用聯絡資訊 (日方電話) -->
+                    <!-- 在日聯絡資訊 -->
                     <div class="mb-4">
-                        <label for="hotel_info" class="block text-sm font-medium text-gray-700 mb-1">備用聯絡資訊 (日方電話/飯店)</label>
+                        <label for="hotel_info" class="block text-sm font-medium text-gray-700 mb-1">在日聯絡資訊</label>
                         <textarea id="hotel_info" name="hotel_info" rows="3" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
                                 placeholder="請填寫您在日本的聯絡電話，或預定入住的飯店名稱與電話。"></textarea>
-                        <p class="text-xs text-brandGreen mt-1 font-semibold">★ 重要提醒：部分店家只接受留日本電話號碼，未填寫可能造成代播無法成功。</p>
+                        <p class="text-xs text-brandGreen mt-1 font-semibold">重要提醒：部分店家只接受留日本電話號碼，未填寫可能造成代播無法成功。</p>
                     </div>
                 </fieldset>
 
-                <!-- 區塊 III: 費用與特殊要求 -->
+                <!-- 區塊: 費用支付選擇 -->
                 <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
-                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">III. 費用與特殊要求</legend>
+                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">費用支付選擇</legend>
 
-                    <!-- III-1 預付款支付方案 -->
+                    <!-- 預付款支付方案 -->
                     <div class="mb-6">
                         <label class="required block text-sm font-medium text-gray-700 mb-2">預付款支付方案 (必選)</label>
                         <div class="space-y-3">
-                            <!-- 方案 A -->
+                            <!-- 方案 A (移除**符號) -->
                             <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition bg-white">
                                 <input type="radio" name="payment_plan" value="7分鐘/$160元費率" class="form-radio text-brandGreen focus:ring-brandGreen" required>
-                                <span class="ml-2 font-medium text-gray-800">預先支付 **7 分鐘/$160 元**費率，服務完成後多退少補。</span>
+                                <span class="ml-2 font-medium text-gray-800">預先支付 7 分鐘/$160 元費率，服務完成後多退少補。</span>
                             </label>
-                            <!-- 方案 B -->
+                            <!-- 方案 B (移除**符號) -->
                             <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition">
                                 <input type="radio" name="payment_plan" value="$50元基礎預付款" class="form-radio text-brandGreen focus:ring-brandGreen">
-                                <span class="ml-2 font-medium text-gray-800">預先支付 **50 元基礎預付款**，服務完成後向您收取差額。</span>
+                                <span class="ml-2 font-medium text-gray-800">預先支付 50 元基礎預付款，服務完成後向您收取差額。</span>
                             </label>
                         </div>
                     </div>
+                </fieldset>
+                
+                <!-- 區塊: 備註 (獨立出來) -->
+                <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg">
+                    <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">備註</legend>
 
-                    <!-- III-2 其他備註與要求 -->
+                    <!-- 其他備註與要求 -->
                     <div class="mb-4">
-                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">其他備註與要求 (選填)</label>
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">備註 (選填)</label>
                         <textarea id="notes" name="notes" rows="4" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                                placeholder="例如：備用預約時段 (18:30)、偏好套餐選擇、特殊飲食限制等。"></textarea>
+                                placeholder="備用預約時段、套餐選擇等"></textarea>
                     </div>
                 </fieldset>
                 
                 <!-- 提交按鈕 -->
                 <div class="mt-8">
+                    <!-- 修正按鈕文字 -->
                     <button type="submit" id="submit-btn" class="w-full bg-brandGreen text-white py-4 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-90 transition duration-300 flex items-center justify-center">
-                        <span class="material-symbols-rounded mr-2">send</span> 提交資訊
+                        <span class="material-symbols-rounded mr-2">send</span> 送出資訊
                     </button>
                 </div>
                 
