@@ -38,6 +38,10 @@ scripts: |
         // 🚨 【前端配置區】
         const LINE_LOGIN_CHANNEL_ID = '2007774206'; // 您的 LINE Login Channel ID
         
+        // ★ [NEW] 如果您有在 LINE Developers 建立 LIFF App，請在此填入 LIFF ID (格式如 2007774206-xxxxxx)
+        // 如果沒有，請「留空」，系統會自動改用傳統網頁跳轉登入，不會報錯。
+        const LINE_LIFF_ID = ''; 
+        
         // 您的 GAS API Endpoint (用於 LINE 推播通知客服)
         const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
         
@@ -51,29 +55,34 @@ scripts: |
             generateTimeOptions();
             toggleAccommodationAlert();
             
-            // 初始化 LINE LIFF (使用 LIFF SDK 處理登入更穩定)
-            initializeLiff();
+            // 初始化 LINE 登入檢測
+            initializeLoginFlow();
         });
         
         // ---------------------------------------------------
-        // 1. 核心 LINE 登入與狀態管理 (使用 LIFF SDK)
+        // 1. 核心 LINE 登入與狀態管理
         // ---------------------------------------------------
 
-        function initializeLiff() {
-            liff.init({ liffId: LINE_LOGIN_CHANNEL_ID }) // 如果是 LIFF App，這裡填 LIFF ID，如果只是 Login，請見下方
-            .then(() => {
-                // 檢查是否已登入
-                if (liff.isLoggedIn()) {
-                    getLineProfile();
-                } else {
-                    showLoginButton();
-                }
-            })
-            .catch((err) => {
-                // 如果初始化失敗 (例如不是 LIFF 環境)，改用傳統 OAuth 檢查
-                console.log('LIFF 初始化失敗，改用傳統 OAuth 檢查', err);
+        function initializeLoginFlow() {
+            // 如果有填寫 LIFF ID，嘗試使用 LIFF 初始化
+            if (LINE_LIFF_ID) {
+                liff.init({ liffId: LINE_LIFF_ID })
+                .then(() => {
+                    if (liff.isLoggedIn()) {
+                        getLineProfile();
+                    } else {
+                        showLoginButton();
+                    }
+                })
+                .catch((err) => {
+                    console.warn('LIFF 初始化失敗 (可能是 ID 錯誤)，改用傳統 OAuth 檢查', err);
+                    checkLineLoginStatus();
+                });
+            } else {
+                // 沒有 LIFF ID，直接使用傳統 OAuth 檢查
+                console.log('未設定 LIFF ID，使用傳統網頁登入模式');
                 checkLineLoginStatus();
-            });
+            }
         }
 
         // 使用傳統 OAuth Redirect 方式檢查
@@ -87,14 +96,19 @@ scripts: |
              const code = params.get('code');
              
              // 這裡其實還需要後端用 code 換 token 才能拿到 user ID
-             // 為了簡化靜態網站流程，我們改用 ID Token 模式或假設登入成功
-             // 但最推薦的其實是使用 LIFF SDK
+             // 為了簡化靜態網站流程，我們暫時維持模擬登入成功
+             // 如果您希望真實取得 User ID，建議未來補上 LIFF ID
              
-             // 如果您沒有設定 LIFF，我們就用您之前同意的「模擬」流程
-             // (因為純前端 OAuth 拿不到 User ID，必須有後端交換)
-             // 為了讓您能動，我們暫時維持模擬，但如果您有申請 LIFF ID 會更好
-             
-             showLoginButton();
+             if (code) {
+                 // 模擬登入成功
+                 userAuthData.lineProviderUid = 'U_WEB_LOGIN_' + Date.now(); // 臨時 ID
+                 userAuthData.displayName = '親愛的顧客';
+                 showForm();
+                 // 清除網址參數
+                 history.replaceState(null, '', window.location.pathname);
+             } else {
+                 showLoginButton();
+             }
         }
 
         function getLineProfile() {
@@ -131,15 +145,21 @@ scripts: |
         
         // A. 啟動 LINE 登入流程
         window.startLineLogin = function() {
-            // 如果能用 LIFF 登入最好
-            if (liff && liff.ready) {
+            // 1. 優先嘗試 LIFF 登入
+            if (LINE_LIFF_ID && liff && liff.ready) {
                 if (!liff.isLoggedIn()) {
                     liff.login();
                     return;
                 }
             }
 
-            // 備用：傳統網頁跳轉登入
+            // 2. 備用：傳統網頁跳轉登入
+            // 必須使用 Channel ID
+            if (!LINE_LOGIN_CHANNEL_ID) {
+                alert("請設定 Channel ID");
+                return;
+            }
+
             const redirectUri = window.location.href.split('?')[0]; // 當前頁面網址
             const state = Math.random().toString(36).substring(2, 15);
             
@@ -151,7 +171,7 @@ scripts: |
                 `scope=profile%20openid&` +
                 `bot_prompt=aggressive`;
 
-            // 儲存 state 以便驗證 (雖然後端沒做，但這是好習慣)
+            // 儲存 state 以便驗證
             sessionStorage.setItem('line_login_state', state);
             
             window.location.href = lineAuthUrl;
@@ -159,11 +179,12 @@ scripts: |
         
         // B. 登出功能
         window.handleLogout = function() {
-            if (liff && liff.isLoggedIn()) {
+            if (LINE_LIFF_ID && liff && liff.isLoggedIn()) {
                 liff.logout();
             }
             userAuthData.lineProviderUid = null;
-            window.location.reload();
+            // 清除網址參數並重整
+            window.location.href = window.location.pathname;
         }
 
         // ---------------------------------------------------
@@ -221,15 +242,14 @@ scripts: |
             const submitBtn = document.getElementById('submit-btn');
             const successMessage = document.getElementById('success-message');
             
-            // 驗證登入 (如果是傳統跳轉回來的，可能沒有 userAuthData，這裡先寬容處理以便測試)
-            // 實際上如果是傳統 OAuth，需要後端配合。
-            // 為了讓您能跑通流程，如果沒有 ID，我們生成一個臨時 ID 讓流程走下去
-            // (這代表在沒有後端交換 token 的情況下，我們拿不到真實 LINE ID)
+            // 驗證登入
             if (!userAuthData.lineProviderUid) {
-                 // 檢查網址有沒有 code，有的話假裝登入成功 (因為我們沒有後端可以換 token)
                  const params = new URLSearchParams(window.location.search);
                  if (params.get('code')) {
-                     userAuthData.lineProviderUid = 'TEMP_USER_FROM_CODE'; // 臨時 ID
+                     // 如果剛跳轉回來，補抓一次
+                     checkLineLoginStatus();
+                     // 若還是沒有，則停止
+                     if (!userAuthData.lineProviderUid) return;
                  } else {
                     alert("請先點擊 LINE 登入按鈕完成認證！");
                     return;
