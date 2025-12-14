@@ -49,16 +49,19 @@ keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, �
 
 
 
+<!-- 4. 付款與下單專區 -->
     <section id="payment" class="py-16 md:py-24 bg-gray-50">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <!-- 修改：統一寬度為 max-w-5xl -->
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
             <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">付款與下單專區</h2>
             <p class="text-center text-gray-500 mb-8">
-  所有訂單皆先透過 LINE 確認內容與金額後再進行付款
-</p>
+                所有訂單皆先透過 LINE 確認內容與金額後再進行付款
+            </p>
 
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
+            <!-- 修改：統一間距為 gap-8 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
                 
+                <!-- 卡片 1 -->
                 <div class="bg-white p-8 rounded-lg shadow-lg flex flex-col h-full">
                     <h3 class="text-xl md:text-2xl font-semibold text-center mb-8">線上刷卡支付</h3>
                     
@@ -79,6 +82,7 @@ keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, �
                     </div>
                 </div>
 
+                <!-- 卡片 2 -->
                 <div class="bg-white p-8 rounded-lg shadow-lg flex flex-col h-full">
                     <h3 class="text-xl md:text-2xl font-semibold text-center mb-8">店到店貨到付款下單</h3>
                     
@@ -102,20 +106,25 @@ keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, �
         </div>
     </section>
 
+    <!-- 5. 服務項目 -->
     <section id="services" class="py-16 md:py-24 bg-white">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- 修改：統一寬度為 max-w-5xl (原本是 max-w-4xl) -->
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
             <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">服務項目</h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <!-- 修改：統一間距為 gap-8 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
                 
-                <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col">
+                <!-- 卡片 1 -->
+                <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col h-full border border-gray-100">
                     <img src="{{ site.baseurl }}/images/KEICHA_icon_maccha.png" alt="抹茶代購" class="h-16 w-16 mx-auto mb-4">
                     <h3 class="text-xl font-semibold mb-3">抹茶代購</h3>
-<ul class="text-gray-600 mb-6 text-left text-sm space-y-1">
-  <li>・日本抹茶品牌代購（山政小山園、上林春松等）</li>
-  <li>・部分品牌因供貨不穩，需先詢問</li>
-  <li>・歡迎透過 LINE 私訊詢問</li>
-</ul>
+                    
+                    <ul class="text-gray-600 mb-6 text-left text-sm space-y-1 pl-4 flex-grow">
+                        <li>・日本抹茶品牌代購（山政小山園、上林春松等）</li>
+                        <li>・部分品牌因供貨不穩，需先詢問</li>
+                        <li>・歡迎透過 LINE 私訊詢問</li>
+                    </ul>
 
                     <div class="mt-auto flex flex-col gap-3">
                         <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-opacity-90 transition duration-300">
@@ -127,14 +136,15 @@ keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, �
                     </div>
                 </div>
                 
-                <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col">
+                <!-- 卡片 2 -->
+                <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col h-full border border-gray-100">
                     <img src="{{ site.baseurl }}/images/KEICHA_icon_denwa.png" alt="電話代播" class="h-16 w-16 mx-auto mb-4">
                     <h3 class="text-xl font-semibold mb-3">日本電話代播</h3>
-                    <p class="text-gray-600 mb-6 flex-grow">
+                    <p class="text-gray-600 mb-6 flex-grow text-left">
                         跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務，讓您的日本之行游刃有餘。
                     </p>
                     <div class="mt-auto">
-                        <a href="{{ site.baseurl }}/denwa.html" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300">
+                        <a href="{{ site.baseurl }}/denwa.html" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300 w-full">
                             查看服務詳情
                         </a>
                     </div>
@@ -166,6 +176,7 @@ keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, �
     </section>
 
 </main>
+
 
 
 
