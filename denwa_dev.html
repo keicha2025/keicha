@@ -31,16 +31,13 @@ styles: |
         }
     </style>
 scripts: |
-    <!-- 引入 LINE Login SDK -->
+    <!-- 引入 LINE LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <script>
         // 🚨 【前端配置區】
-        const LINE_LOGIN_CHANNEL_ID = '2007774206'; // 您的 LINE Login Channel ID
-        
-        // ★ [NEW] 如果您有在 LINE Developers 建立 LIFF App，請在此填入 LIFF ID (格式如 2007774206-xxxxxx)
-        // 如果沒有，請「留空」，系統會自動改用傳統網頁跳轉登入，不會報錯。
-        const LINE_LIFF_ID = ''; 
+        // ★ [已配置] 您的 LIFF ID
+        const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
         
         // 您的 GAS API Endpoint (用於 LINE 推播通知客服)
         const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
@@ -55,72 +52,52 @@ scripts: |
             generateTimeOptions();
             toggleAccommodationAlert();
             
-            // 初始化 LINE 登入檢測
-            initializeLoginFlow();
+            // 初始化 LINE LIFF
+            initializeLiff();
         });
         
         // ---------------------------------------------------
-        // 1. 核心 LINE 登入與狀態管理
+        // 1. 核心 LINE 登入與狀態管理 (使用 LIFF SDK - 最推薦)
         // ---------------------------------------------------
 
-        function initializeLoginFlow() {
-            // 如果有填寫 LIFF ID，嘗試使用 LIFF 初始化
-            if (LINE_LIFF_ID) {
-                liff.init({ liffId: LINE_LIFF_ID })
+        function initializeLiff() {
+            // 檢查 LIFF ID 是否已配置
+            if (!LINE_LIFF_ID) {
+                console.error('LIFF ID 未設定，請聯繫客服。');
+                return;
+            }
+
+            liff.init({ liffId: LINE_LIFF_ID })
                 .then(() => {
+                    // 初始化成功
                     if (liff.isLoggedIn()) {
+                        // 已登入，取得用戶資料
                         getLineProfile();
                     } else {
+                        // 未登入，顯示登入按鈕
                         showLoginButton();
                     }
                 })
                 .catch((err) => {
-                    console.warn('LIFF 初始化失敗 (可能是 ID 錯誤)，改用傳統 OAuth 檢查', err);
-                    checkLineLoginStatus();
+                    console.error('LIFF 初始化失敗，請檢查 LIFF 網址設定:', err);
+                    alert('LINE 登入系統初始化失敗，請檢查 LIFF 網址是否與當前頁面相符。');
                 });
-            } else {
-                // 沒有 LIFF ID，直接使用傳統 OAuth 檢查
-                console.log('未設定 LIFF ID，使用傳統網頁登入模式');
-                checkLineLoginStatus();
-            }
-        }
-
-        // 使用傳統 OAuth Redirect 方式檢查
-        function checkLineLoginStatus() {
-             const loginArea = document.getElementById('line-login-area');
-             const formArea = document.getElementById('form-area');
-             const userStatusDisplay = document.getElementById('user-status-display');
-
-             // 簡單檢查 URL 是否帶有 code (登入回傳)
-             const params = new URLSearchParams(window.location.search);
-             const code = params.get('code');
-             
-             // 這裡其實還需要後端用 code 換 token 才能拿到 user ID
-             // 為了簡化靜態網站流程，我們暫時維持模擬登入成功
-             // 如果您希望真實取得 User ID，建議未來補上 LIFF ID
-             
-             if (code) {
-                 // 模擬登入成功
-                 userAuthData.lineProviderUid = 'U_WEB_LOGIN_' + Date.now(); // 臨時 ID
-                 userAuthData.displayName = '親愛的顧客';
-                 showForm();
-                 // 清除網址參數
-                 history.replaceState(null, '', window.location.pathname);
-             } else {
-                 showLoginButton();
-             }
         }
 
         function getLineProfile() {
-            liff.getProfile().then(profile => {
-                userAuthData.lineProviderUid = profile.userId;
-                userAuthData.displayName = profile.displayName;
-                userAuthData.uid = profile.userId;
-
-                showForm();
-            }).catch(err => {
-                console.error('取得個資失敗', err);
-            });
+            liff.getProfile()
+                .then(profile => {
+                    userAuthData.lineProviderUid = profile.userId;
+                    userAuthData.displayName = profile.displayName;
+                    userAuthData.uid = profile.userId;
+                    
+                    // 顯示表單
+                    showForm();
+                })
+                .catch(err => {
+                    console.error('取得個資失敗:', err);
+                    alert('無法取得您的 LINE 資料，請重新登入。');
+                });
         }
 
         function showLoginButton() {
@@ -143,48 +120,22 @@ scripts: |
             if(userStatusDisplay) userStatusDisplay.textContent = `歡迎，${userAuthData.displayName}`;
         }
         
-        // A. 啟動 LINE 登入流程
+        // A. 啟動 LINE 登入流程 (使用 LIFF)
         window.startLineLogin = function() {
-            // 1. 優先嘗試 LIFF 登入
-            if (LINE_LIFF_ID && liff && liff.ready) {
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                    return;
-                }
+            if (!liff.isLoggedIn()) {
+                // 使用 LIFF 的登入方法，會自動處理跳轉或 App 內登入
+                // 注意：這裡我們使用 redirectUri，讓它登入後跳回這個頁面
+                liff.login({ redirectUri: window.location.href }); 
             }
-
-            // 2. 備用：傳統網頁跳轉登入
-            // 必須使用 Channel ID
-            if (!LINE_LOGIN_CHANNEL_ID) {
-                alert("請設定 Channel ID");
-                return;
-            }
-
-            const redirectUri = window.location.href.split('?')[0]; // 當前頁面網址
-            const state = Math.random().toString(36).substring(2, 15);
-            
-            const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?` +
-                `response_type=code&` +
-                `client_id=${LINE_LOGIN_CHANNEL_ID}&` +
-                `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-                `state=${state}&` +
-                `scope=profile%20openid&` +
-                `bot_prompt=aggressive`;
-
-            // 儲存 state 以便驗證
-            sessionStorage.setItem('line_login_state', state);
-            
-            window.location.href = lineAuthUrl;
         }
         
         // B. 登出功能
         window.handleLogout = function() {
-            if (LINE_LIFF_ID && liff && liff.isLoggedIn()) {
+            if (liff.isLoggedIn()) {
                 liff.logout();
             }
             userAuthData.lineProviderUid = null;
-            // 清除網址參數並重整
-            window.location.href = window.location.pathname;
+            window.location.reload();
         }
 
         // ---------------------------------------------------
@@ -244,16 +195,8 @@ scripts: |
             
             // 驗證登入
             if (!userAuthData.lineProviderUid) {
-                 const params = new URLSearchParams(window.location.search);
-                 if (params.get('code')) {
-                     // 如果剛跳轉回來，補抓一次
-                     checkLineLoginStatus();
-                     // 若還是沒有，則停止
-                     if (!userAuthData.lineProviderUid) return;
-                 } else {
-                    alert("請先點擊 LINE 登入按鈕完成認證！");
-                    return;
-                 }
+                 alert("請先點擊 LINE 登入按鈕完成認證！");
+                 return;
             }
 
             const originalBtnHtml = submitBtn.innerHTML;
@@ -284,14 +227,19 @@ scripts: |
                     successMessage.classList.remove('hidden');
                     successMessage.scrollIntoView({ behavior: 'smooth' });
                     toggleAccommodationAlert();
+                    
+                    // 成功後，您應該會收到 LINE 推播通知
+                    
                 } else {
-                    alert('提交失敗：' + (responseData.message || '未知錯誤'));
+                    alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫LINE客服。');
+                    console.error('API Error:', response.status, responseData);
                 }
 
             } catch (error) {
-                // GAS 有時會回傳不透明的 response 導致 fetch 報錯但其實成功了
-                // 這裡做一個寬容處理
-                console.error('Fetch Error (可能成功):', error);
+                // 如果 fetch 失敗，但我們知道 GAS 有時是成功的，就給一個寬容的成功訊息
+                console.warn('Fetch Error (可能成功):', error);
+                
+                // 為了用戶體驗，即使 fetch 失敗也給成功提示 (假設 GAS 仍成功推播)
                 form.reset();
                 successMessage.classList.remove('hidden');
                 successMessage.scrollIntoView({ behavior: 'smooth' });
