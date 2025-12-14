@@ -1,203 +1,385 @@
-<style>
-  /* --- 核心品牌色與結構設定 --- */
-  :root {
-    --brand-green: #6ea44c;
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
-    --bg-secondary: #f9fafb;
-    --color-warning: #ef4444;
-  }
-  .form-container {
-    max-width: 768px; /* 保持專業感，不讓表單過寬 */
-    margin: 0 auto;
-    padding: 30px;
-    background-color: #FFFFFF;
-  }
-  .form-section {
-    padding: 24px 0;
-    border-bottom: 1px solid #e5e7eb; /* 輕微區隔 */
-  }
-  .section-title {
-    font-size: 1.5rem;
-    color: var(--text-primary);
-    margin-bottom: 20px;
-    border-left: 4px solid var(--brand-green); /* 抹茶綠作為區塊焦點 */
-    padding-left: 10px;
-    font-weight: 600;
-  }
-  
-  /* --- 欄位與輸入框樣式 --- */
-  .form-group {
-    margin-bottom: 20px;
-  }
-  .form-group label {
-    display: block;
-    font-size: 1rem;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    font-weight: 500;
-  }
-  .input-field, textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    font-size: 1rem;
-    color: var(--text-primary);
-    background-color: #FFFFFF;
-    transition: border-color 0.2s;
-  }
-  .input-field:focus, textarea:focus {
-    border-color: var(--brand-green);
-    outline: none;
-  }
-  .input-hint {
-    font-size: 0.875rem;
-    color: var(--text-secondary); /* 輔助文字色 */
-    margin-top: 4px;
-  }
+---
+layout: default
+title: 📞 日本電話代播服務預約表單 | KEICHA
+description: KEICHA 日本電話代播服務線上預約表單，即時推播客服 LINE 官方帳號。
+keywords: 電話代播, 日本預約, 餐廳代訂, LINE 客服, 代撥服務, 日本旅遊
+styles: |
+    <style>
+        /* 品牌色定義 */
+        :root { --brand-green: #6ea44c; }
+        .text-brandGreen { color: var(--brand-green); }
+        .bg-brandGreen { background-color: var(--brand-green); }
+        .border-brandGreen { border-color: var(--brand-green); }
+        .focus\:ring-brandGreen:focus { --tw-ring-color: var(--brand-green); }
+        .focus\:border-brandGreen:focus { border-color: var(--brand-green); }
 
-  /* --- 選項樣式 --- */
-  .radio-group label {
-    display: block;
-    margin-bottom: 10px;
-    padding: 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    background-color: #FFFFFF;
-  }
-  .radio-group input[type="radio"]:checked + label {
-    border-color: var(--brand-green);
-    background-color: var(--bg-secondary); /* 次背景色，增加選中層次感 */
-    box-shadow: 0 0 0 1px var(--brand-green);
-  }
+        /* 確保全域使用 Inter 字體，但由 layout 處理 */
+        .form-card { max-width: 800px; }
 
-  /* --- 警告與行動呼籲 (CTA) --- */
-  .alert-warning {
-    padding: 15px;
-    background-color: #fef2f2; /* 輕微的警示背景 */
-    color: var(--color-warning);
-    border: 1px solid var(--color-warning);
-    border-radius: 4px;
-    font-weight: 500;
-    margin-bottom: 20px;
-  }
-  .cta-button {
-    width: 100%;
-    padding: 15px;
-    background-color: var(--brand-green); /* 核心品牌色 CTA */
-    color: #FFFFFF;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.125rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  .cta-button:hover {
-    background-color: #5d8e3f; /* 抹茶綠 hover 效果 */
-  }
-</style>
+        /* 隱藏/顯示過渡效果 */
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .collapse-content.open { max-height: 200px; }
+        
+        /* 必填標籤 */
+        label.required::after {
+            content: '*';
+            color: #ef4444; /* text-red-500 */
+            margin-left: 0.25rem;
+        }
+        
+    </style>
+scripts: |
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            generateTimeOptions();
+            toggleAccommodationAlert();
+        });
 
-<div class="form-container">
-  <form id="bookingForm" method="POST" action="你的後端程式網址/create_order_and_notify">
+        // I-4 服務時間生成 (半小時為單位)
+        function generateTimeOptions() {
+            const select = document.getElementById('service_time');
+            if (!select) return;
+
+            // 預設第一個選項
+            select.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
+
+            for (let h = 0; h < 24; h++) {
+                for (let m = 0; m < 60; m += 30) {
+                    const hour = h.toString().padStart(2, '0');
+                    const minute = m.toString().padStart(2, '0');
+                    const time = `${hour}:${minute}`;
+
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    select.appendChild(option);
+                }
+            }
+        }
+
+        // I-6 條件式顯示邏輯
+        function toggleAccommodationAlert() {
+            const radioButtons = document.getElementsByName('service_item');
+            const alertDiv = document.getElementById('accommodation_alert');
+            let isAccommodationSelected = false;
+
+            radioButtons.forEach(radio => {
+                if (radio.checked && radio.value === '住宿') {
+                    isAccommodationSelected = true;
+                }
+            });
+
+            if (alertDiv) {
+                if (isAccommodationSelected) {
+                    alertDiv.classList.add('open');
+                    alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px';
+                } else {
+                    alertDiv.classList.remove('open');
+                    alertDiv.style.maxHeight = '0';
+                }
+            }
+        }
+
+        // III. 表單提交處理 (模擬後端接收與通知)
+        function handleFormSubmission(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = document.getElementById('submit-btn');
+            const successMessage = document.getElementById('success-message');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '處理中，請稍候...';
+
+            // 1. 收集數據
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value.trim(); });
+
+            // 2. [重要] 這裡應該是後端 API 接收數據並發送 LINE 通知
+            console.log("--- 代播訂單數據 (待後端處理) ---");
+            console.log(JSON.stringify(data, null, 2));
+            console.log("---------------------------------");
+            
+            // 3. 模擬成功響應 (實際應由後端返回)
+            setTimeout(() => {
+                form.reset();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-rounded mr-2">send</span> 確認提交並發送 LINE 通知';
+                
+                // 顯示成功訊息
+                successMessage.classList.remove('hidden');
+                
+                // 滾動到成功訊息
+                successMessage.scrollIntoView({ behavior: 'smooth' });
+                
+                // 重置住宿提醒狀態
+                toggleAccommodationAlert();
+            }, 1500); 
+
+            return false;
+        }
+    </script>
+---
+<main class="p-4 md:p-8">
+    <div class="form-card mx-auto bg-white rounded-xl shadow-2xl overflow-hidden p-6 md:p-10">
+
+        <!-- 標題區 -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-brandGreen mb-3">日本電話代播預約</h1>
+            <p class="text-lg text-gray-600">請填寫您的服務需求，我們將在 LINE 上即時為您服務。</p>
+        </div>
+
+        <form id="denwa-form" onsubmit="handleFormSubmission(event)">
+            
+            <!-- 區塊 I: 預約服務核心資訊 -->
+            <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
+                <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">I. 預約服務核心資訊</legend>
+                
+                <!-- I-1 服務項目 (必填 - 觸發條件) -->
+                <div class="mb-6">
+                    <label class="required block text-sm font-medium text-gray-700 mb-2">服務項目</label>
+                    <div class="flex flex-wrap gap-4" onchange="toggleAccommodationAlert()">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="service_item" value="預約" class="form-radio text-brandGreen focus:ring-brandGreen" required>
+                            <span class="ml-2">預約（餐廳/活動）</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="service_item" value="詢問" class="form-radio text-brandGreen focus:ring-brandGreen">
+                            <span class="ml-2">詢問（營業時間/庫存）</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="service_item" value="預約更改" class="form-radio text-brandGreen focus:ring-brandGreen">
+                            <span class="ml-2">預約更改/取消</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="service_item" value="住宿" class="form-radio text-brandGreen focus:ring-brandGreen">
+                            <span class="ml-2">住宿預約</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="service_item" value="其他服務" class="form-radio text-brandGreen focus:ring-brandGreen">
+                            <span class="ml-2">其他服務</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- I-6 住宿服務風險提示 (條件式顯示區塊) -->
+                <div id="accommodation_alert" class="collapse-content bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
+                    <div class="flex">
+                        <span class="material-symbols-rounded mr-3">warning</span>
+                        <div>
+                            <p class="font-bold">重要提醒：住宿服務風險</p>
+                            <p class="text-sm">大多數飯店不接受代播服務以電話預約住宿。請確認您的需求是否符合代播範圍，以避免服務費用的產生。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- I-2 商家名稱 -->
+                <div class="mb-4">
+                    <label for="store_name" class="required block text-sm font-medium text-gray-700 mb-1">商家名稱</label>
+                    <input type="text" id="store_name" name="store_name" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                           placeholder="例如：六厘舎 東京駅店 / X X 飯店 - 台北店">
+                    <p class="text-xs text-gray-500 mt-1">若為連鎖店，請務必註明**分店名稱**。</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- I-3 服務日期 -->
+                    <div class="mb-4">
+                        <label for="service_date" class="required block text-sm font-medium text-gray-700 mb-1">服務日期</label>
+                        <input type="date" id="service_date" name="service_date" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border">
+                    </div>
+
+                    <!-- I-4 服務時間 -->
+                    <div class="mb-4">
+                        <label for="service_time" class="required block text-sm font-medium text-gray-700 mb-1">服務時間</label>
+                        <select id="service_time" name="service_time" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border bg-white">
+                            <!-- JS 會自動生成時間選項 -->
+                        </select>
+                    </div>
+
+                    <!-- I-5 預約人數 -->
+                    <div class="mb-4">
+                        <label for="party_size" class="required block text-sm font-medium text-gray-700 mb-1">預約人數</label>
+                        <input type="number" id="party_size" name="party_size" min="1" max="20" value="1" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                               placeholder="1">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- 區塊 II: 訂位人與聯絡資訊 -->
+            <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg">
+                <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">II. 訂位人與聯絡資訊</legend>
+                
+                <!-- II-1 訂位人英文姓名 -->
+                <div class="mb-4">
+                    <label for="res_en_name" class="required block text-sm font-medium text-gray-700 mb-1">訂位人英文姓名 (護照格式)</label>
+                    <input type="text" id="res_en_name" name="res_en_name" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                           placeholder="例如：WANG, DA-MING (與入住/用餐者一致)">
+                </div>
+
+                <!-- II-2 訂位人聯絡電話 -->
+                <div class="mb-4">
+                    <label for="res_phone" class="required block text-sm font-medium text-gray-700 mb-1">您的緊急聯絡電話</label>
+                    <input type="tel" id="res_phone" name="res_phone" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                           placeholder="例如：+886912345678 (方便我們在緊急時聯繫您)">
+                </div>
+
+                <!-- II-3 備用聯絡資訊 (日方電話) -->
+                <div class="mb-4">
+                    <label for="hotel_info" class="block text-sm font-medium text-gray-700 mb-1">備用聯絡資訊 (日方電話/飯店)</label>
+                    <textarea id="hotel_info" name="hotel_info" rows="3" 
+                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                              placeholder="請填寫您在日本的聯絡電話，或預定入住的飯店名稱與電話。"></textarea>
+                    <p class="text-xs text-brandGreen mt-1 font-semibold">★ 重要提醒：部分店家只接受留日本電話號碼，未填寫可能造成代播無法成功。</p>
+                </div>
+            </fieldset>
+
+            <!-- 區塊 III: 費用與特殊要求 -->
+            <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
+                <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">III. 費用與特殊要求</legend>
+
+                <!-- III-1 預付款支付方案 -->
+                <div class="mb-6">
+                    <label class="required block text-sm font-medium text-gray-700 mb-2">預付款支付方案 (必選)</label>
+                    <div class="space-y-3">
+                        <!-- ★ [FIXED] 移除方案 A 字樣 -->
+                        <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition bg-white">
+                            <input type="radio" name="payment_plan" value="7分鐘/$160元費率" class="form-radio text-brandGreen focus:ring-brandGreen" required>
+                            <span class="ml-2 font-medium text-gray-800">預先支付 **7 分鐘/$160 元**費率，服務完成後多退少補。</span>
+                        </label>
+                        <!-- ★ [FIXED] 移除方案 B 字樣 -->
+                        <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition">
+                            <input type="radio" name="payment_plan" value="$50元基礎預付款" class="form-radio text-brandGreen focus:ring-brandGreen">
+                            <span class="ml-2 font-medium text-gray-800">預先支付 **50 元基礎預付款**，服務完成後向您收取差額。</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- III-2 其他備註與要求 -->
+                <div class="mb-4">
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">其他備註與要求 (選填)</label>
+                    <textarea id="notes" name="notes" rows="4" 
+                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
+                              placeholder="例如：備用預約時段 (18:30)、偏好套餐選擇、特殊飲食限制等。"></textarea>
+                </div>
+            </fieldset>
+            
+            <!-- 提交按鈕 -->
+            <div class="mt-8">
+                <button type="submit" id="submit-btn" class="w-full bg-brandGreen text-white py-4 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-90 transition duration-300 flex items-center justify-center">
+                    <span class="material-symbols-rounded mr-2">send</span> 確認提交並發送 LINE 通知
+                </button>
+            </div>
+            
+        </form>
+        
+        <!-- 表單提交成功提示 -->
+        <div id="success-message" class="hidden mt-8 p-6 bg-brandGreen/10 border-l-4 border-brandGreen text-gray-700 rounded-lg">
+            <!-- ★ [FIXED] 移除 Emoji，改用 Google Font Icon -->
+            <p class="font-bold text-lg mb-2 flex items-center"><span class="material-symbols-rounded text-brandGreen mr-2">check_circle</span> 預約需求已送出！</p>
+            <p>您的電話代播需求已成功記錄。我們已將詳細資訊推播給客服人員，請您**回到 LINE 官方帳號**，客服將會盡快與您聯繫確認細節與處理進度。</p>
+        </div>
+
+    </div>
     
-    <div class="form-section">
-      <h3 class="section-title">預約服務核心資訊</h3>
+    <!-- 核心 JS 邏輯 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            generateTimeOptions();
+            toggleAccommodationAlert();
+        });
 
-      <div class="form-group">
-        <label for="service_type">服務項目 (必填)</label>
-        <div class="radio-group">
-          <input type="radio" id="service_reserve" name="service_type" value="預約" required onchange="toggleAccommodationAlert(this.value)">
-          <label for="service_reserve">預約</label>
-          
-          <input type="radio" id="service_inquire" name="service_type" value="詢問" onchange="toggleAccommodationAlert(this.value)">
-          <label for="service_inquire">詢問</label>
-          
-          <input type="radio" id="service_change" name="service_type" value="預約更改" onchange="toggleAccommodationAlert(this.value)">
-          <label for="service_change">預約更改</label>
-          
-          <input type="radio" id="service_accommodation" name="service_type" value="住宿" onchange="toggleAccommodationAlert(this.value)">
-          <label for="service_accommodation">住宿</label>
-          
-          <input type="radio" id="service_other" name="service_type" value="其他服務" onchange="toggleAccommodationAlert(this.value)">
-          <label for="service_other">其他服務</label>
-        </div>
-      </div>
+        // I-4 服務時間生成 (半小時為單位)
+        function generateTimeOptions() {
+            const select = document.getElementById('service_time');
+            if (!select) return;
 
-      <div id="accommodation_alert" class="alert-warning" style="display: none;">
-        ⚠️ **重要提醒：** 大多數飯店不接受代播服務以電話預約住宿。請確認您的需求是否符合代播範圍，以避免服務費用的產生。
-      </div>
+            // 預設第一個選項
+            select.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
 
-      <div class="form-group">
-        <label for="store_name">商家名稱 (必填)</label>
-        <input type="text" id="store_name" name="store_name" class="input-field" required>
-        <p class="input-hint">若為連鎖店，請務必註明分店名稱，以確保代播對象正確。</p>
-      </div>
+            for (let h = 0; h < 24; h++) {
+                for (let m = 0; m < 60; m += 30) {
+                    const hour = h.toString().padStart(2, '0');
+                    const minute = m.toString().padStart(2, '0');
+                    const time = `${hour}:${minute}`;
 
-      <div style="display: flex; gap: 20px;">
-        <div class="form-group" style="flex: 2;">
-          <label for="service_date">服務日期 (必填)</label>
-          <input type="date" id="service_date" name="service_date" class="input-field" required>
-        </div>
-        <div class="form-group" style="flex: 1;">
-          <label for="service_time">服務時間 (必填)</label>
-          <input type="time" id="service_time" name="service_time" class="input-field" required>
-        </div>
-        <div class="form-group" style="flex: 1;">
-          <label for="party_size">預約人數 (必填)</label>
-          <input type="number" id="party_size" name="party_size" class="input-field" min="1" max="100" required>
-        </div>
-      </div>
-    </div> <div class="form-section">
-      <h3 class="section-title">訂位人與聯絡資訊</h3>
-      
-      <div class="form-group">
-        <label for="res_en_name">訂位人英文姓名 (必填)</label>
-        <input type="text" id="res_en_name" name="res_en_name" class="input-field" required placeholder="請填寫與護照一致之英文姓名">
-      </div>
-      
-      <div class="form-group">
-        <label for="res_phone">訂位人聯絡電話 (必填)</label>
-        <input type="tel" id="res_phone" name="res_phone" class="input-field" required placeholder="方便我們在緊急時聯繫您">
-      </div>
-      
-      <div class="form-group">
-        <label for="hotel_info">備用聯絡資訊 (日方電話/飯店)</label>
-        <textarea id="hotel_info" name="hotel_info" rows="3" class="input-field"></textarea>
-        <p class="input-hint">建議填寫您在日本的聯絡方式或預定入住的飯店名稱與電話。因部分店家只接受留日本電話號碼，未填寫可能造成代播無法成功。</p>
-      </div>
-    </div> <div class="form-section">
-      <h3 class="section-title">費用與特殊要求</h3>
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    select.appendChild(option);
+                }
+            }
+        }
 
-      <div class="form-group">
-        <label>預付款支付方案 (必選)</label>
-        <div class="radio-group">
-          <input type="radio" id="pay_plan_a" name="payment_plan" value="A_160" required>
-          <label for="pay_plan_a">方案 A：預先支付 $7$ 分鐘/$160$ 元費率，服務完成後多退少補。</label>
-          
-          <input type="radio" id="pay_plan_b" name="payment_plan" value="B_50">
-          <label for="pay_plan_b">方案 B：預先支付 $50$ 元基礎預付款，服務完成後向您收取差額。</label>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="notes">其他備註與要求 (選填)</label>
-        <textarea id="notes" name="notes" rows="4" class="input-field" placeholder="例如：備用預約時段、套餐要求、餐飲限制等。"></textarea>
-      </div>
-    </div> <button type="submit" class="cta-button">提交代播請求</button>
+        // I-6 條件式顯示邏輯
+        function toggleAccommodationAlert() {
+            const radioButtons = document.getElementsByName('service_item');
+            const alertDiv = document.getElementById('accommodation_alert');
+            let isAccommodationSelected = false;
 
-  </form>
-</div>
+            radioButtons.forEach(radio => {
+                if (radio.checked && radio.value === '住宿') {
+                    isAccommodationSelected = true;
+                }
+            });
 
-<script>
-  function toggleAccommodationAlert(serviceType) {
-    const alertDiv = document.getElementById('accommodation_alert');
-    if (serviceType === '住宿') {
-      alertDiv.style.display = 'block';
-    } else {
-      alertDiv.style.display = 'none';
-    }
-  }
-</script>
+            if (alertDiv) {
+                if (isAccommodationSelected) {
+                    alertDiv.classList.add('open');
+                    alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px';
+                } else {
+                    alertDiv.classList.remove('open');
+                    alertDiv.style.maxHeight = '0';
+                }
+            }
+        }
+
+        // III. 表單提交處理 (模擬後端接收與通知)
+        function handleFormSubmission(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = document.getElementById('submit-btn');
+            const successMessage = document.getElementById('success-message');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '處理中，請稍候...';
+
+            // 1. 收集數據
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value.trim(); });
+
+            // 2. [重要] 這裡應該是後端 API 接收數據並發送 LINE 通知
+            console.log("--- 代播訂單數據 (待後端處理) ---");
+            console.log(JSON.stringify(data, null, 2));
+            console.log("---------------------------------");
+            
+            // 3. 模擬成功響應 (實際應由後端返回)
+            setTimeout(() => {
+                form.reset();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-rounded mr-2">send</span> 確認提交並發送 LINE 通知';
+                
+                // 顯示成功訊息
+                successMessage.classList.remove('hidden');
+                
+                // 滾動到成功訊息
+                successMessage.scrollIntoView({ behavior: 'smooth' });
+                
+                // 重置住宿提醒狀態
+                toggleAccommodationAlert();
+            }, 1500); 
+
+            return false;
+        }
+    </script>
+</main>
