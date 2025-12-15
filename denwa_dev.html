@@ -52,14 +52,8 @@ scripts: |
     <script>
         (function() { 
             
-            // ★ 關鍵修正 1: 立即清理 URL，確保 LIFF 授權成功
-            function cleanUrlParameters() {
-                if (window.location.search) {
-                    window.history.replaceState(null, '', window.location.pathname);
-                }
-            }
-            cleanUrlParameters(); // 立即執行 URL 清理
-
+            // ★ 修正：移除頂部的 cleanUrlParameters() 呼叫。讓 LIFF SDK 先讀取 ?code= 參數。
+            
             // 🚨 【前端配置區】
             const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
             const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
@@ -114,6 +108,10 @@ scripts: |
                         userAuthData.uid = profile.userId;
                         
                         showForm();
+                        
+                        // ★ 關鍵修正：登入完成後，清除 URL 參數，避免再次跳轉或外部錯誤
+                        window.history.replaceState(null, '', window.location.pathname);
+                        
                     })
                     .catch(err => {
                         console.error('取得個資失敗:', err);
@@ -184,7 +182,7 @@ scripts: |
             // A. 啟動 LINE 登入流程 (使用 LIFF)
             window.startLineLogin = function() {
                 if (!liff.isLoggedIn()) {
-                    // ★ 關鍵修正 2: 使用絕對 URI 常數，解決 400 Bad Request
+                    // 使用絕對 URI 常數，解決 400 Bad Request
                     liff.login({ redirectUri: ABSOLUTE_LIFF_URI }); 
                 }
             }
