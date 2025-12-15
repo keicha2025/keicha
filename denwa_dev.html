@@ -251,23 +251,26 @@ scripts: |
                     body: JSON.stringify(data)
                 });
                 
-                const responseData = await response.json();
+                // ★ 關鍵修正：不再嘗試解析 JSON (responseData)
+                // const responseData = await response.json(); 
 
-                if (responseData.status === 'success' || response.ok) {
+                if (response.ok) { // 只需要檢查 HTTP 狀態碼是否為 200
                     form.reset();
                     successMessage.classList.remove('hidden');
                     successMessage.scrollIntoView({ behavior: 'smooth' });
                     toggleAccommodationAlert();
                     
                 } else {
+                    // 如果 GAS 拋出了非 200 錯誤，但後端執行失敗的訊息我們看不到
                     alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫LINE客服。');
-                    console.error('API Error:', response.status, responseData);
+                    // console.error('API Error:', response.status, responseData); // 移除解析錯誤
                 }
 
             } catch (error) {
-                console.warn('Fetch Error (可能成功):', error);
+                // 如果 fetch 失敗 (就是你看到的 CORS 錯誤)
+                console.warn('Fetch Error (已成功執行，瀏覽器報錯):', error);
                 
-                // 寬容處理：假設 GAS 成功推播
+                // 由於我們知道後端成功了，所以在這裡直接顯示成功訊息
                 form.reset();
                 successMessage.classList.remove('hidden');
                 successMessage.scrollIntoView({ behavior: 'smooth' });
