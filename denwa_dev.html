@@ -53,6 +53,7 @@ scripts: |
         (function() { 
             
             // ★ 關鍵修正 1: 立即清理 URL，確保 LIFF 授權成功
+            // 這是強制移除網址上的所有查詢參數，解決 400 Bad Request 問題
             function cleanUrlParameters() {
                 if (window.location.search) {
                     window.history.replaceState(null, '', window.location.pathname);
@@ -182,9 +183,10 @@ scripts: |
             // A. 啟動 LINE 登入流程 (使用 LIFF)
             window.startLineLogin = function() {
                 if (!liff.isLoggedIn()) {
-                    // 只使用 origin + pathname，確保回傳網址乾淨
-                    const currentUrl = window.location.origin + window.location.pathname; 
-                    liff.login({ redirectUri: currentUrl }); 
+                    // ★ 關鍵修正 2: 確保 redirectUri 參數包含 .html，避免 400 Bad Request
+                    const currentPath = window.location.pathname;
+                    const redirectUri = window.location.origin + (currentPath.endsWith('.html') ? currentPath : currentPath + '.html'); 
+                    liff.login({ redirectUri: redirectUri }); 
                 }
             }
             
@@ -196,7 +198,7 @@ scripts: |
                 userAuthData.lineProviderUid = null;
                 isGuestMode = false;
                 
-                // 登出後，先清理 URL，再重新載入頁面
+                // 登出後，清理 URL，再重新載入頁面
                 window.history.replaceState(null, '', window.location.pathname); 
                 window.location.reload();
             }
@@ -305,7 +307,7 @@ scripts: |
                 return false; 
             }
             
-            // NEW: 處理成功提交後續邏輯
+            // NEW: 處理成功提交後續邏輯 (確保訪客模式鎖定在成功頁面)
             function handleSuccessfulSubmission(form, formArea, successMessage) {
                 
                 // 根據模式顯示不同的成功提示
