@@ -50,196 +50,249 @@ scripts: |
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <script>
-        // 🚨 【前端配置區】
-        const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
-        const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
+        (function() { // <--- IIFE 包裹開始 (確保變數範圍)
         
-        let isGuestMode = false; // 追蹤是否為訪客模式
-        let userAuthData = { 
-            uid: null, 
-            displayName: '訪客',
-            lineProviderUid: null 
-        }; 
-
-        document.addEventListener('DOMContentLoaded', () => {
-            generateTimeOptions();
-            toggleAccommodationAlert();
+            // 🚨 【前端配置區】
+            const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
+            const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
             
-            initializeLiff();
-        });
-        
-        // ---------------------------------------------------
-        // 1. 核心 LINE 登入與狀態管理
-        // ---------------------------------------------------
+            let isGuestMode = false; // 追蹤是否為訪客模式
+            let userAuthData = { 
+                uid: null, 
+                displayName: '訪客',
+                lineProviderUid: null 
+            }; 
 
-        function initializeLiff() {
-            if (!LINE_LIFF_ID) {
-                console.error('LIFF ID 未設定，請聯繫客服。');
-                showLoginButton(); // 即使失敗也顯示登入按鈕
-                return;
-            }
-
-            liff.init({ liffId: LINE_LIFF_ID })
-                .then(() => {
-                    if (liff.isLoggedIn()) {
-                        getLineProfile();
-                    } else {
-                        showLoginButton();
-                    }
-                })
-                .catch((err) => {
-                    console.error('LIFF 初始化失敗:', err);
-                    showLoginButton(); // 即使初始化失敗，也顯示登入選項
-                });
-        }
-
-        function getLineProfile() {
-            liff.getProfile()
-                .then(profile => {
-                    isGuestMode = false; // 成功登入，不是訪客
-                    userAuthData.lineProviderUid = profile.userId;
-                    userAuthData.displayName = profile.displayName;
-                    userAuthData.uid = profile.userId;
-                    
-                    showForm();
-                })
-                .catch(err => {
-                    console.error('取得個資失敗:', err);
-                    alert('無法取得您的 LINE 資料，請重新登入。');
-                });
-        }
-
-        function showLoginButton() {
-            const loginArea = document.getElementById('line-login-area');
-            const formArea = document.getElementById('form-area');
-            const userStatusDisplay = document.getElementById('user-status-display');
-            
-            formArea.classList.add('hidden');
-            loginArea.classList.remove('hidden');
-            if(userStatusDisplay) userStatusDisplay.textContent = '請登入';
-        }
-
-        function showForm() {
-            const loginArea = document.getElementById('line-login-area');
-            const formArea = document.getElementById('form-area');
-            const userStatusDisplay = document.getElementById('user-status-display');
-            
-            loginArea.classList.add('hidden');
-            formArea.classList.remove('hidden');
-            if(userStatusDisplay) userStatusDisplay.textContent = `歡迎，${userAuthData.displayName}`;
-            
-            // 更新訪客模式下的表單必填狀態
-            updateGuestFormRequirements();
-            
-            // 如果是訪客模式，顯示紅色的 Email 確認提示
-            if(isGuestMode) {
-                 const guestAlert = document.getElementById('guest-mode-alert');
-                 if(guestAlert) guestAlert.classList.remove('hidden');
-            }
-        }
-        
-        // ---------------------------------------------------
-        // NEW: 訪客模式邏輯
-        // ---------------------------------------------------
-        window.startGuestMode = function() {
-            isGuestMode = true;
-            userAuthData.lineProviderUid = 'GUEST_' + crypto.randomUUID().replace(/-/g, '_'); // 產生唯一的訪客 ID
-            userAuthData.displayName = '訪客';
-            userAuthData.uid = userAuthData.lineProviderUid;
-            
-            showForm();
-        }
-        
-        // 根據模式設定表單欄位要求
-        function updateGuestFormRequirements() {
-            const emailInput = document.getElementById('guest_email');
-            const guestAlert = document.getElementById('guest-mode-alert');
-            
-            if (isGuestMode) {
-                // 訪客模式：Email 必填，顯示提醒
-                if (emailInput) {
-                    emailInput.required = true;
-                    emailInput.placeholder = "請務必填寫，將發送訂單確認信";
-                }
-                if (guestAlert) guestAlert.classList.remove('hidden');
-
-            } else {
-                // LINE 登入模式：Email 非必填，隱藏提醒
-                if (emailInput) {
-                    emailInput.required = false;
-                    emailInput.placeholder = "選填，備用聯絡信箱";
-                }
-                if (guestAlert) guestAlert.classList.add('hidden');
-            }
-        }
-
-
-        // A. 啟動 LINE 登入流程 (使用 LIFF)
-        window.startLineLogin = function() {
-            if (!liff.isLoggedIn()) {
-                liff.login({ redirectUri: window.location.href }); 
-            }
-        }
-        
-        // B. 登出功能
-        window.handleLogout = function() {
-            if (liff.isLoggedIn()) {
-                liff.logout();
-            }
-            userAuthData.lineProviderUid = null;
-            isGuestMode = false;
-            window.location.reload();
-        }
-
-        // ---------------------------------------------------
-        // 3. 表單提交處理
-        // ---------------------------------------------------
-        async function handleFormSubmission(event) {
-            event.preventDefault();
-            const form = event.target;
-            const submitBtn = document.getElementById('submit-btn');
-            const successMessage = document.getElementById('success-message');
-            
-            // 驗證登入
-            if (!userAuthData.lineProviderUid) {
-                 alert("請先點擊 LINE 登入或訪客填表按鈕完成認證！");
-                 return;
-            }
-
-            const originalBtnHtml = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.textContent = '訂單發送中...';
-
-            // 1. 收集數據
-            const formData = new FormData(form);
-            const data = {};
-            formData.forEach((value, key) => { data[key] = value.trim(); });
-            
-            // ★ 核心數據：綁定 LINE 或 訪客 ID
-            data.line_user_id = userAuthData.lineProviderUid; 
-            data.customer_name = userAuthData.displayName || data.res_en_name || '訪客'; 
-            
-            // 新增總人數欄位 (供 GAS 紀錄)
-            const adults = parseInt(document.getElementById('party_size_adults').value) || 0;
-            const children = parseInt(document.getElementById('party_size_children').value) || 0;
-            data.party_size_total = `${adults}大人, ${children}小孩`;
-
-
-            // 2. 發送到 GAS 進行 LINE/Email 推播和數據儲存
-            try {
-                const response = await fetch(BACKEND_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(data)
-                });
+            document.addEventListener('DOMContentLoaded', () => {
+                generateTimeOptions();
+                toggleAccommodationAlert();
                 
-                if (response.ok) { 
+                initializeLiff();
+            });
+            
+            // ---------------------------------------------------
+            // 核心函式定義
+            // ---------------------------------------------------
+
+            function initializeLiff() {
+                if (!LINE_LIFF_ID) {
+                    console.error('LIFF ID 未設定，請聯繫客服。');
+                    showLoginButton(); 
+                    return;
+                }
+
+                liff.init({ liffId: LINE_LIFF_ID })
+                    .then(() => {
+                        if (liff.isLoggedIn()) {
+                            getLineProfile();
+                        } else {
+                            showLoginButton();
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('LIFF 初始化失敗:', err);
+                        showLoginButton();
+                    });
+            }
+
+            function getLineProfile() {
+                liff.getProfile()
+                    .then(profile => {
+                        isGuestMode = false;
+                        userAuthData.lineProviderUid = profile.userId;
+                        userAuthData.displayName = profile.displayName;
+                        userAuthData.uid = profile.userId;
+                        
+                        showForm();
+                    })
+                    .catch(err => {
+                        console.error('取得個資失敗:', err);
+                        alert('無法取得您的 LINE 資料，請重新登入。');
+                    });
+            }
+
+            function showLoginButton() {
+                const loginArea = document.getElementById('line-login-area');
+                const formArea = document.getElementById('form-area');
+                const userStatusDisplay = document.getElementById('user-status-display');
+                
+                formArea.classList.add('hidden');
+                loginArea.classList.remove('hidden');
+                if(userStatusDisplay) userStatusDisplay.textContent = '請登入';
+            }
+
+            function showForm() {
+                const loginArea = document.getElementById('line-login-area');
+                const formArea = document.getElementById('form-area');
+                const userStatusDisplay = document.getElementById('user-status-display');
+                
+                loginArea.classList.add('hidden');
+                formArea.classList.remove('hidden');
+                if(userStatusDisplay) userStatusDisplay.textContent = `歡迎，${userAuthData.displayName}`;
+                
+                updateGuestFormRequirements();
+                
+                if(isGuestMode) {
+                     const guestAlert = document.getElementById('guest-mode-alert');
+                     if(guestAlert) guestAlert.classList.remove('hidden');
+                } else {
+                     const guestAlert = document.getElementById('guest-mode-alert');
+                     if(guestAlert) guestAlert.classList.add('hidden');
+                }
+            }
+            
+            // ---------------------------------------------------
+            // 訪客模式邏輯
+            // ---------------------------------------------------
+            window.startGuestMode = function() {
+                isGuestMode = true;
+                userAuthData.lineProviderUid = 'GUEST_' + crypto.randomUUID().replace(/-/g, '_');
+                userAuthData.displayName = '訪客';
+                userAuthData.uid = userAuthData.lineProviderUid;
+                
+                showForm();
+            }
+            
+            // 根據模式設定表單欄位要求
+            function updateGuestFormRequirements() {
+                const emailInput = document.getElementById('guest_email');
+                
+                // 訪客模式下 Email 必填，LINE 登入模式下 Email 非必填
+                if (emailInput) {
+                    emailInput.required = isGuestMode;
+                    emailInput.placeholder = isGuestMode ? "請務必填寫，將發送訂單確認信" : "選填，備用聯絡信箱";
+                    
+                    // 讓 Email 欄位的 Label 也顯示必填星號
+                    const emailLabel = document.querySelector('label[for="guest_email"]');
+                    if (emailLabel) {
+                        emailLabel.classList.toggle('required', isGuestMode);
+                    }
+                }
+            }
+
+            // A. 啟動 LINE 登入流程 (使用 LIFF)
+            window.startLineLogin = function() {
+                if (!liff.isLoggedIn()) {
+                    liff.login({ redirectUri: window.location.href }); 
+                }
+            }
+            
+            // B. 登出功能
+            window.handleLogout = function() {
+                if (liff.isLoggedIn()) {
+                    liff.logout();
+                }
+                userAuthData.lineProviderUid = null;
+                isGuestMode = false;
+                window.location.reload();
+            }
+
+            // ---------------------------------------------------
+            // 2. 表單輔助函式
+            // ---------------------------------------------------
+
+            function generateTimeOptions() {
+                const select = document.getElementById('service_time');
+                if (!select) return;
+
+                select.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
+
+                for (let h = 0; h < 24; h++) {
+                    for (let m = 0; m < 60; m += 30) {
+                        const hour = h.toString().padStart(2, '0');
+                        const minute = m.toString().padStart(2, '0');
+                        const time = `${hour}:${minute}`;
+
+                        const option = document.createElement('option');
+                        option.value = time;
+                        option.textContent = time;
+                        select.appendChild(option);
+                    }
+                }
+            }
+
+            // 條件式顯示邏輯
+            function toggleAccommodationAlert() {
+                const select = document.getElementById('service_item_select');
+                const alertDiv = document.getElementById('accommodation_alert');
+                let isAccommodationSelected = (select && select.value === '住宿預約');
+
+                if (alertDiv) {
+                    if (isAccommodationSelected) {
+                        alertDiv.classList.add('open');
+                        alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px'; 
+                    } else {
+                        alertDiv.classList.remove('open');
+                        alertDiv.style.maxHeight = '0';
+                    }
+                }
+            }
+
+            // ---------------------------------------------------
+            // 3. 表單提交處理 (發送數據至 GAS)
+            // ---------------------------------------------------
+            async function handleFormSubmission(event) {
+                event.preventDefault();
+                const form = event.target;
+                const submitBtn = document.getElementById('submit-btn');
+                const successMessage = document.getElementById('success-message');
+                
+                if (!userAuthData.lineProviderUid) {
+                     alert("請先點擊 LINE 登入或訪客填表按鈕完成認證！");
+                     return;
+                }
+
+                const originalBtnHtml = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.textContent = '訂單發送中...';
+
+                // 1. 收集數據
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => { data[key] = value.trim(); });
+                
+                data.line_user_id = userAuthData.lineProviderUid; 
+                data.customer_name = userAuthData.displayName || data.res_en_name || '訪客'; 
+                
+                const adults = parseInt(document.getElementById('party_size_adults').value) || 0;
+                const children = parseInt(document.getElementById('party_size_children').value) || 0;
+                data.party_size_total = `${adults}大人, ${children}小孩`;
+
+
+                // 2. 發送到 GAS
+                try {
+                    const response = await fetch(BACKEND_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) { 
+                        form.reset();
+                        successMessage.classList.remove('hidden');
+                        successMessage.scrollIntoView({ behavior: 'smooth' });
+                        toggleAccommodationAlert();
+                        
+                        // 根據模式顯示不同的成功提示
+                        if (isGuestMode) {
+                            document.getElementById('success-mode-line').classList.add('hidden');
+                            document.getElementById('success-mode-guest').classList.remove('hidden');
+                        } else {
+                            document.getElementById('success-mode-line').classList.remove('hidden');
+                            document.getElementById('success-mode-guest').classList.add('hidden');
+                        }
+
+                    } else {
+                        alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫客服。');
+                    }
+
+                } catch (error) {
+                    console.warn('Fetch Error (已成功執行，瀏覽器報錯):', error);
+                    
                     form.reset();
                     successMessage.classList.remove('hidden');
                     successMessage.scrollIntoView({ behavior: 'smooth' });
-                    toggleAccommodationAlert();
                     
-                    // 根據模式顯示不同的成功提示
                     if (isGuestMode) {
                         document.getElementById('success-mode-line').classList.add('hidden');
                         document.getElementById('success-mode-guest').classList.remove('hidden');
@@ -248,24 +301,15 @@ scripts: |
                         document.getElementById('success-mode-guest').classList.add('hidden');
                     }
 
-                } else {
-                    alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫客服。');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
                 }
 
-            } catch (error) {
-                console.warn('Fetch Error (已成功執行，瀏覽器報錯):', error);
-                
-                // 寬容處理：假設 GAS 成功推播
-                form.reset();
-                successMessage.classList.remove('hidden');
-                successMessage.scrollIntoView({ behavior: 'smooth' });
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHtml;
+                return false;
             }
 
-            return false;
-        }
+        })(); // <--- IIFE 包裹結束
     </script>
 ---
 <main class="p-4 md:p-8">
@@ -274,21 +318,24 @@ scripts: |
         <!-- 頂部狀態顯示區 -->
         <div class="text-right text-sm text-gray-500 mb-4 border-b pb-2">
              <span id="user-status-display">請登入</span> 
+             <!-- 登出按鈕加上框線樣式 -->
              <button onclick="handleLogout()" class="text-xs ml-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-2 py-0.5 rounded transition">登出</button>
         </div>
 
-        <!-- 步驟 1: LINE 登入區 -->
+        <!-- 步驟 1: LINE 登入區 (無背景/邊框) -->
         <div id="line-login-area" class="text-center p-8">
             <p class="text-xl font-bold text-gray-800 mb-4 flex items-center justify-center">
                 <span class="material-symbols-rounded mr-2 text-brandGreen">lock</span> 登入後預約
             </p>
             
+            <!-- NEW: 系統提示訊息區塊 (固定顯示) -->
             <div class="p-3 mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded text-sm text-left">
                 若登入後表單內容未立即載入，請關閉此網頁後從 LINE 聊天室重新開啟。
             </div>
 
             <p class="text-sm text-gray-600 mb-6">為確保訂單即時通知與後續客服能順利對接，請點擊下方按鈕登入您的 LINE 帳號。</p>
             
+            <!-- 登入按鈕改為純文字/品牌色 -->
             <button type="button" onclick="startLineLogin()" class="bg-brandGreen text-white py-3 px-12 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-90 transition duration-300">
                 LINE 登入
             </button>
@@ -311,7 +358,7 @@ scripts: |
             
             <!-- NEW: 訪客模式專用警示 -->
             <div id="guest-mode-alert" class="hidden p-3 mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded text-sm font-semibold">
-                您正以訪客身份填寫，請務必填寫電子郵件，我們將發送確認信給您，請您截圖收到的信件內容提供給客服。
+                您正以訪客身份填寫，請務必填寫電子郵件，我們將發送確認信給您，請您截圖收到的信件內容提供給客服，以完成最終驗證。
             </div>
 
             <form id="denwa-form" onsubmit="handleFormSubmission(event)">
@@ -404,8 +451,8 @@ scripts: |
                     
                     <!-- NEW: 電子郵件 (訪客模式下必填) -->
                     <div class="mb-4">
-                        <label for="guest_email" class="block text-sm font-medium text-gray-700 mb-1 required">電子郵件</label>
-                        <input type="email" id="guest_email" name="guest_email" required
+                        <label for="guest_email" class="block text-sm font-medium text-gray-700 mb-1">電子郵件</label>
+                        <input type="email" id="guest_email" name="guest_email" 
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
                             placeholder="選填，備用聯絡信箱"> 
                     </div>
