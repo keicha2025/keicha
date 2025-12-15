@@ -52,8 +52,14 @@ scripts: |
     <script>
         (function() { 
             
-            // ★ 修正：移除頂部的 cleanUrlParameters() 呼叫。讓 LIFF SDK 先讀取 ?code= 參數。
-            
+            // ★ 關鍵修正 1: 立即清理 URL，確保 LIFF 授權成功
+            function cleanUrlParameters() {
+                if (window.location.search) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+            }
+            cleanUrlParameters(); // 立即執行 URL 清理
+
             // 🚨 【前端配置區】
             const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
             const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
@@ -109,7 +115,7 @@ scripts: |
                         
                         showForm();
                         
-                        // ★ 關鍵修正：登入完成後，清除 URL 參數，避免再次跳轉或外部錯誤
+                        // 關鍵修正：登入完成後，清除 URL 參數，避免再次跳轉或外部錯誤
                         window.history.replaceState(null, '', window.location.pathname);
                         
                     })
@@ -244,7 +250,7 @@ scripts: |
             // ---------------------------------------------------
             // 3. 表單提交處理 (發送數據至 GAS)
             // ---------------------------------------------------
-            async function handleFormSubmission(event) {
+            window.handleFormSubmission = async function(event) { // ★ 關鍵修正 3: 將函式公開到 window
                 event.preventDefault(); // 阻止表單預設提交動作 (防止跳轉!)
                 
                 const form = event.target;
