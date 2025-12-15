@@ -2,7 +2,7 @@
 layout: default
 title: 日本電話代播服務預約表單
 description: KEICHA 日本電話代播服務線上預約表單，需使用 LINE 登入以確保訂單通知與個人化服務。
-keywords: 電話代播, 日本預約, LINE 登入, 認證表單, 客服, 代播服務
+keywords: 電話代播, 日本預約, LINE 登入, 認證表單, 客服, 代撥服務
 styles: |
     <style>
         /* 品牌色定義 */
@@ -19,9 +19,20 @@ styles: |
         .collapse-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
+            /* 確保完全隱藏 */
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease, margin 0.3s ease, border-left 0.3s ease; 
+            padding: 0; /* 預設 padding 歸零 */
+            margin-bottom: 0; /* 預設 margin 歸零 */
+            border-left: 0px solid transparent; /* 預設 border 歸零 */
         }
-        .collapse-content.open { max-height: 200px; }
+        /* 打開時，套用 Tailwind 的 p-4 和 mb-6 效果 */
+        .collapse-content.open { 
+            max-height: 200px; 
+            padding: 1rem; /* Tailwind p-4 */
+            margin-bottom: 1.5rem; /* Tailwind mb-6 */
+            border-left-width: 4px; /* Tailwind border-l-4 */
+            border-color: #ef4444; /* red-500 */
+        }
         
         /* 必填標籤 */
         label.required::after {
@@ -39,275 +50,234 @@ scripts: |
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <script>
-        (function() { 
-            
-            // 🚨 【前端配置區】
-            const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
-            const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
-            // 絕對 LIFF 重新導向網址 (必須與 LINE 後台一致，解決 400 錯誤)
-            const ABSOLUTE_LIFF_URI = 'https://keicha2025.github.io/keicha/denwa_dev.html'; 
-            
-            let isGuestMode = false;
-            let userAuthData = { 
-                uid: null, 
-                displayName: '訪客',
-                lineProviderUid: null 
-            }; 
+        // 🚨 【前端配置區】
+        const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
+        const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
+        
+        let userAuthData = { 
+            uid: null, 
+            displayName: '訪客',
+            lineProviderUid: null 
+        }; 
 
-            document.addEventListener('DOMContentLoaded', () => {
-                window.generateTimeOptions(); 
-                window.toggleAccommodationAlert(); 
-                
-                initializeLiff();
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            generateTimeOptions();
+            toggleAccommodationAlert();
             
-            // ---------------------------------------------------
-            // 核心函式定義
-            // ---------------------------------------------------
+            initializeLiff();
+        });
+        
+        // ---------------------------------------------------
+        // 1. 核心 LINE 登入與狀態管理 (使用 LIFF SDK)
+        // ---------------------------------------------------
 
-            function initializeLiff() {
-                if (!LINE_LIFF_ID) {
-                    console.error('LIFF ID 未設定，請聯繫客服。');
-                    showLoginButton(); 
-                    return;
-                }
+        function initializeLiff() {
+            if (!LINE_LIFF_ID) {
+                console.error('LIFF ID 未設定，請聯繫客服。');
+                return;
+            }
 
-                liff.init({ liffId: LINE_LIFF_ID })
-                    .then(() => {
-                        if (liff.isLoggedIn()) {
-                            getLineProfile();
-                        } else {
-                            showLoginButton();
-                        }
-                    })
-                    .catch((err) => {
-                        console.error('LIFF 初始化失敗:', err);
+            liff.init({ liffId: LINE_LIFF_ID })
+                .then(() => {
+                    // 初始化成功後，檢查是否有登入狀態
+                    if (liff.isLoggedIn()) {
+                        getLineProfile();
+                    } else {
+                        // 如果未登入，直接顯示登入按鈕和固定提示訊息
                         showLoginButton();
-                    });
+                    }
+                })
+                .catch((err) => {
+                    console.error('LIFF 初始化失敗，請檢查 LIFF 網址設定:', err);
+                    alert('LINE 登入系統初始化失敗，請檢查 LIFF Endpoint URL 是否相符。');
+                });
+        }
+
+        function getLineProfile() {
+            liff.getProfile()
+                .then(profile => {
+                    userAuthData.lineProviderUid = profile.userId;
+                    userAuthData.displayName = profile.displayName;
+                    userAuthData.uid = profile.userId;
+                    
+                    showForm();
+                })
+                .catch(err => {
+                    console.error('取得個資失敗:', err);
+                    alert('無法取得您的 LINE 資料，請重新登入。');
+                });
+        }
+        
+        // 輔助函式：顯示系統提示訊息 (目標是登入區塊)
+        function displaySystemMessage(message, type) {
+            const alertDiv = document.getElementById('system-alert-message-login'); // ★ 修正目標 ID
+            if (!alertDiv) return;
+
+            let bgColor = 'bg-yellow-100';
+            let borderColor = 'border-yellow-500';
+            let textColor = 'text-yellow-800';
+
+            if (type === 'error') {
+                bgColor = 'bg-red-100';
+                borderColor = 'border-red-500';
+                textColor = 'text-red-700';
             }
 
-            function getLineProfile() {
-                liff.getProfile()
-                    .then(profile => {
-                        isGuestMode = false;
-                        userAuthData.lineProviderUid = profile.userId;
-                        userAuthData.displayName = profile.displayName;
-                        userAuthData.uid = profile.userId;
-                        
-                        showForm();
-                        
-                        // 關鍵修正：確保 LIFF 完成登入後，再清除 URL 參數
-                        if (window.location.search) {
-                            window.history.replaceState(null, '', window.location.pathname);
-                        }
-                        
-                    })
-                    .catch(err => {
-                        console.error('取得個資失敗:', err);
-                        alert('無法取得您的 LINE 資料，請重新登入。');
-                    });
-            }
+            alertDiv.className = `p-3 mb-4 border-l-4 rounded ${bgColor} ${borderColor} ${textColor}`;
+            alertDiv.innerHTML = `<div class="font-semibold">${message}</div>`;
+            alertDiv.classList.remove('hidden');
+        }
 
-            function showLoginButton() {
-                const loginArea = document.getElementById('line-login-area');
-                const formArea = document.getElementById('form-area');
-                const userStatusDisplay = document.getElementById('user-status-display');
-                
-                formArea.classList.add('hidden');
-                loginArea.classList.remove('hidden');
-                if(userStatusDisplay) userStatusDisplay.textContent = '請登入';
-            }
 
-            function showForm() {
-                const loginArea = document.getElementById('line-login-area');
-                const formArea = document.getElementById('form-area');
-                const userStatusDisplay = document.getElementById('user-status-display');
-                
-                loginArea.classList.add('hidden');
-                formArea.classList.remove('hidden');
-                if(userStatusDisplay) userStatusDisplay.textContent = `歡迎，${userAuthData.displayName}`;
-                
-                updateGuestFormRequirements();
-                
-                if(isGuestMode) {
-                     const guestAlert = document.getElementById('guest-mode-alert');
-                     if(guestAlert) guestAlert.classList.remove('hidden');
+        function showLoginButton() {
+            const loginArea = document.getElementById('line-login-area');
+            const formArea = document.getElementById('form-area');
+            const userStatusDisplay = document.getElementById('user-status-display');
+            
+            formArea.classList.add('hidden');
+            loginArea.classList.remove('hidden');
+            if(userStatusDisplay) userStatusDisplay.textContent = '請登入';
+
+            // 移除所有 session storage 相關邏輯
+        }
+
+        function showForm() {
+            const loginArea = document.getElementById('line-login-area');
+            const formArea = document.getElementById('form-area');
+            const userStatusDisplay = document.getElementById('user-status-display');
+            
+            loginArea.classList.add('hidden');
+            formArea.classList.remove('hidden');
+            if(userStatusDisplay) userStatusDisplay.textContent = `歡迎，${userAuthData.displayName}`;
+        }
+        
+        // A. 啟動 LINE 登入流程 (使用 LIFF)
+        window.startLineLogin = function() {
+            if (!liff.isLoggedIn()) {
+                liff.login({ redirectUri: window.location.href }); 
+            }
+        }
+        
+        // B. 登出功能
+        window.handleLogout = function() {
+            if (liff.isLoggedIn()) {
+                liff.logout();
+            }
+            userAuthData.lineProviderUid = null;
+            window.location.reload();
+        }
+
+        // ---------------------------------------------------
+        // 2. 表單輔助函式
+        // ---------------------------------------------------
+
+        function generateTimeOptions() {
+            const select = document.getElementById('service_time');
+            if (!select) return;
+
+            select.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
+
+            for (let h = 0; h < 24; h++) {
+                for (let m = 0; m < 60; m += 30) {
+                    const hour = h.toString().padStart(2, '0');
+                    const minute = m.toString().padStart(2, '0');
+                    const time = `${hour}:${minute}`;
+
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    select.appendChild(option);
+                }
+            }
+        }
+
+        // 條件式顯示邏輯 (修正為讀取 Select 值)
+        function toggleAccommodationAlert() {
+            const select = document.getElementById('service_item_select');
+            const alertDiv = document.getElementById('accommodation_alert');
+            let isAccommodationSelected = (select && select.value === '住宿預約');
+
+            if (alertDiv) {
+                if (isAccommodationSelected) {
+                    alertDiv.classList.add('open');
+                    // 必須計算 scrollHeight 才能實現 max-height 過渡
+                    alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px'; 
                 } else {
-                     const guestAlert = document.getElementById('guest-mode-alert');
-                     if(guestAlert) guestAlert.classList.add('hidden');
+                    alertDiv.classList.remove('open');
+                    alertDiv.style.maxHeight = '0';
                 }
             }
+        }
+
+        // ---------------------------------------------------
+        // 3. 表單提交處理 (發送數據至 GAS)
+        // ---------------------------------------------------
+        async function handleFormSubmission(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = document.getElementById('submit-btn');
+            const successMessage = document.getElementById('success-message');
             
-            // ---------------------------------------------------
-            // 訪客模式邏輯
-            // ---------------------------------------------------
-            window.startGuestMode = function() {
-                isGuestMode = true;
-                userAuthData.lineProviderUid = 'GUEST_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5); 
-                userAuthData.displayName = '訪客';
-                userAuthData.uid = userAuthData.lineProviderUid;
-                
-                showForm();
+            // 驗證登入
+            if (!userAuthData.lineProviderUid) {
+                 alert("請先點擊 LINE 登入按鈕完成認證！");
+                 return;
             }
+
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '訂單發送中...';
+
+            // 1. 收集數據
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value.trim(); });
             
-            // 根據模式設定表單欄位要求
-            function updateGuestFormRequirements() {
-                const emailInput = document.getElementById('guest_email');
+            // ★ 核心數據：綁定 LINE User ID
+            data.line_user_id = userAuthData.lineProviderUid; 
+            data.customer_name = userAuthData.displayName || '貴賓'; 
+            
+            // 新增總人數欄位 (供 GAS 紀錄)
+            const adults = parseInt(document.getElementById('party_size_adults').value) || 0;
+            const children = parseInt(document.getElementById('party_size_children').value) || 0;
+            data.party_size_total = `${adults}大人, ${children}小孩`;
+
+
+            // 2. 發送到 GAS 進行 LINE 推播和數據儲存
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(data)
+                });
                 
-                if (emailInput) {
-                    emailInput.required = isGuestMode;
-                    emailInput.placeholder = isGuestMode ? "請務必填寫，將發送訂單確認信" : "選填，備用聯絡信箱";
+                const responseData = await response.json();
+
+                if (responseData.status === 'success' || response.ok) {
+                    form.reset();
+                    successMessage.classList.remove('hidden');
+                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                    toggleAccommodationAlert();
                     
-                    const emailLabel = document.querySelector('label[for="guest_email"]');
-                    if (emailLabel) {
-                        emailLabel.classList.toggle('required', isGuestMode);
-                    }
-                }
-            }
-
-            // A. 啟動 LINE 登入流程 (使用 LIFF)
-            window.startLineLogin = function() {
-                if (!liff.isLoggedIn()) {
-                    liff.login({ redirectUri: ABSOLUTE_LIFF_URI }); 
-                }
-            }
-            
-            // B. 登出功能
-            window.handleLogout = function() {
-                if (liff.isLoggedIn()) {
-                    liff.logout();
-                }
-                userAuthData.lineProviderUid = null;
-                isGuestMode = false;
-                
-                window.history.replaceState(null, '', window.location.pathname); 
-                window.location.reload();
-            }
-
-            // ---------------------------------------------------
-            // 2. 表單輔助函式 (全局)
-            // ---------------------------------------------------
-
-            window.generateTimeOptions = function() {
-                const select = document.getElementById('service_time');
-                if (!select) return;
-
-                select.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
-
-                for (let h = 0; h < 24; h++) {
-                    for (let m = 0; m < 60; m += 30) {
-                        const hour = h.toString().padStart(2, '0');
-                        const minute = m.toString().padStart(2, '0');
-                        const time = `${hour}:${minute}`;
-
-                        const option = document.createElement('option');
-                        option.value = time;
-                        option.textContent = time;
-                        select.appendChild(option);
-                    }
-                }
-            }
-
-            // 條件式顯示邏輯 (全局)
-            window.toggleAccommodationAlert = function() {
-                const select = document.getElementById('service_item_select');
-                const alertDiv = document.getElementById('accommodation_alert');
-                let isAccommodationSelected = (select && select.value === '住宿預約');
-
-                if (alertDiv) {
-                    if (isAccommodationSelected) {
-                        alertDiv.classList.add('open');
-                        alertDiv.style.maxHeight = alertDiv.scrollHeight + 'px'; 
-                    } else {
-                        alertDiv.classList.remove('open');
-                        alertDiv.style.maxHeight = '0';
-                    }
-                }
-            }
-
-            // ---------------------------------------------------
-            // 3. 表單提交處理 (發送數據至 GAS)
-            // ---------------------------------------------------
-            window.handleFormSubmission = async function(event) { 
-                event.preventDefault(); // 阻止表單預設提交動作 (防止跳轉!)
-                
-                const form = event.target;
-                const submitBtn = document.getElementById('submit-btn');
-                const formArea = document.getElementById('form-area'); 
-                const successMessage = document.getElementById('success-message');
-                
-                if (!userAuthData.lineProviderUid) {
-                     alert("請先點擊 LINE 登入或訪客填表按鈕完成認證！");
-                     return;
-                }
-
-                const originalBtnHtml = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.textContent = '訂單發送中...';
-
-                // 1. 收集數據
-                const formData = new FormData(form);
-                const data = {};
-                formData.forEach((value, key) => { data[key] = value.trim(); });
-                
-                data.line_user_id = userAuthData.lineProviderUid; 
-                data.customer_name = userAuthData.displayName === '訪客' ? data.res_en_name : userAuthData.displayName; 
-                
-                const adults = parseInt(document.getElementById('party_size_adults').value) || 0;
-                const children = parseInt(document.getElementById('party_size_children').value) || 0;
-                data.party_size_total = `${adults}大人, ${children}小孩`;
-
-
-                // 2. 發送到 GAS
-                try {
-                    const response = await fetch(BACKEND_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                        body: JSON.stringify(data)
-                    });
-                    
-                    if (response.ok) { 
-                        // 後端成功
-                        handleSuccessfulSubmission(form, formArea, successMessage);
-
-                    } else {
-                        alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫客服。');
-                    }
-
-                } catch (error) {
-                    console.warn('Fetch Error (後端已成功執行):', error);
-                    
-                    // 寬容處理：GAS 已成功執行，瀏覽器報錯 (CORS 錯誤)
-                    handleSuccessfulSubmission(form, formArea, successMessage);
-
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnHtml;
-                }
-
-                return false; 
-            }
-            
-            // NEW: 處理成功提交後續邏輯 (確保訪客模式鎖定在成功頁面)
-            function handleSuccessfulSubmission(form, formArea, successMessage) {
-                
-                // 根據模式顯示不同的成功提示
-                if (isGuestMode) {
-                    formArea.classList.add('hidden'); // 訪客模式：隱藏整個表單區域
-                    document.getElementById('success-mode-line').classList.add('hidden');
-                    document.getElementById('success-mode-guest').classList.remove('hidden');
                 } else {
-                    form.reset(); // LINE 會員：重置表單
-                    window.toggleAccommodationAlert(); 
-                    document.getElementById('success-mode-line').classList.remove('hidden');
-                    document.getElementById('success-mode-guest').classList.add('hidden');
+                    alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫LINE客服。');
+                    console.error('API Error:', response.status, responseData);
                 }
 
+            } catch (error) {
+                console.warn('Fetch Error (可能成功):', error);
+                
+                // 寬容處理：假設 GAS 成功推播
+                form.reset();
                 successMessage.classList.remove('hidden');
                 successMessage.scrollIntoView({ behavior: 'smooth' });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
             }
 
-        })(); // <--- IIFE 包裹結束
+            return false;
+        }
     </script>
 ---
 <main class="p-4 md:p-8">
@@ -337,13 +307,6 @@ scripts: |
             <button type="button" onclick="startLineLogin()" class="bg-brandGreen text-white py-3 px-12 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-90 transition duration-300">
                 LINE 登入
             </button>
-            
-            <!-- NEW: 訪客填表選項 -->
-            <div class="mt-4">
-                <button type="button" onclick="startGuestMode()" class="text-gray-500 text-sm hover:text-brandGreen hover:underline transition">
-                    或以訪客身份填寫表單
-                </button>
-            </div>
         </div>
 
 
@@ -351,16 +314,10 @@ scripts: |
         <div id="form-area" class="hidden">
             <div class="text-center mb-10">
                 <h1 class="text-3xl md:text-4xl font-bold text-brandGreen mb-3">日本電話代播預約</h1>
-                <p class="text-lg text-gray-600">已成功登入會員，您的訂單將會綁定您的帳號。</p>
+                <p class="text-lg text-gray-600">已成功登入會員，您的訂單將會綁定您的 LINE 帳號。</p>
             </div>
             
-            <!-- NEW: 訪客模式專用警示 -->
-            <div id="guest-mode-alert" class="hidden p-3 mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded text-sm font-semibold">
-                您正以訪客身份填寫，請務必填寫電子郵件，我們將發送確認信給您，請您截圖收到的信件內容提供給客服，以完成最終驗證。
-            </div>
-
-            <!-- ★ 關鍵修正：確保 onsubmit 鎖定，阻止頁面重載 -->
-            <form id="denwa-form" onsubmit="event.preventDefault(); window.handleFormSubmission(event);">
+            <form id="denwa-form" onsubmit="handleFormSubmission(event)">
                 
                 <!-- 區塊: 預約服務核心資訊 -->
                 <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
@@ -369,22 +326,22 @@ scripts: |
                     <!-- 服務項目 (下拉選單) -->
                     <div class="mb-6 select-container">
                         <label for="service_item_select" class="required block text-sm font-medium text-gray-700 mb-2">服務項目</label>
-                        <select id="service_item_select" name="service_item" required onchange="window.toggleAccommodationAlert()"
+                        <select id="service_item_select" name="service_item" required onchange="toggleAccommodationAlert()"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border bg-white">
                             <option value="" disabled selected>請選擇服務項目</option>
-                            <option value="預約">預約</option> 
-                            <option value="詢問">詢問</option> 
+                            <option value="預約">預約（餐廳/活動）</option>
+                            <option value="詢問">詢問（營業時間/庫存）</option>
                             <option value="預約更改">預約更改/取消</option>
                             <option value="住宿預約">住宿預約</option>
                             <option value="其他服務">其他服務</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <span class="material-symbols-rounded">arrow_drop_down</span>
-                            </div>
+                            <span class="material-symbols-rounded">arrow_drop_down</span>
+                        </div>
                     </div>
 
                     <!-- 住宿服務風險提示 (條件式顯示) -->
-                    <div id="accommodation_alert" class="collapse-content bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
+                    <div id="accommodation_alert" class="collapse-content bg-red-100 border-red-500 text-red-700 rounded" role="alert">
                         <div class="flex">
                             <span class="material-symbols-rounded mr-3">warning</span>
                             <div>
@@ -448,17 +405,9 @@ scripts: |
                 <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg">
                     <legend class="text-xl font-semibold text-gray-800 px-3 -ml-3">訂位人與聯絡資訊</legend>
                     
-                    <!-- NEW: 電子郵件 (訪客模式下必填) -->
-                    <div class="mb-4">
-                        <label for="guest_email" class="block text-sm font-medium text-gray-700 mb-1">電子郵件</label>
-                        <input type="email" id="guest_email" name="guest_email" 
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="選填，備用聯絡信箱"> 
-                    </div>
-                    
                     <!-- 訂位人英文姓名 -->
                     <div class="mb-4">
-                        <label for="res_en_name" class="required block text-sm font-medium text-gray-700 mb-1">訂位人英文姓名</label> 
+                        <label for="res_en_name" class="required block text-sm font-medium text-gray-700 mb-1">訂位人英文姓名 (護照格式)</label>
                         <input type="text" id="res_en_name" name="res_en_name" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
                             placeholder="例如：WANG DA MING (與入住/用餐者一致)">
@@ -469,7 +418,7 @@ scripts: |
                         <label for="res_phone" class="required block text-sm font-medium text-gray-700 mb-1">聯絡電話</label>
                         <input type="tel" id="res_phone" name="res_phone" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
-                            placeholder="請輸入電話號碼"> 
+                            placeholder="+8869XXXXXXXX">
                     </div>
 
                     <!-- 在日聯絡資訊 -->
@@ -490,10 +439,12 @@ scripts: |
                     <div class="mb-6">
                         <label class="required block text-sm font-medium text-gray-700 mb-2">預付款支付方案 (必選)</label>
                         <div class="space-y-3">
+                            <!-- 方案 A (移除**符號) -->
                             <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition bg-white">
                                 <input type="radio" name="payment_plan" value="7分鐘/$160元費率" class="form-radio text-brandGreen focus:ring-brandGreen" required>
                                 <span class="ml-2 font-medium text-gray-800">預先支付 7 分鐘/$160 元費率，服務完成後多退少補。</span>
                             </label>
+                            <!-- 方案 B (移除**符號) -->
                             <label class="block cursor-pointer p-3 border rounded-md hover:bg-white transition">
                                 <input type="radio" name="payment_plan" value="$50元基礎預付款" class="form-radio text-brandGreen focus:ring-brandGreen">
                                 <span class="ml-2 font-medium text-gray-800">預先支付 50 元基礎預付款，服務完成後向您收取差額。</span>
@@ -508,24 +459,16 @@ scripts: |
 
                     <!-- 其他備註與要求 -->
                     <div class="mb-4">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">備註 (選填)</label>
                         <textarea id="notes" name="notes" rows="4" 
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:ring-brandGreen focus:border-brandGreen border"
                                 placeholder="備用預約時段、套餐選擇等"></textarea>
                     </div>
                 </fieldset>
                 
-                <!-- 服務條款同意核取方塊 -->
-                <div class="mb-6">
-                    <label class="flex items-center text-sm font-medium text-gray-700">
-                        <input type="checkbox" required class="form-checkbox text-brandGreen focus:ring-brandGreen h-4 w-4 rounded">
-                        <span class="ml-2">我已閱讀
-                            <a href="https://keicha2025.github.io/keicha/denwa.html" target="_blank" class="text-brandGreen hover:underline font-semibold">服務條款</a>
-                        </span>
-                    </label>
-                </div>
-
                 <!-- 提交按鈕 -->
                 <div class="mt-8">
+                    <!-- 修正按鈕文字 -->
                     <button type="submit" id="submit-btn" class="w-full bg-brandGreen text-white py-4 rounded-lg font-bold text-lg shadow-md hover:bg-opacity-90 transition duration-300 flex items-center justify-center">
                         <span class="material-symbols-rounded mr-2">send</span> 送出資訊
                     </button>
@@ -533,17 +476,10 @@ scripts: |
                 
             </form>
             
-            <!-- 表單提交成功提示 (LINE 模式) -->
+            <!-- 表單提交成功提示 -->
             <div id="success-message" class="hidden mt-8 p-6 bg-brandGreen/10 border-l-4 border-brandGreen text-gray-700 rounded-lg">
-                <div id="success-mode-line">
-                    <p class="font-bold text-lg mb-2 flex items-center"><span class="material-symbols-rounded text-brandGreen mr-2">check_circle</span> 預約需求已送出！</p>
-                    <p>您的電話代播需求已成功記錄。我們已將詳細資訊推播給客服人員，<br>請您<strong>回到 LINE 官方帳號</strong>，客服將會盡快與您聯繫確認細節與處理進度。</p>
-                </div>
-                <!-- NEW: 訪客模式成功提示 -->
-                <div id="success-mode-guest" class="hidden">
-                    <p class="font-bold text-lg mb-2 flex items-center"><span class="material-symbols-rounded text-brandGreen mr-2">check_circle</span> 訪客訂單已接收！</p>
-                    <p>您的訂單需求已送達客服。<br>我們已將訂單確認信發送到您的電子郵件信箱，**請務必截圖收到的信件內容，並提供給客服**，以完成最終驗證，謝謝。</p>
-                </div>
+                <p class="font-bold text-lg mb-2 flex items-center"><span class="material-symbols-rounded text-brandGreen mr-2">check_circle</span> 預約需求已送出！</p>
+                <p>您的電話代播需求已成功記錄。我們已將詳細資訊推播給客服人員，<br>請您<strong>回到 LINE 官方帳號</strong>，客服將會盡快與您聯繫確認細節與處理進度。</p>
             </div>
         </div>
     </div>
