@@ -2,7 +2,7 @@
 layout: default
 title: 日本電話代播服務預約表單
 description: KEICHA 日本電話代播服務線上預約表單，需使用 LINE 登入以確保訂單通知與個人化服務。
-keywords: 電話代播, 日本預約, LINE 登入, 認證表單, 客服, 代撥服務
+keywords: 電話代播, 日本預約, LINE 登入, 認證表單, 客服, 代播服務
 styles: |
     <style>
         /* 品牌色定義 */
@@ -50,8 +50,16 @@ scripts: |
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <script>
-        (function() { // <--- IIFE 包裹開始 (確保變數範圍)
-        
+        (function() { 
+            
+            // ★ 關鍵修正 1: 立即清理 URL，確保 LIFF 授權成功
+            function cleanUrlParameters() {
+                if (window.location.search) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+            }
+            cleanUrlParameters(); // 立即執行 URL 清理
+
             // 🚨 【前端配置區】
             const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
             const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
@@ -64,8 +72,8 @@ scripts: |
             }; 
 
             document.addEventListener('DOMContentLoaded', () => {
-                window.generateTimeOptions(); // ★ 修正：呼叫全局函式
-                window.toggleAccommodationAlert(); // ★ 修正：呼叫全局函式
+                window.generateTimeOptions(); 
+                window.toggleAccommodationAlert(); 
                 
                 initializeLiff();
             });
@@ -146,7 +154,8 @@ scripts: |
             // ---------------------------------------------------
             window.startGuestMode = function() {
                 isGuestMode = true;
-                userAuthData.lineProviderUid = 'GUEST_' + crypto.randomUUID().replace(/-/g, '_');
+                // 使用 Date.now() + 隨機字串，確保唯一性和可讀性
+                userAuthData.lineProviderUid = 'GUEST_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5); 
                 userAuthData.displayName = '訪客';
                 userAuthData.uid = userAuthData.lineProviderUid;
                 
@@ -173,7 +182,7 @@ scripts: |
             // A. 啟動 LINE 登入流程 (使用 LIFF)
             window.startLineLogin = function() {
                 if (!liff.isLoggedIn()) {
-                    // ★ 關鍵修正：只使用 origin + pathname，移除所有查詢參數
+                    // 只使用 origin + pathname，確保回傳網址乾淨
                     const currentUrl = window.location.origin + window.location.pathname; 
                     liff.login({ redirectUri: currentUrl }); 
                 }
@@ -186,14 +195,17 @@ scripts: |
                 }
                 userAuthData.lineProviderUid = null;
                 isGuestMode = false;
+                
+                // 登出後，先清理 URL，再重新載入頁面
+                window.history.replaceState(null, '', window.location.pathname); 
                 window.location.reload();
             }
 
             // ---------------------------------------------------
-            // 2. 表單輔助函式 (現在是全局函式)
+            // 2. 表單輔助函式 (全局)
             // ---------------------------------------------------
 
-            window.generateTimeOptions = function() { // ★ 修正：暴露到 window
+            window.generateTimeOptions = function() {
                 const select = document.getElementById('service_time');
                 if (!select) return;
 
@@ -213,8 +225,8 @@ scripts: |
                 }
             }
 
-            // 條件式顯示邏輯 (現在是全局函式)
-            window.toggleAccommodationAlert = function() { // ★ 修正：暴露到 window
+            // 條件式顯示邏輯 (全局)
+            window.toggleAccommodationAlert = function() {
                 const select = document.getElementById('service_item_select');
                 const alertDiv = document.getElementById('accommodation_alert');
                 let isAccommodationSelected = (select && select.value === '住宿預約');
@@ -234,9 +246,11 @@ scripts: |
             // 3. 表單提交處理 (發送數據至 GAS)
             // ---------------------------------------------------
             async function handleFormSubmission(event) {
-                event.preventDefault();
+                event.preventDefault(); // 阻止表單預設提交動作 (防止跳轉!)
+                
                 const form = event.target;
                 const submitBtn = document.getElementById('submit-btn');
+                const formArea = document.getElementById('form-area'); 
                 const successMessage = document.getElementById('success-message');
                 
                 if (!userAuthData.lineProviderUid) {
@@ -254,7 +268,7 @@ scripts: |
                 formData.forEach((value, key) => { data[key] = value.trim(); });
                 
                 data.line_user_id = userAuthData.lineProviderUid; 
-                data.customer_name = userAuthData.displayName || data.res_en_name || '訪客'; 
+                data.customer_name = userAuthData.displayName === '訪客' ? data.res_en_name : userAuthData.displayName; 
                 
                 const adults = parseInt(document.getElementById('party_size_adults').value) || 0;
                 const children = parseInt(document.getElementById('party_size_children').value) || 0;
@@ -270,45 +284,44 @@ scripts: |
                     });
                     
                     if (response.ok) { 
-                        form.reset();
-                        successMessage.classList.remove('hidden');
-                        successMessage.scrollIntoView({ behavior: 'smooth' });
-                        window.toggleAccommodationAlert(); // 確保重置提醒框
-                        
-                        // 根據模式顯示不同的成功提示
-                        if (isGuestMode) {
-                            document.getElementById('success-mode-line').classList.add('hidden');
-                            document.getElementById('success-mode-guest').classList.remove('hidden');
-                        } else {
-                            document.getElementById('success-mode-line').classList.remove('hidden');
-                            document.getElementById('success-mode-guest').classList.add('hidden');
-                        }
+                        // 後端成功
+                        handleSuccessfulSubmission(form, formArea, successMessage);
 
                     } else {
                         alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫客服。');
                     }
 
                 } catch (error) {
-                    console.warn('Fetch Error (已成功執行，瀏覽器報錯):', error);
+                    console.warn('Fetch Error (後端已成功執行):', error);
                     
-                    form.reset();
-                    successMessage.classList.remove('hidden');
-                    successMessage.scrollIntoView({ behavior: 'smooth' });
-                    
-                    if (isGuestMode) {
-                        document.getElementById('success-mode-line').classList.add('hidden');
-                        document.getElementById('success-mode-guest').classList.remove('hidden');
-                    } else {
-                        document.getElementById('success-mode-line').classList.remove('hidden');
-                        document.getElementById('success-mode-guest').classList.add('hidden');
-                    }
+                    // 寬容處理：GAS 已成功執行，瀏覽器報錯 (CORS 錯誤)
+                    handleSuccessfulSubmission(form, formArea, successMessage);
 
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnHtml;
                 }
 
-                return false;
+                return false; 
+            }
+            
+            // NEW: 處理成功提交後續邏輯
+            function handleSuccessfulSubmission(form, formArea, successMessage) {
+                
+                // 根據模式顯示不同的成功提示
+                if (isGuestMode) {
+                    formArea.classList.add('hidden'); // 訪客模式：隱藏整個表單區域
+                    document.getElementById('success-mode-line').classList.add('hidden');
+                    document.getElementById('success-mode-guest').classList.remove('hidden');
+                } else {
+                    form.reset(); // LINE 會員：重置表單
+                    window.toggleAccommodationAlert(); 
+                    document.getElementById('success-mode-line').classList.remove('hidden');
+                    document.getElementById('success-mode-guest').classList.add('hidden');
+                }
+
+                successMessage.classList.remove('hidden');
+                successMessage.scrollIntoView({ behavior: 'smooth' });
             }
 
         })(); // <--- IIFE 包裹結束
