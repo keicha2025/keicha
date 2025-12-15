@@ -19,20 +19,9 @@ styles: |
         .collapse-content {
             max-height: 0;
             overflow: hidden;
-            /* 確保完全隱藏 */
-            transition: max-height 0.3s ease-in-out, padding 0.3s ease, margin 0.3s ease, border-left 0.3s ease; 
-            padding: 0; /* 預設 padding 歸零 */
-            margin-bottom: 0; /* 預設 margin 歸零 */
-            border-left: 0px solid transparent; /* 預設 border 歸零 */
+            transition: max-height 0.3s ease-in-out;
         }
-        /* 打開時，套用 Tailwind 的 p-4 和 mb-6 效果 */
-        .collapse-content.open { 
-            max-height: 200px; 
-            padding: 1rem; /* Tailwind p-4 */
-            margin-bottom: 1.5rem; /* Tailwind mb-6 */
-            border-left-width: 4px; /* Tailwind border-l-4 */
-            border-color: #ef4444; /* red-500 */
-        }
+        .collapse-content.open { max-height: 200px; }
         
         /* 必填標籤 */
         label.required::after {
@@ -52,17 +41,13 @@ scripts: |
     <script>
         (function() { 
             
-            // ★ 關鍵修正 1: 移除立即清理 URL 的函式，讓 LIFF SDK 先讀取 ?code= 參數。
-            // function cleanUrlParameters() { ... }
-            // cleanUrlParameters(); // 移除這行呼叫
-
             // 🚨 【前端配置區】
             const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
             const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
-            // ★ NEW: 絕對 LIFF 重新導向網址 (必須與 LINE 後台一致，解決 400 錯誤)
+            // 絕對 LIFF 重新導向網址 (必須與 LINE 後台一致，解決 400 錯誤)
             const ABSOLUTE_LIFF_URI = 'https://keicha2025.github.io/keicha/denwa_dev.html'; 
             
-            let isGuestMode = false; // 追蹤是否為訪客模式
+            let isGuestMode = false;
             let userAuthData = { 
                 uid: null, 
                 displayName: '訪客',
@@ -111,7 +96,7 @@ scripts: |
                         
                         showForm();
                         
-                        // ★ 關鍵修正：確保 LIFF 完成登入後，再清除 URL 參數
+                        // 關鍵修正：確保 LIFF 完成登入後，再清除 URL 參數
                         if (window.location.search) {
                             window.history.replaceState(null, '', window.location.pathname);
                         }
@@ -158,7 +143,6 @@ scripts: |
             // ---------------------------------------------------
             window.startGuestMode = function() {
                 isGuestMode = true;
-                // 使用 Date.now() + 隨機字串，確保唯一性和可讀性
                 userAuthData.lineProviderUid = 'GUEST_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5); 
                 userAuthData.displayName = '訪客';
                 userAuthData.uid = userAuthData.lineProviderUid;
@@ -170,12 +154,10 @@ scripts: |
             function updateGuestFormRequirements() {
                 const emailInput = document.getElementById('guest_email');
                 
-                // 訪客模式下 Email 必填，LINE 登入模式下 Email 非必填
                 if (emailInput) {
                     emailInput.required = isGuestMode;
                     emailInput.placeholder = isGuestMode ? "請務必填寫，將發送訂單確認信" : "選填，備用聯絡信箱";
                     
-                    // 讓 Email 欄位的 Label 也顯示必填星號
                     const emailLabel = document.querySelector('label[for="guest_email"]');
                     if (emailLabel) {
                         emailLabel.classList.toggle('required', isGuestMode);
@@ -186,7 +168,6 @@ scripts: |
             // A. 啟動 LINE 登入流程 (使用 LIFF)
             window.startLineLogin = function() {
                 if (!liff.isLoggedIn()) {
-                    // 使用絕對 URI 常數，解決 400 Bad Request
                     liff.login({ redirectUri: ABSOLUTE_LIFF_URI }); 
                 }
             }
@@ -199,7 +180,6 @@ scripts: |
                 userAuthData.lineProviderUid = null;
                 isGuestMode = false;
                 
-                // 登出後，清理 URL，再重新載入頁面
                 window.history.replaceState(null, '', window.location.pathname); 
                 window.location.reload();
             }
@@ -248,7 +228,7 @@ scripts: |
             // ---------------------------------------------------
             // 3. 表單提交處理 (發送數據至 GAS)
             // ---------------------------------------------------
-            window.handleFormSubmission = async function(event) { // ★ 關鍵修正 3: 將函式公開到 window
+            window.handleFormSubmission = async function(event) { 
                 event.preventDefault(); // 阻止表單預設提交動作 (防止跳轉!)
                 
                 const form = event.target;
@@ -379,7 +359,8 @@ scripts: |
                 您正以訪客身份填寫，請務必填寫電子郵件，我們將發送確認信給您，請您截圖收到的信件內容提供給客服，以完成最終驗證。
             </div>
 
-            <form id="denwa-form" onsubmit="handleFormSubmission(event); return false;">
+            <!-- ★ 關鍵修正：確保 onsubmit 鎖定，阻止頁面重載 -->
+            <form id="denwa-form" onsubmit="event.preventDefault(); window.handleFormSubmission(event);">
                 
                 <!-- 區塊: 預約服務核心資訊 -->
                 <fieldset class="mb-8 p-5 border border-gray-200 rounded-lg bg-gray-50">
@@ -398,12 +379,12 @@ scripts: |
                             <option value="其他服務">其他服務</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                            <span class="material-symbols-rounded">arrow_drop_down</span>
-                        </div>
+                                <span class="material-symbols-rounded">arrow_drop_down</span>
+                            </div>
                     </div>
 
                     <!-- 住宿服務風險提示 (條件式顯示) -->
-                    <div id="accommodation_alert" class="collapse-content bg-red-100 border-red-500 text-red-700 rounded" role="alert">
+                    <div id="accommodation_alert" class="collapse-content bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded" role="alert">
                         <div class="flex">
                             <span class="material-symbols-rounded mr-3">warning</span>
                             <div>
