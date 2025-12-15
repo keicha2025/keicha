@@ -52,13 +52,9 @@ scripts: |
     <script>
         (function() { 
             
-            // ★ 關鍵修正 1: 立即清理 URL，確保 LIFF 授權成功
-            function cleanUrlParameters() {
-                if (window.location.search) {
-                    window.history.replaceState(null, '', window.location.pathname);
-                }
-            }
-            cleanUrlParameters(); // 立即執行 URL 清理
+            // ★ 關鍵修正 1: 移除立即清理 URL 的函式，讓 LIFF SDK 先讀取 ?code= 參數。
+            // function cleanUrlParameters() { ... }
+            // cleanUrlParameters(); // 移除這行呼叫
 
             // 🚨 【前端配置區】
             const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
@@ -115,8 +111,10 @@ scripts: |
                         
                         showForm();
                         
-                        // 關鍵修正：登入完成後，清除 URL 參數，避免再次跳轉或外部錯誤
-                        window.history.replaceState(null, '', window.location.pathname);
+                        // ★ 關鍵修正：確保 LIFF 完成登入後，再清除 URL 參數
+                        if (window.location.search) {
+                            window.history.replaceState(null, '', window.location.pathname);
+                        }
                         
                     })
                     .catch(err => {
