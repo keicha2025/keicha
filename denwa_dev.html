@@ -53,7 +53,6 @@ scripts: |
         (function() { 
             
             // ★ 關鍵修正 1: 立即清理 URL，確保 LIFF 授權成功
-            // 這是強制移除網址上的所有查詢參數，解決 400 Bad Request 問題
             function cleanUrlParameters() {
                 if (window.location.search) {
                     window.history.replaceState(null, '', window.location.pathname);
@@ -64,6 +63,8 @@ scripts: |
             // 🚨 【前端配置區】
             const LINE_LIFF_ID = '2008690364-nmk2T4fy'; 
             const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbz8HU3tMZ1avx4lVc7yr1UXJs3uU4GcpEntOyPPETSRBEQDXsRuotw-LvnyAZljSAd9/exec"; 
+            // ★ NEW: 絕對 LIFF 重新導向網址 (必須與 LINE 後台一致，解決 400 錯誤)
+            const ABSOLUTE_LIFF_URI = 'https://keicha2025.github.io/keicha/denwa_dev.html'; 
             
             let isGuestMode = false; // 追蹤是否為訪客模式
             let userAuthData = { 
@@ -183,10 +184,8 @@ scripts: |
             // A. 啟動 LINE 登入流程 (使用 LIFF)
             window.startLineLogin = function() {
                 if (!liff.isLoggedIn()) {
-                    // ★ 關鍵修正 2: 確保 redirectUri 參數包含 .html，避免 400 Bad Request
-                    const currentPath = window.location.pathname;
-                    const redirectUri = window.location.origin + (currentPath.endsWith('.html') ? currentPath : currentPath + '.html'); 
-                    liff.login({ redirectUri: redirectUri }); 
+                    // ★ 關鍵修正 2: 使用絕對 URI 常數，解決 400 Bad Request
+                    liff.login({ redirectUri: ABSOLUTE_LIFF_URI }); 
                 }
             }
             
