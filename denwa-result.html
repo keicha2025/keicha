@@ -1,0 +1,125 @@
+---
+# 這是 Front Matter
+layout: default
+title: 電話代播預約完成 | KEICHA 服務
+description: KEICHA 電話代播服務預約結果。
+---
+
+<style>
+    /* 隱藏內容，直到 JS 檢查通過 */
+    #result-content {
+        display: none;
+    }
+    
+    .brand-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background-color: #f0fdf4; /* 淺綠色背景 */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+    }
+    
+    /* 打勾圖示改為品牌色 */
+    .brand-icon-svg {
+        width: 40px;
+        height: 40px;
+        color: #6ea44c; /* KEICHA 品牌色 */
+    }
+
+    /* 客服按鈕樣式：品牌色、純文字 */
+    .btn-brand {
+        display: inline-block;
+        background-color: #6ea44c; /* KEICHA 品牌色 */
+        color: white;
+        font-weight: bold;
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-brand:hover {
+        opacity: 0.9;
+    }
+</style>
+
+<div class="container mx-auto max-w-3xl px-4 py-12 md:py-20">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 md:p-12 text-center">
+        
+        <div id="success-view" style="display: none;">
+            <div class="brand-icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="brand-icon-svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>
+
+            <h1 class="text-3xl font-bold text-[#6ea44c] mb-4">電話代播預約需求已送出</h1>
+            <p class="text-slate-600 text-lg mb-8">系統已成功記錄您的預約請求，並已推播 LINE 通知給您。</p>
+
+            <div class="bg-slate-50 rounded-xl p-6 mb-8 text-left border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-lg mb-3">請完成下一步：聯繫客服與支付費用</h3>
+                
+                <p class="text-lg font-bold text-brandGreen mb-3">
+                    您的預約單號：<span id="result-order-id" class="text-xl"></span>
+                </p>
+                
+                <p class="text-slate-600 mb-4">
+                    為了加速為您服務，請務必點擊下方按鈕加入官方 LINE，並告知客服人員您的<strong>預約單號</strong>。客服將在 LINE 上為您確認細節並引導您完成預付款。
+                </p>
+                <ul class="text-sm text-slate-500 list-disc list-inside space-y-1">
+                    <li>若您尚未完成支付，服務將不會啟動。</li>
+                    <li>請保留此頁面截圖以供備查。</li>
+                </ul>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="https://lin.ee/QJU5mUO" target="_blank" class="btn-brand">
+                    聯繫官方客服確認
+                </a>
+                
+                <a href="{{ '/denwa.html' | relative_url }}" class="inline-flex items-center justify-center px-6 py-3 bg-white border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors duration-200">
+                    返回代播服務頁
+                </a>
+            </div>
+        </div>
+
+        <div id="error-view" style="display: none;">
+            <div class="mb-6 text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-700 mb-2">預約失敗或資料遺失</h2>
+            <p class="text-slate-500 mb-8">我們無法讀取您的預約單號。<br>請直接聯繫 LINE 客服並告知您的訂購姓名、日期與時間。</p>
+            <a href="{{ '/denwa_dev.html' | relative_url }}" class="btn-brand">
+                返回表單重新預約
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        const orderId = urlParams.get('order_id');
+
+        const orderIdEl = document.getElementById('result-order-id');
+        
+        if (status === 'success' && orderId) { 
+            document.getElementById('success-view').style.display = 'block';
+            
+            if (orderIdEl) {
+                orderIdEl.textContent = orderId;
+            }
+            
+        } else {
+            document.getElementById('error-view').style.display = 'block';
+        }
+    });
+</script>
