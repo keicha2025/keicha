@@ -14,17 +14,17 @@
         
         <div class="bg-[#6ea44c] p-6 text-white flex justify-between items-center">
             <h1 class="text-2xl font-bold">會員中心</h1>
-            <button id="logout-btn" class="hidden text-sm bg-white/20 px-3 py-1 rounded">登出</button>
+            <button id="logout-btn" class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1 rounded transition">登出</button>
         </div>
 
         <div id="auth-area" class="p-8">
             <div class="max-w-sm mx-auto space-y-4">
-                <h2 class="text-xl font-bold text-center">會員登入 / 註冊</h2>
-                <input type="email" id="email" placeholder="Email" class="w-full p-3 border rounded-lg outline-none">
-                <input type="password" id="password" placeholder="密碼 (至少6位)" class="w-full p-3 border rounded-lg outline-none">
+                <h2 class="text-xl font-bold text-center text-gray-700">會員登入 / 註冊</h2>
+                <input type="email" id="email" placeholder="電子郵件" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none">
+                <input type="password" id="password" placeholder="密碼 (至少 6 位)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none">
                 <div class="grid grid-cols-2 gap-4">
-                    <button id="login-btn" class="bg-[#6ea44c] text-white p-3 rounded-lg font-bold">登入</button>
-                    <button id="signup-btn" class="border-2 border-[#6ea44c] text-[#6ea44c] p-3 rounded-lg font-bold">註冊</button>
+                    <button id="login-btn" class="bg-[#6ea44c] text-white p-3 rounded-lg font-bold shadow hover:bg-opacity-90">登入</button>
+                    <button id="signup-btn" class="border-2 border-[#6ea44c] text-[#6ea44c] p-3 rounded-lg font-bold hover:bg-green-50">註冊</button>
                 </div>
             </div>
         </div>
@@ -33,18 +33,19 @@
             <form id="profile-form" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-1">姓名</label>
-                        <input type="text" id="display_name" class="w-full p-3 border rounded-lg bg-gray-50">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">真實姓名（取件用）</label>
+                        <input type="text" id="display_name" class="w-full p-3 border rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">電話</label>
-                        <input type="tel" id="user_phone" class="w-full p-3 border rounded-lg bg-gray-50">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">聯絡電話</label>
+                        <input type="tel" id="user_phone" placeholder="09xxxxxxxx" class="w-full p-3 border rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
+                        <p class="text-xs text-gray-400 mt-1">需為 09 開頭的 10 碼數字</p>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">慣用收貨方式 (選填)</label>
-                    <select id="shipping_method" class="w-full p-3 border rounded-lg bg-gray-50">
+                    <label class="block text-sm font-medium text-gray-600 mb-1">慣用收貨方式 (選填)</label>
+                    <select id="shipping_method" class="w-full p-3 border rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
                         <option value="">-- 請選擇 --</option>
                         <option value="7-11">7-11 超商取貨</option>
                         <option value="FamilyMart">全家 超商取貨</option>
@@ -52,16 +53,26 @@
                     </select>
                 </div>
 
-                <div id="cvs_field" class="hidden">
-                    <label class="block text-sm font-medium mb-1 text-red-600">六位數字店號</label>
-                    <input type="text" id="store_number" maxlength="6" class="w-full p-3 border border-red-200 rounded-lg bg-red-50">
-                </div>
-                <div id="address_field" class="hidden">
-                    <label class="block text-sm font-medium mb-1 text-blue-600">收件地址</label>
-                    <input type="text" id="shipping_address" class="w-full p-3 border border-blue-200 rounded-lg bg-blue-50">
+                <div id="cvs_field" class="hidden space-y-3 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-orange-700">六位數字店號</label>
+                        <a id="store-query-link" href="#" target="_blank" class="text-xs bg-white border border-orange-300 text-orange-600 px-3 py-1 rounded-full hover:bg-orange-100 transition flex items-center">
+                            <span class="material-symbols-rounded text-sm mr-1">search</span> 查詢店號
+                        </a>
+                    </div>
+                    <input type="text" id="store_number" maxlength="6" placeholder="例如：123456" 
+                           class="w-full p-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none">
                 </div>
 
-                <button type="button" id="save-btn" class="w-full bg-[#6ea44c] text-white py-4 rounded-lg font-bold text-lg">儲存個人設定</button>
+                <div id="address_field" class="hidden p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <label class="block text-sm font-bold text-blue-700 mb-2">收件地址</label>
+                    <input type="text" id="shipping_address" placeholder="請輸入完整地址" 
+                           class="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+
+                <button type="button" id="save-btn" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-[0.98]">
+                    儲存個人設定
+                </button>
             </form>
         </div>
     </div>
@@ -72,44 +83,61 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 🚨 請貼上你的 Firebase Config
-    const firebaseConfig = {
+    // 🚨 請填入你的 Firebase Config
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
   apiKey: "AIzaSyD2Gk93TU3f0DFxqOw6KN4JCtOcp6IlXjk",
   authDomain: "keicha-shop-test.firebaseapp.com",
   projectId: "keicha-shop-test",
   storageBucket: "keicha-shop-test.firebasestorage.app",
   messagingSenderId: "585645783826",
   appId: "1:585645783826:web:677f92b699a055e10811cb",
+  measurementId: "G-HE0JZTQXD2"
 };
+
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // 物流切換邏輯
+    // 物流與查詢連結切換邏輯
     const methodSelect = document.getElementById('shipping_method');
+    const queryLink = document.getElementById('store-query-link');
+    
     methodSelect.addEventListener('change', () => {
-        document.getElementById('cvs_field').classList.toggle('hidden', !['7-11', 'FamilyMart'].includes(methodSelect.value));
-        document.getElementById('address_field').classList.toggle('hidden', methodSelect.value !== 'Delivery');
+        const val = methodSelect.value;
+        const cvsField = document.getElementById('cvs_field');
+        const addressField = document.getElementById('address_field');
+
+        cvsField.classList.toggle('hidden', !['7-11', 'FamilyMart'].includes(val));
+        addressField.classList.toggle('hidden', val !== 'Delivery');
+
+        if (val === '7-11') {
+            queryLink.href = "https://www.ibon.com.tw/mobile/retail_inquiry.aspx";
+        } else if (val === 'FamilyMart') {
+            queryLink.href = "https://www.family.com.tw/marketing/inquiry.aspx";
+        }
     });
 
     // 註冊
     document.getElementById('signup-btn').onclick = async () => {
         const e = document.getElementById('email').value;
         const p = document.getElementById('password').value;
+        if (p.length < 6) return alert("密碼至少需要 6 位數");
         try {
             const res = await createUserWithEmailAndPassword(auth, e, p);
-            // 這裡會自動建立 Firestore 文件，不需要手動在控制台填 ID
             await setDoc(doc(db, "users", res.user.uid), { email: e, createdAt: new Date() });
-            alert("註冊成功！資料庫已同步建立");
-        } catch (err) { alert(err.message); }
+            alert("註冊成功！");
+        } catch (err) { alert("註冊失敗: " + err.message); }
     };
 
     // 登入
     document.getElementById('login-btn').onclick = async () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
         try {
-            await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-        } catch (err) { alert(err.message); }
+            await signInWithEmailAndPassword(auth, e, p);
+        } catch (err) { alert("登入失敗: " + err.message); }
     };
 
     // 登出
@@ -118,24 +146,40 @@
     // 儲存設定
     document.getElementById('save-btn').onclick = async () => {
         const user = auth.currentUser;
+        if (!user) return alert("請先登入");
+
+        const phone = document.getElementById('user_phone').value;
+        // 電話驗證邏輯：若有填寫，必須符合 09xxxxxxxx 格式
+        if (phone !== "" && !/^09\d{8}$/.test(phone)) {
+            return alert("電話格式錯誤！請輸入 09 開頭的 10 碼數字。");
+        }
+
         const data = {
             name: document.getElementById('display_name').value,
-            phone: document.getElementById('user_phone').value,
+            phone: phone,
             shipping_method: document.getElementById('shipping_method').value,
             store_number: document.getElementById('store_number').value,
-            shipping_address: document.getElementById('shipping_address').value
+            shipping_address: document.getElementById('shipping_address').value,
+            updatedAt: new Date()
         };
-        await setDoc(doc(db, "users", user.uid), data, { merge: true });
-        alert("資料已儲存！");
+
+        try {
+            await setDoc(doc(db, "users", user.uid), data, { merge: true });
+            alert("個人設定已成功儲存！");
+        } catch (err) { alert("儲存失敗: " + err.message); }
     };
 
-    // 監聽狀態
+    // 監聽登入狀態
     onAuthStateChanged(auth, async (user) => {
+        const authArea = document.getElementById('auth-area');
+        const memberArea = document.getElementById('member-area');
+        const logoutBtn = document.getElementById('logout-btn');
+
         if (user) {
-            document.getElementById('auth-area').classList.add('hidden');
-            document.getElementById('member-area').classList.remove('hidden');
-            document.getElementById('logout-btn').classList.remove('hidden');
-            // 讀取舊資料
+            authArea.classList.add('hidden');
+            memberArea.classList.remove('hidden');
+            logoutBtn.classList.remove('hidden');
+            
             const snap = await getDoc(doc(db, "users", user.uid));
             if (snap.exists()) {
                 const d = snap.data();
@@ -146,6 +190,10 @@
                 document.getElementById('shipping_address').value = d.shipping_address || '';
                 methodSelect.dispatchEvent(new Event('change'));
             }
+        } else {
+            authArea.classList.remove('hidden');
+            memberArea.classList.add('hidden');
+            logoutBtn.classList.add('hidden');
         }
     });
 </script>
