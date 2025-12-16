@@ -152,11 +152,12 @@ scripts: |
         }
         
         // A. 啟動 LINE 登入流程 (使用 LIFF)
-        window.startLineLogin = function() {
-            if (!liff.isLoggedIn()) {
-                liff.login({ redirectUri: window.location.href }); 
-            }
-        }
+window.startLineLogin = function() {
+    if (!liff.isLoggedIn()) {
+        // 確保這裡的網址跟你的 LIFF Endpoint 一模一樣 (沒有 .html)
+        liff.login({ redirectUri: 'https://keicha2025.github.io/keicha/denwa_dev' }); 
+    }
+}
         
         // B. 登出功能
         window.handleLogout = function() {
