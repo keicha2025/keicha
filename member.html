@@ -165,18 +165,16 @@ const firebaseConfig = {
         }
     };
 
-window.handleForgotPassword = async () => {
+document.getElementById('forgot-pw-btn').onclick = async () => {
     const email = document.getElementById('email').value;
     if (!email) return alert("請先輸入您的電子郵件");
     try {
         await sendPasswordResetEmail(auth, email);
-        // 更新為你要求的文字
         alert("重設連結已寄出！收件匣沒看到，請務必檢查「垃圾郵件」。");
     } catch (err) { 
         alert(translateError(err.code)); 
     }
 };
-
     document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
     document.getElementById('save-btn').onclick = async () => {
