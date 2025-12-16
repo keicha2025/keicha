@@ -150,14 +150,16 @@ scripts: |
             formArea.classList.remove('hidden');
             if(userStatusDisplay) userStatusDisplay.textContent = `歡迎，${userAuthData.displayName}`;
         }
-        
-        // A. 啟動 LINE 登入流程 (使用 LIFF)
 window.startLineLogin = function() {
     if (!liff.isLoggedIn()) {
-        // 確保這裡的網址跟你的 LIFF Endpoint 一模一樣 (沒有 .html)
-        liff.login({ redirectUri: 'https://keicha2025.github.io/keicha/denwa_dev' }); 
+        // 🚨 修正重點：
+        // 不要用 window.location.href，改用字串直接指定。
+        // 請確保這個網址跟 LINE Developers 後台「Callback URL」設定的一模一樣 (建議用無 .html 版本)
+        
+        liff.login({ redirectUri: "https://keicha2025.github.io/keicha/denwa_dev" });
     }
 }
+        
         
         // B. 登出功能
         window.handleLogout = function() {
