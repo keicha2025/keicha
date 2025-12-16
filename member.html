@@ -6,13 +6,20 @@
     <title>會員中心 - KEICHA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        :root { --brand-green: #6ea44c; }
+        .text-brandGreen { color: var(--brand-green); }
+        .bg-brandGreen { background-color: var(--brand-green); }
+        .border-brandGreen { border-color: var(--brand-green); }
+        .ring-brandGreen:focus { --tw-ring-color: var(--brand-green); }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans">
 
 <main class="max-w-4xl mx-auto p-4 md:p-10">
     <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
         
-        <div class="bg-[#6ea44c] p-6 text-white flex justify-between items-center">
+        <div class="bg-brandGreen p-6 text-white flex justify-between items-center">
             <h1 class="text-2xl font-bold">會員中心</h1>
             <button id="logout-btn" class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1 rounded transition">登出</button>
         </div>
@@ -20,58 +27,73 @@
         <div id="auth-area" class="p-8">
             <div class="max-w-sm mx-auto space-y-4">
                 <h2 class="text-xl font-bold text-center text-gray-700">會員登入 / 註冊</h2>
-                <input type="email" id="email" placeholder="電子郵件" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none">
-                <input type="password" id="password" placeholder="密碼 (至少 6 位)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none">
+                <input type="email" id="email" placeholder="電子郵件" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                <input type="password" id="password" placeholder="密碼 (至少 6 位)" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
                 <div class="grid grid-cols-2 gap-4">
-                    <button id="login-btn" class="bg-[#6ea44c] text-white p-3 rounded-lg font-bold shadow hover:bg-opacity-90">登入</button>
-                    <button id="signup-btn" class="border-2 border-[#6ea44c] text-[#6ea44c] p-3 rounded-lg font-bold hover:bg-green-50">註冊</button>
+                    <button id="login-btn" class="bg-brandGreen text-white p-3 rounded-lg font-bold shadow hover:bg-opacity-90">登入</button>
+                    <button id="signup-btn" class="border-2 border-brandGreen text-brandGreen p-3 rounded-lg font-bold hover:bg-green-50">註冊</button>
                 </div>
             </div>
         </div>
 
         <div id="member-area" class="hidden p-6 md:p-10">
-            <form id="profile-form" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">真實姓名（取件用）</label>
-                        <input type="text" id="display_name" class="w-full p-3 border rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
+            <form id="profile-form" class="space-y-8">
+                
+                <section>
+                    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center border-l-4 border-brandGreen pl-3">
+                        基本資料設定
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">真實姓名（取件用）</label>
+                            <input type="text" id="display_name" class="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">聯絡電話</label>
+                            <input type="tel" id="user_phone" placeholder="09xxxxxxxx" class="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
+                            <p class="text-xs text-brandGreen mt-1 font-medium">需為 09 開頭的 10 碼數字</p>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">聯絡電話</label>
-                        <input type="tel" id="user_phone" placeholder="09xxxxxxxx" class="w-full p-3 border rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
-                        <p class="text-xs text-gray-400 mt-1">需為 09 開頭的 10 碼數字</p>
+                </section>
+
+                <section class="space-y-6">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center border-l-4 border-brandGreen pl-3">
+                        新增取貨方式 (可並存)
+                    </h2>
+
+                    <div class="p-4 bg-green-50 border border-brandGreen rounded-xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center font-bold text-brandGreen">
+                                <span class="material-symbols-rounded mr-1">store</span> 7-11 店號
+                            </span>
+                            <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="text-xs bg-white border border-brandGreen text-brandGreen px-3 py-1 rounded-full hover:bg-green-100 transition">查詢 7-11 店號</a>
+                        </div>
+                        <input type="text" id="store_711" maxlength="6" placeholder="請輸入 6 位數字店號" 
+                               class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">慣用收貨方式 (選填)</label>
-                    <select id="shipping_method" class="w-full p-3 border rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
-                        <option value="">-- 請選擇 --</option>
-                        <option value="7-11">7-11 超商取貨</option>
-                        <option value="FamilyMart">全家 超商取貨</option>
-                        <option value="Delivery">宅配到府</option>
-                    </select>
-                </div>
-
-                <div id="cvs_field" class="hidden space-y-3 p-4 bg-orange-50 rounded-xl border border-orange-100">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-sm font-bold text-orange-700">六位數字店號</label>
-                        <a id="store-query-link" href="#" target="_blank" class="text-xs bg-white border border-orange-300 text-orange-600 px-3 py-1 rounded-full hover:bg-orange-100 transition flex items-center">
-                            <span class="material-symbols-rounded text-sm mr-1">search</span> 查詢店號
-                        </a>
+                    <div class="p-4 bg-green-50 border border-brandGreen rounded-xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center font-bold text-brandGreen">
+                                <span class="material-symbols-rounded mr-1">storefront</span> 全家 店號
+                            </span>
+                            <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="text-xs bg-white border border-brandGreen text-brandGreen px-3 py-1 rounded-full hover:bg-green-100 transition">查詢全家店號</a>
+                        </div>
+                        <input type="text" id="store_fami" maxlength="6" placeholder="請輸入 6 位數字店號" 
+                               class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
                     </div>
-                    <input type="text" id="store_number" maxlength="6" placeholder="例如：123456" 
-                           class="w-full p-3 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none">
-                </div>
 
-                <div id="address_field" class="hidden p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <label class="block text-sm font-bold text-blue-700 mb-2">收件地址</label>
-                    <input type="text" id="shipping_address" placeholder="請輸入完整地址" 
-                           class="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
-                </div>
+                    <div class="p-4 bg-green-50 border border-brandGreen rounded-xl space-y-3">
+                        <span class="flex items-center font-bold text-brandGreen">
+                            <span class="material-symbols-rounded mr-1">home</span> 宅配地址
+                        </span>
+                        <input type="text" id="shipping_address" placeholder="請輸入完整地址" 
+                               class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                    </div>
+                </section>
 
-                <button type="button" id="save-btn" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-[0.98]">
-                    儲存個人設定
+                <button type="button" id="save-btn" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-[0.98]">
+                    儲存會員資料
                 </button>
             </form>
         </div>
@@ -84,7 +106,6 @@
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     // 🚨 請填入你的 Firebase Config
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyD2Gk93TU3f0DFxqOw6KN4JCtOcp6IlXjk",
   authDomain: "keicha-shop-test.firebaseapp.com",
@@ -99,25 +120,6 @@ const firebaseConfig = {
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
-    // 物流與查詢連結切換邏輯
-    const methodSelect = document.getElementById('shipping_method');
-    const queryLink = document.getElementById('store-query-link');
-    
-    methodSelect.addEventListener('change', () => {
-        const val = methodSelect.value;
-        const cvsField = document.getElementById('cvs_field');
-        const addressField = document.getElementById('address_field');
-
-        cvsField.classList.toggle('hidden', !['7-11', 'FamilyMart'].includes(val));
-        addressField.classList.toggle('hidden', val !== 'Delivery');
-
-        if (val === '7-11') {
-            queryLink.href = "https://www.ibon.com.tw/mobile/retail_inquiry.aspx";
-        } else if (val === 'FamilyMart') {
-            queryLink.href = "https://www.family.com.tw/marketing/inquiry.aspx";
-        }
-    });
 
     // 註冊
     document.getElementById('signup-btn').onclick = async () => {
@@ -135,9 +137,7 @@ const firebaseConfig = {
     document.getElementById('login-btn').onclick = async () => {
         const e = document.getElementById('email').value;
         const p = document.getElementById('password').value;
-        try {
-            await signInWithEmailAndPassword(auth, e, p);
-        } catch (err) { alert("登入失敗: " + err.message); }
+        try { await signInWithEmailAndPassword(auth, e, p); } catch (err) { alert("登入失敗: " + err.message); }
     };
 
     // 登出
@@ -149,23 +149,22 @@ const firebaseConfig = {
         if (!user) return alert("請先登入");
 
         const phone = document.getElementById('user_phone').value;
-        // 電話驗證邏輯：若有填寫，必須符合 09xxxxxxxx 格式
         if (phone !== "" && !/^09\d{8}$/.test(phone)) {
-            return alert("電話格式錯誤！請輸入 09 開頭的 10 碼數字。");
+            return alert("電話格式錯誤！需為 09 開頭的 10 碼數字。");
         }
 
         const data = {
             name: document.getElementById('display_name').value,
             phone: phone,
-            shipping_method: document.getElementById('shipping_method').value,
-            store_number: document.getElementById('store_number').value,
+            store_711: document.getElementById('store_711').value,
+            store_fami: document.getElementById('store_fami').value,
             shipping_address: document.getElementById('shipping_address').value,
             updatedAt: new Date()
         };
 
         try {
             await setDoc(doc(db, "users", user.uid), data, { merge: true });
-            alert("個人設定已成功儲存！");
+            alert("會員資料已儲存！");
         } catch (err) { alert("儲存失敗: " + err.message); }
     };
 
@@ -185,10 +184,9 @@ const firebaseConfig = {
                 const d = snap.data();
                 document.getElementById('display_name').value = d.name || '';
                 document.getElementById('user_phone').value = d.phone || '';
-                document.getElementById('shipping_method').value = d.shipping_method || '';
-                document.getElementById('store_number').value = d.store_number || '';
+                document.getElementById('store_711').value = d.store_711 || '';
+                document.getElementById('store_fami').value = d.store_fami || '';
                 document.getElementById('shipping_address').value = d.shipping_address || '';
-                methodSelect.dispatchEvent(new Event('change'));
             }
         } else {
             authArea.classList.remove('hidden');
