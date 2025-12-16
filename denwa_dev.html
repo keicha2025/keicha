@@ -243,53 +243,50 @@ scripts: |
             data.party_size_total = `${adults}大人, ${children}小孩`;
 
 
-            // 2. 發送到 GAS 進行 LINE 推播和數據儲存
-            try {
-                const response = await fetch(BACKEND_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(data)
-                });
-                
-                const responseData = await response.json();
+// 2. 發送到 GAS 進行 LINE 推播和數據儲存
+    try {
+        const response = await fetch(BACKEND_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+            body: JSON.stringify(data)
+        });
+        
+        const responseData = await response.json();
 
-                if (responseData.status === 'success' || response.ok) {
-                    // ⭐ [新增] 1. 取得後端回傳的 order_id
-    const finalOrderId = responseData.order_id || 'N/A'; 
-    
-    // ⭐ [修改] 2. 移除原來的 form.reset() 和 successMessage 顯示
-    // form.reset();
-    // successMessage.classList.remove('hidden'); 
-    // successMessage.scrollIntoView({ behavior: 'smooth' });
-    // toggleAccommodationAlert();
-    
-    // ⭐ [新增] 3. 導向到交易結果頁，並將 order_id 傳入
-    const paymentResultUrl = `payment-result.html?status=success&order_id=${finalOrderId}`;
-    window.location.href = paymentResultUrl;
-                    form.reset();
-                    successMessage.classList.remove('hidden');
-                    successMessage.scrollIntoView({ behavior: 'smooth' });
-                    toggleAccommodationAlert();
-                    
-                } else {
-                    alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫LINE客服。');
-                    console.error('API Error:', response.status, responseData);
-                }
+        // ⭐ 修正點: 判斷成功並導向 denwa-result.html
+        if (responseData.status === 'success' || response.ok) {
+            
+            const finalOrderId = responseData.order_id || 'N/A';
+            
+            // 移除原本的 reset 和 successMessage 顯示
+            // form.reset(); 
+            // successMessage.classList.remove('hidden'); 
 
-            } catch (error) {
-                console.warn('Fetch Error (可能成功):', error);
-                
-                // 寬容處理：假設 GAS 成功推播
-                form.reset();
-                successMessage.classList.remove('hidden');
-                successMessage.scrollIntoView({ behavior: 'smooth' });
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHtml;
-            }
-
-            return false;
+            // ⭐ [NEW] 導向到新的專屬結果頁，並傳入 order_id
+            const resultUrl = `denwa-result.html?status=success&order_id=${finalOrderId}`;
+            window.location.href = resultUrl; 
+            
+        } else {
+            // ... (原本的錯誤處理)
+            alert('提交失敗，後端伺服器錯誤 (' + response.status + ')。請直接聯繫LINE客服。');
+            console.error('API Error:', response.status, responseData);
         }
+
+    } catch (error) {
+        console.warn('Fetch Error (可能成功):', error);
+        
+        // ⭐ [NEW] 寬容處理時也應該給予單號 (如果 GAS 傳回了 order_id)
+        const mockOrderId = 'FETCH_FAILED_CONTACT_CS'; 
+        const resultUrl = `denwa-result.html?status=success&order_id=${mockOrderId}`;
+        window.location.href = resultUrl;
+        
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+    }
+
+    return false;
+}
     </script>
 ---
 <main class="p-4 md:p-8">
