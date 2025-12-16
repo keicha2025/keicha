@@ -254,6 +254,18 @@ scripts: |
                 const responseData = await response.json();
 
                 if (responseData.status === 'success' || response.ok) {
+                    // ⭐ [新增] 1. 取得後端回傳的 order_id
+    const finalOrderId = responseData.order_id || 'N/A'; 
+    
+    // ⭐ [修改] 2. 移除原來的 form.reset() 和 successMessage 顯示
+    // form.reset();
+    // successMessage.classList.remove('hidden'); 
+    // successMessage.scrollIntoView({ behavior: 'smooth' });
+    // toggleAccommodationAlert();
+    
+    // ⭐ [新增] 3. 導向到交易結果頁，並將 order_id 傳入
+    const paymentResultUrl = `payment-result.html?status=success&order_id=${finalOrderId}`;
+    window.location.href = paymentResultUrl;
                     form.reset();
                     successMessage.classList.remove('hidden');
                     successMessage.scrollIntoView({ behavior: 'smooth' });
