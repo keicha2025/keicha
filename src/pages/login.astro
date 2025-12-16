@@ -1,0 +1,61 @@
+---
+// src/pages/login.astro
+// 這裡可以寫 Server-side logic，但在 Astro + Supabase Client 模式下，
+// 大部分登入邏輯會寫在下方的 <script> 標籤內
+---
+
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8" />
+    <title>會員登入測試</title>
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <h1 class="text-2xl font-bold text-center text-brandGreen mb-6">會員登入</h1>
+      
+      <div id="message" class="hidden p-3 mb-4 text-sm rounded"></div>
+
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" required class="mt-1 block w-full rounded border-gray-300 border p-2 shadow-sm focus:border-brandGreen focus:ring-brandGreen" placeholder="test@example.com">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700">密碼</label>
+          <input type="password" id="password" required class="mt-1 block w-full rounded border-gray-300 border p-2 shadow-sm focus:border-brandGreen focus:ring-brandGreen" placeholder="******">
+        </div>
+
+        <button type="submit" class="w-full bg-brandGreen text-white py-2 px-4 rounded hover:opacity-90 transition">
+          登入
+        </button>
+      </form>
+
+      <div class="mt-4 text-center">
+        <span class="text-sm text-gray-500">還沒有帳號？</span>
+        <a href="#" id="toggle-signup" class="text-sm text-brandGreen hover:underline">切換到註冊</a>
+      </div>
+    </div>
+
+    <script>
+      // TODO: 這裡之後要 import supabase client
+      
+      const form = document.getElementById('login-form');
+      const messageDiv = document.getElementById('message');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // 模擬測試
+        console.log('嘗試登入:', email);
+        
+        // 這裡之後會放入 supabase.auth.signInWithPassword(...)
+        alert(`準備發送登入請求：\nEmail: ${email}`);
+      });
+    </script>
+  </body>
+</html>
