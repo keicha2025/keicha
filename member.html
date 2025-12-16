@@ -9,39 +9,52 @@
     <style>
         :root { 
             --brand-green: #6ea44c; 
-            --brand-green-10: rgba(110, 164, 76, 0.1); /* 品牌色 10% */
+            --brand-green-10: rgba(110, 164, 76, 0.1); 
         }
         .text-brandGreen { color: var(--brand-green); }
         .bg-brandGreen { background-color: var(--brand-green); }
         .bg-brandGreen-10 { background-color: var(--brand-green-10); }
         .border-brandGreen { border-color: var(--brand-green); }
-        .ring-brandGreen:focus { --tw-ring-color: var(--brand-green); }
+        
+        /* 展開動畫效果 */
+        .expand-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s ease-out;
+            overflow: hidden;
+        }
+        .expand-content.active {
+            grid-template-rows: 1fr;
+        }
+        .expand-inner {
+            min-height: 0;
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-50 font-sans text-gray-700">
 
 <main class="max-w-4xl mx-auto p-4 md:p-10">
     <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
         
         <div class="bg-brandGreen p-6 text-white flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-white">會員中心</h1>
-            <button id="logout-btn" class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1 rounded transition">登出</button>
+            <h1 class="text-2xl font-bold">會員中心</h1>
+            <button id="logout-btn" class="hidden text-sm bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition">登出</button>
         </div>
 
         <div id="auth-area" class="p-8">
             <div class="max-w-sm mx-auto space-y-4">
                 <h2 class="text-xl font-bold text-center text-gray-700">登入 / 註冊</h2>
                 <p class="text-center text-xs text-gray-400">若無帳號，系統將自動為您建立</p>
-                <input type="email" id="email" placeholder="電子郵件" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
-                <input type="password" id="password" placeholder="密碼 (至少 6 位)" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                <input type="email" id="email" placeholder="電子郵件" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
+                <input type="password" id="password" placeholder="密碼 (至少 6 位)" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
                 <div class="text-right">
                     <button id="forgot-pw-btn" class="text-xs text-brandGreen hover:underline font-medium">忘記密碼？</button>
                 </div>
-                <button id="submit-auth-btn" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-opacity-90 transition">進入會員中心</button>
+                <button id="submit-auth-btn" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition disabled:opacity-50">進入會員中心</button>
             </div>
         </div>
 
-        <div id="member-area" class="hidden p-6 md:p-10">
+        <div id="member-area" class="hidden p-6 md:p-10 animate-in fade-in duration-500">
             <form id="profile-form" class="space-y-8">
                 
                 <section>
@@ -49,11 +62,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-gray-600 mb-1">真實姓名（取件用）</label>
-                            <input type="text" id="display_name" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
+                            <input type="text" id="display_name" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-600 mb-1">聯絡電話</label>
-                            <input type="tel" id="user_phone" placeholder="09xxxxxxxx" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
+                            <input type="tel" id="user_phone" placeholder="09xxxxxxxx" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 focus:ring-[#6ea44c] outline-none transition">
                             <p class="text-[10px] text-brandGreen mt-1 font-medium">※ 請輸入 09 開頭的 10 碼數字</p>
                         </div>
                     </div>
@@ -62,49 +75,53 @@
                 <section class="space-y-4">
                     <h2 class="text-lg font-bold text-gray-800 border-l-4 border-brandGreen pl-3 mb-2">取貨資料預設 (選填)</h2>
                     
-                    <div class="space-y-2">
-                        <button type="button" onclick="toggleSection('sec_711')" class="w-full flex items-center justify-between p-4 border border-brandGreen text-brandGreen rounded-xl hover:bg-brandGreen-10 transition">
+                    <div class="border border-brandGreen rounded-xl overflow-hidden">
+                        <button type="button" onclick="toggleSection('sec_711', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition">
                             <span class="font-bold flex items-center"><span class="material-symbols-rounded mr-2">store</span>設定 7-11 取貨</span>
-                            <span class="material-symbols-rounded">add_circle</span>
+                            <span class="material-symbols-rounded icon-state">add_circle</span>
                         </button>
-                        <div id="sec_711" class="hidden p-4 bg-brandGreen-10 rounded-xl space-y-3 border-t-2 border-brandGreen">
-                            <div class="flex justify-between items-center">
-                                <label class="text-sm font-bold text-gray-700">7-11 六位數店號</label>
-                                <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen">查詢店號</a>
+                        <div id="sec_711" class="expand-content">
+                            <div class="expand-inner p-4 bg-brandGreen-10 space-y-3">
+                                <div class="flex justify-between items-center border-t border-brandGreen pt-3">
+                                    <label class="text-sm font-bold text-gray-700">7-11 六位數店號</label>
+                                    <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen shadow-sm">查詢店號</a>
+                                </div>
+                                <input type="text" id="store_711" maxlength="6" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none">
                             </div>
-                            <input type="text" id="store_711" maxlength="6" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <button type="button" onclick="toggleSection('sec_fami')" class="w-full flex items-center justify-between p-4 border border-brandGreen text-brandGreen rounded-xl hover:bg-brandGreen-10 transition">
+                    <div class="border border-brandGreen rounded-xl overflow-hidden">
+                        <button type="button" onclick="toggleSection('sec_fami', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition">
                             <span class="font-bold flex items-center"><span class="material-symbols-rounded mr-2">storefront</span>設定全家取貨</span>
-                            <span class="material-symbols-rounded">add_circle</span>
+                            <span class="material-symbols-rounded icon-state">add_circle</span>
                         </button>
-                        <div id="sec_fami" class="hidden p-4 bg-brandGreen-10 rounded-xl space-y-3 border-t-2 border-brandGreen">
-                            <div class="flex justify-between items-center">
-                                <label class="text-sm font-bold text-gray-700">全家 六位數店號</label>
-                                <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen">查詢店號</a>
+                        <div id="sec_fami" class="expand-content">
+                            <div class="expand-inner p-4 bg-brandGreen-10 space-y-3">
+                                <div class="flex justify-between items-center border-t border-brandGreen pt-3">
+                                    <label class="text-sm font-bold text-gray-700">全家 六位數店號</label>
+                                    <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen shadow-sm">查詢店號</a>
+                                </div>
+                                <input type="text" id="store_fami" maxlength="6" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none">
                             </div>
-                            <input type="text" id="store_fami" maxlength="6" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <button type="button" onclick="toggleSection('sec_home')" class="w-full flex items-center justify-between p-4 border border-brandGreen text-brandGreen rounded-xl hover:bg-brandGreen-10 transition">
+                    <div class="border border-brandGreen rounded-xl overflow-hidden">
+                        <button type="button" onclick="toggleSection('sec_home', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition">
                             <span class="font-bold flex items-center"><span class="material-symbols-rounded mr-2">local_shipping</span>設定宅配地址</span>
-                            <span class="material-symbols-rounded">add_circle</span>
+                            <span class="material-symbols-rounded icon-state">add_circle</span>
                         </button>
-                        <div id="sec_home" class="hidden p-4 bg-brandGreen-10 rounded-xl border-t-2 border-brandGreen">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">完整宅配地址</label>
-                            <input type="text" id="shipping_address" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                        <div id="sec_home" class="expand-content">
+                            <div class="expand-inner p-4 bg-brandGreen-10 border-t border-brandGreen">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">完整宅配地址</label>
+                                <input type="text" id="shipping_address" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#6ea44c] outline-none">
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <button type="button" id="save-btn" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-[0.98]">
-                    儲存會員資料
-                </button>
+                <button type="button" id="save-btn" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-[0.98]">儲存會員資料</button>
             </form>
         </div>
     </div>
@@ -115,42 +132,47 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyD2Gk93TU3f0DFxqOw6KN4JCtOcp6IlXjk",
-  authDomain: "keicha-shop-test.firebaseapp.com",
-  projectId: "keicha-shop-test",
-  storageBucket: "keicha-shop-test.firebasestorage.app",
-  messagingSenderId: "585645783826",
-  appId: "1:585645783826:web:677f92b699a055e10811cb",
-  measurementId: "G-HE0JZTQXD2"
-};
-
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2Gk93TU3f0DFxqOw6KN4JCtOcp6IlXjk",
+        authDomain: "keicha-shop-test.firebaseapp.com",
+        projectId: "keicha-shop-test",
+        storageBucket: "keicha-shop-test.firebasestorage.app",
+        messagingSenderId: "585645783826",
+        appId: "1:585645783826:web:677f92b699a055e10811cb"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     // 展開收合函數
-    window.toggleSection = (id) => {
-        const el = document.getElementById(id);
-        el.classList.toggle('hidden');
+    window.toggleSection = (id, btn) => {
+        const content = document.getElementById(id);
+        const icon = btn.querySelector('.icon-state');
+        const isActive = content.classList.toggle('active');
+        icon.innerText = isActive ? 'do_not_disturb_on' : 'add_circle';
     };
 
     function translateError(code) {
         switch (code) {
             case 'auth/invalid-credential': return '電子郵件或密碼錯誤。';
+            case 'auth/wrong-password': return '密碼錯誤，請重新輸入。';
+            case 'auth/user-not-found': return '此帳號尚未註冊。';
             case 'auth/weak-password': return '密碼太短，請至少輸入 6 位數。';
             case 'auth/invalid-email': return '電子郵件格式無效。';
-            default: return '發生錯誤：' + code;
+            case 'auth/too-many-requests': return '嘗試次數過多，請稍後再試。';
+            default: return '系統忙碌中，請稍後再試 (' + code + ')';
         }
     }
 
-    // 登入/註冊並行
     document.getElementById('submit-auth-btn').onclick = async () => {
+        const btn = document.getElementById('submit-auth-btn');
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         if (!email || !password) return alert("請填寫 Email 與密碼");
+
+        btn.disabled = true;
+        btn.innerText = "驗證中...";
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
@@ -162,19 +184,21 @@ const firebaseConfig = {
                     alert("歡迎加入！已為您自動註冊帳號。");
                 } catch (sErr) { alert(translateError(sErr.code)); }
             } else { alert(translateError(err.code)); }
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "進入會員中心";
         }
     };
 
-document.getElementById('forgot-pw-btn').onclick = async () => {
-    const email = document.getElementById('email').value;
-    if (!email) return alert("請先輸入您的電子郵件");
-    try {
-        await sendPasswordResetEmail(auth, email);
-        alert("重設連結已寄出！收件匣沒看到，請務必檢查「垃圾郵件」。");
-    } catch (err) { 
-        alert(translateError(err.code)); 
-    }
-};
+    document.getElementById('forgot-pw-btn').onclick = async () => {
+        const email = document.getElementById('email').value;
+        if (!email) return alert("請先輸入您的電子郵件");
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert("重設連結已寄出！收件匣沒看到，請務必檢查「垃圾郵件」。");
+        } catch (err) { alert(translateError(err.code)); }
+    };
+
     document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
     document.getElementById('save-btn').onclick = async () => {
@@ -208,10 +232,23 @@ document.getElementById('forgot-pw-btn').onclick = async () => {
                 document.getElementById('store_711').value = d.store_711 || '';
                 document.getElementById('store_fami').value = d.store_fami || '';
                 document.getElementById('shipping_address').value = d.shipping_address || '';
-                // 若已有資料，自動展開該區塊
-                if(d.store_711) document.getElementById('sec_711').classList.remove('hidden');
-                if(d.store_fami) document.getElementById('sec_fami').classList.remove('hidden');
-                if(d.shipping_address) document.getElementById('sec_home').classList.remove('hidden');
+                
+                // 自動展開已有資料的區塊並切換圖示
+                if(d.store_711) {
+                    const el = document.getElementById('sec_711');
+                    el.classList.add('active');
+                    el.previousElementSibling.querySelector('.icon-state').innerText = 'do_not_disturb_on';
+                }
+                if(d.store_fami) {
+                    const el = document.getElementById('sec_fami');
+                    el.classList.add('active');
+                    el.previousElementSibling.querySelector('.icon-state').innerText = 'do_not_disturb_on';
+                }
+                if(d.shipping_address) {
+                    const el = document.getElementById('sec_home');
+                    el.classList.add('active');
+                    el.previousElementSibling.querySelector('.icon-state').innerText = 'do_not_disturb_on';
+                }
             }
         }
     });
