@@ -1,0 +1,97 @@
+<div id="cart-sidebar" class="side-panel">
+    <div class="p-6 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+        <h3 class="font-bold flex items-center gap-2 text-gray-800">
+            <span class="material-symbols-rounded">shopping_cart</span> 
+            購物車
+        </h3>
+        <button onclick="closeAllPanels()" class="material-symbols-rounded text-gray-400 hover:text-gray-600">close</button>
+    </div>
+
+    <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-6">
+        <div class="flex flex-col items-center justify-center h-40 text-gray-400">
+            <span class="material-symbols-rounded text-4xl mb-2">shopping_basket</span>
+            <p>購物車空空的喔</p>
+        </div>
+    </div>
+
+    <div class="p-6 border-t bg-gray-50 space-y-3">
+        <div class="flex justify-between items-center font-bold mb-2">
+            <span class="text-gray-600">商品小計</span>
+            <span id="cart-total-price" class="text-xl brand-green">NT$ 0</span>
+        </div>
+
+        <button onclick="openCheckout()" class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-xl shadow-lg hover:bg-[#5d8d41] transition-colors flex items-center justify-center gap-2">
+            前往結帳
+            <span class="material-symbols-rounded text-sm">arrow_forward</span>
+        </button>
+
+        <button onclick="closeAllPanels()" class="btn-outline-brand flex items-center justify-center gap-2">
+            <span class="material-symbols-rounded text-sm">arrow_back</span>
+            返回商店繼續選購
+        </button>
+    </div>
+</div>
+
+<style>
+    /* 購物車內部的商品行樣式 */
+    .cart-item-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .cart-item-img {
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: 8px;
+        background-color: #f9fafb;
+    }
+
+    /* 針對購物車的小型數量控制按鈕 */
+    .cart-qty-control {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 2px;
+    }
+    
+    .cart-qty-btn {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #6ea44c;
+        cursor: pointer;
+    }
+
+    .cart-qty-num {
+        width: 30px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: #374151;
+    }
+
+    .btn-outline-brand {
+        background-color: white;
+        color: #6ea44c;
+        border: 2px solid #6ea44c;
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 0.75rem;
+        font-weight: bold;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+    
+    .btn-outline-brand:hover {
+        background-color: rgba(110, 164, 76, 0.05);
+    }
+</style>
