@@ -4,12 +4,10 @@ title: KEICHA 網路商店
 ---
 
 <style>
-    /* 品牌色與基礎 CSS */
     .brand-green { color: #6ea44c; }
     .bg-brand-green { background-color: #6ea44c; }
     .bg-brand-green-10 { background-color: rgba(110, 164, 76, 0.1); }
     
-    /* 數量按鈕輔助參數 (您指定的設定) */
     .qty-control {
         display: flex; align-items: center; background: #f3f4f6; border-radius: 12px; padding: 4px; gap: 8px;
     }
@@ -18,7 +16,6 @@ title: KEICHA 網路商店
         background: white; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid #e5e7eb;
     }
 
-    /* 側邊面板與覆蓋層 */
     .side-panel {
         position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
         background-color: white; z-index: 200; transform: translateX(100%);
@@ -32,16 +29,21 @@ title: KEICHA 網路商店
     }
     .overlay.open { opacity: 1; visibility: visible; }
 
-    /* 手機版橫式佈局調整 (圖片放大至按鈕寬度) */
+    /* 手機版橫式佈局調整 */
     @media (max-width: 767px) {
         .mobile-product-card { display: flex; flex-direction: column; padding: 16px; gap: 12px; }
         .card-top-row { display: flex; align-items: center; gap: 16px; }
         .card-info-group { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .card-img-group { width: 100px; height: 100px; flex-shrink: 0; } /* 圖片與下方按鈕/控制區寬度感一致 */
+        /* 圖片寬度設定為與下方按鈕區塊對齊 (約 120px) */
+        .card-img-group { width: 120px; height: 120px; flex-shrink: 0; } 
         .card-img-group img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
         .card-bottom-row { display: flex; gap: 10px; width: 100%; }
         .card-bottom-row .qty-control { flex: 1; justify-content: space-between; }
         .card-bottom-row .add-btn { flex: 1; }
+        
+        /* 會員區加大字體 */
+        .user-field-label { font-size: 11px; }
+        .user-field-value { font-size: 1.1rem; }
     }
 
     .cart-floating-btn {
@@ -194,8 +196,13 @@ title: KEICHA 網路商店
         const inCart = cart.find(x => x.id === pid);
         const stock = parseInt(p.stock) || 999;
 
-        if ((inCart ? inCart.qty : 0) + qty > stock) return alert(`抱歉，庫存不足！僅剩 ${stock} 件。`);
-        if (inCart) inCart.qty += qty; else cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url });
+        if ((inCart ? inCart.qty : 0) + qty > stock) return alert(`抱歉，庫存不足！`);
+        
+        let finalImg = p.image_url || "";
+        if (finalImg && !finalImg.startsWith('http')) finalImg = siteBaseUrl + (finalImg.startsWith('/') ? finalImg : '/' + finalImg);
+
+        if (inCart) inCart.qty += qty; 
+        else cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: finalImg });
         
         updateCartUI();
         openCart();
@@ -209,13 +216,14 @@ title: KEICHA 網路商店
         document.getElementById('cart-items-container').innerHTML = cart.map((i, idx) => {
             total += i.price * i.qty;
             return `
-            <div class="flex justify-between items-center border-b pb-4">
+            <div class="flex gap-4 items-center border-b pb-4">
+                <img src="${i.img || ''}" class="w-14 h-14 object-cover rounded-lg bg-gray-100">
                 <div class="flex-1">
-                    <p class="font-bold text-sm">${i.name}</p>
+                    <p class="font-bold text-sm line-clamp-1">${i.name}</p>
                     <p class="brand-green font-mono text-xs">NT$ ${i.price.toLocaleString()}</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="qty-control scale-75">
+                <div class="flex flex-col items-end gap-2">
+                    <div class="qty-control scale-75 origin-right">
                         <button class="qty-btn" onclick="updateCartQty(${idx}, -1)">-</button>
                         <span class="text-xs font-bold px-1">${i.qty}</span>
                         <button class="qty-btn" onclick="updateCartQty(${idx}, 1)">+</button>
@@ -239,7 +247,6 @@ title: KEICHA 網路商店
 
     function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); }
 
-    // 會員分段編輯邏輯
     function renderUserFields() {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
         const b = document.getElementById('panel-body');
@@ -247,16 +254,16 @@ title: KEICHA 網路商店
             <div id="sec-info" class="space-y-6">
                 <div class="flex justify-between items-center"><h4 class="text-xs font-bold brand-green uppercase">個人資訊</h4><button onclick="editSec('info')" class="material-symbols-rounded text-[#6ea44c]">edit_square</button></div>
                 <div class="space-y-4">
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">姓名</p><p class="font-bold text-gray-700 text-lg">${u.name || '未填寫'}</p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">Email</p><p class="font-bold text-gray-700 text-lg">${u.email || '未填寫'}</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase user-field-label">姓名</p><p class="font-bold text-gray-700 user-field-value">${u.name || '未填寫'}</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase user-field-label">Email</p><p class="font-bold text-gray-700 user-field-value">${u.email || '未填寫'}</p></div>
                 </div>
             </div>
             <div id="sec-ship" class="space-y-6 pt-10 border-t">
                 <div class="flex justify-between items-center"><h4 class="text-xs font-bold brand-green uppercase">收件方式</h4><button onclick="editSec('ship')" class="material-symbols-rounded text-[#6ea44c]">edit_square</button></div>
                 <div class="space-y-5">
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">7-11 門市</p><p class="font-bold text-gray-700 text-lg">${u.store_711 || '未填'} <span class="text-gray-400 text-sm font-normal ml-1">${u.store_711_note || ''}</span></p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">全家 門市</p><p class="font-bold text-gray-700 text-lg">${u.store_fami || '未填'} <span class="text-gray-400 text-sm font-normal ml-1">${u.store_fami_note || ''}</span></p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">宅配地址</p><p class="font-bold text-gray-700 text-lg">${u.shipping_address || '未填'}</p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase user-field-label">7-11 門市</p><p class="font-bold text-gray-700 user-field-value">${u.store_711 || '未填'} <span class="text-gray-400 text-sm font-normal ml-1">${u.store_711_note || ''}</span></p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase user-field-label">全家 門市</p><p class="font-bold text-gray-700 user-field-value">${u.store_fami || '未填'} <span class="text-gray-400 text-sm font-normal ml-1">${u.store_fami_note || ''}</span></p></div>
+                    <div><p class="text-[10px] text-gray-400 font-bold uppercase user-field-label">宅配地址</p><p class="font-bold text-gray-700 user-field-value">${u.shipping_address || '未填'}</p></div>
                 </div>
             </div>
         `;
@@ -287,7 +294,7 @@ title: KEICHA 網路商店
                         <input id="ed-711-note" value="${u.store_711_note||''}" class="w-full p-3 rounded-xl border-none outline-none text-lg" placeholder="備註 (店名)">
                     </div>
                     <div class="p-5 bg-gray-50 rounded-2xl space-y-4">
-                        <div class="flex justify-between items-center"><span class="text-xs font-bold brand-green">全家 門市</span><a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-3 py-1 rounded text-[10px]">查詢店號</a></div>
+                        <div class="flex justify-between items-center"><span class="text-xs font-bold brand-green text-[#6ea44c]">全家 門市</span><a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-3 py-1 rounded text-[10px]">查詢店號</a></div>
                         <input id="ed-fami" value="${u.store_fami||''}" class="w-full p-3 rounded-xl border-none outline-none focus:ring-1 ring-[#6ea44c] text-lg font-bold" placeholder="輸入店號">
                         <input id="ed-fami-note" value="${u.store_fami_note||''}" class="w-full p-3 rounded-xl border-none outline-none text-lg" placeholder="備註 (店名)">
                     </div>
@@ -317,7 +324,7 @@ title: KEICHA 網路商店
 
     function renderTopAuth() {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        document.getElementById('top-auth-zone').innerHTML = u ? `<button onclick="openUserPanel()" class="flex items-center gap-1 brand-green font-bold text-sm"><span class="material-symbols-rounded text-lg">account_circle</span> ${u.name || u.phone}</button>` : `<a href="member.html" class="text-gray-400 text-sm font-bold">登入/註冊</a>`;
+        document.getElementById('top-auth-zone').innerHTML = u ? `<button onclick="openUserPanel()" class="flex items-center gap-1 brand-green font-bold text-sm"><span class="material-symbols-rounded">account_circle</span> ${u.name || u.phone}</button>` : `<a href="member.html" class="text-gray-400 text-sm font-bold">登入/註冊</a>`;
     }
 
     function openUserPanel() { renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
