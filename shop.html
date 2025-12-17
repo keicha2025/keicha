@@ -7,7 +7,7 @@ title: KEICHA 網路商店
     .brand-title { font-family: 'brand-title-font', sans-serif; }
     .brand-green { color: #6ea44c; }
     
-    /* 1. 側邊面板最優先級 (確保點擊有效) */
+    /* 側邊面板最優先級 */
     .side-panel {
         position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
         background-color: white; z-index: 999; transform: translateX(100%);
@@ -21,16 +21,12 @@ title: KEICHA 網路商店
     }
     .overlay.open { opacity: 1; visibility: visible; }
 
-    /* 2. 商品佈局穩定化 */
-    .product-grid { 
-        display: grid !important; 
-        grid-template-columns: repeat(1, minmax(0, 1fr)) !important; 
-        gap: 1.5rem !important; 
-    }
+    /* 商品網格佈局 */
+    .product-grid { display: grid !important; grid-template-columns: repeat(1, minmax(0, 1fr)) !important; gap: 1.5rem !important; }
     @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
     @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
 
-    /* 3. 手機版橫式適配 */
+    /* 手機版橫式適配 */
     @media (max-width: 767px) {
         .mobile-product-card { display: flex !important; flex-direction: column !important; padding: 16px !important; }
         .card-top-row { display: flex !important; flex-direction: row !important; gap: 16px !important; width: 100% !important; }
@@ -52,8 +48,7 @@ title: KEICHA 網路商店
 <div class="bg-white border-b border-gray-50">
     <div class="container mx-auto px-4 max-w-6xl py-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <h1 class="text-4xl md:text-5xl font-bold brand-title text-gray-800 tracking-tight">KEICHA 網路商店</h1>
-        <div id="top-auth-zone" class="w-full md:w-auto">
-            </div>
+        <div id="top-auth-zone" class="w-full md:w-auto"></div>
     </div>
 </div>
 
@@ -64,27 +59,32 @@ title: KEICHA 網路商店
     <div id="category-container" class="space-y-20"></div>
 </main>
 
-<div id="global-overlay" class="overlay" onclick="closeAllPanels()"></div>
+<div id="global-overlay" class="overlay" onclick="window.closeAllPanels()"></div>
 
 {% include panel-login.html %}
 {% include panel-user.html %}
 {% include panel-cart.html %}
 {% include panel-checkout.html %}
 
-<div class="cart-floating-btn" onclick="openCart()">
+<div class="cart-floating-btn" onclick="window.openCart()">
     <span class="material-symbols-rounded text-3xl">shopping_bag</span>
     <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full border-2 border-white hidden font-bold">0</span>
 </div>
 
 <script>
-    // 確保所有關鍵變數全域化
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
     const siteBaseUrl = "{{ site.baseurl | default: '' }}";
-    window.cart = []; window.globalProducts = []; window.shippingRules = []; window.selectedMethod = '';
+    
+    // 全域變數
+    window.cart = [];
+    window.globalProducts = [];
+    window.shippingRules = [];
+    window.selectedMethod = '';
 
-    // 引入卡片模板組件
+    // 商品卡片模板
     const ITEM_CARD_TEMPLATE = (p, img, isSoldOut) => `{% include item-card.html %}`;
 
+    // --- 初始化與同步 ---
     async function initShop() {
         try {
             const res = await fetch(GAS_URL);
@@ -114,6 +114,7 @@ title: KEICHA 網路商店
         } catch (e) { }
     }
 
+    // --- 渲染功能 ---
     function renderProducts(prods) {
         const container = document.getElementById('category-container');
         const grouped = prods.reduce((acc, p) => {
@@ -148,19 +149,119 @@ title: KEICHA 網路商店
         }
     }
 
-    // 全域功能函數
+    // --- 購物車 UI (補回 Log 中遺失的函數) ---
+    window.updateCartUI = function() {
+        const count = window.cart.reduce((s, i) => s + i.qty, 0);
+        document.getElementById('cart-count').innerText = count;
+        document.getElementById('cart-count').classList.toggle('hidden', count === 0);
+        
+        const container = document.getElementById('cart-items-container');
+        if (window.cart.length === 0) {
+            container.innerHTML = `<div class="text-center py-20 text-gray-300 font-bold"><p>購物車是空的</p></div>`;
+            document.getElementById('cart-total-price').innerText = "NT$ 0";
+            return;
+        }
+
+        let total = 0;
+        container.innerHTML = window.cart.map((i, idx) => {
+            total += i.price * i.qty;
+            const imgHTML = i.img ? `<img src="${i.img}" class="w-16 h-16 object-cover rounded-xl bg-gray-50">` : '';
+            return `
+            <div class="flex items-center gap-4 border-b border-gray-50 pb-4">
+                ${imgHTML}
+                <div class="flex-1 min-w-0"><div class="text-sm font-bold text-gray-800 truncate">${i.name}</div><div class="text-xs brand-green font-mono mt-1">NT$ ${i.price.toLocaleString()}</div></div>
+                <div class="flex items-center gap-2">
+                    <div class="qty-control scale-75 origin-right">
+                        <button class="qty-btn" onclick="window.updateCartQty(${idx}, -1)">-</button>
+                        <span class="text-xs font-bold w-4 text-center">${i.qty}</span>
+                        <button class="qty-btn" onclick="window.updateCartQty(${idx}, 1)">+</button>
+                    </div>
+                    <button onclick="window.removeFromCart(${idx})" class="material-symbols-rounded text-gray-300 hover:text-red-500 transition p-1">close</button>
+                </div>
+            </div>`;
+        }).join('');
+        document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
+    }
+
+    // --- 會員面板管理 (補回 Log 中遺失的函數) ---
+    window.renderUserFields = function() {
+        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
+        const b = document.getElementById('panel-body');
+        b.innerHTML = `
+            <div class="space-y-8">
+                <div><h4 class="text-xs font-bold brand-green uppercase mb-4">基本資料</h4>
+                    <div class="p-4 bg-gray-50 rounded-2xl space-y-4">
+                        <input id="upd-name" value="${u.name || ''}" class="w-full bg-transparent border-b outline-none font-bold" placeholder="姓名">
+                        <input id="upd-email" value="${u.email || ''}" class="w-full bg-transparent border-b outline-none text-sm" placeholder="Email">
+                    </div>
+                </div>
+                <div><h4 class="text-xs font-bold brand-green uppercase mb-4">預設取件資訊</h4>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-gray-50 rounded-2xl"><p class="text-[10px] text-gray-400">7-11 店號</p><input id="upd-711" value="${u.store_711 || ''}" class="w-full bg-transparent font-bold outline-none"></div>
+                        <div class="p-4 bg-gray-50 rounded-2xl"><p class="text-[10px] text-gray-400">全家 店號</p><input id="upd-fami" value="${u.store_fami || ''}" class="w-full bg-transparent font-bold outline-none"></div>
+                        <div class="p-4 bg-gray-50 rounded-2xl"><p class="text-[10px] text-gray-400">宅配地址</p><input id="upd-addr" value="${u.shipping_address || ''}" class="w-full bg-transparent font-bold outline-none"></div>
+                    </div>
+                </div>
+                <button onclick="window.saveFullUser()" id="btn-user-save" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold shadow-lg">儲存更新資料</button>
+                <button onclick="window.handleLogout()" class="w-full text-gray-400 text-sm font-bold mt-4">安全登出</button>
+            </div>`;
+    };
+
+    window.saveFullUser = async function() {
+        const btn = document.getElementById('btn-user-save');
+        btn.innerText = "儲存中..."; btn.disabled = true;
+        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
+        u.name = document.getElementById('upd-name').value;
+        u.email = document.getElementById('upd-email').value;
+        u.store_711 = document.getElementById('upd-711').value;
+        u.store_fami = document.getElementById('upd-fami').value;
+        u.shipping_address = document.getElementById('upd-addr').value;
+        await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save', ...u }) });
+        localStorage.setItem('keicha_v2_user', JSON.stringify(u));
+        btn.innerText = "儲存更新資料"; btn.disabled = false;
+        renderTopAuth(); alert("資料已同步");
+    };
+
+    window.handleLogout = function() {
+        if(confirm("確定登出嗎？")) { localStorage.removeItem('keicha_v2_user'); location.reload(); }
+    };
+
+    // --- 面板與互動控制 ---
     window.openLoginPanel = function() { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
-    window.openUserPanel = function() { if(typeof renderUserFields === "function") renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
-    window.openCart = function() { updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.openUserPanel = function() { window.renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.openCart = function() { window.updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
     window.closeAllPanels = function() { document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')); };
     
     window.adjQty = function(pid, delta) { const el = document.getElementById(`iq-${pid}`); let v = parseInt(el.innerText) + delta; if(v >= 1) el.innerText = v; };
+    window.updateCartQty = function(idx, d) { window.cart[idx].qty += d; if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1); window.updateCartUI(); };
+    window.removeFromCart = function(idx) { window.cart.splice(idx, 1); window.updateCartUI(); };
+    
     window.addToCart = function(pid) { 
         const p = window.globalProducts.find(x => x.product_id === pid); 
         const qty = parseInt(document.getElementById(`iq-${pid}`).innerText); 
         const inCart = window.cart.find(x => x.id === pid); 
-        if (inCart) inCart.qty += qty; else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category }); 
-        updateCartUI(); window.openCart(); 
+        if (inCart) inCart.qty += qty; 
+        else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category }); 
+        window.updateCartUI(); window.openCart(); 
+    };
+
+    // --- 快速登入 ---
+    window.handleQuickLogin = async function() {
+        const phone = document.getElementById('login-phone').value;
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
+        const data = await res.json();
+        if(data.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(data.data)); renderTopAuth(); window.closeAllPanels(); }
+    };
+
+    // --- 結帳相關 ---
+    window.openCheckout = function() {
+        if(window.cart.length === 0) return alert("購物車空的");
+        window.closeAllPanels();
+        setTimeout(() => {
+            document.getElementById('checkout-panel').classList.add('open');
+            document.getElementById('global-overlay').classList.add('open');
+            // ...這裡需有 renderShipOptions 邏輯 (可放在 panel-checkout 元件內或補齊)
+        }, 150);
     };
 
     window.onload = initShop;
