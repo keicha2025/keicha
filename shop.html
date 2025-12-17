@@ -3,7 +3,9 @@ layout: default
 title: KEICHA 網路商店
 ---
 
-{% include shop-styles.html %} <div class="bg-white border-b border-gray-50">
+{% include shop-styles.html %}
+
+<div class="bg-white border-b border-gray-50">
     <div class="container mx-auto px-4 max-w-6xl py-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <h1 class="text-4xl md:text-5xl font-bold brand-title text-gray-800 tracking-tight">KEICHA 網路商店</h1>
         <div id="top-auth-zone" class="w-full md:w-auto"></div>
@@ -30,17 +32,13 @@ title: KEICHA 網路商店
 </div>
 
 <script>
-    // 傳遞 Jekyll 變數給外部 JS
     window.siteBaseUrl = "{{ site.baseurl | default: '' }}";
-    
-    // Jekyll 必須留在這裡處理的組件模板
     window.ITEM_CARD_TEMPLATE = (p, img, isSoldOut) => `{% include item-card.html %}`;
-
-    // 載入外部邏輯檔
 </script>
+
 <script src="{{ '/assets/js/shop-logic.js' | relative_url }}"></script>
+
 <script>
-    // 確保外部 JS 載入後執行初始化
     window.onload = () => {
         if(typeof window.initShop === "function") window.initShop();
     };
