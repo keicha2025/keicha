@@ -106,8 +106,13 @@
             </div>
         </section>
 
-        <section class="pt-6 border-t border-gray-100">
-            <button onclick="window.handleLogout()" class="w-full text-sm text-gray-300 font-bold hover:text-red-400 transition-colors py-2 text-center">
+<section class="pt-6 border-t border-gray-100 flex flex-col gap-3">
+            <button onclick="window.closeAllPanels()" class="w-full border border-gray-200 text-gray-600 py-4 rounded-xl font-bold hover:bg-gray-50 active:scale-95 transition-all flex justify-center items-center gap-2">
+                <span class="material-symbols-rounded text-lg">expand_more</span>
+                關閉會員中心
+            </button>
+
+            <button onclick="window.handleLogout()" class="w-full text-xs text-gray-300 font-bold hover:text-red-400 transition-colors py-3 text-center">
                 安全登出此帳號
             </button>
         </section>
