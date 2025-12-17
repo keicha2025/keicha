@@ -377,7 +377,8 @@ title: KEICHA 網路商店
             shipping: ship,
             date: new Date().toLocaleString('zh-TW'),
             note: document.getElementById('checkout-note').value,
-            line_name: line
+            line_name: line,
+            logistics: selectedMethod // <--- 新增這一行，把 '7-11' / '全家' / '宅配' 傳過去
         };
 
         try {
