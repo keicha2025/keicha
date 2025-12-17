@@ -1,5 +1,5 @@
 /**
- * KEICHA 核心邏輯 - 11 欄位對接版
+ * KEICHA 核心邏輯 - 精確 11 欄位對接版
  */
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
@@ -10,7 +10,7 @@ window.globalProducts = [];
 window.shippingRules = [];
 window.selectedMethod = ''; 
 
-// --- 初始化 ---
+// --- 商店初始化 ---
 window.initShop = async function() {
     try {
         const res = await fetch(GAS_URL);
@@ -41,7 +41,7 @@ window.syncUserData = async function(phone) {
     } catch (e) { }
 };
 
-// --- 商品渲染 ---
+// --- 商品與購物車基礎邏輯 ---
 window.renderProducts = function(prods) {
     const container = document.getElementById('category-container');
     if (!container) return;
@@ -75,7 +75,7 @@ window.renderTopAuth = function() {
     }
 };
 
-// --- 會員面板 ---
+// --- 會員資料管理與存檔 ---
 window.renderUserFields = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     if (!u.phone) return;
@@ -117,31 +117,22 @@ window.saveFullUser = async function(section) {
     finally { if(btn) btn.disabled = false; }
 };
 
-// --- 購物車 ---
-window.updateCartUI = function() {
-    const count = window.cart.reduce((s, i) => s + i.qty, 0);
-    const el = document.getElementById('cart-count');
-    if (el) { el.innerText = count; el.classList.toggle('hidden', count === 0); }
-    const container = document.getElementById('cart-items-container');
-    if (!container) return;
-    if (window.cart.length === 0) { container.innerHTML = `<div class="text-center py-20 text-gray-300 font-bold"><p>購物車是空的</p></div>`; document.getElementById('cart-total-price').innerText = "NT$ 0"; return; }
-    let total = 0;
-    container.innerHTML = window.cart.map((i, idx) => {
-        total += i.price * i.qty;
-        return `<div class="flex items-center gap-4 border-b border-gray-50 pb-4">
-            ${i.img ? `<img src="${i.img}" class="w-16 h-16 object-cover rounded-xl bg-gray-50">` : ''}
-            <div class="flex-1 min-w-0"><div class="text-sm font-bold text-gray-800 truncate">${i.name}</div><div class="text-xs brand-green mt-1">NT$ ${i.price.toLocaleString()}</div></div>
-            <div class="flex items-center gap-2"><div class="qty-control scale-75 origin-right"><button class="qty-btn" onclick="window.updateCartQty(${idx}, -1)">-</button><span class="text-xs font-bold w-4 text-center">${i.qty}</span><button class="qty-btn" onclick="window.updateCartQty(${idx}, 1)">+</button></div><button onclick="window.removeFromCart(${idx})" class="material-symbols-rounded text-gray-300 p-1">close</button></div>
-        </div>`;
-    }).join('');
-    document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
+// --- 結帳區編輯解決方案 ---
+window.editFromCheckout = function() {
+    // 1. 隱藏結帳面板
+    document.getElementById('checkout-panel').classList.remove('open');
+    // 2. 開啟會員面板
+    window.openUserPanel();
+    // 3. 提示使用者
+    console.log("切換至會員中心進行編輯...");
 };
 
-// --- 結帳確認 (11 欄位對接) ---
+// --- 結帳計算與渲染 ---
 window.renderCheckoutInfo = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     document.getElementById('checkout-info-name').innerText = u.name || '未填寫';
     document.getElementById('checkout-info-phone').innerText = u.phone || '-';
+    // 這裡顯示給使用者看的是有備註的
     document.getElementById('checkout-display-7-11').innerText = u.store_711 ? `${u.store_711} (${u.store_711_note || ''})` : '尚未設定';
     document.getElementById('checkout-display-fami').innerText = u.store_fami ? `${u.store_fami} (${u.store_fami_note || ''})` : '尚未設定';
     document.getElementById('checkout-display-addr').innerText = u.shipping_address || '尚未設定';
@@ -175,46 +166,59 @@ window.updateSummary = function() {
     document.getElementById('summary-total').innerText = `NT$ ${(subtotal + shipping).toLocaleString()}`;
 };
 
+// --- 送出訂單 (精確 11 欄位對接) ---
 window.submitOrder = async function() {
     if (!window.selectedMethod) return alert("請選擇收件方式");
     const lineName = document.getElementById('order-line-name').value;
-    if (!lineName) return alert("請填寫 LINE 名稱");
+    if (!lineName) return alert("請填寫 LINE 名稱以便核對");
+
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     const subtotal = window.cart.reduce((s, i) => s + (i.price * i.qty), 0);
     const shipping = document.getElementById('summary-shipping').innerText.replace('NT$ ', '').replace(/,/g, '');
     const itemsText = window.cart.map(i => `${i.name}x${i.qty}`).join(', ');
-    
-    // 物流資料分離
-    let pureStore = "";
-    let logiName = "";
-    if (window.selectedMethod === '7-11') { pureStore = u.store_711; logiName = "7-11"; }
-    else if (window.selectedMethod === 'fami') { pureStore = u.store_fami; logiName = "全家"; }
-    else { pureStore = u.shipping_address; logiName = "宅配"; }
 
-    if (!pureStore) return alert("資訊不完整，請點擊編輯補全");
+    // 關鍵修改：params.store 只傳 6 位數字店號
+    let storeData = "";
+    let logiName = "";
+
+    if (window.selectedMethod === '7-11') {
+        storeData = u.store_711; // 抓取 localStorage 的純店號
+        logiName = "7-11";
+    } else if (window.selectedMethod === 'fami') {
+        storeData = u.store_fami; // 抓取 localStorage 的純店號
+        logiName = "全家";
+    } else {
+        storeData = u.shipping_address; // 宅配則傳地址
+        logiName = "宅配";
+    }
+
+    if (!storeData) return alert("收件資訊不完整，請先點擊編輯補全");
 
     const payload = {
         action: 'checkout',
         name: u.name || "未提供",
         phone: u.phone,
-        store: pureStore,         // 3. C (純店號或地址)
-        temp: "常溫",             // 4. D
-        items: itemsText,         // 5. E
-        subtotal: subtotal,       // 6. F
-        shipping: shipping,       // 7. G
-        date: new Date().toLocaleString('zh-TW'), // 8. H
-        note: document.getElementById('order-note').value, // 9. I
-        line_name: lineName,      // 10. J
-        logistics: logiName       // 11. K [新物流欄位]
+        store: storeData,         // 第 3 欄 (C) -> 純數字店號/地址
+        temp: "常溫",             // 第 4 欄 (D)
+        items: itemsText,         // 第 5 欄 (E)
+        subtotal: subtotal,       // 第 6 欄 (F)
+        shipping: shipping,       // 第 7 欄 (G)
+        date: new Date().toLocaleString('zh-TW'), // 第 8 欄 (H)
+        note: document.getElementById('order-note').value, // 第 9 欄 (I)
+        line_name: lineName,      // 第 10 欄 (J)
+        logistics: logiName       // 第 11 欄 (K) -> 物流商名稱
     };
 
     const btn = document.getElementById('btn-submit-order');
     btn.disabled = true; btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">sync</span> 發送中...`;
+    
     try {
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await res.json();
         if (result.success) {
-            alert("訂單已送出！"); window.cart = []; window.updateCartUI(); window.closeAllPanels(); location.reload();
+            alert("訂單已成功送出！");
+            window.cart = []; window.updateCartUI();
+            window.closeAllPanels(); location.reload();
         } else { alert("失敗：" + result.msg); }
     } catch (e) { alert("連線異常"); }
     finally { btn.disabled = false; btn.innerHTML = "確認送出訂單"; }
