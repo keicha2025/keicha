@@ -1,33 +1,66 @@
-<div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-xl group">
+<div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group">
+    
     <div class="card-top-row md:contents">
         ${img ? `
         <div class="card-img-group md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
             <img src="${img}" 
                  class="w-full h-full object-cover transition duration-500 group-hover:scale-110 ${isSoldOut ? 'opacity-30 grayscale' : ''}" 
                  alt="${p.product_name}">
+            
             ${isSoldOut ? `
-            <div class="absolute inset-0 flex items-center justify-center bg-black/5">
-                <span class="bg-gray-800 text-white text-[10px] px-3 py-1 rounded-full font-bold tracking-wider">已售罄</span>
-            </div>` : ''}
-        </div>` : ''}
+                <div class="absolute inset-0 flex items-center justify-center bg-black/5">
+                    <span class="bg-gray-800/90 text-white text-[10px] px-3 py-1.5 rounded-full font-bold backdrop-blur-sm">
+                        已售罄
+                    </span>
+                </div>
+            ` : ''}
+        </div>
+        ` : ''}
         
         <div class="card-info-group md:p-5 md:flex-1 md:flex md:flex-col">
-            <h4 class="font-bold text-gray-800 mb-1 text-sm md:text-base line-clamp-1">${p.product_name}</h4>
-            <p class="text-gray-400 text-xs mb-3 line-clamp-2 leading-relaxed min-h-[2.4rem]">${p.special_notes || ''}</p>
-            <p class="brand-green font-bold text-lg font-mono md:mt-auto">NT$ ${p.price}</p>
+            <h4 class="font-bold text-gray-800 mb-1 text-sm md:text-base line-clamp-1">
+                ${p.product_name}
+            </h4>
+            
+            <p class="text-gray-400 text-[11px] leading-relaxed mb-3 line-clamp-2 min-h-[32px]">
+                ${p.special_notes || ''}
+            </p>
+            
+            <div class="md:mt-auto md:mb-4">
+                <span class="brand-green font-bold text-lg font-mono">
+                    NT$ ${p.price}
+                </span>
+            </div>
         </div>
     </div>
 
-    <div class="card-bottom-row md:p-5 md:pt-0 md:flex md:gap-2">
+    <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
         <div class="qty-control">
-            <button class="qty-btn" onclick="adjQty('${p.product_id}', -1)" ${isSoldOut ? 'disabled' : ''}>-</button>
-            <span id="iq-${p.product_id}" class="text-xs font-bold px-2 w-6 text-center">1</span>
-            <button class="qty-btn" onclick="adjQty('${p.product_id}', 1)" ${isSoldOut ? 'disabled' : ''}>+</button>
+            <button class="qty-btn" onclick="adjQty('${p.product_id}', -1)">-</button>
+            <span id="iq-${p.product_id}" class="text-xs font-bold px-2 min-w-[20px] text-center">1</span>
+            <button class="qty-btn" onclick="adjQty('${p.product_id}', 1)">+</button>
         </div>
+        
         <button onclick="addToCart('${p.product_id}')" 
-                class="add-btn flex-1 py-3 bg-[#6ea44c] text-white rounded-xl text-xs font-bold transition active:scale-95 ${isSoldOut ? 'bg-gray-100 text-gray-300 cursor-not-allowed shadow-none' : 'hover:bg-[#5d8d41] shadow-md'}" 
+                class="add-btn flex-1 py-3 bg-[#6ea44c] text-white rounded-xl text-xs font-bold transition active:scale-95 ${isSoldOut ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'hover:bg-[#5d8d41] shadow-md shadow-green-900/10'}" 
                 ${isSoldOut ? 'disabled' : ''}>
-            ${isSoldOut ? '暫無庫存' : '加入購物車'}
+            ${isSoldOut ? '補貨中' : '加入購物車'}
         </button>
     </div>
 </div>
+
+<style>
+    /* 元件專屬微調 (補強 shop.html 的 CSS) */
+    @media (max-width: 767px) {
+        .mobile-product-card { 
+            display: flex !important; 
+            flex-direction: column !important; /* 容器仍垂直疊加，內層 row 水平 */
+        }
+        .card-top-row { 
+            display: flex !important; 
+            flex-direction: row !important; /* 強制圖片與資訊左右排列 */
+            align-items: flex-start !important; 
+            gap: 16px !important; 
+        }
+    }
+</style>
