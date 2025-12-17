@@ -1,5 +1,5 @@
 /**
- * KEICHA 網路商店 - 核心邏輯中控台 (同步強化版)
+ * KEICHA 網路商店 - 核心邏輯中控台 (分區儲存與動畫強化版)
  */
 
 // 1. 基礎設定
@@ -19,14 +19,14 @@ window.initShop = async function() {
         if (!data || !data.products) return;
         window.globalProducts = data.products;
         
-        // 修正 7-11 名稱錯誤問題
+        // 修正物流規則名稱可能產生的日期格式錯誤
         window.shippingRules = (data.shipping_rules || []).map(r => ({
             ...r,
             method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
         }));
 
         const localUser = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        // 初始化時強制背景同步一次，解決舊裝置快取問題
+        // 進場時強制背景同步一次，解決跨裝置資料落差
         if (localUser && localUser.phone) window.syncUserData(localUser.phone);
 
         window.renderProducts(window.globalProducts);
@@ -57,9 +57,11 @@ window.syncUserData = async function(phone) {
     } catch (e) { console.warn("背景同步暫時無法連線"); }
 };
 
-// --- 商品與導覽渲染 ---
+// --- 商品渲染邏輯 ---
 window.renderProducts = function(prods) {
     const container = document.getElementById('category-container');
+    if (!container) return;
+
     const grouped = prods.reduce((acc, p) => {
         const cat = p.category || "精選選物";
         if (!acc[cat]) acc[cat] = [];
@@ -85,6 +87,8 @@ window.renderProducts = function(prods) {
 window.renderTopAuth = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
     const zone = document.getElementById('top-auth-zone');
+    if (!zone) return;
+
     if (u && (u.name || u.phone)) {
         zone.innerHTML = `<button onclick="window.openUserPanel()" class="flex items-center gap-2 brand-green font-bold text-lg hover:opacity-70 transition"><span class="material-symbols-rounded">account_circle</span> ${u.name || u.phone}</button>`;
     } else {
@@ -92,20 +96,20 @@ window.renderTopAuth = function() {
     }
 };
 
-// --- 會員面板管理邏輯 (多區塊獨立編輯版) ---
+// --- 會員面板管理邏輯 (分區獨立儲存版) ---
 window.renderUserFields = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     if (!u.phone) return;
     
-    const phoneEl = document.getElementById('display-user-phone');
-    if (phoneEl) phoneEl.innerText = u.phone;
-    
-    document.getElementById('text-name').innerText = u.name || '未填寫';
-    document.getElementById('text-email').innerText = u.email || '未填寫';
-    document.getElementById('display-711').innerText = u.store_711 ? `${u.store_711} ${u.store_711_note || ''}`.trim() : '尚未設定';
-    document.getElementById('display-fami').innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note || ''}`.trim() : '尚未設定';
-    document.getElementById('display-addr').innerText = u.shipping_address || '尚未設定';
+    // 文字顯示更新
+    if (document.getElementById('display-user-phone')) document.getElementById('display-user-phone').innerText = u.phone;
+    if (document.getElementById('text-name')) document.getElementById('text-name').innerText = u.name || '未填寫';
+    if (document.getElementById('text-email')) document.getElementById('text-email').innerText = u.email || '未填寫';
+    if (document.getElementById('display-711')) document.getElementById('display-711').innerText = u.store_711 ? `${u.store_711} ${u.store_711_note || ''}`.trim() : '尚未設定';
+    if (document.getElementById('display-fami')) document.getElementById('display-fami').innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note || ''}`.trim() : '尚未設定';
+    if (document.getElementById('display-addr')) document.getElementById('display-addr').innerText = u.shipping_address || '尚未設定';
 
+    // 輸入欄位同步更新
     const fieldMapping = {
         'upd-name': u.name, 'upd-email': u.email,
         'upd-711': u.store_711, 'upd-711-note': u.store_711_note,
@@ -130,18 +134,25 @@ window.toggleEdit = function(type) {
     }
 };
 
-window.saveFullUser = async function() {
-    const btn = document.getElementById('btn-user-save-global');
-    const icon = document.getElementById('save-icon');
-    const text = document.getElementById('save-text');
+/**
+ * 儲存資料：支援個別按鈕動畫與鎖定功能
+ */
+window.saveFullUser = async function(section) {
+    const btn = document.getElementById(`save-btn-${section}`);
+    let originalHtml = "";
     
-    if (btn) btn.disabled = true;
-    if (text) text.innerText = "正在儲存...";
-    if (icon) icon.classList.add('animate-spin-custom');
+    if (btn) {
+        originalHtml = btn.innerHTML;
+        // 1. 視覺回饋：鎖定按鈕、顯示旋轉圖示
+        btn.disabled = true;
+        btn.innerHTML = `<span class="material-symbols-rounded text-sm animate-spin-custom">sync</span>儲存中`;
+    }
 
+    // 抓取當前所有欄位資料
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     const updated = {
-        ...u, action: 'save',
+        ...u, 
+        action: 'save',
         name: document.getElementById('upd-name').value,
         email: document.getElementById('upd-email').value,
         store_711: document.getElementById('upd-711').value,
@@ -152,22 +163,34 @@ window.saveFullUser = async function() {
     };
 
     try {
-        await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(updated) });
-        localStorage.setItem('keicha_v2_user', JSON.stringify(updated));
-        window.renderUserFields();
-        alert("會員資料已同步至雲端！");
-        ['info', '711', 'fami', 'addr'].forEach(t => {
-            const el = (t === 'info') ? document.getElementById('upd-name') : document.getElementById(`edit-${t}`);
-            if (el && !el.classList.contains('hidden')) window.toggleEdit(t);
+        const res = await fetch(GAS_URL, { 
+            method: 'POST', 
+            body: JSON.stringify(updated) 
         });
-    } catch (e) { alert("同步失敗，請檢查連線"); } finally {
+        const result = await res.json();
+        
+        if (result.success) {
+            localStorage.setItem('keicha_v2_user', JSON.stringify(updated));
+            window.renderUserFields();
+            
+            // 2. 成功回饋
+            if (btn) btn.innerHTML = `<span class="material-symbols-rounded text-sm">check_circle</span>完成`;
+            
+            setTimeout(() => {
+                window.toggleEdit(section); // 儲存後自動關閉編輯模式
+            }, 800);
+        } else {
+            throw new Error("儲存失敗");
+        }
+    } catch (e) { 
+        alert("同步至雲端失敗，請檢查網路狀態"); 
+        if (btn) btn.innerHTML = originalHtml; 
+    } finally {
         if (btn) btn.disabled = false;
-        if (text) text.innerText = "儲存並同步雲端資料";
-        if (icon) icon.classList.remove('animate-spin-custom');
     }
 };
 
-// --- 購物車核心 ---
+// --- 購物車核心邏輯 ---
 window.updateCartUI = function() {
     const count = window.cart.reduce((s, i) => s + i.qty, 0);
     const countEl = document.getElementById('cart-count');
@@ -209,12 +232,15 @@ window.updateCartUI = function() {
     document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
 };
 
-// --- 面板控制與互動 ---
-window.openLoginPanel = () => { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+// --- 面板控制 ---
+window.openLoginPanel = () => { 
+    document.getElementById('login-panel').classList.add('open'); 
+    document.getElementById('global-overlay').classList.add('open'); 
+};
 
 window.openUserPanel = () => { 
     window.renderUserFields(); 
-    // 每次點開面板，背景悄悄同步一次最新資料
+    // 每次開啟面板自動背景同步
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     if(u.phone) window.syncUserData(u.phone);
     
@@ -222,9 +248,15 @@ window.openUserPanel = () => {
     document.getElementById('global-overlay').classList.add('open'); 
 };
 
-window.openCart = () => { window.updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+window.openCart = () => { 
+    window.updateCartUI(); 
+    document.getElementById('cart-sidebar').classList.add('open'); 
+    document.getElementById('global-overlay').classList.add('open'); 
+};
+
 window.closeAllPanels = () => document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open'));
 
+// --- 其他操作 ---
 window.adjQty = (pid, d) => { const el = document.getElementById(`iq-${pid}`); let v = parseInt(el.innerText) + d; if(v >= 1) el.innerText = v; };
 window.updateCartQty = (idx, d) => { window.cart[idx].qty += d; if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1); window.updateCartUI(); };
 window.removeFromCart = (idx) => { window.cart.splice(idx, 1); window.updateCartUI(); };
@@ -239,18 +271,27 @@ window.addToCart = (pid) => {
 
 window.handleQuickLogin = async function() {
     const phone = document.getElementById('login-phone').value;
-    if(!/^09\d{8}$/.test(phone)) return alert("格式錯誤");
+    if(!/^09\d{8}$/.test(phone)) return alert("電話格式不正確");
     const icon = document.getElementById('login-icon');
     icon.innerText = "sync"; icon.classList.add('animate-spin-custom');
     try {
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
         const data = await res.json();
-        if(data.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(data.data)); window.renderTopAuth(); window.closeAllPanels(); }
-    } finally { icon.innerText = "arrow_forward"; icon.classList.remove('animate-spin-custom'); }
+        if(data.success) { 
+            localStorage.setItem('keicha_v2_user', JSON.stringify(data.data)); 
+            window.renderTopAuth(); 
+            window.closeAllPanels(); 
+        }
+    } catch(e) {
+        alert("連線失敗");
+    } finally { 
+        icon.innerText = "arrow_forward"; 
+        icon.classList.remove('animate-spin-custom'); 
+    }
 };
 
 window.openCheckout = function() {
-    if(window.cart.length === 0) return alert("購物車空的");
+    if(window.cart.length === 0) return alert("購物車目前是空的");
     window.closeAllPanels();
     setTimeout(() => {
         document.getElementById('checkout-panel').classList.add('open');
@@ -258,4 +299,4 @@ window.openCheckout = function() {
     }, 150);
 };
 
-window.handleLogout = () => { if (confirm("確定登出？")) { localStorage.removeItem('keicha_v2_user'); location.reload(); }};
+window.handleLogout = () => { if (confirm("確定要登出帳號嗎？")) { localStorage.removeItem('keicha_v2_user'); location.reload(); }};
