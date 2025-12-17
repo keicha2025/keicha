@@ -223,44 +223,52 @@ title: KEICHA 網路商店
         `).join('');
     }
 
-    // 2. 運費計算：取最高分類基礎，判斷三段級距
-    function calculateFinalShipping(method, subtotal) {
-        if (!method || shippingRules.length === 0) return 0;
+function calculateFinalShipping(method, subtotal) {
+    if (!method || !shippingRules || shippingRules.length === 0) return 0;
 
-        // 掃描購物車中所有商品的類別
-        const cartCategories = [...new Set(cart.map(i => {
-            const p = globalProducts.find(gp => gp.product_id === i.id);
-            return p ? p.category : 'default';
-        }))];
+    // 1. 取得購物車中所有商品的分類 (並去除空格)
+    const cartCats = [...new Set(cart.map(i => {
+        const p = globalProducts.find(gp => gp.product_id === i.id);
+        return p ? (p.category ? p.category.toString().trim() : 'default') : 'default';
+    }))];
 
-        // 找尋對應取貨方式中，各類別的「預設運費」，並取最高者作為計算規則
-        let activeRule = null;
-        let maxBase = -1;
+    let activeRule = null;
+    let maxBase = -1;
 
-        cartCategories.forEach(cat => {
-            const rule = shippingRules.find(r => r.method === method && r.category === cat);
-            if (rule && rule.base > maxBase) {
-                maxBase = rule.base;
-                activeRule = rule;
-            }
-        });
-
-        // 若無匹配類別，找該取貨方式的 default
-        if (!activeRule) {
-            activeRule = shippingRules.find(r => r.method === method && r.category === 'default');
+    // 2. 找尋匹配規則 (取最高預設運費者)
+    cartCats.forEach(cat => {
+        const rule = shippingRules.find(r => 
+            r.method.toString().trim() === method && 
+            r.category.toString().trim() === cat
+        );
+        if (rule && parseFloat(rule.base) > maxBase) {
+            maxBase = parseFloat(rule.base);
+            activeRule = rule;
         }
+    });
 
-        if (!activeRule) return 0;
-
-        // 根據選定的主規則計算三段級距
-        let fee = activeRule.base;
-        // 級距判斷：從最高門檻開始往下比對
-        if (activeRule.t3 && subtotal >= activeRule.t3) fee = activeRule.f3;
-        else if (activeRule.t2 && subtotal >= activeRule.t2) fee = activeRule.f2;
-        else if (activeRule.t1 && subtotal >= activeRule.t1) fee = activeRule.f1;
-        
-        return fee;
+    // 3. 備援邏輯：若沒找到特定分類規則，強迫抓取該配送方式的 default
+    if (!activeRule) {
+        activeRule = shippingRules.find(r => 
+            r.method.toString().trim() === method && 
+            (r.category.toLowerCase().trim() === 'default')
+        );
     }
+
+    // 4. 如果連 default 都沒有，那就真的只能回傳 0
+    if (!activeRule) return 0;
+
+    // 5. 級距判斷 (確保數值正確轉換)
+    let fee = parseFloat(activeRule.base) || 0;
+    const s = parseFloat(subtotal);
+
+    // 從最高門檻開始判斷 (門檻 3 -> 2 -> 1)
+    if (activeRule.t3 && s >= parseFloat(activeRule.t3)) fee = parseFloat(activeRule.f3);
+    else if (activeRule.t2 && s >= parseFloat(activeRule.t2)) fee = parseFloat(activeRule.f2);
+    else if (activeRule.t1 && s >= parseFloat(activeRule.t1)) fee = parseFloat(activeRule.f1);
+    
+    return fee;
+}
 
     // 3. 結帳與下單流程
     function openCheckout() {
