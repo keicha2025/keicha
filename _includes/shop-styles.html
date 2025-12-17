@@ -1,0 +1,51 @@
+<style>
+    /* 品牌字體與色彩基礎 */
+    .brand-title { font-family: 'brand-title-font', sans-serif; }
+    .brand-green { color: #6ea44c; }
+    
+    /* 側邊面板與過場遮罩 */
+    .side-panel {
+        position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
+        background-color: white; z-index: 999; transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
+        box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+    }
+    .side-panel.open { transform: translateX(0); }
+    .overlay {
+        position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 998;
+        opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
+    }
+    .overlay.open { opacity: 1; visibility: visible; }
+
+    /* 商品網格佈局穩定化 */
+    .product-grid { 
+        display: grid !important; 
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important; 
+        gap: 1.5rem !important; 
+    }
+    @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+    @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+
+    /* 手機版橫式適配與圖片靠左 */
+    @media (max-width: 767px) {
+        .mobile-product-card { display: flex !important; flex-direction: column !important; padding: 16px !important; }
+        .card-top-row { display: flex !important; flex-direction: row !important; gap: 16px !important; width: 100% !important; }
+        .card-img-group { width: 100px !important; height: 100px !important; flex-shrink: 0 !important; border-radius: 12px; overflow: hidden; }
+        .card-bottom-row { display: flex !important; gap: 10px !important; margin-top: 12px !important; }
+    }
+
+    /* 數量控制與懸浮按鈕 */
+    .qty-control { display: flex; align-items: center; background: #f3f4f6; border-radius: 12px; padding: 4px; gap: 8px; }
+    .qty-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: white; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid #e5e7eb; }
+
+    .cart-floating-btn {
+        position: fixed; bottom: 2rem; right: 2rem; width: 4.5rem; height: 4.5rem;
+        background-color: #6ea44c; color: white; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* 載入與儲存動畫 */
+    .animate-spin-custom { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
