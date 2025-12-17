@@ -11,7 +11,6 @@ title: KEICHA 商店測試版
 </section>
 
 <main class="max-w-6xl mx-auto p-4 md:p-10 space-y-12 min-h-screen">
-    
     <section>
         <div class="flex items-center justify-between mb-8">
             <h2 class="text-2xl font-bold flex items-center gap-2">
@@ -84,7 +83,6 @@ title: KEICHA 商店測試版
             const res = await fetch(GAS_URL);
             const data = await res.json();
             
-            // 處理公告與須知
             if (data.settings) {
                 if (data.settings.announcement) {
                     document.getElementById('announcement-content').innerText = data.settings.announcement;
@@ -95,11 +93,8 @@ title: KEICHA 商店測試版
                 }
             }
 
-            // 處理商品與庫存
             renderProducts(data.products);
             document.getElementById('products-loader').classList.add('hidden');
-
-            // 注入登入狀態到 Header (不改動 header.html 的做法)
             injectHeaderStatus();
             
         } catch (e) {
@@ -107,14 +102,26 @@ title: KEICHA 商店測試版
         }
     }
 
-    // 將登入狀態動態塞入原本 header 的 LINE 按鈕前面
+    // 核心功能：加入購物車
+    function handleAddToCart(productId, stock) {
+        if (stock <= 0) {
+            alert("抱歉，該商品目前已售罄。");
+            return;
+        }
+        
+        // 這裡串接你原本的購物車邏輯（例如打開側邊欄或計數）
+        console.log("加入商品 ID:", productId);
+        
+        // 示範：如果有購物車計數，可以在這裡更新
+        // toggleCart(true); // 如果你有這個函數
+    }
+
     function injectHeaderStatus() {
         const user = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        const nav = document.querySelector('nav.hidden.md\\:flex'); // 抓取電腦版導覽列
+        const nav = document.querySelector('nav.hidden.md\\:flex'); 
         
         if (!nav) return;
 
-        // 建立一個臨時容器
         const statusDiv = document.createElement('div');
         statusDiv.className = "flex items-center mr-2";
 
@@ -132,7 +139,6 @@ title: KEICHA 商店測試版
                 </a>
             `;
         }
-        // 插入在第一個連結之前
         nav.insertBefore(statusDiv, nav.firstChild);
     }
 
@@ -148,7 +154,7 @@ title: KEICHA 商店測試版
                         <img src="${p.image_url}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isSoldOut ? 'opacity-40 grayscale' : ''}">
                         ${isSoldOut ? 
                             `<span class="absolute inset-0 m-auto w-fit h-fit bg-gray-900/80 text-white text-xs px-4 py-2 rounded-full font-bold backdrop-blur-sm">已售罄</span>` :
-                            (stock < 5 ? `<span class="absolute top-4 right-4 bg-red-500 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg">最後 ${stock} 件</span>` : '')
+                            (stock < 5 ? `<span class="absolute top-4 right-4 bg-red-500 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg font-sans">最後 ${stock} 件</span>` : '')
                         }
                     </div>
                     <div class="p-5 space-y-4">
@@ -168,7 +174,6 @@ title: KEICHA 商店測試版
         }).join('');
     }
 
-    // --- 修改面板邏輯 ---
     function openQuickEdit() {
         const data = JSON.parse(localStorage.getItem('keicha_v2_user'));
         if(!data) { window.location.href="member.html"; return; }
@@ -201,7 +206,7 @@ title: KEICHA 商店測試版
             const result = await res.json();
             if (result.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify({...stored, ...payload}));
-                location.reload(); // 重新整理以更新 Header 狀態
+                location.reload(); 
             }
         } catch (e) { alert("同步失敗"); }
         btnIcon.classList.remove('animate-spin');
