@@ -156,35 +156,52 @@ title: KEICHA 網路商店
     let shippingRules = [];
     let selectedMethod = '';
 
-    async function initShop() {
-        try {
-            const res = await fetch(GAS_URL);
-            const data = await res.json();
-            globalProducts = data.products;
-            shippingRules = data.shipping_rules || [];
-            renderProducts(data.products);
-            if(data.settings?.announcement) {
-                document.getElementById('announcement-content').innerText = data.settings.announcement;
-                document.getElementById('announcement-section').classList.remove('hidden');
-            }
-            if(data.settings?.general_notes) {
-                document.getElementById('general-notes-content').innerHTML = data.settings.general_notes.replace(/\n/g, '<br>');
-                document.getElementById('notes-section').classList.remove('hidden');
-            }
-            document.getElementById('products-loader').classList.add('hidden');
-            renderTopAuth();
-        } catch (e) { console.error(e); }
-    }
+async function initShop() {
+    try {
+        const res = await fetch(GAS_URL);
+        const data = await res.json();
+        
+        // --- [修正 1] 防呆檢查：確保 data 存在且有 products ---
+        if (!data || !data.products) {
+            console.error("❌ 無法取得商品資料，請檢查 GAS 部署與權限");
+            document.getElementById('products-loader').innerText = "載入失敗，請重新整理";
+            return;
+        }
 
-    // 1. 商品渲染 (電腦垂直，手機橫式)
-    function renderProducts(products) {
-        const container = document.getElementById('category-container');
-        const grouped = products.reduce((acc, p) => {
-            const cat = p.category || "精選選物";
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(p);
-            return acc;
-        }, {});
+        globalProducts = data.products;
+        
+        // --- [修正 2] 修正 7-11 日期問題 ---
+        // 如果 method 抓到的是日期字串，強制轉回 "7-11"
+        shippingRules = (data.shipping_rules || []).map(r => ({
+            ...r,
+            method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
+        }));
+
+        renderProducts(globalProducts);
+        
+        if(data.settings?.announcement) {
+            document.getElementById('announcement-content').innerText = data.settings.announcement;
+            document.getElementById('announcement-section').classList.remove('hidden');
+        }
+        document.getElementById('products-loader').classList.add('hidden');
+        renderTopAuth();
+    } catch (e) { 
+        console.error("Init Error:", e);
+        document.getElementById('products-loader').innerText = "連線錯誤";
+    }
+}
+
+// 修正後的 renderProducts (加上 data 檢查)
+function renderProducts(products) {
+    if (!products || !Array.isArray(products)) return; // 防止 reduce 錯誤
+
+    const container = document.getElementById('category-container');
+    const grouped = products.reduce((acc, p) => {
+        const cat = p.category || "精選選物";
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(p);
+        return acc;
+    }, {});
 
         container.innerHTML = Object.keys(grouped).map(cat => `
             <section class="space-y-6">
