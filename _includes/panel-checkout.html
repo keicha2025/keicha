@@ -1,0 +1,128 @@
+<div id="checkout-panel" class="side-panel">
+    <div class="p-6 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+        <h3 class="font-bold flex items-center gap-2 text-gray-800">
+            <span class="material-symbols-rounded">task_alt</span> 
+            訂單結帳
+        </h3>
+        <button onclick="closeAllPanels()" class="material-symbols-rounded text-gray-400">close</button>
+    </div>
+
+    <div class="p-8 flex-1 overflow-y-auto space-y-8">
+        <div>
+            <h4 class="text-xs font-bold brand-green uppercase mb-4 tracking-widest flex justify-between">
+                <span>選擇收件方式</span>
+                <span class="font-normal text-gray-400">點擊選項以選取</span>
+            </h4>
+            <div id="ship-options-list" class="space-y-3">
+                </div>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <h4 class="text-xs font-bold brand-green uppercase tracking-widest mb-2">聯繫資訊 (必填)</h4>
+                <div class="relative">
+                    <span class="material-symbols-rounded absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">account_box</span>
+                    <input type="text" id="checkout-line" placeholder="您的 LINE 名稱" 
+                        class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 ring-[#6ea44c]/20 transition-all">
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold brand-green uppercase tracking-widest mb-2">訂單備註</h4>
+                <textarea id="checkout-note" placeholder="有什麼想對 KEICHA 說的嗎？" 
+                    class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 ring-[#6ea44c]/20 transition-all" rows="2"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-6 border-t bg-gray-50 space-y-3">
+        <div class="space-y-2 text-sm px-1">
+            <div class="flex justify-between text-gray-500">
+                <span>商品小計</span>
+                <span id="sum-subtotal">NT$ 0</span>
+            </div>
+            <div class="flex justify-between text-gray-500">
+                <span>預估運費</span>
+                <span id="sum-shipping">NT$ 0</span>
+            </div>
+            <div class="flex justify-between font-bold text-xl pt-2 border-t border-gray-200 mt-2">
+                <span>結帳總計</span>
+                <span id="sum-total" class="brand-green">NT$ 0</span>
+            </div>
+        </div>
+
+        <button onclick="handlePlaceOrder()" id="place-order-btn" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold shadow-lg hover:bg-[#5d8d41] transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-rounded">check_circle</span>
+            確認下單
+        </button>
+
+        <button onclick="openCart()" class="btn-outline-brand flex items-center justify-center gap-2">
+            <span class="material-symbols-rounded text-sm">edit_note</span>
+            編輯商品（返回購物車）
+        </button>
+    </div>
+</div>
+
+<style>
+    /* 內嵌編輯容器樣式 */
+    .ship-option-card {
+        border: 1px solid #f3f4f6;
+        border-radius: 1rem;
+        background-color: white;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+    
+    .ship-option-card.active {
+        border-color: #6ea44c;
+        background-color: rgba(110, 164, 76, 0.05);
+        box-shadow: 0 4px 12px rgba(110, 164, 76, 0.1);
+    }
+
+    /* 顯示狀態樣式 */
+    .display-box {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+    }
+
+    /* 編輯狀態樣式 (預設隱藏) */
+    .edit-form {
+        padding: 1.25rem;
+        background-color: #f9fafb;
+        border-top: 1px dashed #e5e7eb;
+    }
+
+    .edit-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        outline: none;
+    }
+    
+    .edit-input:focus {
+        border-color: #6ea44c;
+        background-color: white;
+    }
+
+    /* 按鈕共用 */
+    .btn-outline-brand {
+        background-color: white;
+        color: #6ea44c;
+        border: 2px solid #6ea44c;
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 0.75rem;
+        font-weight: bold;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+    .btn-outline-brand:hover {
+        background-color: rgba(110, 164, 76, 0.05);
+    }
+</style>
