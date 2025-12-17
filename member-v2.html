@@ -16,25 +16,16 @@
         .bg-brandGreen-10 { background-color: var(--brand-green-10); }
         .border-brandGreen { border-color: var(--brand-green); }
         
-        /* 核心動畫：確保未點擊時完全收合 (高度 0) */
         .expand-content {
             display: grid;
             grid-template-rows: 0fr;
             transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
         }
-        .expand-content.active {
-            grid-template-rows: 1fr;
-        }
-        .expand-inner {
-            min-height: 0;
-            visibility: hidden;
-            transition: visibility 0.3s;
-        }
-        .expand-content.active .expand-inner {
-            visibility: visible;
-        }
-        /* 載入中動畫 */
+        .expand-content.active { grid-template-rows: 1fr; }
+        .expand-inner { min-height: 0; visibility: hidden; transition: visibility 0.3s; }
+        .expand-content.active .expand-inner { visibility: visible; }
+
         .loading-spinner {
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -59,42 +50,36 @@
         <div id="auth-area" class="p-8">
             <div class="max-w-sm mx-auto space-y-6">
                 <div class="text-center">
-                    <h2 class="text-xl font-bold text-gray-700 text-brandGreen">快速登入</h2>
+                    <h2 class="text-xl font-bold text-brandGreen">快速登入</h2>
                     <p class="text-xs text-gray-400 mt-2">輸入手機號碼即可管理您的收件資訊</p>
                 </div>
                 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-600 mb-2 pl-1">手機號碼</label>
-                        <input type="tel" id="login-phone" maxlength="10" placeholder="09xxxxxxxx" 
-                               class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 ring-brandGreen outline-none text-2xl tracking-[0.2em] font-mono text-center transition">
-                    </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-2 pl-1">手機號碼</label>
+                    <input type="tel" id="login-phone" maxlength="10" placeholder="09xxxxxxxx" 
+                           class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 ring-brandGreen outline-none text-2xl tracking-[0.2em] font-mono text-center transition">
                 </div>
 
                 <button id="login-btn" onclick="handleLoginV2()" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-opacity-90 transition flex justify-center items-center gap-2">
                     <span>立即進入</span>
                     <div id="login-loader" class="loading-spinner hidden"></div>
                 </button>
-                
-                <p class="text-[10px] text-gray-400 text-center leading-relaxed">
-                    ※ 本系統僅需電話號碼即可登入，請妥善保管您的手機。<br>初次使用將自動為您建立專屬資料。
-                </p>
+                <p class="text-[10px] text-gray-400 text-center">※ 初次使用將自動為您建立專屬資料</p>
             </div>
         </div>
 
         <div id="member-area" class="hidden p-6 md:p-10">
             <form id="profile-form" class="space-y-8" onsubmit="return false;">
-                
                 <section>
                     <h2 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-brandGreen pl-3">基本資料設定</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-bold text-gray-600 mb-1">真實姓名（取件用）</label>
+                            <label class="block text-sm font-bold text-gray-600 mb-1">真實姓名</label>
                             <input type="text" id="user_name" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-600 mb-1">電子郵件 (選填)</label>
-                            <input type="email" id="user_email" placeholder="聯絡用 Email" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
+                            <input type="email" id="user_email" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
                         </div>
                     </div>
                 </section>
@@ -103,59 +88,48 @@
                     <h2 class="text-lg font-bold text-gray-800 border-l-4 border-brandGreen pl-3 mb-2">取貨資料預設 (選填)</h2>
                     
                     <div class="border border-brandGreen rounded-xl overflow-hidden bg-white">
-                        <button type="button" onclick="toggleSection('sec_711', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition text-left">
+                        <button type="button" onclick="toggleSection('sec_711', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition">
                             <span class="font-bold flex items-center"><span class="material-symbols-rounded mr-2">store</span>設定 7-11 取貨</span>
                             <span class="material-symbols-rounded icon-state">add_circle</span>
                         </button>
                         <div id="sec_711" class="expand-content">
                             <div class="expand-inner p-4 bg-brandGreen-10 space-y-3 border-t border-brandGreen/20">
-                                <div class="flex justify-between items-center">
-                                    <label class="text-sm font-bold text-gray-700">7-11 六位數店號</label>
-                                    <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen shadow-sm font-medium">查詢店號</a>
-                                </div>
-                                <input type="text" id="store_711" maxlength="6" placeholder="請輸入店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
-                                <input type="text" id="store_711_note" placeholder="店名備註（例如：京站店）" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60 outline-none">
+                                <input type="text" id="store_711" maxlength="6" placeholder="六位數店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                                <input type="text" id="store_711_note" placeholder="店名備註（例如：京站店）" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60">
                             </div>
                         </div>
                     </div>
 
                     <div class="border border-brandGreen rounded-xl overflow-hidden bg-white">
-                        <button type="button" onclick="toggleSection('sec_fami', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition text-left">
+                        <button type="button" onclick="toggleSection('sec_fami', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition">
                             <span class="font-bold flex items-center"><span class="material-symbols-rounded mr-2">storefront</span>設定全家取貨</span>
                             <span class="material-symbols-rounded icon-state">add_circle</span>
                         </button>
                         <div id="sec_fami" class="expand-content">
                             <div class="expand-inner p-4 bg-brandGreen-10 space-y-3 border-t border-brandGreen/20">
-                                <div class="flex justify-between items-center">
-                                    <label class="text-sm font-bold text-gray-700">全家 六位數店號</label>
-                                    <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen shadow-sm font-medium">查詢店號</a>
-                                </div>
-                                <input type="text" id="store_fami" maxlength="6" placeholder="請輸入店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
-                                <input type="text" id="store_fami_note" placeholder="店名備註（例如：板橋店）" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60 outline-none">
+                                <input type="text" id="store_fami" maxlength="6" placeholder="六位數店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                                <input type="text" id="store_fami_note" placeholder="店名備註（例如：板橋店）" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60">
                             </div>
                         </div>
                     </div>
 
                     <div class="border border-brandGreen rounded-xl overflow-hidden bg-white">
-                        <button type="button" onclick="toggleSection('sec_home', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition text-left">
+                        <button type="button" onclick="toggleSection('sec_home', this)" class="w-full flex items-center justify-between p-4 text-brandGreen hover:bg-brandGreen-10 transition">
                             <span class="font-bold flex items-center"><span class="material-symbols-rounded mr-2">local_shipping</span>設定宅配地址</span>
                             <span class="material-symbols-rounded icon-state">add_circle</span>
                         </button>
                         <div id="sec_home" class="expand-content">
                             <div class="expand-inner p-4 bg-brandGreen-10 border-t border-brandGreen/20">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">完整收件地址</label>
-                                <input type="text" id="shipping_address" placeholder="請輸入縣市、街道、樓層" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                                <input type="text" id="shipping_address" placeholder="完整收件地址" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <div class="space-y-4">
-                    <button type="button" id="save-btn" onclick="handleSaveV2()" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-opacity-90 transition flex justify-center items-center gap-2">
-                        <span>儲存會員資料</span>
-                        <div id="save-loader" class="loading-spinner hidden"></div>
-                    </button>
-                </div>
+                <button type="button" id="save-btn" onclick="handleSaveV2()" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-opacity-90 transition flex justify-center items-center gap-2">
+                    <span>儲存會員資料</span>
+                    <div id="save-loader" class="loading-spinner hidden"></div>
+                </button>
             </form>
         </div>
     </div>
@@ -163,8 +137,7 @@
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
-    
-    // 燈箱展開收合邏輯
+
     window.toggleSection = (id, btn) => {
         const content = document.getElementById(id);
         const icon = btn.querySelector('.icon-state');
@@ -172,53 +145,48 @@
         icon.innerText = isActive ? 'do_not_disturb_on' : 'add_circle';
     };
 
-    // V2 登入邏輯
     async function handleLoginV2() {
         const phone = document.getElementById('login-phone').value;
         const btn = document.getElementById('login-btn');
         const loader = document.getElementById('login-loader');
 
         if (!/^09\d{8}$/.test(phone)) {
-            alert("請輸入正確的手機號碼 (10碼數字)");
-            return;
+            return alert("請輸入正確的手機號碼 (10碼數字)");
         }
 
         btn.disabled = true;
         loader.classList.remove('hidden');
-// 在 handleLoginV2 與 handleSaveV2 中統一修改 fetch 方式
-const response = await fetch(GAS_URL, {
-    method: 'POST',
-    // 不要設定 headers: { 'Content-Type': 'application/json' }，這樣會觸發 CORS
-    body: JSON.stringify(payload) 
-});
-const res = await response.json(); // GAS 部署為 Anyone 後，這樣可以直接讀取
 
+        try {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'login', phone: phone })
+            });
+            const res = await response.json();
             if (res.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(res.data));
-                if (res.isNew) alert("歡迎新朋友！已為您建立基本資料。");
                 renderProfile(res.data);
             } else {
-                alert("登入失敗：" + res.msg);
+                alert("錯誤: " + res.msg);
             }
         } catch (e) {
-            alert("伺服器連線失敗，請稍後再試。");
+            alert("網路連線失敗");
         } finally {
             btn.disabled = false;
             loader.classList.add('hidden');
         }
     }
 
-    // 儲存資料邏輯
     async function handleSaveV2() {
-        const storedUser = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        if (!storedUser) return;
+        const stored = JSON.parse(localStorage.getItem('keicha_v2_user'));
+        if (!stored) return;
 
         const btn = document.getElementById('save-btn');
         const loader = document.getElementById('save-loader');
-        
+
         const payload = {
             action: 'save',
-            phone: storedUser.phone,
+            phone: stored.phone,
             name: document.getElementById('user_name').value,
             email: document.getElementById('user_email').value,
             store_711: document.getElementById('store_711').value,
@@ -239,19 +207,18 @@ const res = await response.json(); // GAS 部署為 Anyone 後，這樣可以直
             const res = await response.json();
             if (res.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(payload));
-                alert("資料儲存成功！");
+                alert("資料已成功同步至試算表！");
             } else {
-                alert("儲存失敗：" + res.msg);
+                alert("儲存失敗: " + res.msg);
             }
         } catch (e) {
-            alert("同步失敗，請檢查網路連線。");
+            alert("同步失敗");
         } finally {
             btn.disabled = false;
             loader.classList.add('hidden');
         }
     }
 
-    // 渲染資料畫面
     function renderProfile(data) {
         document.getElementById('auth-area').classList.add('hidden');
         document.getElementById('member-area').classList.remove('hidden');
@@ -265,7 +232,6 @@ const res = await response.json(); // GAS 部署為 Anyone 後，這樣可以直
         document.getElementById('store_fami_note').value = data.store_fami_note || '';
         document.getElementById('shipping_address').value = data.shipping_address || '';
 
-        // 如果已有資料，自動展開對應區塊
         if (data.store_711) autoExpand('sec_711');
         if (data.store_fami) autoExpand('sec_fami');
         if (data.shipping_address) autoExpand('sec_home');
@@ -274,23 +240,18 @@ const res = await response.json(); // GAS 部署為 Anyone 後，這樣可以直
     function autoExpand(id) {
         const content = document.getElementById(id);
         const btn = content.previousElementSibling;
-        const icon = btn.querySelector('.icon-state');
         content.classList.add('active');
-        icon.innerText = 'do_not_disturb_on';
+        btn.querySelector('.icon-state').innerText = 'do_not_disturb_on';
     }
 
-    // 退出登入
     document.getElementById('logout-btn').onclick = () => {
         localStorage.removeItem('keicha_v2_user');
         location.reload();
     };
 
-    // 頁面初始化：檢查是否已有登入紀錄
     window.onload = () => {
-        const storedUser = localStorage.getItem('keicha_v2_user');
-        if (storedUser) {
-            renderProfile(JSON.parse(storedUser));
-        }
+        const stored = localStorage.getItem('keicha_v2_user');
+        if (stored) renderProfile(JSON.parse(stored));
     };
 </script>
 </body>
