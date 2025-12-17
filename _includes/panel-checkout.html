@@ -8,8 +8,22 @@
     </div>
 
     <div class="p-8 flex-1 overflow-y-auto space-y-10">
+        
         <section class="space-y-4">
-            <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b border-gray-100 pb-2">聯絡資訊</h4>
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                <h4 class="text-xs font-bold brand-green uppercase tracking-widest">基本資料確認</h4>
+                <button onclick="window.openUserPanel()" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">編輯</button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-2xl">
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold block mb-1">收件人全名</label>
+                    <div id="checkout-info-name" class="font-bold text-gray-700 text-sm">-</div>
+                </div>
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold block mb-1">手機號碼</label>
+                    <div id="checkout-info-phone" class="font-bold text-gray-700 text-sm font-mono">-</div>
+                </div>
+            </div>
             <div class="field-group">
                 <label class="text-[10px] text-gray-400 font-bold mb-1 block">LINE 顯示名稱 (方便核對訂單資料)</label>
                 <input type="text" id="order-line-name" class="user-edit-input font-bold" placeholder="請輸入您的 LINE 名稱">
@@ -26,7 +40,7 @@
                             <span class="material-symbols-rounded text-gray-400">local_shipping</span>
                             <span class="font-bold text-sm">7-11 店到店</span>
                         </div>
-                        <button onclick="event.stopPropagation(); window.openUserPanel();" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">編輯/新增</button>
+                        <button onclick="event.stopPropagation(); window.openUserPanel();" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg">編輯</button>
                     </div>
                     <div id="checkout-display-7-11" class="text-xs text-gray-500 mt-2 font-medium leading-relaxed">載入門市資料中...</div>
                 </div>
@@ -37,7 +51,7 @@
                             <span class="material-symbols-rounded text-gray-400">store</span>
                             <span class="font-bold text-sm">全家 店到店</span>
                         </div>
-                        <button onclick="event.stopPropagation(); window.openUserPanel();" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">編輯/新增</button>
+                        <button onclick="event.stopPropagation(); window.openUserPanel();" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg">編輯</button>
                     </div>
                     <div id="checkout-display-fami" class="text-xs text-gray-500 mt-2 font-medium leading-relaxed">載入門市資料中...</div>
                 </div>
@@ -48,7 +62,7 @@
                             <span class="material-symbols-rounded text-gray-400">home</span>
                             <span class="font-bold text-sm">宅配到府</span>
                         </div>
-                        <button onclick="event.stopPropagation(); window.openUserPanel();" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">編輯/新增</button>
+                        <button onclick="event.stopPropagation(); window.openUserPanel();" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg">編輯</button>
                     </div>
                     <div id="checkout-display-addr" class="text-xs text-gray-500 mt-2 font-medium leading-relaxed">載入地址資料中...</div>
                 </div>
@@ -96,7 +110,7 @@
         color: #6ea44c;
     }
 
-    /* LINE 名稱輸入框與會員資料區一致 */
+    /* LINE 名稱輸入框樣式 */
     .user-edit-input {
         width: 100%;
         padding: 0.75rem 0;
