@@ -184,47 +184,144 @@ title: KEICHA 網路商店
     }
 
     // --- 會員面板管理 (補回 Log 中遺失的函數) ---
-    window.renderUserFields = function() {
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        const b = document.getElementById('panel-body');
-        b.innerHTML = `
-            <div class="space-y-8">
-                <div><h4 class="text-xs font-bold brand-green uppercase mb-4">基本資料</h4>
-                    <div class="p-4 bg-gray-50 rounded-2xl space-y-4">
-                        <input id="upd-name" value="${u.name || ''}" class="w-full bg-transparent border-b outline-none font-bold" placeholder="姓名">
-                        <input id="upd-email" value="${u.email || ''}" class="w-full bg-transparent border-b outline-none text-sm" placeholder="Email">
-                    </div>
-                </div>
-                <div><h4 class="text-xs font-bold brand-green uppercase mb-4">預設取件資訊</h4>
-                    <div class="space-y-3">
-                        <div class="p-4 bg-gray-50 rounded-2xl"><p class="text-[10px] text-gray-400">7-11 店號</p><input id="upd-711" value="${u.store_711 || ''}" class="w-full bg-transparent font-bold outline-none"></div>
-                        <div class="p-4 bg-gray-50 rounded-2xl"><p class="text-[10px] text-gray-400">全家 店號</p><input id="upd-fami" value="${u.store_fami || ''}" class="w-full bg-transparent font-bold outline-none"></div>
-                        <div class="p-4 bg-gray-50 rounded-2xl"><p class="text-[10px] text-gray-400">宅配地址</p><input id="upd-addr" value="${u.shipping_address || ''}" class="w-full bg-transparent font-bold outline-none"></div>
-                    </div>
-                </div>
-                <button onclick="window.saveFullUser()" id="btn-user-save" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold shadow-lg">儲存更新資料</button>
-                <button onclick="window.handleLogout()" class="w-full text-gray-400 text-sm font-bold mt-4">安全登出</button>
-            </div>`;
+// --- 會員面板管理 (優化版：包含編輯切換、電話顯示與儲存動畫) ---
+
+/**
+ * 渲染會員資料：取得資料時直接顯示出店號+備註內容，並顯示電話
+ */
+window.renderUserFields = function() {
+    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+    if (!u.phone) return;
+
+    // 顯示目前帳號的電話號碼
+    const phoneDisplay = document.getElementById('display-user-phone');
+    if (phoneDisplay) phoneDisplay.innerText = u.phone;
+
+    // 1. 個人資訊顯示區 (姓名及 Mail)
+    const nameText = document.getElementById('text-name');
+    const emailText = document.getElementById('text-email');
+    if (nameText) nameText.innerText = u.name || '未填寫';
+    if (emailText) emailText.innerText = u.email || '未填寫';
+
+    // 2. 物流資料顯示區 (合併店號與備註內容)
+    const d711 = document.getElementById('display-711');
+    const dFami = document.getElementById('display-fami');
+    const dAddr = document.getElementById('display-addr');
+
+    if (d711) d711.innerText = u.store_711 ? `${u.store_711} ${u.store_711_note || ''}`.trim() : '尚未設定';
+    if (dFami) dFami.innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note || ''}`.trim() : '尚未設定';
+    if (dAddr) dAddr.innerText = u.shipping_address || '尚未設定';
+
+    // 3. 填入 Input 預設值 (供編輯使用)
+    const fields = ['name', 'email', '711', '711-note', 'fami', 'fami-note', 'addr'];
+    fields.forEach(f => {
+        const input = document.getElementById(`upd-${f}`);
+        const key = f.replace('-', '_').replace('addr', 'shipping_address');
+        if (input) input.value = u[key] || '';
+    });
+};
+
+/**
+ * 切換編輯模式：按下新增或是編輯後才會出現輸入框與「查詢門市」按鈕
+ * @param {string} type - 'info' 或 'ship'
+ */
+window.toggleEdit = function(type) {
+    if (type === 'info') {
+        const disp = document.getElementById('info-display');
+        const edit = document.getElementById('info-edit');
+        if (disp && edit) {
+            disp.classList.toggle('hidden');
+            edit.classList.toggle('hidden');
+        }
+    } else if (type === 'ship') {
+        // 物流設定區：切換顯示/編輯狀態與查詢按鈕
+        const sections = ['711', 'fami', 'addr'];
+        sections.forEach(s => {
+            const d = document.getElementById(`display-${s}`);
+            const e = document.getElementById(`edit-${s}`);
+            if (d && e) {
+                d.classList.toggle('hidden');
+                e.classList.toggle('hidden');
+            }
+        });
+        // 顯示查詢按鈕
+        const q711 = document.getElementById('btn-711-query');
+        const qFami = document.getElementById('btn-fami-query');
+        if (q711) q711.classList.toggle('hidden');
+        if (qFami) qFami.classList.toggle('hidden');
+    }
+};
+
+/**
+ * 儲存資料：同步雲端並執行載入動畫
+ */
+window.saveFullUser = async function() {
+    const btn = document.getElementById('btn-user-save');
+    const icon = document.getElementById('save-icon');
+    const text = document.getElementById('save-text');
+    
+    // 1. 開始動畫狀態
+    btn.disabled = true;
+    const originalText = text.innerText;
+    text.innerText = "資料同步中...";
+    icon.classList.add('animate-spin-custom');
+    icon.innerText = "sync";
+
+    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+    const updatedData = {
+        ...u,
+        action: 'save',
+        name: document.getElementById('upd-name').value,
+        email: document.getElementById('upd-email').value,
+        store_711: document.getElementById('upd-711').value,
+        store_711_note: document.getElementById('upd-711-note').value,
+        store_fami: document.getElementById('upd-fami').value,
+        store_fami_note: document.getElementById('upd-fami-note').value,
+        shipping_address: document.getElementById('upd-addr').value
     };
 
-    window.saveFullUser = async function() {
-        const btn = document.getElementById('btn-user-save');
-        btn.innerText = "儲存中..."; btn.disabled = true;
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        u.name = document.getElementById('upd-name').value;
-        u.email = document.getElementById('upd-email').value;
-        u.store_711 = document.getElementById('upd-711').value;
-        u.store_fami = document.getElementById('upd-fami').value;
-        u.shipping_address = document.getElementById('upd-addr').value;
-        await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save', ...u }) });
-        localStorage.setItem('keicha_v2_user', JSON.stringify(u));
-        btn.innerText = "儲存更新資料"; btn.disabled = false;
-        renderTopAuth(); alert("資料已同步");
-    };
+    try {
+        const response = await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(updatedData)
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+            localStorage.setItem('keicha_v2_user', JSON.stringify(updatedData));
+            window.renderUserFields(); // 重新渲染顯示文字
+            
+            // 2. 結束動畫並恢復模式
+            alert("會員資料已更新！");
+            // 強制關閉所有編輯視窗回歸顯示模式
+            const infoEdit = document.getElementById('info-edit');
+            const infoDisp = document.getElementById('info-display');
+            if (infoEdit && !infoEdit.classList.contains('hidden')) window.toggleEdit('info');
+            
+            const edit711 = document.getElementById('edit-711');
+            if (edit711 && !edit711.classList.contains('hidden')) window.toggleEdit('ship');
+        }
+    } catch (error) {
+        console.error("Save Error:", error);
+        alert("連線失敗，請稍後再試");
+    } finally {
+        // 3. 恢復按鈕原始狀態
+        btn.disabled = false;
+        text.innerText = originalText;
+        icon.classList.remove('animate-spin-custom');
+        icon.innerText = "cloud_upload";
+    }
+};
 
-    window.handleLogout = function() {
-        if(confirm("確定登出嗎？")) { localStorage.removeItem('keicha_v2_user'); location.reload(); }
-    };
+/**
+ * 安全登出
+ */
+window.handleLogout = function() {
+    if (confirm("確定要登出並清除本地快取資料嗎？")) {
+        localStorage.removeItem('keicha_v2_user');
+        location.reload();
+    }
+};
 
     // --- 面板與互動控制 ---
     window.openLoginPanel = function() { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
