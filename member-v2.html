@@ -35,9 +35,25 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Toast 通知樣式 */
+        #toast {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-700">
+
+<div id="toast" class="bg-white px-6 py-3 rounded-full shadow-2xl border-l-4 border-brandGreen flex items-center gap-3">
+    <span class="material-symbols-rounded text-brandGreen">check_circle</span>
+    <span id="toast-msg" class="font-bold"></span>
+</div>
 
 <main class="max-w-4xl mx-auto p-4 md:p-10">
     <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
@@ -75,11 +91,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-gray-600 mb-1">真實姓名</label>
-                            <input type="text" id="user_name" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
+                            <input type="text" id="user_name" placeholder="取件用姓名" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-600 mb-1">電子郵件 (選填)</label>
-                            <input type="email" id="user_email" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
+                            <input type="email" id="user_email" placeholder="聯絡用 Email" class="w-full p-3 border border-gray-200 rounded-lg bg-brandGreen-10 focus:bg-white focus:ring-2 ring-brandGreen outline-none transition">
                         </div>
                     </div>
                 </section>
@@ -94,8 +110,12 @@
                         </button>
                         <div id="sec_711" class="expand-content">
                             <div class="expand-inner p-4 bg-brandGreen-10 space-y-3 border-t border-brandGreen/20">
-                                <input type="text" id="store_711" maxlength="6" placeholder="六位數店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
-                                <input type="text" id="store_711_note" placeholder="店名備註（例如：京站店）" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-sm font-bold text-gray-700 font-mono">7-11 店號 (6碼)</label>
+                                    <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen shadow-sm hover:bg-brandGreen hover:text-white transition">查詢店號</a>
+                                </div>
+                                <input type="text" id="store_711" maxlength="6" placeholder="請輸入 6 位店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none transition">
+                                <input type="text" id="store_711_note" placeholder="店名備註 (如：京站店)" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60 focus:ring-1 focus:ring-brandGreen outline-none transition">
                             </div>
                         </div>
                     </div>
@@ -107,8 +127,12 @@
                         </button>
                         <div id="sec_fami" class="expand-content">
                             <div class="expand-inner p-4 bg-brandGreen-10 space-y-3 border-t border-brandGreen/20">
-                                <input type="text" id="store_fami" maxlength="6" placeholder="六位數店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
-                                <input type="text" id="store_fami_note" placeholder="店名備註（例如：板橋店）" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-sm font-bold text-gray-700 font-mono">全家 店號 (6碼)</label>
+                                    <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="text-[10px] bg-white text-brandGreen px-2 py-1 rounded border border-brandGreen shadow-sm hover:bg-brandGreen hover:text-white transition">查詢店號</a>
+                                </div>
+                                <input type="text" id="store_fami" maxlength="6" placeholder="請輸入 6 位店號" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none transition">
+                                <input type="text" id="store_fami_note" placeholder="店名備註 (如：板橋站前店)" class="w-full p-2 text-sm border border-gray-200 rounded-lg bg-white/60 focus:ring-1 focus:ring-brandGreen outline-none transition">
                             </div>
                         </div>
                     </div>
@@ -120,7 +144,8 @@
                         </button>
                         <div id="sec_home" class="expand-content">
                             <div class="expand-inner p-4 bg-brandGreen-10 border-t border-brandGreen/20">
-                                <input type="text" id="shipping_address" placeholder="完整收件地址" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none">
+                                <label class="block text-sm font-bold text-gray-700 mb-2 font-mono">完整收件地址</label>
+                                <input type="text" id="shipping_address" placeholder="請填寫完整縣市、街道、樓層" class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 ring-brandGreen outline-none transition">
                             </div>
                         </div>
                     </div>
@@ -138,6 +163,15 @@
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
 
+    // 專業通知函數
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        toastMsg.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
     window.toggleSection = (id, btn) => {
         const content = document.getElementById(id);
         const icon = btn.querySelector('.icon-state');
@@ -151,7 +185,8 @@
         const loader = document.getElementById('login-loader');
 
         if (!/^09\d{8}$/.test(phone)) {
-            return alert("請輸入正確的手機號碼 (10碼數字)");
+            showToast("⚠️ 請輸入正確的手機號碼");
+            return;
         }
 
         btn.disabled = true;
@@ -165,12 +200,13 @@
             const res = await response.json();
             if (res.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(res.data));
+                showToast(res.isNew ? "✨ 歡迎新朋友加入！" : "👋 歡迎回來，親愛的會員");
                 renderProfile(res.data);
             } else {
-                alert("錯誤: " + res.msg);
+                showToast("❌ 登入失敗: " + res.msg);
             }
         } catch (e) {
-            alert("網路連線失敗");
+            showToast("📡 網路連線失敗，請稍後再試");
         } finally {
             btn.disabled = false;
             loader.classList.add('hidden');
@@ -207,12 +243,12 @@
             const res = await response.json();
             if (res.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(payload));
-                alert("資料已成功同步至試算表！");
+                showToast("✅ 個人資料已完成同步更新");
             } else {
-                alert("儲存失敗: " + res.msg);
+                showToast("❌ 儲存失敗: " + res.msg);
             }
         } catch (e) {
-            alert("同步失敗");
+            showToast("📡 同步過程發生網路問題");
         } finally {
             btn.disabled = false;
             loader.classList.add('hidden');
