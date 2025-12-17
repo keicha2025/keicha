@@ -221,37 +221,74 @@ window.renderUserFields = function() {
     });
 };
 
+
 /**
- * 切換編輯模式：按下新增或是編輯後才會出現輸入框與「查詢門市」按鈕
- * @param {string} type - 'info' 或 'ship'
+ * 切換編輯模式：按下編輯後切換顯示/輸入狀態，並顯示「查詢門市」按鈕與操作按鈕
+ * 支援個別編輯區塊：'info', '711', 'fami', 'addr'
+ * @param {string} type - 編輯區塊識別碼
  */
 window.toggleEdit = function(type) {
     if (type === 'info') {
-        const disp = document.getElementById('info-display');
-        const edit = document.getElementById('info-edit');
-        if (disp && edit) {
-            disp.classList.toggle('hidden');
-            edit.classList.toggle('hidden');
+        // --- 個人基本資訊區塊 ---
+        const nameText = document.getElementById('text-name');
+        const nameInput = document.getElementById('upd-name');
+        const emailText = document.getElementById('text-email');
+        const emailInput = document.getElementById('upd-email');
+        const actionBtns = document.getElementById('info-edit-actions');
+
+        // 判斷當前是否正在編輯 (檢查 Input 是否隱藏)
+        const isEditing = !nameInput.classList.contains('hidden');
+
+        // 切換顯示狀態：確保高度一致不跳動
+        if (isEditing) {
+            // 關閉編輯模式：顯示文字，隱藏輸入框與按鈕
+            nameText.classList.remove('hidden');
+            nameInput.classList.add('hidden');
+            emailText.classList.remove('hidden');
+            emailInput.classList.add('hidden');
+            actionBtns.classList.add('hidden');
+        } else {
+            // 開啟編輯模式：隱藏文字，顯示輸入框與按鈕
+            nameText.classList.add('hidden');
+            nameInput.classList.remove('hidden');
+            emailText.classList.add('hidden');
+            emailInput.classList.remove('hidden');
+            actionBtns.classList.remove('hidden');
+            nameInput.focus(); // 自動聚焦提升 UX
         }
-    } else if (type === 'ship') {
-        // 物流設定區：切換顯示/編輯狀態與查詢按鈕
-        const sections = ['711', 'fami', 'addr'];
-        sections.forEach(s => {
-            const d = document.getElementById(`display-${s}`);
-            const e = document.getElementById(`edit-${s}`);
-            if (d && e) {
-                d.classList.toggle('hidden');
-                e.classList.toggle('hidden');
+    } else {
+        // --- 物流設定區塊 (711, fami, addr 獨立處理) ---
+        const displayEl = document.getElementById(`display-${type}`);
+        const editEl = document.getElementById(`edit-${type}`);
+        const queryBtn = document.getElementById(`btn-${type}-query`);
+
+        if (displayEl && editEl) {
+            const isEditing = !editEl.classList.contains('hidden');
+
+            if (isEditing) {
+                // 關閉編輯：恢復垂直顯示模式
+                displayEl.classList.remove('hidden');
+                editEl.classList.add('hidden');
+                if (queryBtn) {
+                    queryBtn.classList.add('hidden');
+                    queryBtn.style.display = 'none'; // 確保佔位完全消失
+                }
+            } else {
+                // 開啟編輯：隱藏純文字，展開垂直排列的輸入框
+                displayEl.classList.add('hidden');
+                editEl.classList.remove('hidden');
+                if (queryBtn) {
+                    queryBtn.classList.remove('hidden');
+                    queryBtn.style.display = 'block'; // 顯示功能輔助型連結
+                }
+                
+                // 自動聚焦該區塊的第一個輸入框
+                const firstInput = editEl.querySelector('input, textarea');
+                if (firstInput) firstInput.focus();
             }
-        });
-        // 顯示查詢按鈕
-        const q711 = document.getElementById('btn-711-query');
-        const qFami = document.getElementById('btn-fami-query');
-        if (q711) q711.classList.toggle('hidden');
-        if (qFami) qFami.classList.toggle('hidden');
+        }
     }
 };
-
 /**
  * 儲存資料：同步雲端並執行載入動畫
  */
