@@ -15,7 +15,7 @@ styles: |
         
         .brand-green-10 { background-color: rgba(110, 164, 76, 0.1); }
         
-        /* 側邊欄與面板通用樣式 */
+        /* 側邊欄樣式 */
         .side-panel {
             position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 400px;
             background-color: white; z-index: 150; transform: translateX(100%);
@@ -24,35 +24,40 @@ styles: |
         }
         .side-panel.open { transform: translateX(0); }
         .overlay {
-            position: fixed; inset: 0; bg-color: rgba(0,0,0,0.5); z-index: 140;
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 140;
             opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
         }
         .overlay.open { opacity: 1; visibility: visible; }
 
-        /* 浮動按鈕 */
+        /* 數量選擇器樣式 */
+        .qty-control {
+            display: flex; align-items: center; background: #f3f4f6; border-radius: 12px; padding: 4px; gap: 8px;
+        }
+        .qty-btn {
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+            background: white; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid #e5e7eb;
+        }
+        .qty-btn:hover { background: #f9fafb; }
+        
+        /* 購物車浮動按鈕 */
         .cart-floating-btn {
             position: fixed; bottom: 2rem; right: 2rem; width: 3.5rem; height: 3.5rem;
             background-color: #6ea44c; color: white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 50;
             box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: transform 0.2s;
         }
-        .cart-floating-btn:hover { transform: scale(1.1); }
     </style>
 ---
 
 <main>
-    <section class="bg-white pt-16 pb-12 shadow-sm">
-        <div class="container mx-auto px-4 text-center">
-            <h1 class="text-4xl font-bold text-brandGreen">網路商店</h1>
-            <p class="mt-4 text-lg text-gray-600">所有商品皆由後台即時更新</p>
+    <section id="announcement-section" class="hidden py-4 bg-yellow-50 border-y border-yellow-200">
+        <div class="container mx-auto px-4 text-center font-medium text-yellow-800 flex justify-center items-center gap-2">
+            <span class="material-symbols-rounded">campaign</span>
+            <span id="announcement-content"></span>
         </div>
     </section>
 
-    <section id="announcement-section" class="hidden py-4 bg-yellow-100 border-y border-yellow-300">
-        <div class="container mx-auto px-4 text-center font-medium text-yellow-800" id="announcement-content"></div>
-    </section>
-
-    <section class="py-16 md:py-24">
+    <section class="py-16">
         <div class="container mx-auto px-4 max-w-7xl">
             <div id="products-loader" class="flex justify-center items-center h-48">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-16 w-16"></div>
@@ -61,34 +66,40 @@ styles: |
         </div>
     </section>
 
-    <section id="notes-section" class="hidden py-16 md:py-24 bg-gray-100 border-t border-gray-200">
+    <section id="notes-section" class="hidden py-16 bg-gray-50 border-t">
         <div class="container mx-auto px-4 max-w-3xl">
-            <h2 class="text-3xl font-bold text-center mb-8">服務與購買須知</h2>
-            <div id="general-notes-content" class="prose max-w-none text-gray-700 space-y-4"></div>
+            <h2 class="text-2xl font-bold text-center mb-8 flex justify-center items-center gap-2">
+                <span class="material-symbols-rounded text-gray-400">gavel</span>購買須知
+            </h2>
+            <div id="general-notes-content" class="text-gray-700 leading-relaxed text-sm space-y-4"></div>
         </div>
     </section>
 </main>
 
-<div id="global-overlay" class="overlay fixed inset-0 bg-black/50 z-[140]" onclick="closeAllPanels()"></div>
+<div id="global-overlay" class="overlay" onclick="closeAllPanels()"></div>
 
 <div id="cart-sidebar" class="side-panel">
-    <div class="p-4 border-b flex justify-between items-center bg-gray-50">
-        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">🛒 購物車</h2>
-        <button onclick="closeAllPanels()" class="text-2xl">&times;</button>
+    <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+        <h3 class="font-bold flex items-center gap-2 text-gray-800">
+            <span class="material-symbols-rounded">shopping_cart</span>購物車
+        </h3>
+        <button onclick="closeAllPanels()" class="material-symbols-rounded text-gray-400">close</button>
     </div>
-    <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4"></div>
-    <div class="p-6 border-t bg-gray-50">
-        <div class="flex justify-between items-center mb-4">
-            <span class="text-gray-600 font-medium">總計金額</span>
+    <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-6"></div>
+    <div class="p-6 border-t bg-gray-50 space-y-4">
+        <div class="flex justify-between items-center">
+            <span class="text-gray-500">總計金額</span>
             <span id="cart-total-price" class="text-2xl font-bold text-brandGreen">NT$ 0</span>
         </div>
-        <button onclick="checkout()" class="w-full bg-brandGreen text-white font-bold py-4 rounded-xl shadow-lg">前往結帳</button>
+        <button onclick="checkout()" class="w-full bg-brandGreen text-white font-bold py-4 rounded-xl shadow-lg hover:bg-opacity-90">
+            前往結帳
+        </button>
     </div>
 </div>
 
 <div id="user-panel" class="side-panel">
     <div class="p-6 bg-brandGreen text-white flex justify-between items-center shadow-md">
-        <h3 id="panel-title" class="text-xl font-bold text-white flex items-center gap-2">
+        <h3 id="panel-title" class="text-xl font-bold flex items-center gap-2">
             <span class="material-symbols-rounded">account_circle</span>會員資料
         </h3>
         <div class="flex items-center gap-2">
@@ -99,13 +110,13 @@ styles: |
     <div id="panel-body" class="p-8 flex-1 overflow-y-auto"></div>
     <div id="save-area" class="p-6 border-t hidden">
         <button onclick="saveProfile()" class="w-full bg-brandGreen text-white py-4 rounded-xl font-bold flex justify-center items-center gap-2">
-            <span>確認更新</span><span id="save-icon" class="material-symbols-rounded text-white">sync</span>
+            <span>確認更新</span><span id="save-icon" class="material-symbols-rounded">sync</span>
         </button>
     </div>
 </div>
 
-<div id="cart-floating-btn" class="cart-floating-btn" onclick="openCart()">
-    <span class="material-symbols-rounded">shopping_cart</span>
+<div id="cart-floating-btn" class="cart-floating-btn shadow-xl" onclick="openCart()">
+    <span class="material-symbols-rounded">shopping_bag</span>
     <span id="cart-count-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-white hidden">0</span>
 </div>
 
@@ -121,20 +132,19 @@ styles: |
             const data = await res.json();
             
             if (data.settings) {
-                const { announcement, general_notes } = data.settings;
-                if (announcement?.trim()) {
-                    document.getElementById('announcement-content').innerText = announcement;
+                if (data.settings.announcement?.trim()) {
+                    document.getElementById('announcement-content').innerText = data.settings.announcement;
                     document.getElementById('announcement-section').classList.remove('hidden');
                 }
-                if (general_notes?.trim()) {
-                    document.getElementById('general-notes-content').innerHTML = general_notes.replace(/\n/g, '<br>');
+                if (data.settings.general_notes?.trim()) {
+                    document.getElementById('general-notes-content').innerHTML = data.settings.general_notes.replace(/\n/g, '<br>');
                     document.getElementById('notes-section').classList.remove('hidden');
                 }
             }
             renderProducts(data.products);
             document.getElementById('products-loader').classList.add('hidden');
             injectHeaderStatus();
-        } catch (e) { console.error("Load Failed", e); }
+        } catch (e) { console.error("Init error", e); }
     }
 
     function renderProducts(products) {
@@ -156,21 +166,29 @@ styles: |
                         if (img && !img.startsWith('http')) img = siteBaseUrl + (img.startsWith('/') ? img : '/' + img);
                         
                         return `
-                        <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm flex flex-col group transition hover:shadow-lg">
-                            ${img ? `<div class="relative aspect-square overflow-hidden bg-gray-50">
-                                <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ${isSoldOut ? 'opacity-40 grayscale' : ''}">
-                                ${isSoldOut ? `<span class="absolute inset-0 m-auto w-fit h-fit bg-gray-800 text-white text-xs px-3 py-1.5 rounded-full font-bold">已售罄</span>` : ''}
+                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col transition hover:shadow-lg">
+                            ${img ? `<div class="relative aspect-square bg-gray-50 overflow-hidden">
+                                <img src="${img}" class="w-full h-full object-cover ${isSoldOut ? 'opacity-30 grayscale' : ''}">
+                                ${isSoldOut ? `<span class="absolute inset-0 m-auto w-fit h-fit bg-gray-800 text-white text-[10px] px-3 py-1 rounded-full font-bold">已售罄</span>` : ''}
                             </div>` : ''}
                             <div class="p-5 flex-1 flex flex-col">
-                                <h4 class="font-bold text-gray-800 mb-1 line-clamp-2">${p.product_name}</h4>
-                                ${p.special_notes ? `<p class="text-gray-400 text-[11px] mb-3 line-clamp-2 italic">${p.special_notes}</p>` : ''}
-                                <div class="mt-auto pt-4">
-                                    <p class="text-brandGreen font-bold text-lg font-mono mb-4">NT$ ${p.price}</p>
-                                    <button onclick="addToCart('${p.product_id}', '${p.product_name}', ${p.price}, '${img}')" 
-                                            class="w-full py-3 rounded-xl font-bold bg-brandGreen text-white transition-all active:scale-95 ${isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-opacity-90'}" 
-                                            ${isSoldOut ? 'disabled' : ''}>
-                                        ${isSoldOut ? '暫無存貨' : '加入購物車'}
-                                    </button>
+                                <h4 class="font-bold text-gray-800 mb-1">${p.product_name}</h4>
+                                ${p.special_notes ? `<p class="text-gray-400 text-xs mb-3 line-clamp-3">${p.special_notes}</p>` : ''}
+                                <div class="mt-auto space-y-4">
+                                    <p class="text-brandGreen font-bold text-lg font-mono">NT$ ${p.price}</p>
+                                    
+                                    <div class="flex items-center gap-2">
+                                        <div class="qty-control">
+                                            <button class="qty-btn" onclick="updateLocalQty('${p.product_id}', -1)">-</button>
+                                            <span id="qty-${p.product_id}" class="text-sm font-bold w-6 text-center">1</span>
+                                            <button class="qty-btn" onclick="updateLocalQty('${p.product_id}', 1)">+</button>
+                                        </div>
+                                        <button onclick="handleAddToCart('${p.product_id}', '${p.product_name}', ${p.price}, '${img}')" 
+                                                class="flex-1 py-3 rounded-xl font-bold bg-brandGreen text-white transition active:scale-95 ${isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}" 
+                                                ${isSoldOut ? 'disabled' : ''}>
+                                            <span class="material-symbols-rounded text-sm">add_shopping_cart</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>`;
@@ -180,7 +198,97 @@ styles: |
         `).join('');
     }
 
-    // --- 會員面板渲染 ---
+    // 局部數量更新
+    function updateLocalQty(id, change) {
+        const el = document.getElementById(`qty-${id}`);
+        let current = parseInt(el.innerText);
+        current = Math.max(1, current + change);
+        el.innerText = current;
+    }
+
+    // 加入購物車
+    function handleAddToCart(id, name, price, img) {
+        const qty = parseInt(document.getElementById(`qty-${id}`).innerText);
+        const existing = cart.find(i => i.id === id);
+        if (existing) {
+            existing.qty += qty;
+        } else {
+            cart.push({ id, name, price, img, qty });
+        }
+        updateCartUI();
+        openCart();
+    }
+
+    function updateCartUI() {
+        const container = document.getElementById('cart-items-container');
+        const count = cart.reduce((sum, i) => sum + i.qty, 0);
+        document.getElementById('cart-count-badge').innerText = count;
+        document.getElementById('cart-count-badge').classList.toggle('hidden', count === 0);
+        
+        if (cart.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-400 mt-10 italic">您的購物車是空的</p>`;
+            document.getElementById('cart-total-price').innerText = "NT$ 0";
+            return;
+        }
+
+        let total = 0;
+        container.innerHTML = cart.map((item, idx) => {
+            total += (item.price * item.qty);
+            return `
+            <div class="flex gap-4 items-center">
+                <img src="${item.img || ''}" class="w-12 h-12 object-cover rounded bg-gray-100">
+                <div class="flex-1">
+                    <p class="text-xs font-bold text-gray-800 line-clamp-1">${item.name}</p>
+                    <p class="text-xs text-brandGreen font-mono">NT$ ${item.price}</p>
+                </div>
+                <div class="qty-control scale-90">
+                    <button class="qty-btn" onclick="updateCartItemQty(${idx}, -1)">-</button>
+                    <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                    <button class="qty-btn" onclick="updateCartItemQty(${idx}, 1)">+</button>
+                </div>
+            </div>`;
+        }).join('');
+        document.getElementById('cart-total-price').innerText = `NT$ ${total.toLocaleString()}`;
+    }
+
+    function updateCartItemQty(idx, change) {
+        cart[idx].qty += change;
+        if (cart[idx].qty <= 0) {
+            if (confirm("要移除這項商品嗎？")) cart.splice(idx, 1);
+            else cart[idx].qty = 1;
+        }
+        updateCartUI();
+    }
+
+    function openCart() {
+        document.getElementById('global-overlay').classList.add('open');
+        document.getElementById('cart-sidebar').classList.add('open');
+    }
+
+    function closeAllPanels() {
+        document.querySelectorAll('.side-panel, .overlay').forEach(el => el.classList.remove('open'));
+        document.getElementById('global-overlay').classList.remove('open');
+    }
+
+    // 會員邏輯
+    function injectHeaderStatus() {
+        const user = JSON.parse(localStorage.getItem('keicha_v2_user'));
+        const nav = document.querySelector('nav.hidden.md\\:flex'); 
+        if (!nav) return;
+        
+        let container = document.getElementById('injected-user-status');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'injected-user-status';
+            container.className = "mr-2 border-r pr-2 border-gray-100 flex items-center";
+            nav.insertBefore(container, nav.firstChild);
+        }
+
+        container.innerHTML = user ? 
+            `<button onclick="openUserPanel()" class="flex items-center gap-1 text-brandGreen font-bold border px-3 py-2 rounded-md bg-white text-xs hover:bg-gray-50 transition shadow-sm"><span class="material-symbols-rounded text-lg">account_circle</span>${user.name || user.phone}</button>` : 
+            `<a href="member.html" class="p-2 text-gray-400 hover:text-brandGreen transition"><span class="material-symbols-rounded">login</span></a>`;
+    }
+
     function openUserPanel() {
         isEditMode = false;
         renderUserView();
@@ -197,31 +305,31 @@ styles: |
         body.innerHTML = `
             <div class="space-y-8">
                 <div>
-                    <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-2">姓名</p>
-                    <p class="text-lg font-bold text-gray-800">${user.name || '未填寫'}</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">姓名</p>
+                    <p class="text-base font-bold text-gray-800">${user.name || '未填寫'}</p>
                 </div>
                 <div>
-                    <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-2">電子郵件</p>
-                    <p class="text-lg font-bold text-gray-800">${user.email || '未填寫'}</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">電子郵件</p>
+                    <p class="text-base font-bold text-gray-800">${user.email || '未填寫'}</p>
                 </div>
-                <div class="pt-4 border-t space-y-4">
-                    <h4 class="text-xs font-bold text-brandGreen uppercase tracking-widest">收件設定</h4>
+                <div class="pt-6 border-t space-y-4">
+                    <h4 class="text-xs font-bold text-brandGreen uppercase">預設收件</h4>
                     ${renderStoreItem("7-11", user.store_711, user.store_711_note)}
-                    ${renderStoreItem("全家", user.store_fami, user.store_fami_note, "store_fami")}
+                    ${renderStoreItem("全家", user.store_fami, user.store_fami_note)}
                     ${renderAddressItem("宅配地址", user.shipping_address)}
                 </div>
             </div>
         `;
     }
 
-    function renderStoreItem(label, code, note, key) {
-        if (!code) return `<button onclick="toggleEditMode()" class="w-full py-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 text-xs font-bold hover:text-brandGreen hover:border-brandGreen">+ 新增${label}門市</button>`;
-        return `<div class="p-4 bg-gray-50 rounded-xl"><p class="text-xs font-bold mb-1">${label}門市：${code}</p><p class="text-[10px] text-gray-400">${note || ''}</p></div>`;
+    function renderStoreItem(label, code, note) {
+        if (!code) return `<button onclick="toggleEditMode()" class="w-full py-3 border-2 border-dashed border-gray-100 rounded-xl text-gray-400 text-xs font-bold hover:text-brandGreen">+ 新增${label}門市</button>`;
+        return `<div class="p-4 bg-gray-50 rounded-xl"><p class="text-xs font-bold">${label}：${code}</p><p class="text-[10px] text-gray-400">${note || ''}</p></div>`;
     }
 
     function renderAddressItem(label, addr) {
-        if (!addr) return `<button onclick="toggleEditMode()" class="w-full py-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 text-xs font-bold hover:text-brandGreen hover:border-brandGreen">+ 新增宅配地址</button>`;
-        return `<div class="p-4 bg-gray-50 rounded-xl"><p class="text-xs font-bold mb-1">${label}</p><p class="text-[10px] text-gray-400">${addr}</p></div>`;
+        if (!addr) return `<button onclick="toggleEditMode()" class="w-full py-3 border-2 border-dashed border-gray-100 rounded-xl text-gray-400 text-xs font-bold hover:text-brandGreen">+ 新增宅配地址</button>`;
+        return `<div class="p-4 bg-gray-50 rounded-xl"><p class="text-xs font-bold">${label}</p><p class="text-[10px] text-gray-400">${addr}</p></div>`;
     }
 
     function toggleEditMode() {
@@ -237,40 +345,27 @@ styles: |
 
         body.innerHTML = `
             <div class="space-y-6">
-                <div class="flex items-end gap-2">
-                    <div class="flex-1">
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">姓名</label>
-                        <input type="text" id="in-name" value="${user.name || ''}" class="w-full p-3 bg-gray-50 rounded-lg outline-none focus:ring-1 ring-brandGreen">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 mb-1">電子郵件</label>
-                    <input type="email" id="in-email" value="${user.email || ''}" class="w-full p-3 bg-gray-50 rounded-lg outline-none focus:ring-1 ring-brandGreen">
-                </div>
-                <div class="p-5 brand-green-10 rounded-2xl space-y-4">
+                <div><label class="block text-[10px] font-bold text-gray-400 mb-1">姓名</label><input type="text" id="in-name" value="${user.name || ''}" class="w-full p-3 bg-gray-50 rounded-lg outline-none"></div>
+                <div><label class="block text-[10px] font-bold text-gray-400 mb-1">電子郵件</label><input type="email" id="in-email" value="${user.email || ''}" class="w-full p-3 bg-gray-50 rounded-lg outline-none"></div>
+                <div class="p-4 brand-green-10 rounded-xl space-y-3">
                     <p class="text-xs font-bold text-brandGreen">7-11 門市</p>
-                    <input type="text" id="in-711" value="${user.store_711 || ''}" placeholder="店號" class="w-full p-3 rounded-lg border-none outline-none">
-                    <input type="text" id="in-711-note" value="${user.store_711_note || ''}" placeholder="店名備註" class="w-full p-3 rounded-lg border-none outline-none text-xs">
+                    <input type="text" id="in-711" value="${user.store_711 || ''}" placeholder="店號" class="w-full p-2 rounded bg-white text-sm border-none">
+                    <input type="text" id="in-711-note" value="${user.store_711_note || ''}" placeholder="備註" class="w-full p-2 rounded bg-white text-xs border-none">
                 </div>
-                <div class="p-5 bg-blue-50 rounded-2xl space-y-4">
+                <div class="p-4 bg-blue-50 rounded-xl space-y-3">
                     <p class="text-xs font-bold text-blue-600">全家 門市</p>
-                    <input type="text" id="in-fami" value="${user.store_fami || ''}" placeholder="店號" class="w-full p-3 rounded-lg border-none outline-none">
-                    <input type="text" id="in-fami-note" value="${user.store_fami_note || ''}" placeholder="店名備註" class="w-full p-3 rounded-lg border-none outline-none text-xs">
+                    <input type="text" id="in-fami" value="${user.store_fami || ''}" placeholder="店號" class="w-full p-2 rounded bg-white text-sm border-none">
+                    <input type="text" id="in-fami-note" value="${user.store_fami_note || ''}" placeholder="備註" class="w-full p-2 rounded bg-white text-xs border-none">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 mb-1">宅配地址</label>
-                    <textarea id="in-addr" class="w-full p-3 bg-gray-50 rounded-lg outline-none focus:ring-1 ring-brandGreen text-sm" rows="2">${user.shipping_address || ''}</textarea>
-                </div>
+                <div><label class="block text-[10px] font-bold text-gray-400 mb-1">宅配地址</label><textarea id="in-addr" class="w-full p-3 bg-gray-50 rounded-lg outline-none text-sm" rows="2">${user.shipping_address || ''}</textarea></div>
             </div>
         `;
     }
 
     async function saveProfile() {
         const stored = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        const icon = document.getElementById('save-icon');
         const payload = {
-            action: 'save',
-            phone: stored.phone,
+            action: 'save', phone: stored.phone,
             name: document.getElementById('in-name').value,
             email: document.getElementById('in-email').value,
             store_711: document.getElementById('in-711').value,
@@ -279,8 +374,7 @@ styles: |
             store_fami_note: document.getElementById('in-fami-note').value,
             shipping_address: document.getElementById('in-addr').value
         };
-
-        icon.classList.add('animate-spin');
+        document.getElementById('save-icon').classList.add('animate-spin');
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await res.json();
         if (result.success) {
@@ -290,65 +384,7 @@ styles: |
         }
     }
 
-    function openCart() {
-        document.getElementById('global-overlay').classList.add('open');
-        document.getElementById('cart-sidebar').classList.add('open');
-    }
-
-    function closeAllPanels() {
-        document.querySelectorAll('.side-panel, .overlay').forEach(el => el.classList.remove('open'));
-    }
-
-    function addToCart(id, name, price, img) {
-        cart.push({ id, name, price, img });
-        updateCartUI();
-        openCart();
-    }
-
-    function updateCartUI() {
-        const container = document.getElementById('cart-items-container');
-        const count = cart.length;
-        document.getElementById('cart-count-badge').innerText = count;
-        document.getElementById('cart-count-badge').classList.toggle('hidden', count === 0);
-        
-        if (count === 0) {
-            container.innerHTML = `<p class="text-center text-gray-400 mt-10 italic">您的購物車是空的</p>`;
-            document.getElementById('cart-total-price').innerText = "NT$ 0";
-            return;
-        }
-
-        let total = 0;
-        container.innerHTML = cart.map((item, idx) => {
-            total += item.price;
-            return `
-            <div class="flex gap-4 items-center">
-                <img src="${item.img || siteBaseUrl+'/images/placeholder.png'}" class="w-12 h-12 object-cover rounded-md bg-gray-100">
-                <div class="flex-1">
-                    <p class="text-xs font-bold text-gray-800 line-clamp-1">${item.name}</p>
-                    <p class="text-xs text-brandGreen font-mono">NT$ ${item.price}</p>
-                </div>
-                <button onclick="removeItem(${idx})" class="text-gray-300 hover:text-red-500">&times;</button>
-            </div>`;
-        }).join('');
-        document.getElementById('cart-total-price').innerText = `NT$ ${total.toLocaleString()}`;
-    }
-
-    function removeItem(idx) {
-        cart.splice(idx, 1);
-        updateCartUI();
-    }
-
-    function injectHeaderStatus() {
-        const user = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        const nav = document.querySelector('nav.hidden.md\\:flex'); 
-        if (!nav) return;
-        const div = document.createElement('div');
-        div.className = "mr-2 border-r pr-2 border-gray-100";
-        div.innerHTML = user ? 
-            `<button onclick="openUserPanel()" class="flex items-center gap-1 text-brandGreen font-bold border px-3 py-2 rounded-md bg-white text-xs hover:bg-gray-50 transition shadow-sm"><span class="material-symbols-rounded text-lg">account_circle</span>${user.name || user.phone}</button>` : 
-            `<a href="member.html" class="p-2 text-gray-400 hover:text-brandGreen transition"><span class="material-symbols-rounded">login</span></a>`;
-        nav.insertBefore(div, nav.firstChild);
-    }
+    function checkout() { alert("介面確認中：目前購物車共有 " + cart.length + " 項商品"); }
 
     window.onload = initShop;
 </script>
