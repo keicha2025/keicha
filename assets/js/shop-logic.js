@@ -1,5 +1,5 @@
 /**
- * KEICHA 網路商店 - 核心邏輯中控台 (階梯運費與 10 欄位對接版)
+ * KEICHA 核心邏輯 - 11 欄位對接版
  */
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
@@ -10,20 +10,16 @@ window.globalProducts = [];
 window.shippingRules = [];
 window.selectedMethod = ''; 
 
-// --- 商店初始化 ---
+// --- 初始化 ---
 window.initShop = async function() {
     try {
         const res = await fetch(GAS_URL);
         const data = await res.json();
         if (!data || !data.products) return;
         window.globalProducts = data.products;
-        
-        // 對接後端 shipping_rules 結構
         window.shippingRules = (data.shipping_rules || []).map(r => ({
-            ...r,
-            method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
+            ...r, method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
         }));
-
         const localUser = JSON.parse(localStorage.getItem('keicha_v2_user'));
         if (localUser && localUser.phone) window.syncUserData(localUser.phone);
         window.renderProducts(window.globalProducts);
@@ -79,7 +75,7 @@ window.renderTopAuth = function() {
     }
 };
 
-// --- 會員資料管理 ---
+// --- 會員面板 ---
 window.renderUserFields = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     if (!u.phone) return;
@@ -141,7 +137,7 @@ window.updateCartUI = function() {
     document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
 };
 
-// --- 結帳確認與運費階梯計算 ---
+// --- 結帳確認 (11 欄位對接) ---
 window.renderCheckoutInfo = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     document.getElementById('checkout-info-name').innerText = u.name || '未填寫';
@@ -155,89 +151,70 @@ window.renderCheckoutInfo = function() {
 window.selectShipMethod = function(method) {
     window.selectedMethod = method;
     document.querySelectorAll('.ship-opt-card').forEach(el => el.classList.remove('selected'));
-    const targetId = method === '7-11' ? 'opt-7-11' : `opt-${method}`;
+    const targetId = (method === '7-11') ? 'opt-7-11' : `opt-${method}`;
     document.getElementById(targetId)?.classList.add('selected');
     window.updateSummary();
 };
 
-/**
- * 核心計算：階梯運費與商品類別校對
- */
 window.updateSummary = function() {
     const subtotal = window.cart.reduce((s, i) => s + (i.price * i.qty), 0);
     let shipping = 0;
-    
     const nameMap = { '7-11': '7-11', 'fami': '全家', 'addr': '宅配' };
     const currentMethodName = nameMap[window.selectedMethod];
     const cartCategory = window.cart.length > 0 ? window.cart[0].category : "";
-
-    // 比對後端傳回的運費階梯規則
     const rule = window.shippingRules.find(r => r.method === currentMethodName && r.category === cartCategory);
-    
     if (rule) {
         const t1 = parseFloat(rule.t1) || 0, f1 = parseFloat(rule.f1) || 0;
         const t2 = parseFloat(rule.t2) || 0, f2 = parseFloat(rule.f2) || 0;
         const t3 = parseFloat(rule.t3) || 0, f3 = parseFloat(rule.f3) || 0;
-
-        if (subtotal < t1) shipping = f1;
-        else if (subtotal < t2) shipping = f2;
-        else if (subtotal < t3) shipping = f3;
-        else shipping = 0; // 超過 t3 視為免運區間
+        if (subtotal < t1) shipping = f1; else if (subtotal < t2) shipping = f2; else if (subtotal < t3) shipping = f3; else shipping = 0;
     }
-
     document.getElementById('summary-subtotal').innerText = `NT$ ${subtotal.toLocaleString()}`;
     document.getElementById('summary-method').innerText = currentMethodName || '未選';
     document.getElementById('summary-shipping').innerText = `NT$ ${shipping.toLocaleString()}`;
     document.getElementById('summary-total').innerText = `NT$ ${(subtotal + shipping).toLocaleString()}`;
 };
 
-/**
- * 送出訂單：10 欄位精確排序對接
- */
 window.submitOrder = async function() {
     if (!window.selectedMethod) return alert("請選擇收件方式");
     const lineName = document.getElementById('order-line-name').value;
-    if (!lineName) return alert("請填寫 LINE 名稱以便核對");
-
+    if (!lineName) return alert("請填寫 LINE 名稱");
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
-    const btn = document.getElementById('btn-submit-order');
     const subtotal = window.cart.reduce((s, i) => s + (i.price * i.qty), 0);
     const shipping = document.getElementById('summary-shipping').innerText.replace('NT$ ', '').replace(/,/g, '');
     const itemsText = window.cart.map(i => `${i.name}x${i.qty}`).join(', ');
+    
+    // 物流資料分離
+    let pureStore = "";
+    let logiName = "";
+    if (window.selectedMethod === '7-11') { pureStore = u.store_711; logiName = "7-11"; }
+    else if (window.selectedMethod === 'fami') { pureStore = u.store_fami; logiName = "全家"; }
+    else { pureStore = u.shipping_address; logiName = "宅配"; }
 
-    let storeInfo = "";
-    if (window.selectedMethod === '7-11') storeInfo = `7-11: ${u.store_711} (${u.store_711_note})`;
-    else if (window.selectedMethod === 'fami') storeInfo = `全家: ${u.store_fami} (${u.store_fami_note})`;
-    else storeInfo = u.shipping_address;
-
-    if (!storeInfo || storeInfo.includes('尚未設定')) return alert("收件資訊不完整，請先點擊編輯補全");
+    if (!pureStore) return alert("資訊不完整，請點擊編輯補全");
 
     const payload = {
         action: 'checkout',
         name: u.name || "未提供",
         phone: u.phone,
-        store: storeInfo,
-        temp: "常溫", 
-        items: itemsText,
-        subtotal: subtotal,
-        shipping: shipping,
-        date: new Date().toLocaleString('zh-TW'),
-        note: document.getElementById('order-note').value,
-        line_name: lineName
+        store: pureStore,         // 3. C (純店號或地址)
+        temp: "常溫",             // 4. D
+        items: itemsText,         // 5. E
+        subtotal: subtotal,       // 6. F
+        shipping: shipping,       // 7. G
+        date: new Date().toLocaleString('zh-TW'), // 8. H
+        note: document.getElementById('order-note').value, // 9. I
+        line_name: lineName,      // 10. J
+        logistics: logiName       // 11. K [新物流欄位]
     };
 
-    btn.disabled = true;
-    btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">sync</span> 訂單發送中...`;
-
+    const btn = document.getElementById('btn-submit-order');
+    btn.disabled = true; btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">sync</span> 發送中...`;
     try {
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await res.json();
         if (result.success) {
-            alert("訂單已送出！感謝您的購買。");
-            window.cart = [];
-            window.updateCartUI();
-            window.closeAllPanels();
-            location.reload();
+            alert("訂單已送出！"); window.cart = []; window.updateCartUI(); window.closeAllPanels(); location.reload();
         } else { alert("失敗：" + result.msg); }
     } catch (e) { alert("連線異常"); }
     finally { btn.disabled = false; btn.innerHTML = "確認送出訂單"; }
@@ -250,17 +227,13 @@ window.openCart = () => { window.updateCartUI(); document.getElementById('cart-s
 window.closeAllPanels = () => document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open'));
 window.updateCartQty = (idx, d) => { window.cart[idx].qty += d; if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1); window.updateCartUI(); };
 window.removeFromCart = (idx) => { window.cart.splice(idx, 1); window.updateCartUI(); };
-
 window.addToCart = (pid) => {
     const p = window.globalProducts.find(x => x.product_id === pid);
     const qty = parseInt(document.getElementById(`iq-${pid}`).innerText);
     const inCart = window.cart.find(x => x.id === pid);
-    if (inCart) inCart.qty += qty; 
-    else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category }); // 確保類別有傳入
-    window.updateCartUI(); 
-    window.openCart();
+    if (inCart) inCart.qty += qty; else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category });
+    window.updateCartUI(); window.openCart();
 };
-
 window.handleQuickLogin = async function() {
     const phone = document.getElementById('login-phone').value;
     if(!/^09\d{8}$/.test(phone)) return alert("格式錯誤");
@@ -271,7 +244,6 @@ window.handleQuickLogin = async function() {
         if(data.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(data.data)); window.renderTopAuth(); window.closeAllPanels(); }
     } finally { icon.innerText = "arrow_forward"; icon.classList.remove('animate-spin-custom'); }
 };
-
 window.openCheckout = function() {
     if(window.cart.length === 0) return alert("購物車空的");
     window.closeAllPanels();
