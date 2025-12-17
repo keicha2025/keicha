@@ -185,7 +185,7 @@
         const loader = document.getElementById('login-loader');
 
         if (!/^09\d{8}$/.test(phone)) {
-            showToast("⚠️ 請輸入正確的手機號碼");
+            showToast("請輸入正確的手機號碼");
             return;
         }
 
@@ -200,13 +200,13 @@
             const res = await response.json();
             if (res.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(res.data));
-                showToast(res.isNew ? "✨ 歡迎新朋友加入！" : "👋 歡迎回來，親愛的會員");
+                showToast(res.isNew ? "歡迎新朋友加入！" : "歡迎回來");
                 renderProfile(res.data);
             } else {
-                showToast("❌ 登入失敗: " + res.msg);
+                showToast("登入失敗: " + res.msg);
             }
         } catch (e) {
-            showToast("📡 網路連線失敗，請稍後再試");
+            showToast("網路連線失敗，請稍後再試");
         } finally {
             btn.disabled = false;
             loader.classList.add('hidden');
@@ -243,9 +243,9 @@
             const res = await response.json();
             if (res.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(payload));
-                showToast("✅ 個人資料已完成同步更新");
+                showToast("個人資料已完成同步更新");
             } else {
-                showToast("❌ 儲存失敗: " + res.msg);
+                showToast("儲存失敗: " + res.msg);
             }
         } catch (e) {
             showToast("📡 同步過程發生網路問題");
