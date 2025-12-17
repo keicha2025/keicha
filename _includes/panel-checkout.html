@@ -69,6 +69,11 @@
             </div>
         </section>
 
+        <section class="space-y-4">
+            <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b border-gray-100 pb-2">訂單備註</h4>
+            <textarea id="order-note" class="w-full p-4 rounded-2xl border border-gray-100 bg-gray-50/50 text-sm focus:ring-1 ring-[#6ea44c] outline-none resize-none" rows="2" placeholder="如有其他特殊需求，請在此填寫..."></textarea>
+        </section>
+
         <section class="bg-gray-50 p-6 rounded-3xl space-y-4">
             <div class="flex justify-between text-sm text-gray-500">
                 <span>商品小計</span>
@@ -97,20 +102,15 @@
 </div>
 
 <style>
-    /* 選取狀態樣式 */
+    /* 選取狀態與輸入樣式 */
     .ship-opt-card.selected {
         border-color: #6ea44c !important;
         background-color: #6ea44c08;
         box-shadow: 0 4px 12px rgba(110, 164, 76, 0.1);
     }
-    .ship-opt-card.selected .material-symbols-rounded {
-        color: #6ea44c !important;
-    }
-    .ship-opt-card.selected .font-bold {
-        color: #6ea44c;
-    }
+    .ship-opt-card.selected .material-symbols-rounded { color: #6ea44c !important; }
+    .ship-opt-card.selected .font-bold { color: #6ea44c; }
 
-    /* LINE 名稱輸入框樣式 */
     .user-edit-input {
         width: 100%;
         padding: 0.75rem 0;
@@ -121,7 +121,5 @@
         font-size: 1rem;
         background-color: transparent;
     }
-    .user-edit-input:focus {
-        border-bottom-color: #6ea44c;
-    }
+    .user-edit-input:focus { border-bottom-color: #6ea44c; }
 </style>
