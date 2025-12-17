@@ -1,21 +1,17 @@
 /**
- * KEICHA 網路商店 - 核心邏輯中控台
- * 包含：初始化、商品渲染、購物車管理、會員資料管理、結帳流程
+ * KEICHA 網路商店 - 核心邏輯中控台 (同步強化版)
  */
 
-// 1. 基礎設定與變數初始化
+// 1. 基礎設定
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
-const siteBaseUrl = window.siteBaseUrl || ""; // 由 HTML 傳入
+const siteBaseUrl = window.siteBaseUrl || ""; 
 
 window.cart = [];
 window.globalProducts = [];
 window.shippingRules = [];
 window.selectedMethod = '';
 
-// 2. 組件模板定義
-// 注意：ITEM_CARD_TEMPLATE 必須留在 shop.html，因為它包含 Jekyll 的 {% include %}
-
-// --- 商店初始化與數據抓取 ---
+// --- 商店初始化與背景同步 ---
 window.initShop = async function() {
     try {
         const res = await fetch(GAS_URL);
@@ -23,14 +19,15 @@ window.initShop = async function() {
         if (!data || !data.products) return;
         window.globalProducts = data.products;
         
-        // 修正 7-11 名稱可能的日期格式錯誤
+        // 修正 7-11 名稱錯誤問題
         window.shippingRules = (data.shipping_rules || []).map(r => ({
             ...r,
             method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
         }));
 
         const localUser = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        if (localUser && localUser.phone) syncUserData(localUser.phone);
+        // 初始化時強制背景同步一次，解決舊裝置快取問題
+        if (localUser && localUser.phone) window.syncUserData(localUser.phone);
 
         window.renderProducts(window.globalProducts);
         document.getElementById('products-loader').classList.add('hidden');
@@ -38,18 +35,29 @@ window.initShop = async function() {
     } catch (e) { console.error("Init Error:", e); }
 };
 
-async function syncUserData(phone) {
+/**
+ * 強制同步雲端資料：覆蓋本地 localStorage
+ */
+window.syncUserData = async function(phone) {
     try {
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
+        const res = await fetch(GAS_URL, { 
+            method: 'POST', 
+            body: JSON.stringify({ action: 'login', phone }) 
+        });
         const result = await res.json();
         if (result.success) {
             localStorage.setItem('keicha_v2_user', JSON.stringify(result.data));
             window.renderTopAuth();
+            // 如果會員面板正開著，立即刷新顯示內容
+            const panel = document.getElementById('user-panel');
+            if (panel && panel.classList.contains('open')) {
+                window.renderUserFields();
+            }
         }
-    } catch (e) { }
-}
+    } catch (e) { console.warn("背景同步暫時無法連線"); }
+};
 
-// --- 商品渲染邏輯 ---
+// --- 商品與導覽渲染 ---
 window.renderProducts = function(prods) {
     const container = document.getElementById('category-container');
     const grouped = prods.reduce((acc, p) => {
@@ -84,7 +92,7 @@ window.renderTopAuth = function() {
     }
 };
 
-// --- 會員面板管理邏輯 ---
+// --- 會員面板管理邏輯 (多區塊獨立編輯版) ---
 window.renderUserFields = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     if (!u.phone) return;
@@ -128,7 +136,7 @@ window.saveFullUser = async function() {
     const text = document.getElementById('save-text');
     
     if (btn) btn.disabled = true;
-    if (text) text.innerText = "資料同步中...";
+    if (text) text.innerText = "正在儲存...";
     if (icon) icon.classList.add('animate-spin-custom');
 
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
@@ -147,19 +155,19 @@ window.saveFullUser = async function() {
         await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(updated) });
         localStorage.setItem('keicha_v2_user', JSON.stringify(updated));
         window.renderUserFields();
-        alert("資料同步成功！");
+        alert("會員資料已同步至雲端！");
         ['info', '711', 'fami', 'addr'].forEach(t => {
             const el = (t === 'info') ? document.getElementById('upd-name') : document.getElementById(`edit-${t}`);
             if (el && !el.classList.contains('hidden')) window.toggleEdit(t);
         });
-    } catch (e) { alert("連線失敗"); } finally {
+    } catch (e) { alert("同步失敗，請檢查連線"); } finally {
         if (btn) btn.disabled = false;
         if (text) text.innerText = "儲存並同步雲端資料";
         if (icon) icon.classList.remove('animate-spin-custom');
     }
 };
 
-// --- 購物車與互動控制 ---
+// --- 購物車核心 ---
 window.updateCartUI = function() {
     const count = window.cart.reduce((s, i) => s + i.qty, 0);
     const countEl = document.getElementById('cart-count');
@@ -201,8 +209,19 @@ window.updateCartUI = function() {
     document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
 };
 
+// --- 面板控制與互動 ---
 window.openLoginPanel = () => { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
-window.openUserPanel = () => { window.renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+
+window.openUserPanel = () => { 
+    window.renderUserFields(); 
+    // 每次點開面板，背景悄悄同步一次最新資料
+    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+    if(u.phone) window.syncUserData(u.phone);
+    
+    document.getElementById('user-panel').classList.add('open'); 
+    document.getElementById('global-overlay').classList.add('open'); 
+};
+
 window.openCart = () => { window.updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
 window.closeAllPanels = () => document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open'));
 
