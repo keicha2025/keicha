@@ -251,18 +251,54 @@ title: KEICHA 網路商店
         document.getElementById('top-auth-zone').innerHTML = u ? `<button onclick="openUserPanel()" class="flex items-center gap-1 brand-green font-bold text-sm"><span class="material-symbols-rounded text-lg">account_circle</span> ${u.name || u.phone}</button>` : `<button onclick="openLoginPanel()" class="text-gray-400 text-sm font-bold">登入/註冊</button>`;
     }
 
-    async function handleQuickLogin() {
-        const phone = document.getElementById('login-phone').value.trim();
-        if(!phone) return alert("請輸入手機號碼");
-        const icon = document.getElementById('login-icon');
-        icon.classList.add('animate-spin');
-        try {
-            const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
-            const result = await res.json();
-            if(result.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(result.data)); renderTopAuth(); closeAllPanels(); }
-        } catch(e) { alert("登入失敗"); }
-        icon.classList.remove('animate-spin');
+async function handleQuickLogin() {
+    const phone = document.getElementById('login-phone').value.trim();
+    
+    // --- [NEW] 手機號碼格式驗證 ---
+    // 規則：09開頭，後接8位數字，總長度10碼
+    const phoneRule = /^09\d{8}$/;
+    
+    if (!phone) {
+        alert("請輸入手機號碼");
+        return;
     }
+    
+    if (!phoneRule.test(phone)) {
+        alert("手機號碼格式錯誤，請輸入 09 開頭的 10 碼數字");
+        return;
+    }
+    // ----------------------------
+
+    const icon = document.getElementById('login-icon');
+    const text = document.getElementById('login-text');
+    const btn = document.getElementById('login-submit-btn');
+
+    icon.classList.add('animate-spin');
+    text.innerText = "驗證中...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(GAS_URL, { 
+            method: 'POST', 
+            body: JSON.stringify({ action: 'login', phone }) 
+        });
+        const result = await res.json();
+        
+        if (result.success) { 
+            localStorage.setItem('keicha_v2_user', JSON.stringify(result.data)); 
+            renderTopAuth(); 
+            closeAllPanels(); 
+        } else {
+            alert("登入失敗：" + (result.message || "請檢查輸入資料"));
+        }
+    } catch(e) { 
+        alert("系統連線失敗，請稍後再試"); 
+    } finally {
+        icon.classList.remove('animate-spin');
+        text.innerText = "獲取資料";
+        btn.disabled = false;
+    }
+}
 
     function renderUserFields() {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
