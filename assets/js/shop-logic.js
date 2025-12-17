@@ -1,13 +1,17 @@
 /**
- * KEICHA SHOP CORE - 模組化結構化版本
- * ---------------------------------------
- * [Index]
- * 1. CONFIG & STATE: 核心設定與全域狀態
- * 2. API SERVICE: GAS 後端通訊層
- * 3. UI RENDERING: 介面渲染與資料填入
- * 4. SHOPPING LOGIC: 購物車、運費計算、訂單送出
- * 5. PANEL CONTROL: 面板開關與交互
+ * KEICHA SHOP CORE - 防禦型全域掛載版
+ * 確保 HTML 呼叫時函式已存在
  */
+
+// --- 0. 全域函式搶先掛載 (確保 onclick 絕對找得到) ---
+window.openCart = function() { window.panel?.openCart(); };
+window.openUserPanel = function() { window.panel?.openUser(); };
+window.openCheckout = function() { window.panel?.openCheckout(); };
+window.closeAllPanels = function() { window.panel?.closeAll(); };
+window.addToCart = function(pid) { window.shop?.add(pid); };
+window.selectShipMethod = function(method) { window.shop?.selectShip(method); };
+window.submitOrder = function() { window.shop?.submit(); };
+window.editFromCheckout = function() { window.panel?.editFromCheckout(); };
 
 // ========================================
 // 1. CONFIG & STATE
@@ -18,35 +22,31 @@ const siteBaseUrl = window.siteBaseUrl || "";
 window.cart = [];
 window.globalProducts = [];
 window.shippingRules = [];
-window.selectedMethod = ''; // '7-11', 'fami', 'addr'
+window.selectedMethod = ''; 
 
 // ========================================
-// 2. API SERVICE (與 GAS 對接)
+// 2. API SERVICE
 // ========================================
 window.api = {
-    // 商店初始化讀取
     initShop: async () => {
         try {
             const res = await fetch(GAS_URL);
             const data = await res.json();
-            if (!data || !data.products) return;
-            
-            window.globalProducts = data.products;
+            if (!data) return;
+            window.globalProducts = data.products || [];
             window.shippingRules = (data.shipping_rules || []).map(r => ({
                 ...r, method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
             }));
 
-            // 會員自動同步
             const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
             if (u?.phone) window.api.syncUser(u.phone);
 
             window.ui.renderProducts(window.globalProducts);
             document.getElementById('products-loader')?.classList.add('hidden');
             window.ui.refreshAuth();
-        } catch (e) { console.error("API Init Error:", e); }
+        } catch (e) { console.error("Init Error:", e); }
     },
 
-    // 會員登入/同步
     syncUser: async (phone) => {
         try {
             const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
@@ -54,26 +54,17 @@ window.api = {
             if (result.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(result.data));
                 window.ui.refreshAuth();
-                if (document.getElementById('user-panel')?.classList.contains('open')) window.ui.fillUserFields();
+                window.ui.fillUserFields();
                 if (document.getElementById('checkout-panel')?.classList.contains('open')) window.ui.fillCheckoutInfo();
             }
         } catch (e) {}
-    },
-
-    // 儲存會員資料
-    saveUser: async (updatedData) => {
-        try {
-            const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(updatedData) });
-            return await res.json();
-        } catch (e) { return { success: false }; }
     }
 };
 
 // ========================================
-// 3. UI RENDERING (介面展示)
+// 3. UI RENDERING
 // ========================================
 window.ui = {
-    // 商品列表渲染
     renderProducts: (prods) => {
         const container = document.getElementById('category-container');
         if (!container) return;
@@ -84,18 +75,18 @@ window.ui = {
             return acc;
         }, {});
         container.innerHTML = Object.keys(grouped).map(cat => `
-            <section>
+            <section class="mb-16">
                 <h3 class="text-xl font-bold border-l-4 border-[#6ea44c] pl-3 mb-8 text-gray-800">${cat}</h3>
-                <div class="product-grid">${grouped[cat].map(p => {
-                    const stock = parseInt(p.stock) || 0;
-                    let img = p.image_url || "";
-                    if (img && !img.startsWith('http')) img = siteBaseUrl + (img.startsWith('/') ? img : '/' + img);
-                    return window.ITEM_CARD_TEMPLATE(p, img, stock <= 0);
-                }).join('')}</div>
+                <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                    ${grouped[cat].map(p => {
+                        let img = p.image_url || "";
+                        if (img && !img.startsWith('http')) img = siteBaseUrl + (img.startsWith('/') ? img : '/' + img);
+                        return window.ITEM_CARD_TEMPLATE(p, img, (parseInt(p.stock) || 0) <= 0);
+                    }).join('')}
+                </div>
             </section>`).join('');
     },
 
-    // 填寫會員中心欄位
     fillUserFields: () => {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
         const fields = { 'display-user-phone': u.phone, 'text-name': u.name || '未填寫', 'display-711': u.store_711 ? `${u.store_711} ${u.store_711_note || ''}` : '尚未設定', 'display-fami': u.store_fami ? `${u.store_fami} ${u.store_fami_note || ''}` : '尚未設定', 'display-addr': u.shipping_address || '尚未設定' };
@@ -104,18 +95,16 @@ window.ui = {
         Object.keys(inputs).forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = inputs[id] || ''; });
     },
 
-    // 填寫結帳區資訊
     fillCheckoutInfo: () => {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
-        document.getElementById('checkout-info-name').innerText = u.name || '未填寫';
-        document.getElementById('checkout-info-phone').innerText = u.phone || '-';
-        document.getElementById('checkout-display-7-11').innerText = u.store_711 ? `${u.store_711} (${u.store_711_note || ''})` : '尚未設定';
-        document.getElementById('checkout-display-fami').innerText = u.store_fami ? `${u.store_fami} (${u.store_fami_note || ''})` : '尚未設定';
-        document.getElementById('checkout-display-addr').innerText = u.shipping_address || '尚未設定';
+        if(document.getElementById('checkout-info-name')) document.getElementById('checkout-info-name').innerText = u.name || '未填寫';
+        if(document.getElementById('checkout-info-phone')) document.getElementById('checkout-info-phone').innerText = u.phone || '-';
+        if(document.getElementById('checkout-display-7-11')) document.getElementById('checkout-display-7-11').innerText = u.store_711 ? `${u.store_711} (${u.store_711_note || ''})` : '尚未設定';
+        if(document.getElementById('checkout-display-fami')) document.getElementById('checkout-display-fami').innerText = u.store_fami ? `${u.store_fami} (${u.store_fami_note || ''})` : '尚未設定';
+        if(document.getElementById('checkout-display-addr')) document.getElementById('checkout-display-addr').innerText = u.shipping_address || '尚未設定';
     },
 
-    // 更新購物車摘要
-    updateCartUI: () => {
+    updateCart: () => {
         const count = window.cart.reduce((s, i) => s + i.qty, 0);
         const el = document.getElementById('cart-count');
         if (el) { el.innerText = count; el.classList.toggle('hidden', count === 0); }
@@ -124,7 +113,7 @@ window.ui = {
         if (window.cart.length === 0) { container.innerHTML = `<p class="text-center py-10 text-gray-300">購物車空的</p>`; return; }
         container.innerHTML = window.cart.map((i, idx) => `
             <div class="flex justify-between items-center py-4 border-b">
-                <div><div class="font-bold text-sm">${i.name}</div><div class="text-xs brand-green">NT$ ${i.price}</div></div>
+                <div><div class="font-bold text-sm">${i.name}</div><div class="text-xs brand-green">NT$ ${i.price.toLocaleString()}</div></div>
                 <div class="flex items-center gap-2">
                     <button onclick="window.shop.updateQty(${idx}, -1)" class="material-symbols-rounded text-gray-400">remove_circle</button>
                     <span class="text-xs font-bold">${i.qty}</span>
@@ -132,7 +121,7 @@ window.ui = {
                 </div>
             </div>`).join('');
         const total = window.cart.reduce((s, i) => s + (i.price * i.qty), 0);
-        document.getElementById('cart-total-price').innerText = `NT$ ${total.toLocaleString()}`;
+        if(document.getElementById('cart-total-price')) document.getElementById('cart-total-price').innerText = `NT$ ${total.toLocaleString()}`;
     },
 
     refreshAuth: () => {
@@ -140,33 +129,31 @@ window.ui = {
         const zone = document.getElementById('top-auth-zone');
         if (!zone) return;
         zone.innerHTML = (u?.name || u?.phone) 
-            ? `<button onclick="window.panel.openUser()" class="brand-green font-bold text-lg hover:opacity-70 transition">● ${u.name || u.phone}</button>`
+            ? `<button onclick="window.openUserPanel()" class="brand-green font-bold text-lg hover:opacity-70 transition">● ${u.name || u.phone}</button>`
             : `<button onclick="window.panel.openLogin()" class="bg-gray-100 text-gray-600 px-8 py-3 rounded-2xl text-sm font-bold">登入 / 註冊</button>`;
     }
 };
 
 // ========================================
-// 4. SHOPPING LOGIC (核心業務)
+// 4. SHOPPING LOGIC
 // ========================================
 window.shop = {
-    // 加入購物車
     add: (pid) => {
         const p = window.globalProducts.find(x => x.product_id === pid);
-        const qty = parseInt(document.getElementById(`iq-${pid}`).innerText);
+        const qty = parseInt(document.getElementById(`iq-${pid}`)?.innerText || 1);
         const inCart = window.cart.find(x => x.id === pid);
         if (inCart) inCart.qty += qty; 
         else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, category: p.category });
-        window.ui.updateCartUI(); 
+        window.ui.updateCart(); 
         window.panel.openCart();
     },
 
     updateQty: (idx, d) => {
         window.cart[idx].qty += d;
         if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1);
-        window.ui.updateCartUI();
+        window.ui.updateCart();
     },
 
-    // 運費計算邏輯
     selectShip: (method) => {
         window.selectedMethod = method;
         document.querySelectorAll('.ship-opt-card').forEach(el => el.classList.remove('selected'));
@@ -190,85 +177,74 @@ window.shop = {
         document.getElementById('summary-total').innerText = `NT$ ${(subtotal + shipping).toLocaleString()}`;
     },
 
-    // 送出訂單 (11 欄位對齊)
     submit: async () => {
-        const lineName = document.getElementById('order-line-name').value;
-        if (!window.selectedMethod || !lineName) return alert("請選擇物流並填寫 LINE 名稱");
+        const lineName = document.getElementById('order-line-name')?.value;
+        if (!window.selectedMethod || !lineName) return alert("請選擇物流方式並填寫 LINE 名稱");
         
         const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
-        // 抓取 6 位純數字店號
         let pureStore = (window.selectedMethod === '7-11') ? u.store_711 : (window.selectedMethod === 'fami' ? u.store_fami : u.shipping_address);
-        if (!pureStore) return alert("收件資訊不完整");
+        
+        if (!pureStore) return alert("請補全收件資料");
 
         const payload = {
             action: 'checkout',
             name: u.name, phone: u.phone,
-            store: pureStore, // 第 3 欄 (C) 純數字
+            store: pureStore,
             temp: "常溫", 
             items: window.cart.map(i => `${i.name}x${i.qty}`).join(', '),
             subtotal: window.cart.reduce((s, i) => s + (i.price * i.qty), 0),
             shipping: document.getElementById('summary-shipping').innerText.replace('NT$ ', '').replace(/,/g, ''),
             date: new Date().toLocaleString('zh-TW'),
-            note: document.getElementById('order-note').value,
+            note: document.getElementById('order-note')?.value || "",
             line_name: lineName,
-            logistics: (window.selectedMethod === '7-11' ? '7-11' : (window.selectedMethod === 'fami' ? '全家' : '宅配')) // 第 11 欄 (K)
+            logistics: (window.selectedMethod === '7-11' ? '7-11' : (window.selectedMethod === 'fami' ? '全家' : '宅配'))
         };
 
         const btn = document.getElementById('btn-submit-order');
-        btn.disabled = true; btn.innerHTML = "處理中...";
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const result = await res.json();
-        if (result.success) { alert("訂單已送出！"); window.cart = []; location.reload(); }
-        else { alert("失敗：" + result.msg); btn.disabled = false; btn.innerHTML = "確認送出訂單"; }
+        btn.disabled = true; btn.innerHTML = "發送中...";
+        try {
+            const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await res.json();
+            if (result.success) { alert("訂單已送出！"); window.cart = []; location.reload(); }
+            else { alert("失敗：" + result.msg); btn.disabled = false; btn.innerHTML = "確認送出訂單"; }
+        } catch(e) { alert("連線錯誤"); btn.disabled = false; }
     }
 };
 
 // ========================================
-// 5. PANEL CONTROL (面板控制)
+// 5. PANEL CONTROL
 // ========================================
 window.panel = {
-    openLogin: () => { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); },
-    openCart: () => { window.ui.updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); },
-    openUser: () => { window.ui.fillUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); },
-    closeAll: () => document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')),
-    
-    // 修復編輯按鈕：切換面板
+    openLogin: () => { 
+        document.getElementById('login-panel')?.classList.add('open'); 
+        document.getElementById('global-overlay')?.classList.add('open'); 
+    },
+    openCart: () => { 
+        window.ui.updateCart(); 
+        document.getElementById('cart-sidebar')?.classList.add('open'); 
+        document.getElementById('global-overlay')?.classList.add('open'); 
+    },
+    openUser: () => { 
+        window.ui.fillUserFields(); 
+        document.getElementById('user-panel')?.classList.add('open'); 
+        document.getElementById('global-overlay')?.classList.add('open'); 
+    },
+    openCheckout: () => {
+        if(window.cart.length === 0) return alert("購物車空的");
+        window.panel.closeAll();
+        window.ui.fillCheckoutInfo();
+        setTimeout(() => {
+            document.getElementById('checkout-panel')?.classList.add('open');
+            document.getElementById('global-overlay')?.classList.add('open');
+        }, 150);
+    },
     editFromCheckout: () => {
-        document.getElementById('checkout-panel').classList.remove('open');
+        document.getElementById('checkout-panel')?.classList.remove('open');
         setTimeout(() => window.panel.openUser(), 100);
-    }
+    },
+    closeAll: () => document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open'))
 };
 
-// --- 全域掛載 (供 HTML onclick 呼叫) ---
+// 初始化啟動
 window.initShop = window.api.initShop;
-window.addToCart = window.shop.add;
-window.openCart = window.panel.openCart;
-window.openUserPanel = window.panel.openUser;
-window.openCheckout = () => { 
-    if(window.cart.length === 0) return alert("購物車空的");
-    window.panel.closeAll(); 
-    window.ui.fillCheckoutInfo();
-    setTimeout(() => { document.getElementById('checkout-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }, 150);
-};
-window.selectShipMethod = window.shop.selectShip;
-window.submitOrder = window.shop.submit;
-window.editFromCheckout = window.panel.editFromCheckout;
-window.closeAllPanels = window.panel.closeAll;
-
-// 會員存檔邏輯 (獨立處理)
-window.saveFullUser = async (section) => {
-    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
-    const updated = { 
-        ...u, action: 'save', 
-        name: document.getElementById('upd-name').value, 
-        store_711: document.getElementById('upd-711').value, 
-        store_711_note: document.getElementById('upd-711-note').value,
-        store_fami: document.getElementById('upd-fami').value, 
-        store_fami_note: document.getElementById('upd-fami-note').value,
-        shipping_address: document.getElementById('upd-addr').value 
-    };
-    const res = await window.api.saveUser(updated);
-    if(result.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(updated)); window.ui.fillUserFields(); alert("儲存成功"); }
-};
-
 window.onload = window.api.initShop;
