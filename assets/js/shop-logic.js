@@ -320,7 +320,207 @@ window.initShop = async function() {
 
     } catch (e) { console.error("Init Error:", e); }
 };
+// ========================================
+// 5. 結帳與訂單邏輯 (補齊缺失功能)
+// ========================================
 
+/**
+ * 開啟結帳面板 (檢查登入與購物車狀態)
+ */
+window.openCheckout = function() {
+    // 1. 檢查購物車
+    if (window.cart.length === 0) {
+        return alert("購物車是空的，無法結帳！");
+    }
+
+    // 2. 檢查是否登入
+    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+    if (!u.phone) {
+        alert("請先登入會員才能結帳");
+        window.closeAllPanels();
+        window.openLoginPanel();
+        return;
+    }
+
+    // 3. 填入結帳面板的基本資料
+    const nameEl = document.getElementById('checkout-info-name');
+    const phoneEl = document.getElementById('checkout-info-phone');
+    const lineInput = document.getElementById('order-line-name');
+    
+    if(nameEl) nameEl.innerText = u.name || "（未填寫姓名）";
+    if(phoneEl) phoneEl.innerText = u.phone;
+    
+    // 如果之前有存過 LINE 名稱 (可選功能)，這裡可預填
+    // if(lineInput && u.line_name) lineInput.value = u.line_name;
+
+    // 4. 更新物流選項顯示 (從會員資料讀取預設店鋪)
+    const disp711 = document.getElementById('checkout-display-7-11');
+    const dispFami = document.getElementById('checkout-display-fami');
+    const dispAddr = document.getElementById('checkout-display-addr');
+
+    if(disp711) disp711.innerText = u.store_711 ? `${u.store_711} ${u.store_711_note || ''}` : "未設定常用門市";
+    if(dispFami) dispFami.innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note || ''}` : "未設定常用門市";
+    if(dispAddr) dispAddr.innerText = u.shipping_address || "未設定常用地址";
+
+    // 5. 重置選擇狀態
+    window.selectedMethod = '';
+    document.querySelectorAll('.ship-opt-card').forEach(el => {
+        el.classList.remove('border-[#6ea44c]', 'bg-green-50');
+        el.classList.add('border-gray-50');
+    });
+    
+    // 6. 計算初始金額
+    window.calculateCheckoutTotal();
+
+    // 7. 開啟面板
+    document.getElementById('checkout-panel').classList.add('open');
+    document.getElementById('global-overlay').classList.add('open');
+};
+
+/**
+ * 在結帳頁點擊「編輯」跳轉回會員中心
+ */
+window.editFromCheckout = function() {
+    window.closeAllPanels(); // 先關閉結帳
+    window.openUserPanel();  // 開啟會員中心
+};
+
+/**
+ * 選擇物流方式
+ * @param {string} method - '7-11', 'fami', 'addr'
+ */
+window.selectShipMethod = function(method) {
+    window.selectedMethod = method;
+
+    // UI 變色效果
+    document.querySelectorAll('.ship-opt-card').forEach(el => {
+        el.classList.remove('border-[#6ea44c]', 'bg-green-50');
+        el.classList.add('border-gray-50');
+    });
+    const target = document.getElementById(`opt-${method}`);
+    if (target) {
+        target.classList.remove('border-gray-50');
+        target.classList.add('border-[#6ea44c]', 'bg-green-50');
+    }
+
+    // 重新計算總金額 (含運費)
+    window.calculateCheckoutTotal();
+};
+
+/**
+ * 計算結帳總金額 (含運費邏輯)
+ */
+window.calculateCheckoutTotal = function() {
+    // 1. 商品小計
+    const subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    document.getElementById('summary-subtotal').innerText = "NT$ " + subtotal.toLocaleString();
+
+    // 2. 運費計算 (這裡先寫簡易邏輯，您可以依照 shipping_rules 強化)
+    let shippingFee = 0;
+    let methodText = "未選";
+    
+    if (window.selectedMethod === '7-11') {
+        shippingFee = 60; // 預設 60
+        methodText = "7-11 店到店";
+    } else if (window.selectedMethod === 'fami') {
+        shippingFee = 60; // 預設 60
+        methodText = "全家 店到店";
+    } else if (window.selectedMethod === 'addr') {
+        shippingFee = 130; // 預設 130
+        methodText = "宅配到府";
+    }
+
+    // 更新運費顯示
+    document.getElementById('summary-method').innerText = window.selectedMethod ? methodText : "未選";
+    document.getElementById('summary-shipping').innerText = window.selectedMethod ? `NT$ ${shippingFee}` : "NT$ 0";
+
+    // 3. 總計
+    const total = subtotal + shippingFee;
+    document.getElementById('summary-total').innerText = "NT$ " + total.toLocaleString();
+    
+    return { subtotal, shippingFee, total, methodText };
+};
+
+/**
+ * 送出訂單 (對接 GAS doPost)
+ */
+window.submitOrder = async function() {
+    // 1. 基礎驗證
+    if (!window.selectedMethod) return alert("請選擇收件方式！");
+    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+    const lineName = document.getElementById('order-line-name').value;
+    
+    // 檢查資料完整性 (根據選擇的物流檢查對應欄位)
+    let storeInfo = "";
+    if (window.selectedMethod === '7-11') {
+        if (!u.store_711) return alert("您的會員資料尚未設定 7-11 店鋪，請點擊「編輯」前往設定。");
+        storeInfo = `7-11: ${u.store_711} (${u.store_711_note})`;
+    } else if (window.selectedMethod === 'fami') {
+        if (!u.store_fami) return alert("您的會員資料尚未設定全家店鋪，請點擊「編輯」前往設定。");
+        storeInfo = `全家: ${u.store_fami} (${u.store_fami_note})`;
+    } else if (window.selectedMethod === 'addr') {
+        if (!u.shipping_address) return alert("您的會員資料尚未設定收件地址，請點擊「編輯」前往設定。");
+        storeInfo = u.shipping_address;
+    }
+
+    if (!lineName) {
+        if(!confirm("您未填寫 LINE 名稱，這可能導致無法核對訂單。確定要送出嗎？")) return;
+    }
+
+    // 2. 鎖定按鈕避免重複送出
+    const btn = document.getElementById('btn-submit-order');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">sync</span> 處理中...`;
+
+    // 3. 準備資料 payload (對應 GAS 接收格式)
+    const calc = window.calculateCheckoutTotal();
+    
+    // 將購物車內容轉為字串
+    const itemsStr = window.cart.map(i => `${i.name} x${i.qty}`).join('\n');
+    
+    const orderData = {
+        action: 'checkout',
+        name: u.name,
+        phone: u.phone,
+        store: storeInfo,           // 對應 GAS 的 params.store
+        temp: "常溫/冷藏",          // 這裡可依據商品類別邏輯調整
+        items: itemsStr,
+        subtotal: calc.subtotal,
+        shipping: calc.shippingFee,
+        date: new Date().toLocaleString('zh-TW'),
+        note: document.getElementById('order-note').value,
+        line_name: lineName,
+        logistics: calc.methodText  // 對應 GAS 的 params.logistics (第11欄)
+    };
+
+    // 4. 發送至 GAS
+    try {
+        const res = await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+            alert("訂單已成功送出！我們將盡快為您安排出貨。");
+            
+            // 清空購物車
+            window.cart = [];
+            window.updateCartUI();
+            
+            // 關閉所有面板並回到首頁
+            window.closeAllPanels();
+        } else {
+            throw new Error(result.msg);
+        }
+    } catch (e) {
+        alert("訂單送出失敗：" + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+};
 // 確保面板函式全域可用
 window.openLoginPanel = () => { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
 window.openUserPanel = () => { window.renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
