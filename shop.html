@@ -1,369 +1,65 @@
----
-layout: default
-title: KEICHA 網路商店
----
-
-<style>
-    /* 品牌色與基礎 CSS */
-    .brand-green { color: #6ea44c; }
-    .bg-brand-green { background-color: #6ea44c; }
-    .bg-brand-green-10 { background-color: rgba(110, 164, 76, 0.1); }
+// 更新購物車 UI 渲染函數
+function updateCartUI() {
+    const container = document.getElementById('cart-items-container');
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    document.getElementById('cart-count').innerText = count;
+    document.getElementById('cart-count').classList.toggle('hidden', count === 0);
     
-    /* 數量按鈕輔助參數 */
-    .qty-control {
-        display: flex; align-items: center; background: #f3f4f6; border-radius: 12px; padding: 4px; gap: 8px;
-    }
-    .qty-btn {
-        width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-        background: white; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid #e5e7eb;
-    }
-
-    /* 側邊面板共通樣式 */
-    .side-panel {
-        position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
-        background-color: white; z-index: 200; transform: translateX(100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
-        box-shadow: -4px 0 15px rgba(0,0,0,0.1);
-    }
-    .side-panel.open { transform: translateX(0); }
-    
-    .overlay {
-        position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 190;
-        opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
-    }
-    .overlay.open { opacity: 1; visibility: visible; }
-
-    /* 手機版橫式佈局調整 (圖片放大) */
-    @media (max-width: 767px) {
-        .mobile-product-card { display: flex; flex-direction: column; padding: 16px; gap: 12px; }
-        .card-top-row { display: flex; align-items: center; gap: 16px; }
-        .card-info-group { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .card-img-group { width: 120px; height: 120px; flex-shrink: 0; } 
-        .card-img-group img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
-        .card-bottom-row { display: flex; gap: 10px; width: 100%; }
-        .card-bottom-row .qty-control { flex: 1; justify-content: space-between; }
-        .card-bottom-row .add-btn { flex: 1; }
-        
-        .user-field-value { font-size: 1.1rem; }
-    }
-
-    .cart-floating-btn {
-        position: fixed; bottom: 2rem; right: 2rem; width: 4rem; height: 4rem;
-        background-color: #6ea44c; color: white; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-</style>
-
-<div class="bg-white border-b border-gray-100">
-    <div class="container mx-auto px-4 max-w-6xl py-6 flex justify-between items-center">
-        <h1 class="text-2xl font-bold tracking-tight text-gray-800">KEICHA 網路商店</h1>
-        <div id="top-auth-zone"></div>
-    </div>
-</div>
-
-<section id="announcement-section" class="hidden py-3 bg-yellow-50 border-b border-yellow-100">
-    <div class="container mx-auto px-4 text-center text-sm font-medium text-yellow-800" id="announcement-content"></div>
-</section>
-
-<main class="max-w-6xl mx-auto p-4 md:p-10 space-y-12 min-h-screen">
-    <div id="products-loader" class="flex justify-center items-center h-48">
-        <div class="w-10 h-10 border-4 border-gray-200 border-t-[#6ea44c] rounded-full animate-spin"></div>
-    </div>
-    <div id="category-container" class="space-y-16"></div>
-
-    <section id="notes-section" class="hidden bg-gray-50 rounded-3xl p-8 border border-gray-100">
-        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
-            <span class="material-symbols-rounded text-gray-400">gavel</span> 購買須知
-        </h2>
-        <div id="general-notes-content" class="text-gray-600 leading-relaxed text-sm"></div>
-    </section>
-</main>
-
-<div id="global-overlay" class="overlay" onclick="closeAllPanels()"></div>
-
-<div id="login-panel" class="side-panel">
-    <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center">
-        <h3 class="font-bold flex items-center gap-2 text-white"><span class="material-symbols-rounded">login</span> 會員登入</h3>
-        <button onclick="closeAllPanels()" class="material-symbols-rounded text-white">close</button>
-    </div>
-    <div class="p-8 flex-1 overflow-y-auto space-y-8">
-        <div class="text-center space-y-2"><p class="text-gray-600 font-bold">歡迎來到 KEICHA</p><p class="text-xs text-gray-400">請輸入手機號碼快速登入</p></div>
-        <div class="space-y-4">
-            <input type="tel" id="login-phone" placeholder="例如：0912345678" class="w-full p-4 bg-gray-50 border rounded-2xl text-lg font-bold outline-none focus:ring-1 ring-[#6ea44c]">
-            <button onclick="handleQuickLogin()" id="login-submit-btn" class="w-full bg-[#6ea44c] text-white py-4 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2">
-                <span id="login-text">獲取資料</span><span id="login-icon" class="material-symbols-rounded">arrow_forward</span>
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="user-panel" class="side-panel">
-    <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center">
-        <h3 class="font-bold flex items-center gap-2 text-white"><span class="material-symbols-rounded">account_circle</span> 會員資料</h3>
-        <button onclick="closeAllPanels()" class="material-symbols-rounded text-white">close</button>
-    </div>
-    <div id="panel-body" class="p-8 flex-1 overflow-y-auto space-y-10"></div>
-</div>
-
-<div id="cart-sidebar" class="side-panel">
-    <div class="p-6 border-b flex justify-between items-center">
-        <h3 class="font-bold flex items-center gap-2 text-gray-800"><span class="material-symbols-rounded">shopping_cart</span> 購物車</h3>
-        <button onclick="closeAllPanels()" class="material-symbols-rounded">close</button>
-    </div>
-    <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-6"></div>
-    <div class="p-6 border-t bg-gray-50 space-y-4">
-        <div class="flex justify-between items-center font-bold"><span class="text-gray-500">總計金額</span><span id="cart-total-price" class="text-xl brand-green">NT$ 0</span></div>
-        <button onclick="checkout()" class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-xl shadow-lg">前往結帳</button>
-    </div>
-</div>
-
-<div class="cart-floating-btn" onclick="openCart()">
-    <span class="material-symbols-rounded text-3xl">shopping_bag</span>
-    <span id="cart-count" class="absolute top-0 right-0 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-white hidden">0</span>
-</div>
-
-<script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
-    const siteBaseUrl = "{{ site.baseurl | default: '' }}";
-    let cart = [];
-    let globalProducts = [];
-
-    async function initShop() {
-        try {
-            const res = await fetch(GAS_URL);
-            const data = await res.json();
-            globalProducts = data.products;
-            renderProducts(data.products);
-            if(data.settings?.announcement) {
-                document.getElementById('announcement-content').innerText = data.settings.announcement;
-                document.getElementById('announcement-section').classList.remove('hidden');
-            }
-            if(data.settings?.general_notes) {
-                document.getElementById('general-notes-content').innerHTML = data.settings.general_notes.replace(/\n/g, '<br>');
-                document.getElementById('notes-section').classList.remove('hidden');
-            }
-            document.getElementById('products-loader').classList.add('hidden');
-            renderTopAuth();
-        } catch (e) { console.error(e); }
-    }
-
-    function renderProducts(products) {
-        const container = document.getElementById('category-container');
-        const grouped = products.reduce((acc, p) => {
-            const cat = p.category || "精選選物";
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(p);
-            return acc;
-        }, {});
-
-        container.innerHTML = Object.keys(grouped).map(cat => `
-            <section class="space-y-6">
-                <h3 class="text-xl font-bold border-l-4 border-[#6ea44c] pl-3">${cat}</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-                    ${grouped[cat].map(p => {
-                        const stock = parseInt(p.stock) || 999;
-                        const isSoldOut = stock <= 0;
-                        let img = p.image_url || "";
-                        if (img && !img.startsWith('http')) img = siteBaseUrl + (img.startsWith('/') ? img : '/' + img);
-                        
-                        return `
-                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col md:flex-col transition hover:shadow-lg mobile-product-card">
-                            <div class="card-top-row md:contents">
-                                <div class="card-info-group md:p-5 md:flex-1">
-                                    <h4 class="font-bold text-gray-800 mb-1 text-sm md:text-base">${p.product_name}</h4>
-                                    ${p.special_notes ? `<p class="text-gray-400 text-xs mb-3 line-clamp-3">${p.special_notes}</p>` : ''}
-                                    <p class="brand-green font-bold text-lg font-mono md:mb-4">NT$ ${p.price}</p>
-                                </div>
-                                ${img ? `<div class="card-img-group md:order-first md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
-                                    <img src="${img}" class="w-full h-full object-cover ${isSoldOut ? 'opacity-30 grayscale' : ''}">
-                                    ${isSoldOut ? `<span class="absolute inset-0 m-auto w-fit h-fit bg-gray-800 text-white text-[10px] px-3 py-1 rounded-full font-bold">已售罄</span>` : ''}
-                                </div>` : ''}
-                            </div>
-                            <div class="card-bottom-row md:p-5 md:border-t md:flex md:items-center md:gap-2">
-                                <div class="qty-control">
-                                    <button class="qty-btn" onclick="adjQty('${p.product_id}', -1)">-</button>
-                                    <span id="iq-${p.product_id}" class="text-xs font-bold px-2">1</span>
-                                    <button class="qty-btn" onclick="adjQty('${p.product_id}', 1)">+</button>
-                                </div>
-                                <button onclick="addToCart('${p.product_id}')" class="add-btn flex-1 py-3 bg-[#6ea44c] text-white rounded-xl text-xs font-bold ${isSoldOut?'bg-gray-100 text-gray-300':''}" ${isSoldOut?'disabled':''}>加入購物車</button>
-                            </div>
-                        </div>`;
-                    }).join('')}
+    let total = 0;
+    container.innerHTML = cart.map((i, idx) => {
+        total += i.price * i.qty;
+        return `
+        <div class="flex gap-4 items-center border-b pb-4">
+            <img src="${i.img || ''}" class="w-14 h-14 object-cover rounded-lg bg-gray-50">
+            
+            <div class="flex-1 text-sm">
+                <b class="line-clamp-1">${i.name}</b>
+                <span class="brand-green font-mono">NT$ ${i.price.toLocaleString()}</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <div class="qty-control scale-75 origin-right">
+                    <button class="qty-btn" onclick="updateCartQty(${idx}, -1)">-</button>
+                    <span class="text-xs font-bold px-1">${i.qty}</span>
+                    <button class="qty-btn" onclick="updateCartQty(${idx}, 1)">+</button>
                 </div>
-            </section>
-        `).join('');
-    }
+                <button onclick="removeFromCart(${idx})" class="material-symbols-rounded text-gray-400 hover:text-red-500 text-base p-1">
+                    close
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+    document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
+}
 
-    function adjQty(pid, delta) {
-        const el = document.getElementById(`iq-${pid}`);
-        let v = parseInt(el.innerText) + delta;
-        if(v < 1) v = 1;
-        el.innerText = v;
-    }
-
-    function addToCart(pid) {
-        const p = globalProducts.find(x => x.product_id === pid);
-        const qty = parseInt(document.getElementById(`iq-${pid}`).innerText);
-        const inCart = cart.find(x => x.id === pid);
-        const stock = parseInt(p.stock) || 999;
-        if ((inCart ? inCart.qty : 0) + qty > stock) return alert(`庫存不足！`);
-        let fImg = p.image_url || "";
-        if (fImg && !fImg.startsWith('http')) fImg = siteBaseUrl + (fImg.startsWith('/') ? fImg : '/' + fImg);
-        if (inCart) inCart.qty += qty; else cart.push({ id: pid, name: p.product_name, price: p.price, qty, img: fImg });
-        updateCartUI();
-        openCart();
-    }
-
-    function updateCartUI() {
-        const count = cart.reduce((s, i) => s + i.qty, 0);
-        document.getElementById('cart-count').innerText = count;
-        document.getElementById('cart-count').classList.toggle('hidden', count === 0);
-        let total = 0;
-        document.getElementById('cart-items-container').innerHTML = cart.map((i, idx) => {
-            total += i.price * i.qty;
-            return `<div class="flex gap-4 items-center border-b pb-4">
-                <img src="${i.img || ''}" class="w-14 h-14 object-cover rounded-lg bg-gray-50">
-                <div class="flex-1 text-sm"><b>${i.name}</b><br><span class="brand-green font-mono">NT$ ${i.price.toLocaleString()}</span></div>
-                <div class="flex flex-col items-end gap-2">
-                    <div class="qty-control scale-75 origin-right"><button class="qty-btn" onclick="updateCartQty(${idx}, -1)">-</button><span class="text-xs font-bold px-1">${i.qty}</span><button class="qty-btn" onclick="updateCartQty(${idx}, 1)">+</button></div>
-                    <button onclick="removeFromCart(${idx})" class="material-symbols-rounded text-gray-300 hover:text-red-500 text-lg">delete</button>
-                </div>
-            </div>`;
-        }).join('');
-        document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
-    }
-
-    function updateCartQty(idx, delta) {
-        const item = cart[idx];
-        const prod = globalProducts.find(x => x.product_id === item.id);
-        if (delta > 0 && item.qty + 1 > (parseInt(prod.stock) || 999)) return alert("已達庫存上限");
-        item.qty += delta;
-        if (item.qty <= 0) cart.splice(idx, 1);
-        updateCartUI();
-    }
-
-    function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); }
-
-    // 登入與會員
-    function renderTopAuth() {
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        document.getElementById('top-auth-zone').innerHTML = u ? `<button onclick="openUserPanel()" class="flex items-center gap-1 brand-green font-bold text-sm"><span class="material-symbols-rounded text-lg">account_circle</span> ${u.name || u.phone}</button>` : `<button onclick="openLoginPanel()" class="text-gray-400 text-sm font-bold">登入/註冊</button>`;
-    }
-
+// 快速登入驗證 (含 09 驗證)
 async function handleQuickLogin() {
     const phone = document.getElementById('login-phone').value.trim();
+    const phoneRule = /^09\d{8}$/; // 驗證 09 開頭 10 碼
     
-    // --- [NEW] 手機號碼格式驗證 ---
-    // 規則：09開頭，後接8位數字，總長度10碼
-    const phoneRule = /^09\d{8}$/;
-    
-    if (!phone) {
-        alert("請輸入手機號碼");
-        return;
-    }
-    
-    if (!phoneRule.test(phone)) {
-        alert("手機號碼格式錯誤，請輸入 09 開頭的 10 碼數字");
-        return;
-    }
-    // ----------------------------
+    if (!phone) return alert("請輸入手機號碼");
+    if (!phoneRule.test(phone)) return alert("手機號碼格式錯誤，請輸入 09 開頭的 10 碼數字");
 
     const icon = document.getElementById('login-icon');
-    const text = document.getElementById('login-text');
     const btn = document.getElementById('login-submit-btn');
+    const text = document.getElementById('login-text');
 
     icon.classList.add('animate-spin');
     text.innerText = "驗證中...";
     btn.disabled = true;
 
     try {
-        const res = await fetch(GAS_URL, { 
-            method: 'POST', 
-            body: JSON.stringify({ action: 'login', phone }) 
-        });
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
         const result = await res.json();
-        
-        if (result.success) { 
+        if(result.success) { 
             localStorage.setItem('keicha_v2_user', JSON.stringify(result.data)); 
             renderTopAuth(); 
             closeAllPanels(); 
-        } else {
-            alert("登入失敗：" + (result.message || "請檢查輸入資料"));
         }
-    } catch(e) { 
-        alert("系統連線失敗，請稍後再試"); 
-    } finally {
+    } catch(e) { alert("登入失敗"); }
+    finally {
         icon.classList.remove('animate-spin');
         text.innerText = "獲取資料";
         btn.disabled = false;
     }
 }
-
-    function renderUserFields() {
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        const b = document.getElementById('panel-body');
-        b.innerHTML = `
-            <div id="sec-info" class="space-y-6">
-                <div class="flex justify-between items-center"><h4 class="text-xs font-bold brand-green uppercase">個人資訊</h4><button onclick="editSec('info')" class="material-symbols-rounded text-[#6ea44c]">edit_square</button></div>
-                <div class="space-y-4">
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">姓名</p><p class="font-bold text-gray-700 text-lg">${u.name || '未填寫'}</p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold uppercase">Email</p><p class="font-bold text-gray-700 text-lg">${u.email || '未填寫'}</p></div>
-                </div>
-            </div>
-            <div id="sec-ship" class="space-y-6 pt-10 border-t mt-10">
-                <div class="flex justify-between items-center"><h4 class="text-xs font-bold brand-green uppercase">收件方式</h4><button onclick="editSec('ship')" class="material-symbols-rounded text-[#6ea44c]">edit_square</button></div>
-                <div class="space-y-5 text-sm">
-                    <div><p class="text-[10px] text-gray-400 font-bold mb-1">7-11</p><p class="font-bold">${u.store_711 || '未填'} <span class="text-gray-400 font-normal">${u.store_711_note || ''}</span></p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold mb-1">全家</p><p class="font-bold">${u.store_fami || '未填'} <span class="text-gray-400 font-normal">${u.store_fami_note || ''}</span></p></div>
-                    <div><p class="text-[10px] text-gray-400 font-bold mb-1">宅配</p><p class="font-bold">${u.shipping_address || '未填'}</p></div>
-                </div>
-            </div>`;
-    }
-
-    function editSec(type) {
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        const el = document.getElementById(`sec-${type}`);
-        if(type === 'info') {
-            el.innerHTML = `<h4 class="text-xs font-bold brand-green mb-6">編輯資訊</h4><div class="space-y-4">
-                <input id="ed-name" value="${u.name||''}" class="w-full border p-4 rounded-xl text-lg outline-none focus:ring-1 ring-[#6ea44c]" placeholder="姓名">
-                <input id="ed-email" value="${u.email||''}" class="w-full border p-4 rounded-xl text-lg outline-none focus:ring-1 ring-[#6ea44c]" placeholder="Email">
-                <div class="flex gap-3"><button onclick="saveSec('info')" id="btn-info" class="flex-1 bg-[#6ea44c] text-white py-3 rounded-xl font-bold">儲存</button><button onclick="renderUserFields()" class="flex-1 border py-3 rounded-xl">取消</button></div>
-            </div>`;
-        } else {
-            el.innerHTML = `<h4 class="text-xs font-bold brand-green mb-6">編輯收件</h4><div class="space-y-4">
-                <div class="p-5 bg-gray-50 rounded-2xl space-y-3">
-                    <div class="flex justify-between items-center"><span class="text-xs font-bold brand-green">7-11</span><a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-3 py-1 rounded text-[10px]">查詢店號</a></div>
-                    <input id="ed-711" value="${u.store_711||''}" class="w-full p-3 rounded-xl border-none outline-none focus:ring-1 ring-[#6ea44c] text-lg font-bold" placeholder="店號">
-                    <input id="ed-711-note" value="${u.store_711_note||''}" class="w-full p-3 rounded-xl border-none outline-none text-lg" placeholder="備註">
-                </div>
-                <div class="p-5 bg-gray-50 rounded-2xl space-y-3">
-                    <div class="flex justify-between items-center"><span class="text-xs font-bold brand-green">全家</span><a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-3 py-1 rounded text-[10px]">查詢店號</a></div>
-                    <input id="ed-fami" value="${u.store_fami||''}" class="w-full p-3 rounded-xl border-none outline-none focus:ring-1 ring-[#6ea44c] text-lg font-bold" placeholder="店號">
-                    <input id="ed-fami-note" value="${u.store_fami_note||''}" class="w-full p-3 rounded-xl border-none outline-none text-lg" placeholder="備註">
-                </div>
-                <textarea id="ed-addr" class="w-full border p-4 rounded-xl text-lg outline-none focus:ring-1 ring-[#6ea44c]" placeholder="宅配地址" rows="2">${u.shipping_address||''}</textarea>
-                <div class="flex gap-3"><button onclick="saveSec('ship')" id="btn-ship" class="flex-1 bg-[#6ea44c] text-white py-3 rounded-xl font-bold">儲存</button><button onclick="renderUserFields()" class="flex-1 border py-3 rounded-xl">取消</button></div>
-            </div>`;
-        }
-    }
-
-    async function saveSec(type) {
-        const btn = document.getElementById(`btn-${type}`);
-        btn.innerText = "同步中..."; btn.disabled = true;
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        if(type === 'info'){ u.name=document.getElementById('ed-name').value; u.email=document.getElementById('ed-email').value; }
-        else { u.store_711=document.getElementById('ed-711').value; u.store_711_note=document.getElementById('ed-711-note').value; u.store_fami=document.getElementById('ed-fami').value; u.store_fami_note=document.getElementById('ed-fami-note').value; u.shipping_address=document.getElementById('ed-addr').value; }
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save', ...u }) });
-        const result = await res.json();
-        if(result.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(u)); renderUserFields(); renderTopAuth(); }
-    }
-
-    function openLoginPanel() { closeAllPanels(); document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function openUserPanel() { renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function openCart() { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function closeAllPanels() { document.querySelectorAll('.side-panel, .overlay').forEach(e => e.classList.remove('open')); }
-    function checkout() { alert("介面確認完成！即將整合訂單寫入功能。"); }
-
-    window.onload = initShop;
-</script>
