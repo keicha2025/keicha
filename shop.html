@@ -7,7 +7,7 @@ title: KEICHA 網路商店
   <header class="flex justify-between items-center mb-16">
     <div class="flex items-center gap-4">
       <img src="{{ '/assets/images/logo.png' | relative_url }}" class="h-12" alt="KEICHA">
-      <h1 class="text-2xl font-black text-gray-800 tracking-tighter">精品選物店</h1>
+      <h1 class="text-2xl font-black text-gray-800 tracking-tighter">KEICHA</h1>
     </div>
     
     <div class="flex items-center gap-6">
@@ -25,7 +25,7 @@ title: KEICHA 網路商店
   <main id="category-container" class="space-y-20 min-h-[60vh]">
     <div id="products-loader" class="flex flex-col items-center py-40 text-gray-300">
       <span class="material-symbols-rounded animate-spin-custom text-4xl mb-4">sync</span>
-      <p class="font-bold tracking-widest text-sm">正在準備精選品項...</p>
+      <p class="font-bold tracking-widest text-sm">讀取中...</p>
     </div>
   </main>
 </div>
@@ -45,7 +45,7 @@ window.ITEM_CARD_TEMPLATE = (p, img, isSoldOut) => `
       ${isSoldOut ? '<div class="absolute inset-0 flex items-center justify-center bg-black/20 text-white font-black text-xl tracking-widest">SOLD OUT</div>' : ''}
     </div>
     <div class="px-2">
-      <div class="text-[10px] brand-green font-bold uppercase tracking-widest mb-2">${p.category || '精選選物'}</div>
+      <div class="text-[10px] brand-green font-bold uppercase tracking-widest mb-2">${p.category || ''}</div>
       <h3 class="font-bold text-gray-800 text-lg mb-4 line-clamp-1">${p.product_name}</h3>
       <div class="flex items-center justify-between gap-4">
         <div class="text-xl font-black text-gray-900 font-mono">NT$ ${p.price.toLocaleString()}</div>
@@ -56,7 +56,7 @@ window.ITEM_CARD_TEMPLATE = (p, img, isSoldOut) => `
             <span id="iq-${p.product_id}" class="text-sm font-bold w-4 text-center">1</span>
             <button onclick="window.adjQty('${p.product_id}', 1)" class="qty-btn">+</button>
           </div>
-          <button onclick="window.addToCart('${p.product_id}')" class="bg-[#6ea44c] text-white p-3 rounded-2xl hover:bg-[#5a8a3c] transition shadow-lg shadow-[#6ea44c]/20">
+          <button onclick="window.addToCart('${p.product_id}')" class="bg-[#6ea44c] text-white p-3 rounded-2xl hover:bg-[#5a8a3c] transition shadow-lg">
             <span class="material-symbols-rounded text-xl">add_shopping_cart</span>
           </button>
         </div>` : ''}
@@ -76,13 +76,9 @@ window.adjQty = (pid, d) => {
 <script src="{{ '/assets/js/shop-logic.js' | relative_url }}"></script>
 
 <style>
-  /* 全域動畫修正 */
   .animate-spin-custom { animation: spin 1.5s linear infinite; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  
-  /* 商品卡片基礎樣式 */
   .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 3rem 2rem; }
-  .qty-control { display: flex; items-center: center; background: #f8f9fa; border-radius: 1rem; padding: 2px; }
-  .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-bold; color: #666; transition: color 0.2s; }
-  .qty-btn:hover { color: #6ea44c; }
+  .qty-control { display: flex; align-items: center; background: #f8f9fa; border-radius: 1rem; padding: 2px; }
+  .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; }
 </style>
