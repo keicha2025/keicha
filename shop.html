@@ -31,8 +31,10 @@ title: KEICHA 網路商店
     .btn-outline-brand { background-color: white; color: #6ea44c; border: 2px solid #6ea44c; width: 100%; padding: 0.8rem; border-radius: 0.75rem; font-weight: bold; transition: all 0.2s; font-size: 0.875rem; }
     .btn-outline-brand:hover { background-color: rgba(110, 164, 76, 0.05); }
 
-    /* 會員編輯輸入框 */
+    /* 輸入框樣式 */
     .user-edit-input { width: 100%; padding: 0.5rem 0; border: none; border-bottom: 2px solid #6ea44c; outline: none; background-color: transparent; transition: all 0.3s; }
+    .checkout-inline-input { width: 100%; padding: 8px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; margin-bottom: 8px; outline: none; transition: border-color 0.2s; }
+    .checkout-inline-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; }
     
     /* 懸浮購物車按鈕 */
     .cart-floating-btn {
@@ -46,17 +48,53 @@ title: KEICHA 網路商店
     .animate-spin-custom { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* 商品卡片：手機版與電腦版適配 (來自 item-card.html) */
+    /* 手機版商品卡片樣式修正 (配合 item-card.html) */
     @media (max-width: 767px) {
         .mobile-product-card { 
             display: flex !important; 
             flex-direction: column !important; 
+            padding: 16px !important;
+            gap: 12px !important;
         }
         .card-top-row { 
             display: flex !important; 
             flex-direction: row !important; 
             align-items: flex-start !important; 
             gap: 16px !important; 
+            width: 100%;
+        }
+        .card-img-group { 
+            width: 100px !important; 
+            height: 100px !important; 
+            flex-shrink: 0 !important;
+            border-radius: 12px !important;
+            overflow: hidden;
+            background-color: #f9fafb;
+        }
+        .card-info-group {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between;
+            min-height: 100px;
+        }
+        .card-bottom-row {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 12px !important;
+            width: 100%;
+            padding: 0 !important;
+            border-top: none !important;
+        }
+        .qty-control {
+            flex: 1 !important;
+            height: 48px;
+            justify-content: space-between;
+            padding: 0 8px;
+        }
+        .add-btn {
+            flex: 1.5 !important;
+            height: 48px;
         }
     }
 </style>
@@ -248,9 +286,10 @@ title: KEICHA 網路商店
         <section class="space-y-4">
             <div class="flex justify-between items-center border-b border-gray-100 pb-2">
                 <h4 class="text-xs font-bold brand-green uppercase tracking-widest">基本資料確認</h4>
-                <button onclick="editFromCheckout('info')" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">編輯</button>
+                <button onclick="toggleCheckoutEdit('info')" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">編輯</button>
             </div>
-            <div class="grid grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-2xl">
+            
+            <div id="checkout-view-info" class="grid grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-2xl">
                 <div class="field-group">
                     <label class="text-[10px] text-gray-400 font-bold block mb-1">收件人全名</label>
                     <div id="checkout-info-name" class="font-bold text-gray-700 text-sm">-</div>
@@ -260,6 +299,18 @@ title: KEICHA 網路商店
                     <div id="checkout-info-phone" class="font-bold text-gray-700 text-sm font-mono">-</div>
                 </div>
             </div>
+
+            <div id="checkout-edit-info" class="hidden bg-gray-50 p-4 rounded-2xl space-y-3">
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">收件人全名</label>
+                    <input type="text" id="chk-input-name" class="checkout-inline-input" placeholder="姓名">
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="saveCheckoutData('info')" id="chk-save-info" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存並同步</button>
+                    <button onclick="toggleCheckoutEdit('info')" class="flex-1 border text-gray-500 py-2 rounded-lg text-xs font-bold">取消</button>
+                </div>
+            </div>
+
             <div class="field-group">
                 <label class="text-[10px] text-gray-400 font-bold mb-1 block">LINE 顯示名稱 (核對訂單用)</label>
                 <input type="text" id="order-line-name" class="user-edit-input font-bold" placeholder="請輸入您的 LINE 名稱">
@@ -269,6 +320,7 @@ title: KEICHA 網路商店
         <section class="space-y-4">
             <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b border-gray-100 pb-2">選擇收件方式</h4>
             <div id="ship-options-container" class="space-y-3">
+                
                 <div onclick="selectShipMethod('7-11')" id="opt-7-11" class="ship-opt-card p-5 rounded-3xl border-2 border-gray-50 cursor-pointer transition-all">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-3">
@@ -278,7 +330,15 @@ title: KEICHA 網路商店
                                 <div id="checkout-display-7-11" class="text-[11px] text-gray-500 mt-0.5">-</div>
                             </div>
                         </div>
-                        <button onclick="event.stopPropagation(); editFromCheckout('711');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
+                        <button onclick="event.stopPropagation(); toggleCheckoutEdit('711');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
+                    </div>
+                    <div id="checkout-edit-711" class="hidden mt-4 pt-4 border-t border-gray-100 cursor-default" onclick="event.stopPropagation()">
+                         <input type="text" id="chk-input-711" class="checkout-inline-input" placeholder="請輸入6碼店號">
+                         <input type="text" id="chk-input-711-note" class="checkout-inline-input" placeholder="店名備註">
+                         <div class="flex gap-2">
+                             <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-lg text-xs font-bold text-center flex items-center justify-center">查詢店號</a>
+                             <button onclick="saveCheckoutData('711')" id="chk-save-711" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存</button>
+                         </div>
                     </div>
                 </div>
 
@@ -291,8 +351,16 @@ title: KEICHA 網路商店
                                 <div id="checkout-display-fami" class="text-[11px] text-gray-500 mt-0.5">-</div>
                             </div>
                         </div>
-                        <button onclick="event.stopPropagation(); editFromCheckout('fami');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
+                        <button onclick="event.stopPropagation(); toggleCheckoutEdit('fami');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
                     </div>
+                     <div id="checkout-edit-fami" class="hidden mt-4 pt-4 border-t border-gray-100 cursor-default" onclick="event.stopPropagation()">
+                        <input type="text" id="chk-input-fami" class="checkout-inline-input" placeholder="請輸入6碼店號">
+                        <input type="text" id="chk-input-fami-note" class="checkout-inline-input" placeholder="店名備註">
+                        <div class="flex gap-2">
+                            <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-lg text-xs font-bold text-center flex items-center justify-center">查詢店號</a>
+                            <button onclick="saveCheckoutData('fami')" id="chk-save-fami" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存</button>
+                        </div>
+                   </div>
                 </div>
 
                 <div onclick="selectShipMethod('addr')" id="opt-addr" class="ship-opt-card p-5 rounded-3xl border-2 border-gray-50 cursor-pointer transition-all">
@@ -304,8 +372,14 @@ title: KEICHA 網路商店
                                 <div id="checkout-display-addr" class="text-[11px] text-gray-500 mt-0.5">-</div>
                             </div>
                         </div>
-                        <button onclick="event.stopPropagation(); editFromCheckout('addr');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
+                        <button onclick="event.stopPropagation(); toggleCheckoutEdit('addr');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
                     </div>
+                    <div id="checkout-edit-addr" class="hidden mt-4 pt-4 border-t border-gray-100 cursor-default" onclick="event.stopPropagation()">
+                        <textarea id="chk-input-addr" class="checkout-inline-input" rows="2" placeholder="請輸入完整地址"></textarea>
+                        <div class="flex gap-2">
+                            <button onclick="saveCheckoutData('addr')" id="chk-save-addr" class="w-full bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存地址</button>
+                        </div>
+                   </div>
                 </div>
             </div>
         </section>
@@ -375,7 +449,7 @@ title: KEICHA 網路商店
         }
     }
 
-    // --- [修正 1] 更新商品卡片 Template ---
+    // --- 1. 使用 item-card.html 內容渲染商品 ---
     function renderProducts(products) {
         if (!products || !Array.isArray(products)) return;
         const container = document.getElementById('category-container');
@@ -396,7 +470,7 @@ title: KEICHA 網路商店
                         let img = p.image_url || "";
                         if (img && !img.startsWith('http')) img = siteBaseUrl + (img.startsWith('/') ? img : '/' + img);
                         
-                        // 使用新的卡片 HTML 結構
+                        // 這裡使用 item-card.html 的內容
                         return `
                         <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group">
                             
@@ -454,46 +528,27 @@ title: KEICHA 網路商店
         `).join('');
     }
 
-    // --- [修正 2] 運費計算 (最嚴格判讀 + Default Fallback) ---
+    // --- 2. 嚴格運費邏輯 (取最貴) ---
     function calculateFinalShipping(method, subtotal) {
         if (!method || !shippingRules || shippingRules.length === 0) return 0;
         
-        // 1. 取得購物車中所有不重複的商品類別
         const cartCats = [...new Set(cart.map(i => {
             const p = globalProducts.find(gp => gp.product_id === i.id);
             return p ? (p.category ? p.category.toString().trim() : 'default') : 'default';
         }))];
         
-        // 2. 收集所有適用的規則
         let applicableRules = [];
-        
         cartCats.forEach(cat => {
-            // 先找該類別專屬的規則
-            let rule = shippingRules.find(r => 
-                r.method.toString().trim() === method && 
-                r.category.toString().trim() === cat
-            );
-            
-            // 如果沒找到專屬規則，改找 default 規則 (Fallback)
-            if (!rule) {
-                rule = shippingRules.find(r => 
-                    r.method.toString().trim() === method && 
-                    r.category.toLowerCase().trim() === 'default'
-                );
-            }
-            
+            let rule = shippingRules.find(r => r.method.toString().trim() === method && r.category.toString().trim() === cat);
+            // 備援：若無特定類別規則，則抓取 Default
+            if (!rule) rule = shippingRules.find(r => r.method.toString().trim() === method && r.category.toLowerCase().trim() === 'default');
             if (rule) applicableRules.push(rule);
         });
 
         if (applicableRules.length === 0) return 0;
+        // 抓出 Base 運費最高的那條規則 (最嚴格)
+        const activeRule = applicableRules.reduce((prev, current) => (parseFloat(prev.base) > parseFloat(current.base)) ? prev : current);
 
-        // 3. 找出最嚴格（基本運費最高）的規則
-        // 我們假設 base 越高代表運費越貴/條件越嚴格
-        const activeRule = applicableRules.reduce((prev, current) => {
-            return (parseFloat(prev.base) > parseFloat(current.base)) ? prev : current;
-        });
-
-        // 4. 計算最終運費 (包含滿額級距)
         let fee = parseFloat(activeRule.base) || 0;
         const s = parseFloat(subtotal);
         if (activeRule.t3 && s >= parseFloat(activeRule.t3)) fee = parseFloat(activeRule.f3);
@@ -503,14 +558,13 @@ title: KEICHA 網路商店
         return fee;
     }
 
-    // --- 購物車功能 ---
+    // --- 購物車 ---
     function adjQty(pid, delta) {
         const el = document.getElementById(`iq-${pid}`);
         let v = parseInt(el.innerText) + delta;
         if(v < 1) v = 1;
         el.innerText = v;
     }
-
     function addToCart(pid) {
         const p = globalProducts.find(x => x.product_id === pid);
         const qty = parseInt(document.getElementById(`iq-${pid}`).innerText);
@@ -523,13 +577,11 @@ title: KEICHA 網路商店
         updateCartUI();
         openCart();
     }
-
     function updateCartUI() {
         const count = cart.reduce((s, i) => s + i.qty, 0);
         const elCount = document.getElementById('cart-count');
         elCount.innerText = count;
         elCount.classList.toggle('hidden', count === 0);
-        
         let total = 0;
         const container = document.getElementById('cart-items-container');
         if (cart.length === 0) {
@@ -556,7 +608,6 @@ title: KEICHA 網路商店
         }
         document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
     }
-
     function updateCartQty(idx, delta) {
         const item = cart[idx];
         const prod = globalProducts.find(x => x.product_id === item.id);
@@ -573,11 +624,19 @@ title: KEICHA 網路商店
         if(!u) { openLoginPanel(); return; }
         if(cart.length === 0) { alert("購物車目前是空的"); return; }
         
-        document.getElementById('checkout-info-name').innerText = u.name || '未填寫';
-        document.getElementById('checkout-info-phone').innerText = u.phone;
-        document.getElementById('checkout-display-7-11').innerText = u.store_711 ? `${u.store_711} ${u.store_711_note||''}` : '未設定';
-        document.getElementById('checkout-display-fami').innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note||''}` : '未設定';
-        document.getElementById('checkout-display-addr').innerText = u.shipping_address || '未設定';
+        updateCheckoutDisplay(u);
+        
+        // 填入 input 預設值 (給編輯模式用)
+        document.getElementById('chk-input-name').value = u.name || '';
+        document.getElementById('chk-input-711').value = u.store_711 || '';
+        document.getElementById('chk-input-711-note').value = u.store_711_note || '';
+        document.getElementById('chk-input-fami').value = u.store_fami || '';
+        document.getElementById('chk-input-fami-note').value = u.store_fami_note || '';
+        document.getElementById('chk-input-addr').value = u.shipping_address || '';
+
+        // 隱藏所有編輯框
+        document.querySelectorAll('[id^="checkout-edit-"]').forEach(el => el.classList.add('hidden'));
+        document.getElementById('checkout-view-info').classList.remove('hidden');
 
         selectedMethod = '';
         renderShipMethodSelection();
@@ -587,11 +646,19 @@ title: KEICHA 網路商店
         document.getElementById('global-overlay').classList.add('open');
     }
 
+    function updateCheckoutDisplay(u) {
+        document.getElementById('checkout-info-name').innerText = u.name || '未填寫';
+        document.getElementById('checkout-info-phone').innerText = u.phone;
+        document.getElementById('checkout-display-7-11').innerText = u.store_711 ? `${u.store_711} ${u.store_711_note||''}` : '未設定';
+        document.getElementById('checkout-display-fami').innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note||''}` : '未設定';
+        document.getElementById('checkout-display-addr').innerText = u.shipping_address || '未設定';
+    }
+
     function selectShipMethod(id) {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
         const check = id === '7-11' ? u.store_711 : (id === 'fami' ? u.store_fami : u.shipping_address);
         if(!check) { 
-            if(confirm(`尚未設定 ${id === 'addr' ? '宅配地址' : id + ' 店號'}，是否前往設定？`)) { editFromCheckout(id); }
+            toggleCheckoutEdit(id === '7-11' ? '711' : (id === 'fami' ? 'fami' : 'addr'));
             return; 
         }
         selectedMethod = (id === 'fami') ? '全家' : (id === 'addr' ? '宅配' : '7-11');
@@ -615,34 +682,69 @@ title: KEICHA 網路商店
         }
     }
 
-    function editFromCheckout(section) {
-        document.getElementById('checkout-panel').classList.remove('open');
-        openUserPanel();
-        setTimeout(() => {
-            ['info', '711', 'fami', 'addr'].forEach(s => {
-                document.getElementById(`edit-${s}`)?.classList.add('hidden');
-                document.getElementById(`display-${s}`)?.classList.remove('hidden');
-            });
-            if(section) toggleEdit(section);
-        }, 300);
-    }
-
-    function updateSummary() {
-        const subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-        let ship = 0;
-        if(selectedMethod) {
-            ship = calculateFinalShipping(selectedMethod, subtotal);
-            document.getElementById('summary-method').innerText = selectedMethod;
-            document.getElementById('summary-shipping').innerText = `NT$ ${ship}`;
+    // --- 3. 結帳頁面內聯編輯 (Inline Editing) ---
+    function toggleCheckoutEdit(section) {
+        if(section === 'info') {
+            const isEditing = document.getElementById('checkout-view-info').classList.contains('hidden');
+            if(!isEditing) {
+                document.getElementById('checkout-view-info').classList.add('hidden');
+                document.getElementById('checkout-edit-info').classList.remove('hidden');
+            } else {
+                document.getElementById('checkout-view-info').classList.remove('hidden');
+                document.getElementById('checkout-edit-info').classList.add('hidden');
+            }
         } else {
-            document.getElementById('summary-method').innerText = "未選";
-            document.getElementById('summary-shipping').innerText = "NT$ 0";
+            const editBlock = document.getElementById(`checkout-edit-${section}`);
+            editBlock.classList.toggle('hidden');
         }
-        document.getElementById('summary-subtotal').innerText = `NT$ ${subtotal.toLocaleString()}`;
-        document.getElementById('summary-total').innerText = `NT$ ${(subtotal + ship).toLocaleString()}`;
     }
 
-    // --- [修正 3] 按鈕 Loading 動畫與禁用 ---
+    async function saveCheckoutData(section) {
+        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
+        const btn = document.getElementById(`chk-save-${section}`);
+        const originalText = btn.innerHTML;
+        
+        let updates = {};
+        if (section === 'info') {
+            updates.name = document.getElementById('chk-input-name').value;
+        } else if (section === '711') {
+            const val = document.getElementById('chk-input-711').value.trim();
+            if (!/^\d{6}$/.test(val)) return alert('店號必須是 6 位數字');
+            updates.store_711 = val;
+            updates.store_711_note = document.getElementById('chk-input-711-note').value;
+        } else if (section === 'fami') {
+            const val = document.getElementById('chk-input-fami').value.trim();
+            if (!/^\d{6}$/.test(val)) return alert('店號必須是 6 位數字');
+            updates.store_fami = val;
+            updates.store_fami_note = document.getElementById('chk-input-fami-note').value;
+        } else if (section === 'addr') {
+            updates.shipping_address = document.getElementById('chk-input-addr').value;
+        }
+
+        btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom text-[10px]">refresh</span>`;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.disabled = true;
+
+        const newData = { ...u, ...updates };
+        try {
+            const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save', ...newData }) });
+            const result = await res.json();
+            if(result.success) {
+                localStorage.setItem('keicha_v2_user', JSON.stringify(newData));
+                updateCheckoutDisplay(newData);
+                toggleCheckoutEdit(section);
+                if(section === '711') selectShipMethod('7-11');
+                else if(section === 'fami') selectShipMethod('fami');
+                else if(section === 'addr') selectShipMethod('addr');
+                renderTopAuth();
+            }
+        } catch(e) { alert("儲存失敗，請稍後再試"); }
+        btn.innerHTML = originalText;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.disabled = false;
+    }
+
+    // --- 4. 送出訂單 (Loading & 禁用) ---
     async function handlePlaceOrder() {
         const line = document.getElementById('order-line-name').value.trim();
         if(!selectedMethod) return alert("請選擇收件方式");
@@ -651,7 +753,6 @@ title: KEICHA 網路商店
         const btn = document.getElementById('btn-submit-order');
         const originalText = btn.innerHTML;
         
-        // 變暗 + 載入動畫 + 禁用
         btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">refresh</span> 傳送訂單中...`;
         btn.classList.add('opacity-50', 'cursor-not-allowed');
         btn.disabled = true;
@@ -683,8 +784,6 @@ title: KEICHA 網路商店
                 cart = []; updateCartUI(); closeAllPanels();
             }
         } catch(e) { alert("系統忙碌中，請稍後再試。"); }
-        
-        // 復原按鈕狀態
         btn.innerHTML = originalText;
         btn.classList.remove('opacity-50', 'cursor-not-allowed');
         btn.disabled = false;
@@ -711,12 +810,10 @@ title: KEICHA 網路商店
         document.getElementById('upd-name').value = u.name || '';
         document.getElementById('text-email').innerText = u.email || '未填寫';
         document.getElementById('upd-email').value = u.email || '';
-        const has711 = !!u.store_711;
-        document.getElementById('display-711').innerText = has711 ? `${u.store_711} ${u.store_711_note||''}` : '尚未設定';
+        document.getElementById('display-711').innerText = u.store_711 ? `${u.store_711} ${u.store_711_note||''}` : '尚未設定';
         document.getElementById('upd-711').value = u.store_711 || '';
         document.getElementById('upd-711-note').value = u.store_711_note || '';
-        const hasFami = !!u.store_fami;
-        document.getElementById('display-fami').innerText = hasFami ? `${u.store_fami} ${u.store_fami_note||''}` : '尚未設定';
+        document.getElementById('display-fami').innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note||''}` : '尚未設定';
         document.getElementById('upd-fami').value = u.store_fami || '';
         document.getElementById('upd-fami-note').value = u.store_fami_note || '';
         document.getElementById('display-addr').innerText = u.shipping_address || '尚未設定';
@@ -757,7 +854,6 @@ title: KEICHA 網路商店
         }
     }
 
-    // --- [修正 3] 儲存按鈕 Loading 動畫與禁用 ---
     async function saveFullUser(section) {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
         const btn = document.getElementById(`save-btn-${section}`);
@@ -781,13 +877,11 @@ title: KEICHA 網路商店
             updates.shipping_address = document.getElementById('upd-addr').value;
         }
 
-        // 變暗 + 載入動畫 + 禁用
         btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">refresh</span>`;
         btn.classList.add('opacity-50', 'cursor-not-allowed');
         btn.disabled = true;
 
         const newData = { ...u, ...updates };
-        
         try {
             const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'save', ...newData }) });
             const result = await res.json();
@@ -798,18 +892,13 @@ title: KEICHA 網路商店
                 renderTopAuth();
             }
         } catch(e) { alert("儲存失敗，請稍後再試"); }
-        
-        // 復原按鈕
         btn.innerHTML = originalText;
         btn.classList.remove('opacity-50', 'cursor-not-allowed');
         btn.disabled = false;
     }
 
     function handleLogout() {
-        if(confirm("確定要登出嗎？")) {
-            localStorage.removeItem('keicha_v2_user');
-            location.reload();
-        }
+        if(confirm("確定要登出嗎？")) { localStorage.removeItem('keicha_v2_user'); location.reload(); }
     }
 
     function renderTopAuth() {
@@ -821,7 +910,8 @@ title: KEICHA 網路商店
     function openUserPanel() { renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
     function openCart() { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
     function closeAllPanels() { document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')); }
-
+    
+    // 全域綁定
     window.openCheckout = openCheckout;
     window.closeAllPanels = closeAllPanels;
     window.addToCart = addToCart;
@@ -837,5 +927,10 @@ title: KEICHA 網路商店
     window.saveFullUser = saveFullUser;
     window.selectShipMethod = selectShipMethod;
     window.handleLogout = handleLogout;
-    window.editFromCheckout = editFromCheckout;
+    
+    // 新增：結帳編輯綁定
+    window.toggleCheckoutEdit = toggleCheckoutEdit;
+    window.saveCheckoutData = saveCheckoutData;
+    // 舊版轉跳函式改為跳出提示(或直接覆寫，這裡選擇不綁定避免誤用，因為按鈕已改)
+    window.editFromCheckout = function() { alert('請直接點選下方編輯按鈕進行修改'); };
 </script>
