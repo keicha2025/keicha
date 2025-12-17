@@ -1,0 +1,85 @@
+<div id="user-panel" class="side-panel">
+    <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center sticky top-0 z-10">
+        <h3 class="font-bold flex items-center gap-2">
+            <span class="material-symbols-rounded">account_circle</span> 
+            會員資料管理
+        </h3>
+        <button onclick="closeAllPanels()" class="material-symbols-rounded">close</button>
+    </div>
+
+    <div id="panel-body" class="p-8 flex-1 overflow-y-auto space-y-10">
+        <section class="space-y-4">
+            <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b pb-2">個人基本資訊</h4>
+            <div class="space-y-4">
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">收件人全名</label>
+                    <input type="text" id="upd-name" class="user-edit-input font-bold" placeholder="請輸入姓名">
+                </div>
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">電子郵件</label>
+                    <input type="email" id="upd-email" class="user-edit-input" placeholder="example@mail.com">
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-6">
+            <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b pb-2">預設取件資訊</h4>
+            
+            <div class="bg-gray-50 p-5 rounded-2xl space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-600">7-11 門市資料</span>
+                    <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="text-[10px] brand-green underline font-bold">查詢店號</a>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="upd-711" class="flex-[2] p-3 rounded-xl border-none shadow-sm text-sm font-bold" placeholder="輸入店號">
+                    <input type="text" id="upd-711-note" class="flex-[3] p-3 rounded-xl border-none shadow-sm text-sm" placeholder="店名備註">
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-5 rounded-2xl space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-600">全家 門市資料</span>
+                    <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="text-[10px] brand-green underline font-bold">查詢店號</a>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="upd-fami" class="flex-[2] p-3 rounded-xl border-none shadow-sm text-sm font-bold" placeholder="輸入店號">
+                    <input type="text" id="upd-fami-note" class="flex-[3] p-3 rounded-xl border-none shadow-sm text-sm" placeholder="店名備註">
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-5 rounded-2xl space-y-3">
+                <span class="text-xs font-bold text-gray-600">宅配常用地址</span>
+                <textarea id="upd-addr" class="w-full p-3 rounded-xl border-none shadow-sm text-sm resize-none" rows="2" placeholder="請輸入完整收件地址"></textarea>
+            </div>
+        </section>
+
+        <section class="pt-6 border-t flex flex-col gap-4">
+            <button onclick="saveFullUser()" id="btn-user-save" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2">
+                <span class="material-symbols-rounded">cloud_upload</span>
+                儲 dream 同步雲端資料
+            </button>
+            <button onclick="handleLogout()" class="text-sm text-gray-400 font-bold hover:text-red-400 transition-colors">
+                安全登出此帳號
+            </button>
+        </section>
+    </div>
+</div>
+
+<style>
+    .user-edit-input {
+        width: 100%;
+        padding: 0.75rem 0;
+        border: none;
+        border-bottom: 2px solid #f3f4f6;
+        outline: none;
+        transition: border-color 0.3s;
+        font-size: 1rem;
+        background-color: transparent;
+    }
+    .user-edit-input:focus {
+        border-bottom-color: #6ea44c;
+    }
+    .field-group {
+        position: relative;
+    }
+</style>
