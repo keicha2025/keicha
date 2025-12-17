@@ -135,31 +135,50 @@ window.toggleEdit = function(type) {
 };
 
 /**
- * 儲存資料：支援個別按鈕動畫與鎖定功能
+ * 儲存資料：支援店號格式驗證、個別按鈕動畫與鎖定功能
  */
 window.saveFullUser = async function(section) {
     const btn = document.getElementById(`save-btn-${section}`);
     let originalHtml = "";
     
+    // 1. 取得各欄位數值
+    const name = document.getElementById('upd-name').value;
+    const email = document.getElementById('upd-email').value;
+    const store711 = document.getElementById('upd-711').value;
+    const store711Note = document.getElementById('upd-711-note').value;
+    const storeFami = document.getElementById('upd-fami').value;
+    const storeFamiNote = document.getElementById('upd-fami-note').value;
+    const addr = document.getElementById('upd-addr').value;
+
+    // 2. 格式驗證：針對 7-11 與全家店號進行 6 位數檢查
+    const storeReg = /^\d{6}$/;
+    if (section === '711' && !storeReg.test(store711)) {
+        alert("請輸入 6 位數字 7-11 店舖號");
+        return;
+    }
+    if (section === 'fami' && !storeReg.test(storeFami)) {
+        alert("請輸入 6 位數字全家店舖號");
+        return;
+    }
+
     if (btn) {
         originalHtml = btn.innerHTML;
-        // 1. 視覺回饋：鎖定按鈕、顯示旋轉圖示
+        // 進入載入狀態
         btn.disabled = true;
         btn.innerHTML = `<span class="material-symbols-rounded text-sm animate-spin-custom">sync</span>儲存中`;
     }
 
-    // 抓取當前所有欄位資料
+    // 準備更新資料
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     const updated = {
         ...u, 
         action: 'save',
-        name: document.getElementById('upd-name').value,
-        email: document.getElementById('upd-email').value,
-        store_711: document.getElementById('upd-711').value,
-        store_711_note: document.getElementById('upd-711-note').value,
-        store_fami: document.getElementById('upd-fami').value,
-        store_fami_note: document.getElementById('upd-fami-note').value,
-        shipping_address: document.getElementById('upd-addr').value
+        name, email,
+        store_711: store711,
+        store_711_note: store711Note,
+        store_fami: storeFami,
+        store_fami_note: storeFamiNote,
+        shipping_address: addr
     };
 
     try {
@@ -173,7 +192,7 @@ window.saveFullUser = async function(section) {
             localStorage.setItem('keicha_v2_user', JSON.stringify(updated));
             window.renderUserFields();
             
-            // 2. 成功回饋
+            // 成功回饋
             if (btn) btn.innerHTML = `<span class="material-symbols-rounded text-sm">check_circle</span>完成`;
             
             setTimeout(() => {
