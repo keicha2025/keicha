@@ -7,64 +7,40 @@ title: KEICHA 網路商店
     .brand-title { font-family: 'brand-title-font', sans-serif; }
     .brand-green { color: #6ea44c; }
     
-    /* 1. 側邊面板基礎 */
+    /* 1. 側邊面板最優先級 (確保點擊有效) */
     .side-panel {
         position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
-        background-color: white; z-index: 200; transform: translateX(100%);
+        background-color: white; z-index: 999; transform: translateX(100%);
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
         box-shadow: -4px 0 15px rgba(0,0,0,0.1);
     }
     .side-panel.open { transform: translateX(0); }
     .overlay {
-        position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 190;
+        position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 998;
         opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
     }
     .overlay.open { opacity: 1; visibility: visible; }
 
-    /* 2. 商品網格佈局修正 */
+    /* 2. 商品佈局穩定化 */
     .product-grid { 
         display: grid !important; 
         grid-template-columns: repeat(1, minmax(0, 1fr)) !important; 
         gap: 1.5rem !important; 
     }
-    @media (min-width: 768px) { 
-        .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } 
-    }
-    @media (min-width: 1024px) { 
-        .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } 
-    }
+    @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+    @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
 
-    /* 3. 手機版橫式樣式補強 */
+    /* 3. 手機版橫式適配 */
     @media (max-width: 767px) {
-        .mobile-product-card { 
-            display: flex !important; 
-            flex-direction: column !important; 
-            padding: 16px !important; 
-        }
-        .card-top-row { 
-            display: flex !important; 
-            flex-direction: row !important; 
-            align-items: flex-start !important; 
-            gap: 16px !important; 
-            width: 100% !important;
-        }
-        .card-img-group { 
-            width: 100px !important; 
-            height: 100px !important; 
-            flex-shrink: 0 !important; 
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .card-bottom-row { 
-            display: flex !important; 
-            gap: 10px !important; 
-            margin-top: 12px !important; 
-        }
+        .mobile-product-card { display: flex !important; flex-direction: column !important; padding: 16px !important; }
+        .card-top-row { display: flex !important; flex-direction: row !important; gap: 16px !important; width: 100% !important; }
+        .card-img-group { width: 100px !important; height: 100px !important; flex-shrink: 0 !important; border-radius: 12px; overflow: hidden; }
+        .card-bottom-row { display: flex !important; gap: 10px !important; margin-top: 12px !important; }
     }
 
     .qty-control { display: flex; align-items: center; background: #f3f4f6; border-radius: 12px; padding: 4px; gap: 8px; }
     .qty-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: white; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid #e5e7eb; }
-    
+
     .cart-floating-btn {
         position: fixed; bottom: 2rem; right: 2rem; width: 4.5rem; height: 4.5rem;
         background-color: #6ea44c; color: white; border-radius: 50%;
@@ -72,8 +48,6 @@ title: KEICHA 網路商店
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
 </style>
-
-{% include header.html %}
 
 <div class="bg-white border-b border-gray-50">
     <div class="container mx-auto px-4 max-w-6xl py-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -103,28 +77,27 @@ title: KEICHA 網路商店
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
+    // 確保所有關鍵變數全域化
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
     const siteBaseUrl = "{{ site.baseurl | default: '' }}";
-    let cart = []; let globalProducts = []; let shippingRules = []; let selectedMethod = '';
+    window.cart = []; window.globalProducts = []; window.shippingRules = []; window.selectedMethod = '';
 
-    // 呼叫組件模板
-    const ITEM_CARD_TEMPLATE = (p, img, isSoldOut) => `
-        {% include item-card.html %}
-    `;
+    // 引入卡片模板組件
+    const ITEM_CARD_TEMPLATE = (p, img, isSoldOut) => `{% include item-card.html %}`;
 
     async function initShop() {
         try {
             const res = await fetch(GAS_URL);
             const data = await res.json();
             if (!data || !data.products) return;
-            globalProducts = data.products;
-            shippingRules = (data.shipping_rules || []).map(r => ({
+            window.globalProducts = data.products;
+            window.shippingRules = (data.shipping_rules || []).map(r => ({
                 ...r,
                 method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
             }));
             const localUser = JSON.parse(localStorage.getItem('keicha_v2_user'));
             if (localUser && localUser.phone) syncUserData(localUser.phone);
-            renderProducts(globalProducts);
+            renderProducts(window.globalProducts);
             document.getElementById('products-loader').classList.add('hidden');
             renderTopAuth();
         } catch (e) { console.error(e); }
@@ -138,7 +111,7 @@ title: KEICHA 網路商店
                 localStorage.setItem('keicha_v2_user', JSON.stringify(result.data));
                 renderTopAuth();
             }
-        } catch (e) { console.warn("Sync failed"); }
+        } catch (e) { }
     }
 
     function renderProducts(prods) {
@@ -169,27 +142,26 @@ title: KEICHA 網路商店
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
         const zone = document.getElementById('top-auth-zone');
         if (u && (u.name || u.phone)) {
-            zone.innerHTML = `<button onclick="openUserPanel()" class="flex items-center gap-2 brand-green font-bold text-lg hover:opacity-70 transition"><span class="material-symbols-rounded">account_circle</span> ${u.name || u.phone}</button>`;
+            zone.innerHTML = `<button onclick="window.openUserPanel()" class="flex items-center gap-2 brand-green font-bold text-lg hover:opacity-70 transition"><span class="material-symbols-rounded">account_circle</span> ${u.name || u.phone}</button>`;
         } else {
-            zone.innerHTML = `<button onclick="openLoginPanel()" class="bg-gray-100 text-gray-600 px-8 py-3 rounded-2xl text-sm font-bold hover:bg-gray-200 transition">登入 / 註冊</button>`;
+            zone.innerHTML = `<button onclick="window.openLoginPanel()" class="bg-gray-100 text-gray-600 px-8 py-3 rounded-2xl text-sm font-bold hover:bg-gray-200 transition">登入 / 註冊</button>`;
         }
     }
 
-    // 基礎面板操作邏輯
-    function openLoginPanel() { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function openUserPanel() { renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function openCart() { updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function closeAllPanels() { document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')); }
+    // 全域功能函數
+    window.openLoginPanel = function() { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.openUserPanel = function() { if(typeof renderUserFields === "function") renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.openCart = function() { updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.closeAllPanels = function() { document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')); };
     
-    // 購物車與數量邏輯
-    function adjQty(pid, delta) { const el = document.getElementById(`iq-${pid}`); let v = parseInt(el.innerText) + delta; if(v >= 1) el.innerText = v; }
-    function addToCart(pid) { 
-        const p = globalProducts.find(x => x.product_id === pid); 
+    window.adjQty = function(pid, delta) { const el = document.getElementById(`iq-${pid}`); let v = parseInt(el.innerText) + delta; if(v >= 1) el.innerText = v; };
+    window.addToCart = function(pid) { 
+        const p = window.globalProducts.find(x => x.product_id === pid); 
         const qty = parseInt(document.getElementById(`iq-${pid}`).innerText); 
-        const inCart = cart.find(x => x.id === pid); 
-        if (inCart) inCart.qty += qty; else cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category }); 
-        updateCartUI(); openCart(); 
-    }
+        const inCart = window.cart.find(x => x.id === pid); 
+        if (inCart) inCart.qty += qty; else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category }); 
+        updateCartUI(); window.openCart(); 
+    };
 
     window.onload = initShop;
 </script>
