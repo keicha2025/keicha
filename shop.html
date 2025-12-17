@@ -245,13 +245,33 @@ title: KEICHA 網路商店
         window.updateCartUI(); window.openCart(); 
     };
 
-    // --- 快速登入 ---
-    window.handleQuickLogin = async function() {
-        const phone = document.getElementById('login-phone').value;
+window.handleQuickLogin = async function() {
+    const phone = document.getElementById('login-phone').value;
+    if(!/^09\d{8}$/.test(phone)) return alert("格式錯誤");
+
+    const btn = document.getElementById('login-submit-btn');
+    const icon = document.getElementById('login-icon');
+    
+    // 開啟動畫
+    btn.disabled = true;
+    icon.innerText = "sync";
+    icon.classList.add('animate-spin-custom');
+
+    try {
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
         const data = await res.json();
-        if(data.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(data.data)); renderTopAuth(); window.closeAllPanels(); }
-    };
+        if(data.success) {
+            localStorage.setItem('keicha_v2_user', JSON.stringify(data.data));
+            renderTopAuth();
+            window.closeAllPanels();
+        }
+    } catch(e) { alert("連線失敗"); } finally {
+        // 結束動畫
+        btn.disabled = false;
+        icon.innerText = "arrow_forward";
+        icon.classList.remove('animate-spin-custom');
+    }
+};
 
     // --- 結帳相關 ---
     window.openCheckout = function() {
