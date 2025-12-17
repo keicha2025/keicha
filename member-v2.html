@@ -185,13 +185,13 @@
 
         btn.disabled = true;
         loader.classList.remove('hidden');
-
-        try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'login', phone: phone })
-            });
-            const res = await response.json();
+// 在 handleLoginV2 與 handleSaveV2 中統一修改 fetch 方式
+const response = await fetch(GAS_URL, {
+    method: 'POST',
+    // 不要設定 headers: { 'Content-Type': 'application/json' }，這樣會觸發 CORS
+    body: JSON.stringify(payload) 
+});
+const res = await response.json(); // GAS 部署為 Anyone 後，這樣可以直接讀取
 
             if (res.success) {
                 localStorage.setItem('keicha_v2_user', JSON.stringify(res.data));
