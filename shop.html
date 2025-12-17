@@ -4,27 +4,21 @@ title: KEICHA 商店測試版
 ---
 
 <section id="announcement-section" class="hidden bg-brandGreen-10 border-b border-brandGreen/20 py-3">
-    <div class="container mx-auto px-4 max-w-6xl flex items-center justify-center gap-2 text-brandGreen font-bold">
+    <div class="container mx-auto px-4 max-w-6xl flex items-center justify-center gap-2 text-brandGreen font-bold text-center">
         <span class="material-symbols-rounded text-sm">campaign</span>
         <p id="announcement-content" class="text-xs md:text-sm"></p>
     </div>
 </section>
 
 <main class="max-w-6xl mx-auto p-4 md:p-10 space-y-12 min-h-screen">
+    
     <section>
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl font-bold flex items-center gap-2">
-                <span class="material-symbols-rounded text-brandGreen">storefront</span>
-                <span>本期選物</span>
-            </h2>
-        </div>
-        
         <div id="products-loader" class="flex flex-col items-center justify-center py-20 space-y-4">
             <div class="w-10 h-10 border-4 border-brandGreen/20 border-t-brandGreen rounded-full animate-spin"></div>
-            <p class="text-gray-400 text-sm">同步試算表庫存中...</p>
+            <p class="text-gray-400 text-sm italic font-mono">同步試算表庫存中...</p>
         </div>
 
-        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        <div id="category-container" class="space-y-16"></div>
     </section>
 
     <section class="bg-gray-50 rounded-3xl p-6 md:p-10 border border-gray-100">
@@ -41,11 +35,11 @@ title: KEICHA 商店測試版
 <div id="quick-edit-panel" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeQuickEdit()"></div>
     <div id="edit-panel-content" class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl translate-x-full transition-transform duration-300 flex flex-col">
-        <div class="p-6 bg-brandGreen text-white flex justify-between items-center">
+        <div class="p-6 bg-brandGreen text-white flex justify-between items-center shadow-md">
             <h3 class="text-xl font-bold flex items-center gap-2 text-white">
                 <span class="material-symbols-rounded">edit_square</span>修改資料
             </h3>
-            <button onclick="closeQuickEdit()" class="material-symbols-rounded text-white">close</button>
+            <button onclick="closeQuickEdit()" class="material-symbols-rounded text-white hover:rotate-90 transition">close</button>
         </div>
         <div class="p-8 space-y-6 flex-1 overflow-y-auto">
             <div class="space-y-5">
@@ -66,8 +60,8 @@ title: KEICHA 商店測試版
                 </div>
             </div>
         </div>
-        <div class="p-6 border-t border-gray-50">
-            <button onclick="saveQuickEdit()" id="quick-save-btn" class="w-full bg-brandGreen text-white py-4 rounded-2xl font-bold flex justify-center items-center gap-2 hover:bg-opacity-90 transition shadow-lg">
+        <div class="p-6 border-t border-gray-50 bg-gray-50/50">
+            <button onclick="saveQuickEdit()" id="quick-save-btn" class="w-full bg-brandGreen text-white py-4 rounded-2xl font-bold flex justify-center items-center gap-2 hover:shadow-lg active:scale-95 transition-all shadow-md">
                 <span id="save-btn-text" class="text-white">確認更新並同步</span>
                 <span id="save-btn-icon" class="material-symbols-rounded text-white">sync</span>
             </button>
@@ -77,12 +71,15 @@ title: KEICHA 商店測試版
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
+    const siteBaseUrl = "{{ site.baseurl }}";
 
     async function initShop() {
         try {
             const res = await fetch(GAS_URL);
+            if (!res.ok) throw new Error("API連線失敗");
             const data = await res.json();
             
+            // 處理公告與服務須知
             if (data.settings) {
                 if (data.settings.announcement) {
                     document.getElementById('announcement-content').innerText = data.settings.announcement;
@@ -93,85 +90,113 @@ title: KEICHA 商店測試版
                 }
             }
 
+            // 處理分類與商品
             renderProducts(data.products);
             document.getElementById('products-loader').classList.add('hidden');
+
+            // 處理導航列會員狀態
             injectHeaderStatus();
             
         } catch (e) {
             console.error("初始化失敗", e);
+            document.getElementById('products-loader').innerHTML = `<p class="text-red-500 font-bold">資料載入失敗，請確認網路連線或 GAS 部署狀態。</p>`;
         }
     }
 
-    // 核心功能：加入購物車
-    function handleAddToCart(productId, stock) {
-        if (stock <= 0) {
-            alert("抱歉，該商品目前已售罄。");
-            return;
+    function renderProducts(products) {
+        const container = document.getElementById('category-container');
+        
+        // 按照 Category 欄位自動分組
+        const groupedProducts = products.reduce((acc, p) => {
+            const cat = p.category || "精選選物";
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(p);
+            return acc;
+        }, {});
+
+        let htmlContent = '';
+
+        for (const category in groupedProducts) {
+            htmlContent += `
+                <section class="space-y-6">
+                    <div class="flex items-center gap-3 border-l-4 border-brandGreen pl-4">
+                        <h3 class="text-xl font-bold text-gray-800">${category}</h3>
+                        <span class="text-xs text-gray-400 font-mono">(${groupedProducts[category].length})</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        ${groupedProducts[category].map(p => {
+                            // 庫存判斷：不填寫為充足，0 為售罄
+                            const isSoldOut = p.stock !== "" && p.stock !== null && parseInt(p.stock) === 0;
+                            
+                            // 圖片路徑智能判斷 (絕對 vs 相對)
+                            let imageUrl = p.image_url ? p.image_url.trim() : "";
+                            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('//')) {
+                                const formattedPath = imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl;
+                                imageUrl = siteBaseUrl + formattedPath;
+                            }
+                            const hasImage = imageUrl !== "";
+
+                            return `
+                                <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col">
+                                    ${hasImage ? `
+                                        <div class="relative aspect-square bg-gray-50 overflow-hidden">
+                                            <img src="${imageUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isSoldOut ? 'opacity-40 grayscale' : ''}">
+                                            ${isSoldOut ? `<span class="absolute inset-0 m-auto w-fit h-fit bg-gray-900/80 text-white text-[10px] px-4 py-2 rounded-full font-bold backdrop-blur-sm uppercase tracking-widest">Sold Out</span>` : ''}
+                                        </div>
+                                    ` : ''}
+                                    
+                                    <div class="p-5 flex-1 flex flex-col">
+                                        <div class="flex-1 space-y-2 mb-4">
+                                            <h4 class="font-bold text-gray-800 text-base line-clamp-2">${p.product_name}</h4>
+                                            ${p.special_notes ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 italic">${p.special_notes}</p>` : ''}
+                                            <p class="text-brandGreen font-bold text-lg font-mono pt-1">NT$ ${p.price}</p>
+                                        </div>
+                                        <button onclick="handleAddToCart('${p.product_id}', ${isSoldOut ? 0 : 100})" 
+                                                class="w-full py-3.5 rounded-2xl font-bold flex justify-center items-center gap-2 transition-all
+                                                ${isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brandGreen text-white hover:shadow-lg active:scale-95 shadow-sm'}">
+                                            <span class="material-symbols-rounded text-sm">${isSoldOut ? 'block' : 'shopping_cart'}</span>
+                                            <span class="text-sm ${isSoldOut ? 'text-gray-400' : 'text-white'}">${isSoldOut ? '已售罄' : '加入購物車'}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </section>
+            `;
         }
-        
-        // 這裡串接你原本的購物車邏輯（例如打開側邊欄或計數）
-        console.log("加入商品 ID:", productId);
-        
-        // 示範：如果有購物車計數，可以在這裡更新
-        // toggleCart(true); // 如果你有這個函數
+        container.innerHTML = htmlContent;
+    }
+
+    function handleAddToCart(productId, stock) {
+        if (stock <= 0) return;
+        // 這裡可串接您的購物車 Open 邏輯
+        console.log("加入購物車:", productId);
+        alert("已加入購物車 (ID: " + productId + ")");
     }
 
     function injectHeaderStatus() {
         const user = JSON.parse(localStorage.getItem('keicha_v2_user'));
         const nav = document.querySelector('nav.hidden.md\\:flex'); 
-        
         if (!nav) return;
 
         const statusDiv = document.createElement('div');
-        statusDiv.className = "flex items-center mr-2";
-
+        statusDiv.className = "flex items-center mr-2 border-r pr-2 border-gray-100";
         if (user) {
             statusDiv.innerHTML = `
-                <button onclick="openQuickEdit()" class="flex items-center gap-1 text-brandGreen font-bold hover:bg-gray-50 px-3 py-2 rounded-md transition">
-                    <span class="material-symbols-rounded">account_circle</span>
-                    <span class="text-sm">${user.name || user.phone}</span>
+                <button onclick="openQuickEdit()" class="flex items-center gap-1 text-brandGreen font-bold hover:bg-gray-50 px-3 py-2 rounded-md transition border border-brandGreen/20 shadow-sm bg-white">
+                    <span class="material-symbols-rounded text-lg">account_circle</span>
+                    <span class="text-xs">${user.name || user.phone}</span>
                 </button>
             `;
         } else {
             statusDiv.innerHTML = `
-                <a href="member.html" class="p-2 text-gray-400 hover:text-brandGreen transition">
+                <a href="member.html" class="p-2 text-gray-400 hover:text-brandGreen transition" title="會員登入">
                     <span class="material-symbols-rounded">login</span>
                 </a>
             `;
         }
         nav.insertBefore(statusDiv, nav.firstChild);
-    }
-
-    function renderProducts(products) {
-        const grid = document.getElementById('product-grid');
-        grid.innerHTML = products.map(p => {
-            const stock = parseInt(p.stock) || 0;
-            const isSoldOut = stock <= 0;
-            
-            return `
-                <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-                    <div class="relative aspect-square bg-gray-50">
-                        <img src="${p.image_url}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isSoldOut ? 'opacity-40 grayscale' : ''}">
-                        ${isSoldOut ? 
-                            `<span class="absolute inset-0 m-auto w-fit h-fit bg-gray-900/80 text-white text-xs px-4 py-2 rounded-full font-bold backdrop-blur-sm">已售罄</span>` :
-                            (stock < 5 ? `<span class="absolute top-4 right-4 bg-red-500 text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg font-sans">最後 ${stock} 件</span>` : '')
-                        }
-                    </div>
-                    <div class="p-5 space-y-4">
-                        <div>
-                            <h3 class="font-bold text-gray-800 text-base mb-1">${p.product_name}</h3>
-                            <p class="text-brandGreen font-bold text-lg font-mono">NT$ ${p.price}</p>
-                        </div>
-                        <button onclick="handleAddToCart('${p.product_id}', ${stock})" 
-                                class="w-full py-3.5 rounded-2xl font-bold flex justify-center items-center gap-2 transition-all
-                                ${isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brandGreen text-white hover:shadow-lg active:scale-95'}">
-                            <span class="material-symbols-rounded text-sm">${isSoldOut ? 'block' : 'shopping_cart'}</span>
-                            <span class="text-sm ${isSoldOut ? 'text-gray-400' : 'text-white'}">${isSoldOut ? '暫無庫存' : '加入購物車'}</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
     }
 
     function openQuickEdit() {
@@ -208,7 +233,7 @@ title: KEICHA 商店測試版
                 localStorage.setItem('keicha_v2_user', JSON.stringify({...stored, ...payload}));
                 location.reload(); 
             }
-        } catch (e) { alert("同步失敗"); }
+        } catch (e) { alert("同步失敗，請檢查網路。"); }
         btnIcon.classList.remove('animate-spin');
     }
 
