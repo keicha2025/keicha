@@ -1,8 +1,7 @@
 /**
- * KEICHA 網路商店 - 核心邏輯中控台
+ * KEICHA 網路商店 - 核心邏輯中控台 (GAS 10欄位精確對接版)
  */
 
-// 1. 基礎設定
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
 const siteBaseUrl = window.siteBaseUrl || ""; 
 
@@ -77,7 +76,7 @@ window.renderTopAuth = function() {
     }
 };
 
-// --- 會員資料管理 (分區儲存) ---
+// --- 會員資料管理 ---
 window.renderUserFields = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     if (!u.phone) return;
@@ -139,7 +138,7 @@ window.updateCartUI = function() {
     document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
 };
 
-// --- 結帳與送出訂單 (對接 Orders 系統) ---
+// --- 結帳與送出訂單 (精確對接 10 欄位系統) ---
 window.renderCheckoutInfo = function() {
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     document.getElementById('checkout-info-name').innerText = u.name || '未填寫';
@@ -171,7 +170,7 @@ window.updateSummary = function() {
 };
 
 /**
- * 送出訂單：將資料推送到 GAS 的 Orders 系統
+ * 送出訂單：精確對接後端 Checkout Action
  */
 window.submitOrder = async function() {
     if (!window.selectedMethod) return alert("請選擇收件方式");
@@ -180,48 +179,53 @@ window.submitOrder = async function() {
 
     const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
     const btn = document.getElementById('btn-submit-order');
-    const oldHtml = btn.innerHTML;
+    const subtotal = window.cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    const shipping = document.getElementById('summary-shipping').innerText.replace('NT$ ', '').replace(/,/g, '');
+    
+    // 組合商品清單文字 (名稱x數量)
+    const itemsText = window.cart.map(i => `${i.name}x${i.qty}`).join(', ');
 
-    // 準備訂單物件
-    const orderData = {
-        action: 'order',
+    // 決定收件地址/門市字串
+    let storeInfo = "";
+    if (window.selectedMethod === '7-11') storeInfo = `7-11: ${u.store_711} (${u.store_711_note})`;
+    else if (window.selectedMethod === 'fami') storeInfo = `全家: ${u.store_fami} (${u.store_fami_note})`;
+    else storeInfo = u.shipping_address;
+
+    if (!storeInfo || storeInfo.includes('尚未設定')) return alert("收件資訊不完整，請先點擊編輯補全");
+
+    // 封裝成後端需要的參數格式
+    const payload = {
+        action: 'checkout', // 配合後端判斷式
+        name: u.name || "未提供姓名",
         phone: u.phone,
-        line_name: lineName,
-        recipient_name: u.name,
-        ship_method: window.selectedMethod,
-        ship_info: "", // 根據選擇填入
-        items: JSON.stringify(window.cart),
-        total_amount: document.getElementById('summary-total').innerText.replace('NT$ ', '').replace(/,/g, '')
+        store: storeInfo,
+        temp: "常溫", // 您後端預設溫層
+        items: itemsText,
+        subtotal: subtotal,
+        shipping: shipping,
+        date: new Date().toLocaleString('zh-TW'),
+        note: "", // 預留備註空間
+        line_name: lineName
     };
 
-    // 根據物流方式決定收件資訊
-    if (window.selectedMethod === '7-11') orderData.ship_info = `7-11: ${u.store_711} (${u.store_711_note})`;
-    else if (window.selectedMethod === 'fami') orderData.ship_info = `全家: ${u.store_fami} (${u.store_fami_note})`;
-    else orderData.ship_info = `宅配: ${u.shipping_address}`;
-
-    if (!orderData.ship_info || orderData.ship_info.includes('尚未設定')) return alert("收件資訊不完整，請先編輯資料");
-
     btn.disabled = true;
-    btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">sync</span> 訂單處理中...`;
+    btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">sync</span> 訂單寫入中...`;
 
     try {
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(orderData) });
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await res.json();
         if (result.success) {
-            alert("訂單已成功送出！感謝您的購買。");
-            window.cart = []; // 清空購物車
+            alert("訂單已成功寫入系統！");
+            window.cart = [];
             window.updateCartUI();
             window.closeAllPanels();
-            // 可選：跳轉至成功頁面或重新整理
             location.reload();
-        } else {
-            alert("送出失敗：" + result.message);
-        }
-    } catch (e) { alert("連線失敗，請稍後再試"); }
-    finally { btn.disabled = false; btn.innerHTML = oldHtml; }
+        } else { alert("失敗：" + result.msg); }
+    } catch (e) { alert("連線異常"); }
+    finally { btn.disabled = false; btn.innerHTML = "確認送出訂單"; }
 };
 
-// --- 面板控制與其餘功能 ---
+// --- 面板控制與導航 ---
 window.openLoginPanel = () => { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
 window.openUserPanel = () => { window.renderUserFields(); const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}'); if(u.phone) window.syncUserData(u.phone); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
 window.openCart = () => { window.updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
