@@ -4,28 +4,30 @@
             <span class="material-symbols-rounded">account_circle</span> 
             會員資料管理
         </h3>
-        <button onclick="window.closeAllPanels()" class="material-symbols-rounded">close</button>
+        <button onclick="window.closeAllPanels()" class="material-symbols-rounded text-white hover:opacity-70 transition">close</button>
     </div>
 
     <div id="panel-body" class="p-8 flex-1 overflow-y-auto space-y-10">
         <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl">
-            <span class="text-xs font-bold text-gray-400 uppercase">目前帳號</span>
-            <span id="display-user-phone" class="font-mono font-bold text-[#6ea44c]">09xx xxx xxx</span>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">目前登入帳號</span>
+            <span id="display-user-phone" class="font-mono font-bold text-[#6ea44c]">0912 345 678</span>
         </div>
 
         <section class="space-y-4">
-            <div class="flex justify-between items-center border-b pb-2">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
                 <h4 class="text-xs font-bold brand-green uppercase tracking-widest">個人基本資訊</h4>
-                <button onclick="toggleEdit('info')" class="material-symbols-rounded text-gray-400 hover:text-[#6ea44c] transition">edit_square</button>
+                <button onclick="window.toggleEdit('info')" class="material-symbols-rounded text-[#6ea44c] hover:bg-[#6ea44c]/10 rounded-full p-1 transition">
+                    edit_square
+                </button>
             </div>
             
-            <div id="info-display" class="space-y-4">
-                <div class="flex justify-between border-b border-gray-50 pb-2">
-                    <span class="text-xs text-gray-400">姓名</span>
+            <div id="info-display" class="space-y-4 animate-fade-in">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-400">收件人全名</span>
                     <span id="text-name" class="font-bold text-gray-700">-</span>
                 </div>
-                <div class="flex justify-between border-b border-gray-50 pb-2">
-                    <span class="text-xs text-gray-400">Email</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-400">電子郵件</span>
                     <span id="text-email" class="text-gray-700">-</span>
                 </div>
             </div>
@@ -39,60 +41,69 @@
                     <label class="text-[10px] text-gray-400 font-bold mb-1 block">電子郵件</label>
                     <input type="email" id="upd-email" class="user-edit-input" placeholder="example@mail.com">
                 </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="window.saveFullUser()" class="flex-1 bg-[#6ea44c] text-white py-3 rounded-xl font-bold shadow-sm hover:bg-[#5d8d41] active:scale-95 transition-all">儲存變更</button>
+                    <button onclick="window.toggleEdit('info')" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-50 active:scale-95 transition-all">取消</button>
+                </div>
             </div>
         </section>
 
         <section class="space-y-6">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h4 class="text-xs font-bold brand-green uppercase tracking-widest">預設取件資訊</h4>
-                <button onclick="toggleEdit('ship')" class="material-symbols-rounded text-gray-400 hover:text-[#6ea44c] transition">add_circle</button>
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                <h4 class="text-xs font-bold brand-green uppercase tracking-widest">預設物流設定</h4>
+                <button onclick="window.toggleEdit('ship')" class="material-symbols-rounded text-[#6ea44c] hover:bg-[#6ea44c]/10 rounded-full p-1 transition">
+                    edit_square
+                </button>
             </div>
             
             <div id="ship-container" class="space-y-4">
-                <div class="bg-gray-50 p-5 rounded-2xl">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold text-gray-600">7-11 門市資料</span>
-                        <div id="btn-711-query" class="hidden animate-fade-in">
-                            <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="text-[10px] brand-green underline font-bold">查詢店號</a>
-                        </div>
+                <div class="bg-gray-50 p-5 rounded-2xl relative">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-gray-500">7-11 門市資料</span>
+                        <a id="btn-711-query" href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" 
+                           class="hidden text-[10px] bg-[#6ea44c] text-white px-3 py-1 rounded-full font-bold shadow-sm hover:opacity-90 transition">查詢店號</a>
                     </div>
                     <div id="display-711" class="font-bold text-sm text-gray-700">尚未設定</div>
                     <div id="edit-711" class="hidden flex gap-2 mt-3">
-                        <input type="text" id="upd-711" class="flex-[2] p-3 rounded-xl border-none shadow-sm text-sm font-bold" placeholder="店號">
-                        <input type="text" id="upd-711-note" class="flex-[3] p-3 rounded-xl border-none shadow-sm text-sm" placeholder="店名備註">
+                        <input type="text" id="upd-711" class="flex-[2] p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm font-bold bg-white" placeholder="店號">
+                        <input type="text" id="upd-711-note" class="flex-[3] p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm bg-white" placeholder="備註 (店名)">
                     </div>
                 </div>
 
                 <div class="bg-gray-50 p-5 rounded-2xl">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold text-gray-600">全家 門市資料</span>
-                        <div id="btn-fami-query" class="hidden animate-fade-in">
-                            <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="text-[10px] brand-green underline font-bold">查詢店號</a>
-                        </div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-gray-500">全家 門市資料</span>
+                        <a id="btn-fami-query" href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" 
+                           class="hidden text-[10px] bg-[#6ea44c] text-white px-3 py-1 rounded-full font-bold shadow-sm hover:opacity-90 transition">查詢店號</a>
                     </div>
                     <div id="display-fami" class="font-bold text-sm text-gray-700">尚未設定</div>
                     <div id="edit-fami" class="hidden flex gap-2 mt-3">
-                        <input type="text" id="upd-fami" class="flex-[2] p-3 rounded-xl border-none shadow-sm text-sm font-bold" placeholder="店號">
-                        <input type="text" id="upd-fami-note" class="flex-[3] p-3 rounded-xl border-none shadow-sm text-sm" placeholder="店名備註">
+                        <input type="text" id="upd-fami" class="flex-[2] p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm font-bold bg-white" placeholder="店號">
+                        <input type="text" id="upd-fami-note" class="flex-[3] p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm bg-white" placeholder="備註 (店名)">
                     </div>
                 </div>
 
                 <div class="bg-gray-50 p-5 rounded-2xl">
-                    <span class="text-xs font-bold text-gray-600 block mb-2">宅配常用地址</span>
+                    <span class="text-xs font-bold text-gray-500 block mb-3">宅配常用地址</span>
                     <div id="display-addr" class="font-bold text-sm text-gray-700">尚未設定</div>
                     <div id="edit-addr" class="hidden mt-3">
-                        <textarea id="upd-addr" class="w-full p-3 rounded-xl border-none shadow-sm text-sm resize-none" rows="2" placeholder="請輸入完整收件地址"></textarea>
+                        <textarea id="upd-addr" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm resize-none bg-white" rows="2" placeholder="請輸入完整收件地址"></textarea>
                     </div>
+                </div>
+
+                <div id="ship-edit-actions" class="hidden flex gap-3 pt-2">
+                    <button onclick="window.saveFullUser()" class="flex-1 bg-[#6ea44c] text-white py-3 rounded-xl font-bold shadow-sm active:scale-95 transition-all">更新取件資料</button>
+                    <button onclick="window.toggleEdit('ship')" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl font-bold active:scale-95 transition-all">取消</button>
                 </div>
             </div>
         </section>
 
-        <section class="pt-6 border-t flex flex-col gap-4">
-            <button onclick="window.saveFullUser()" id="btn-user-save" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 transition active:scale-95">
+        <section class="pt-6 border-t border-gray-100 flex flex-col gap-4">
+            <button onclick="window.saveFullUser()" id="btn-user-save-global" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold shadow-lg flex justify-center items-center gap-2 transition active:scale-95">
                 <span id="save-icon" class="material-symbols-rounded">cloud_upload</span>
                 <span id="save-text">儲存並同步雲端資料</span>
             </button>
-            <button onclick="window.handleLogout()" class="text-sm text-gray-400 font-bold hover:text-red-400 transition-colors">
+            <button onclick="window.handleLogout()" class="text-sm text-gray-300 font-bold hover:text-red-400 transition-colors py-2">
                 安全登出此帳號
             </button>
         </section>
@@ -100,6 +111,7 @@
 </div>
 
 <style>
+    /* 輸入框互動：Focus 時亮起品牌綠 */
     .user-edit-input {
         width: 100%;
         padding: 0.75rem 0;
@@ -110,7 +122,11 @@
         font-size: 1rem;
         background-color: transparent;
     }
-    .user-edit-input:focus { border-bottom-color: #6ea44c; }
+    .user-edit-input:focus {
+        border-bottom-color: #6ea44c;
+    }
+
+    /* 動畫效果 */
     .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
