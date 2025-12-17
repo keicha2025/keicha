@@ -77,30 +77,40 @@ title: KEICHA 網路商店
     
     // 全域變數
     window.cart = [];
+    window.globa<script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
+    const siteBaseUrl = "{{ site.baseurl | default: '' }}";
+    
+    // 1. 全域變數定義
+    window.cart = [];
     window.globalProducts = [];
     window.shippingRules = [];
     window.selectedMethod = '';
 
-    // 商品卡片模板
+    // 2. 組件模板定義
     const ITEM_CARD_TEMPLATE = (p, img, isSoldOut) => `{% include item-card.html %}`;
 
-    // --- 初始化與同步 ---
+    // --- 商店初始化 ---
     async function initShop() {
         try {
             const res = await fetch(GAS_URL);
             const data = await res.json();
             if (!data || !data.products) return;
             window.globalProducts = data.products;
+            
+            // 處理 7-11 名稱錯誤問題
             window.shippingRules = (data.shipping_rules || []).map(r => ({
                 ...r,
                 method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
             }));
+
             const localUser = JSON.parse(localStorage.getItem('keicha_v2_user'));
             if (localUser && localUser.phone) syncUserData(localUser.phone);
+
             renderProducts(window.globalProducts);
             document.getElementById('products-loader').classList.add('hidden');
             renderTopAuth();
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Init Error:", e); }
     }
 
     async function syncUserData(phone) {
@@ -149,7 +159,7 @@ title: KEICHA 網路商店
         }
     }
 
-    // --- 購物車 UI (補回 Log 中遺失的函數) ---
+    // --- 購物車 UI 邏輯 ---
     window.updateCartUI = function() {
         const count = window.cart.reduce((s, i) => s + i.qty, 0);
         document.getElementById('cart-count').innerText = count;
@@ -183,240 +193,105 @@ title: KEICHA 網路商店
         document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
     }
 
-    // --- 會員面板管理 (補回 Log 中遺失的函數) ---
-// --- 會員面板管理 (優化版：包含編輯切換、電話顯示與儲存動畫) ---
+    // --- 會員面板管理與編輯邏輯 ---
+    window.renderUserFields = function() {
+        const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+        if (!u.phone) return;
+        document.getElementById('display-user-phone').innerText = u.phone;
+        document.getElementById('text-name').innerText = u.name || '未填寫';
+        document.getElementById('text-email').innerText = u.email || '未填寫';
+        document.getElementById('display-711').innerText = u.store_711 ? `${u.store_711} ${u.store_711_note || ''}`.trim() : '尚未設定';
+        document.getElementById('display-fami').innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note || ''}`.trim() : '尚未設定';
+        document.getElementById('display-addr').innerText = u.shipping_address || '尚未設定';
 
-/**
- * 渲染會員資料：取得資料時直接顯示出店號+備註內容，並顯示電話
- */
-window.renderUserFields = function() {
-    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
-    if (!u.phone) return;
-
-    // 顯示目前帳號的電話號碼
-    const phoneDisplay = document.getElementById('display-user-phone');
-    if (phoneDisplay) phoneDisplay.innerText = u.phone;
-
-    // 1. 個人資訊顯示區 (姓名及 Mail)
-    const nameText = document.getElementById('text-name');
-    const emailText = document.getElementById('text-email');
-    if (nameText) nameText.innerText = u.name || '未填寫';
-    if (emailText) emailText.innerText = u.email || '未填寫';
-
-    // 2. 物流資料顯示區 (合併店號與備註內容)
-    const d711 = document.getElementById('display-711');
-    const dFami = document.getElementById('display-fami');
-    const dAddr = document.getElementById('display-addr');
-
-    if (d711) d711.innerText = u.store_711 ? `${u.store_711} ${u.store_711_note || ''}`.trim() : '尚未設定';
-    if (dFami) dFami.innerText = u.store_fami ? `${u.store_fami} ${u.store_fami_note || ''}`.trim() : '尚未設定';
-    if (dAddr) dAddr.innerText = u.shipping_address || '尚未設定';
-
-    // 3. 填入 Input 預設值 (供編輯使用)
-    const fields = ['name', 'email', '711', '711-note', 'fami', 'fami-note', 'addr'];
-    fields.forEach(f => {
-        const input = document.getElementById(`upd-${f}`);
-        const key = f.replace('-', '_').replace('addr', 'shipping_address');
-        if (input) input.value = u[key] || '';
-    });
-};
-
-
-/**
- * 切換編輯模式：按下編輯後切換顯示/輸入狀態，並顯示「查詢門市」按鈕與操作按鈕
- * 支援個別編輯區塊：'info', '711', 'fami', 'addr'
- * @param {string} type - 編輯區塊識別碼
- */
-window.toggleEdit = function(type) {
-    if (type === 'info') {
-        // --- 個人基本資訊區塊 ---
-        const nameText = document.getElementById('text-name');
-        const nameInput = document.getElementById('upd-name');
-        const emailText = document.getElementById('text-email');
-        const emailInput = document.getElementById('upd-email');
-        const actionBtns = document.getElementById('info-edit-actions');
-
-        // 判斷當前是否正在編輯 (檢查 Input 是否隱藏)
-        const isEditing = !nameInput.classList.contains('hidden');
-
-        // 切換顯示狀態：確保高度一致不跳動
-        if (isEditing) {
-            // 關閉編輯模式：顯示文字，隱藏輸入框與按鈕
-            nameText.classList.remove('hidden');
-            nameInput.classList.add('hidden');
-            emailText.classList.remove('hidden');
-            emailInput.classList.add('hidden');
-            actionBtns.classList.add('hidden');
-        } else {
-            // 開啟編輯模式：隱藏文字，顯示輸入框與按鈕
-            nameText.classList.add('hidden');
-            nameInput.classList.remove('hidden');
-            emailText.classList.add('hidden');
-            emailInput.classList.remove('hidden');
-            actionBtns.classList.remove('hidden');
-            nameInput.focus(); // 自動聚焦提升 UX
-        }
-    } else {
-        // --- 物流設定區塊 (711, fami, addr 獨立處理) ---
-        const displayEl = document.getElementById(`display-${type}`);
-        const editEl = document.getElementById(`edit-${type}`);
-        const queryBtn = document.getElementById(`btn-${type}-query`);
-
-        if (displayEl && editEl) {
-            const isEditing = !editEl.classList.contains('hidden');
-
-            if (isEditing) {
-                // 關閉編輯：恢復垂直顯示模式
-                displayEl.classList.remove('hidden');
-                editEl.classList.add('hidden');
-                if (queryBtn) {
-                    queryBtn.classList.add('hidden');
-                    queryBtn.style.display = 'none'; // 確保佔位完全消失
-                }
-            } else {
-                // 開啟編輯：隱藏純文字，展開垂直排列的輸入框
-                displayEl.classList.add('hidden');
-                editEl.classList.remove('hidden');
-                if (queryBtn) {
-                    queryBtn.classList.remove('hidden');
-                    queryBtn.style.display = 'block'; // 顯示功能輔助型連結
-                }
-                
-                // 自動聚焦該區塊的第一個輸入框
-                const firstInput = editEl.querySelector('input, textarea');
-                if (firstInput) firstInput.focus();
-            }
-        }
-    }
-};
-/**
- * 儲存資料：同步雲端並執行載入動畫
- */
-window.saveFullUser = async function() {
-    const btn = document.getElementById('btn-user-save');
-    const icon = document.getElementById('save-icon');
-    const text = document.getElementById('save-text');
-    
-    // 1. 開始動畫狀態
-    btn.disabled = true;
-    const originalText = text.innerText;
-    text.innerText = "資料同步中...";
-    icon.classList.add('animate-spin-custom');
-    icon.innerText = "sync";
-
-    const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
-    const updatedData = {
-        ...u,
-        action: 'save',
-        name: document.getElementById('upd-name').value,
-        email: document.getElementById('upd-email').value,
-        store_711: document.getElementById('upd-711').value,
-        store_711_note: document.getElementById('upd-711-note').value,
-        store_fami: document.getElementById('upd-fami').value,
-        store_fami_note: document.getElementById('upd-fami-note').value,
-        shipping_address: document.getElementById('upd-addr').value
-    };
-
-    try {
-        const response = await fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify(updatedData)
+        const fields = ['name', 'email', '711', '711-note', 'fami', 'fami-note', 'addr'];
+        fields.forEach(f => {
+            const input = document.getElementById(`upd-${f}`);
+            const key = f.replace('-', '_').replace('addr', 'shipping_address');
+            if (input) input.value = u[key] || '';
         });
-        const result = await response.json();
-        
-        if (result.success) {
-            localStorage.setItem('keicha_v2_user', JSON.stringify(updatedData));
-            window.renderUserFields(); // 重新渲染顯示文字
-            
-            // 2. 結束動畫並恢復模式
-            alert("會員資料已更新！");
-            // 強制關閉所有編輯視窗回歸顯示模式
-            const infoEdit = document.getElementById('info-edit');
-            const infoDisp = document.getElementById('info-display');
-            if (infoEdit && !infoEdit.classList.contains('hidden')) window.toggleEdit('info');
-            
-            const edit711 = document.getElementById('edit-711');
-            if (edit711 && !edit711.classList.contains('hidden')) window.toggleEdit('ship');
-        }
-    } catch (error) {
-        console.error("Save Error:", error);
-        alert("連線失敗，請稍後再試");
-    } finally {
-        // 3. 恢復按鈕原始狀態
-        btn.disabled = false;
-        text.innerText = originalText;
-        icon.classList.remove('animate-spin-custom');
-        icon.innerText = "cloud_upload";
-    }
-};
-
-/**
- * 安全登出
- */
-window.handleLogout = function() {
-    if (confirm("確定要登出並清除本地快取資料嗎？")) {
-        localStorage.removeItem('keicha_v2_user');
-        location.reload();
-    }
-};
-
-    // --- 面板與互動控制 ---
-    window.openLoginPanel = function() { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
-    window.openUserPanel = function() { window.renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
-    window.openCart = function() { window.updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
-    window.closeAllPanels = function() { document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')); };
-    
-    window.adjQty = function(pid, delta) { const el = document.getElementById(`iq-${pid}`); let v = parseInt(el.innerText) + delta; if(v >= 1) el.innerText = v; };
-    window.updateCartQty = function(idx, d) { window.cart[idx].qty += d; if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1); window.updateCartUI(); };
-    window.removeFromCart = function(idx) { window.cart.splice(idx, 1); window.updateCartUI(); };
-    
-    window.addToCart = function(pid) { 
-        const p = window.globalProducts.find(x => x.product_id === pid); 
-        const qty = parseInt(document.getElementById(`iq-${pid}`).innerText); 
-        const inCart = window.cart.find(x => x.id === pid); 
-        if (inCart) inCart.qty += qty; 
-        else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category }); 
-        window.updateCartUI(); window.openCart(); 
     };
 
-window.handleQuickLogin = async function() {
-    const phone = document.getElementById('login-phone').value;
-    if(!/^09\d{8}$/.test(phone)) return alert("格式錯誤");
-
-    const btn = document.getElementById('login-submit-btn');
-    const icon = document.getElementById('login-icon');
-    
-    // 開啟動畫
-    btn.disabled = true;
-    icon.innerText = "sync";
-    icon.classList.add('animate-spin-custom');
-
-    try {
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) });
-        const data = await res.json();
-        if(data.success) {
-            localStorage.setItem('keicha_v2_user', JSON.stringify(data.data));
-            renderTopAuth();
-            window.closeAllPanels();
+    window.toggleEdit = function(type) {
+        if (type === 'info') {
+            const inputs = ['upd-name', 'upd-email', 'text-name', 'text-email', 'info-edit-actions'];
+            inputs.forEach(id => document.getElementById(id)?.classList.toggle('hidden'));
+        } else {
+            document.getElementById(`display-${type}`)?.classList.toggle('hidden');
+            document.getElementById(`edit-${type}`)?.classList.toggle('hidden');
+            const qBtn = document.getElementById(`btn-${type}-query`);
+            if(qBtn) qBtn.style.display = qBtn.style.display === 'block' ? 'none' : 'block';
         }
-    } catch(e) { alert("連線失敗"); } finally {
-        // 結束動畫
-        btn.disabled = false;
-        icon.innerText = "arrow_forward";
-        icon.classList.remove('animate-spin-custom');
-    }
-};
+    };
 
-    // --- 結帳相關 ---
+    window.saveFullUser = async function() {
+        const btn = document.getElementById('btn-user-save-global');
+        const icon = document.getElementById('save-icon');
+        const text = document.getElementById('save-text');
+        if (btn) btn.disabled = true;
+        if (text) text.innerText = "資料同步中...";
+        if (icon) icon.classList.add('animate-spin-custom');
+
+        const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+        const updatedData = {
+            ...u, action: 'save',
+            name: document.getElementById('upd-name').value,
+            email: document.getElementById('upd-email').value,
+            store_711: document.getElementById('upd-711').value,
+            store_711_note: document.getElementById('upd-711-note').value,
+            store_fami: document.getElementById('upd-fami').value,
+            store_fami_note: document.getElementById('upd-fami-note').value,
+            shipping_address: document.getElementById('upd-addr').value
+        };
+
+        try {
+            await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(updatedData) });
+            localStorage.setItem('keicha_v2_user', JSON.stringify(updatedData));
+            window.renderUserFields();
+            alert("資料同步成功！");
+            ['info', '711', 'fami', 'addr'].forEach(type => {
+                const el = document.getElementById(`edit-${type}`) || document.getElementById('upd-name');
+                if (el && !el.classList.contains('hidden')) window.toggleEdit(type);
+            });
+        } catch (e) { alert("同步失敗"); } finally {
+            if (btn) btn.disabled = false;
+            if (text) text.innerText = "儲存並同步雲端資料";
+            if (icon) icon.classList.remove('animate-spin-custom');
+        }
+    };
+
+    // --- 購物與面板控制 ---
+    window.openLoginPanel = () => { document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.openUserPanel = () => { window.renderUserFields(); document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.openCart = () => { window.updateCartUI(); document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); };
+    window.closeAllPanels = () => document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open'));
+    
+    window.adjQty = (pid, d) => { const el = document.getElementById(`iq-${pid}`); let v = parseInt(el.innerText) + d; if(v >= 1) el.innerText = v; };
+    window.updateCartQty = (idx, d) => { window.cart[idx].qty += d; if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1); window.updateCartUI(); };
+    window.removeFromCart = (idx) => { window.cart.splice(idx, 1); window.updateCartUI(); };
+    window.addToCart = (pid) => {
+        const p = window.globalProducts.find(x => x.product_id === pid);
+        const qty = parseInt(document.getElementById(`iq-${pid}`).innerText);
+        const inCart = window.cart.find(x => x.id === pid);
+        if (inCart) inCart.qty += qty;
+        else window.cart.push({ id: pid, name: p.product_name, price: p.price, qty: qty, img: p.image_url, category: p.category });
+        window.updateCartUI(); window.openCart();
+    };
+
+    // --- 結帳與運費邏輯 ---
     window.openCheckout = function() {
         if(window.cart.length === 0) return alert("購物車空的");
         window.closeAllPanels();
         setTimeout(() => {
             document.getElementById('checkout-panel').classList.add('open');
             document.getElementById('global-overlay').classList.add('open');
-            // ...這裡需有 renderShipOptions 邏輯 (可放在 panel-checkout 元件內或補齊)
+            const u = JSON.parse(localStorage.getItem('keicha_v2_user') || '{}');
+            // 初始化結帳選項
+            if (typeof window.renderShipOptions === "function") window.renderShipOptions(u);
+            if (typeof window.updateSummary === "function") window.updateSummary();
         }, 150);
     };
 
+    window.handleLogout = () => { if (confirm("確定登出？")) { localStorage.removeItem('keicha_v2_user'); location.reload(); }};
     window.onload = initShop;
 </script>
