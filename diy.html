@@ -14,15 +14,7 @@ title: KEICHA 網路商店
 
     .brand-green { color: #6ea44c; }
     .bg-brand-green { background-color: #6ea44c; }
-    
-    /* 側邊面板 (登入用) */
-    .side-panel {
-        position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
-        background-color: white; z-index: 200; transform: translateX(100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
-        box-shadow: -4px 0 15px rgba(0,0,0,0.1);
-    }
-    .side-panel.open { transform: translateX(0); }
+    .border-brand-green { border-color: #6ea44c; }
     
     .overlay {
         position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 190;
@@ -45,42 +37,47 @@ title: KEICHA 網路商店
     /* 強調區塊 */
     .section-card { background: white; padding: 24px; border-radius: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 24px; }
     
-    /* 物流選項卡片 */
+    /* 物流選項卡片 (改為 div 避免 label 點擊穿透問題) */
     .logistics-card {
         border: 2px solid #f3f4f6; border-radius: 16px; padding: 16px;
         cursor: pointer; transition: all 0.2s; position: relative;
     }
+    .logistics-card:hover { border-color: #e5e7eb; }
     .logistics-card.active { border-color: #6ea44c; background-color: #f9fdf7; }
     
-    /* 隱藏 Radio */
-    .hidden-radio { position: absolute; opacity: 0; width: 0; height: 0; }
+    /* 按鈕鎖定狀態樣式 */
+    .btn-loading {
+        background-color: #9ca3af !important; /* 變灰 */
+        border-color: #9ca3af !important;
+        cursor: not-allowed !important;
+        color: white !important;
+    }
 </style>
 
 <div class="bg-gray-50 min-h-screen pb-32">
     
-    <div class="container mx-auto px-4 max-w-2xl pt-10 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
-                <span class="material-symbols-rounded text-[#6ea44c]">edit_note</span> 自填單結帳
-            </h1>
-            <p class="text-xs text-gray-400 mt-1 font-bold">訪客直接填寫，老朋友輸入電話自動帶入</p>
-        </div>
-        <button onclick="openPanel('login-panel')" class="text-sm font-bold text-[#6ea44c] border border-[#6ea44c] px-4 py-2 rounded-full hover:bg-[#6ea44c] hover:text-white transition flex items-center gap-1 self-start md:self-auto">
-            <span class="material-symbols-rounded text-lg">login</span> 會員登入/註冊
-        </button>
+    <div class="container mx-auto px-4 max-w-2xl pt-10 pb-6">
+        <h1 class="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
+            <span class="material-symbols-rounded text-[#6ea44c]">edit_note</span> 自填單結帳
+        </h1>
+        <p class="text-xs text-gray-400 mt-1 font-bold">訪客直接填寫，老朋友輸入電話自動帶入</p>
     </div>
 
     <main class="container mx-auto px-4 max-w-2xl">
 
-        <section class="section-card">
+        <section class="section-card border-l-4 border-[#6ea44c]">
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">您的手機號碼 <span class="text-red-500">*</span></label>
             <div class="flex gap-3">
                 <input type="tel" id="input-phone" class="diy-input text-lg font-bold font-mono tracking-wide" placeholder="09xxxxxxxx" maxlength="10">
-                <button onclick="lookupPhoneData()" id="btn-lookup" class="whitespace-nowrap bg-gray-100 text-gray-600 px-5 rounded-xl font-bold text-sm hover:bg-gray-200 transition">
-                    帶入資料
+                <button onclick="lookupPhoneData(this)" id="btn-next-step" class="whitespace-nowrap bg-[#6ea44c] text-white px-6 rounded-xl font-bold text-sm hover:bg-[#5d8d41] transition shadow-md shadow-green-900/10 flex items-center gap-2">
+                    <span>下一步</span>
+                    <span class="material-symbols-rounded text-base">arrow_forward</span>
                 </button>
             </div>
-            <p class="text-[10px] text-gray-400 mt-2">* 輸入後點擊「帶入資料」，若您曾填寫過將自動載入收件資訊。</p>
+            <p class="text-[10px] text-gray-400 mt-3 flex items-center gap-1">
+                <span class="material-symbols-rounded text-sm">info</span>
+                輸入後點擊「下一步」，若您曾儲存資料將自動載入收件資訊。
+            </p>
         </section>
 
         <section class="section-card space-y-6">
@@ -121,67 +118,67 @@ title: KEICHA 網路商店
         <section class="section-card space-y-4">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">物流方式</h2>
 
-            <label class="logistics-card flex flex-col gap-3" id="card-711">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <input type="radio" name="logistics" value="7-11" class="hidden-radio" onchange="handleLogisticsChange('7-11')">
-                        <span class="material-symbols-rounded text-gray-400 icon-active">local_shipping</span>
+            <div class="logistics-card flex flex-col gap-3" id="card-711" onclick="selectLogistics('711')">
+                <div class="flex items-center justify-between pointer-events-none"> <div class="flex items-center gap-3">
+                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">local_shipping</span>
                         <span class="font-bold text-gray-700">7-11 店到店</span>
                     </div>
                     <div id="price-preview-7-11" class="text-xs font-bold text-gray-400"></div>
                 </div>
                 
-                <div id="detail-711" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1">
+                <div id="detail-711" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
                     <div class="flex gap-2">
-                        <input type="text" id="store-711" class="diy-input" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-4 rounded-xl text-xs font-bold flex items-center whitespace-nowrap shadow-sm">查詢店號</a>
+                        <input type="text" id="store-711" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
+                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="bg-white text-[#6ea44c] border border-[#6ea44c] px-4 rounded-xl text-xs font-bold flex items-center whitespace-nowrap shadow-sm hover:bg-gray-50 active:scale-95 transition">
+                            查詢店號
+                        </a>
                     </div>
                     <input type="text" id="store-note-711" class="diy-input" placeholder="店名備註 (例如: 科慶門市)">
                 </div>
-            </label>
+            </div>
 
-            <label class="logistics-card flex flex-col gap-3" id="card-fami">
-                <div class="flex items-center justify-between">
+            <div class="logistics-card flex flex-col gap-3" id="card-fami" onclick="selectLogistics('fami')">
+                <div class="flex items-center justify-between pointer-events-none">
                     <div class="flex items-center gap-3">
-                        <input type="radio" name="logistics" value="全家" class="hidden-radio" onchange="handleLogisticsChange('fami')">
-                        <span class="material-symbols-rounded text-gray-400 icon-active">store</span>
+                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">store</span>
                         <span class="font-bold text-gray-700">全家 店到店</span>
                     </div>
                     <div id="price-preview-fami" class="text-xs font-bold text-gray-400"></div>
                 </div>
                 
-                <div id="detail-fami" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1">
+                <div id="detail-fami" class="hidden space-y-3 pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
                     <div class="flex gap-2">
-                        <input type="text" id="store-fami" class="diy-input" placeholder="請輸入6碼店號" maxlength="6">
-                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-4 rounded-xl text-xs font-bold flex items-center whitespace-nowrap shadow-sm">查詢店號</a>
+                        <input type="text" id="store-fami" class="diy-input flex-1" placeholder="請輸入6碼店號" maxlength="6">
+                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-white text-[#6ea44c] border border-[#6ea44c] px-4 rounded-xl text-xs font-bold flex items-center whitespace-nowrap shadow-sm hover:bg-gray-50 active:scale-95 transition">
+                            查詢店號
+                        </a>
                     </div>
                     <input type="text" id="store-note-fami" class="diy-input" placeholder="店名備註 (例如: 全家慶中店)">
                 </div>
-            </label>
+            </div>
 
-            <label class="logistics-card flex flex-col gap-3" id="card-addr">
-                <div class="flex items-center justify-between">
+            <div class="logistics-card flex flex-col gap-3" id="card-addr" onclick="selectLogistics('addr')">
+                <div class="flex items-center justify-between pointer-events-none">
                     <div class="flex items-center gap-3">
-                        <input type="radio" name="logistics" value="宅配" class="hidden-radio" onchange="handleLogisticsChange('addr')">
-                        <span class="material-symbols-rounded text-gray-400 icon-active">home</span>
+                        <span class="material-symbols-rounded text-gray-400 icon-active text-2xl">home</span>
                         <span class="font-bold text-gray-700">宅配到府</span>
                     </div>
                     <div id="price-preview-addr" class="text-xs font-bold text-gray-400"></div>
                 </div>
                 
-                <div id="detail-addr" class="hidden pt-3 border-t border-gray-100/50 mt-1">
+                <div id="detail-addr" class="hidden pt-3 border-t border-gray-100/50 mt-1" onclick="event.stopPropagation()">
                     <textarea id="store-addr" class="diy-input" rows="2" placeholder="請輸入完整收件地址"></textarea>
                 </div>
-            </label>
+            </div>
         </section>
 
         <section class="section-card">
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">訂單備註</label>
             <textarea id="input-note" class="diy-input" rows="2" placeholder="如有其他需求請填寫..."></textarea>
             
-            <div class="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+            <div class="mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input type="checkbox" id="join-member-check" class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c]">
+                    <input type="checkbox" id="join-member-check" class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]">
                     <span class="text-xs text-gray-600 font-bold leading-relaxed">
                         同意儲存收件資料，下次輸入電話自動帶入 (建立會員資料)
                     </span>
@@ -200,7 +197,7 @@ title: KEICHA 網路商店
                     <span id="summary-total" class="text-2xl font-bold brand-green font-mono">NT$ 0</span>
                 </div>
             </div>
-            <button onclick="submitOrder()" id="btn-submit" class="bg-[#6ea44c] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-green-900/10 active:scale-95 transition-all flex items-center gap-2">
+            <button onclick="submitOrder(this)" id="btn-submit" class="bg-[#6ea44c] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-green-900/10 active:scale-95 transition-all flex items-center gap-2">
                 送出訂單 <span class="material-symbols-rounded text-sm">arrow_forward</span>
             </button>
         </div>
@@ -208,31 +205,19 @@ title: KEICHA 網路商店
 </div>
 
 <div id="global-overlay" class="overlay" onclick="closeAllPanels()"></div>
-<div id="login-panel" class="side-panel">
-    <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center">
-        <h3 class="font-bold flex items-center gap-2"><span class="material-symbols-rounded">login</span> 會員登入</h3>
-        <button onclick="closeAllPanels()" class="material-symbols-rounded">close</button>
-    </div>
-    <div class="p-8 space-y-6">
-        <div class="text-center space-y-2"><p class="text-gray-600 font-bold">歡迎回來</p><p class="text-xs text-gray-400">請輸入手機號碼登入</p></div>
-        <input type="tel" id="login-phone" placeholder="09xxxxxxxx" class="diy-input text-lg font-bold">
-        <button onclick="handleQuickLogin()" id="login-submit-btn" class="w-full bg-[#6ea44c] text-white py-4 rounded-xl font-bold shadow-lg">登入</button>
-    </div>
-</div>
 
 <script src="js/api.js"></script>
 <script src="js/checkout_core.js"></script>
 
 <script>
-    // --- 自填單專屬邏輯 (獨立於 checkout_core) ---
     let currentMethod = null;
+    let shippingRules = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
         // 1. 初始化 (載入運費規則)
         try {
             const data = await API.fetchSystemData();
             if (data && data.shipping_rules) {
-                // 寫入全域變數 (checkout_core.js 定義)
                 shippingRules = data.shipping_rules.map(r => ({
                     ...r,
                     method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
@@ -244,40 +229,52 @@ title: KEICHA 網路商店
         const savedUser = localStorage.getItem('keicha_v2_user');
         if (savedUser) {
             const u = JSON.parse(savedUser);
+            document.getElementById('input-phone').value = u.phone;
             // 詢問使用者是否要帶入 (或直接帶入)
             // 這裡直接填入欄位，不鎖定
-            document.getElementById('input-phone').value = u.phone;
             fillFormWithData(u);
         }
     });
 
-    // --- 核心功能 1: 電話查資料 ---
-    async function lookupPhoneData() {
+    // --- 按鈕狀態控制 (Loading & Lock) ---
+    function setBtnLoading(btn, isLoading, text) {
+        if (isLoading) {
+            btn.dataset.originalText = btn.innerHTML; // 記住原本的內容
+            btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom text-lg">refresh</span> ${text}`;
+            btn.classList.add('btn-loading'); // 變色+鎖定
+            btn.disabled = true;
+        } else {
+            btn.innerHTML = btn.dataset.originalText;
+            btn.classList.remove('btn-loading');
+            btn.disabled = false;
+        }
+    }
+
+    // --- 核心功能 1: 電話查資料 (下一步) ---
+    async function lookupPhoneData(btn) {
         const phone = document.getElementById('input-phone').value.trim();
         if(!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
         
-        const btn = document.getElementById('btn-lookup');
-        const oldText = btn.innerText;
-        btn.innerText = "查詢中..."; btn.disabled = true;
+        setBtnLoading(btn, true, "查詢中...");
 
         try {
-            // 使用 API.login 其實就是查詢
             const res = await API.login(phone);
             if(res.success && !res.isNew) {
                 // 找到了！填入資料
                 fillFormWithData(res.data);
-                // 同時更新 checkbox 狀態 (既然是會員，預設勾選)
                 document.getElementById('join-member-check').checked = true;
-                alert(`歡迎回來，${res.data.name || ''}！已為您帶入收件資料。`);
+                // 視覺回饋：滑動到下方
+                document.getElementById('input-items').focus();
             } else {
-                // 沒找到
-                alert("查無資料，請繼續填寫下方欄位 (結帳時可勾選儲存)。");
-                // 保持輸入框為空，讓訪客填寫
+                // 沒找到，讓訪客繼續填
+                // 這裡可以選擇不彈窗，或是給一個輕微的提示
+                // 根據您的需求「下一步」，這裡僅聚焦到下一個欄位
+                document.getElementById('input-items').focus();
             }
         } catch(e) {
             alert("連線錯誤");
         } finally {
-            btn.innerText = oldText; btn.disabled = false;
+            setBtnLoading(btn, false);
         }
     }
 
@@ -289,14 +286,16 @@ title: KEICHA 網路商店
         setVal('store-fami', u.store_fami);
         setVal('store-note-fami', u.store_fami_note);
         setVal('store-addr', u.shipping_address);
-        // 不需填寫 line (通常不存)
+        
+        // 如果有上次的物流方式，自動幫他選
+        // 這裡暫不實作，避免覆蓋使用者的選擇
     }
 
-    // --- 核心功能 2: 物流切換 ---
-    function handleLogisticsChange(type) {
+    // --- 核心功能 2: 物流切換 (修正為 div 點擊) ---
+    function selectLogistics(type) {
         currentMethod = type;
         
-        // UI 切換：隱藏所有 detail，顯示選中的 detail
+        // UI 切換
         ['711', 'fami', 'addr'].forEach(t => {
             const card = document.getElementById(`card-${t}`);
             const detail = document.getElementById(`detail-${t}`);
@@ -322,7 +321,6 @@ title: KEICHA 網路商店
         const subtotal = parseInt(val) || 0;
         let ship = 0;
 
-        // 更新各選項預覽價
         if (shippingRules.length > 0) {
             setText('price-preview-7-11', `運費 $${calcShip('7-11', subtotal)}`);
             setText('price-preview-fami', `運費 $${calcShip('全家', subtotal)}`);
@@ -347,7 +345,6 @@ title: KEICHA 網路商店
 
     function calcShip(method, amount) {
         if (!shippingRules || shippingRules.length === 0) return 0;
-        // 優先找 "自填單" 規則，否則找 "default"/"一般"
         let rule = shippingRules.find(r => r.method == method && r.category == '自填單');
         if (!rule) rule = shippingRules.find(r => r.method == method && (r.category == 'default' || r.category == '一般'));
         if (!rule) return 0;
@@ -360,7 +357,7 @@ title: KEICHA 網路商店
     }
 
     // --- 核心功能 4: 送出訂單 ---
-    async function submitOrder() {
+    async function submitOrder(btn) {
         // 1. 抓取資料
         const phone = getVal('input-phone');
         const items = getVal('input-items');
@@ -380,17 +377,17 @@ title: KEICHA 網路商店
         if(!line) return alert("請填寫 LINE 名稱");
         if(!currentMethod) return alert("請選擇物流方式");
 
-        // 3. 抓取對應物流的地址/店號
+        // 3. 店號嚴格驗證 & 抓取資料
         let storeData = "";
         let logisticsName = "";
+        
         if (currentMethod === '711') {
             storeData = getVal('store-711');
-            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的 7-11 6碼店號");
+            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的 7-11 「6碼純數字」店號");
             logisticsName = '7-11';
-            // 可以在此時檢查 note，但通常不強制
         } else if (currentMethod === 'fami') {
             storeData = getVal('store-fami');
-            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的全家 6碼店號");
+            if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的全家 「6碼純數字」店號");
             logisticsName = '全家';
         } else {
             storeData = getVal('store-addr');
@@ -401,37 +398,29 @@ title: KEICHA 網路商店
         // 4. 計算最終運費
         const ship = calcShip(logisticsName, amount);
 
-        // 5. UI 鎖定
-        const btn = document.getElementById('btn-submit');
-        const oldText = btn.innerHTML;
-        btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">refresh</span> 處理中...`;
-        btn.classList.add('opacity-50', 'pointer-events-none');
+        // 5. UI 鎖定 (變色+動畫)
+        setBtnLoading(btn, true, "處理中...");
 
-        // 6. 組合資料 payload
+        // 6. Payload
         const payload = {
             name: name,
             phone: phone,
             email: email,
             line_name: line,
-            store: storeData, // 單純傳送店號或地址
-            store_note: (currentMethod==='711'?getVal('store-note-711') : (currentMethod==='fami'?getVal('store-note-fami'):'')), // 額外傳送店名備註(若有需要後端接)
+            store: storeData,
+            store_note: (currentMethod==='711'?getVal('store-note-711') : (currentMethod==='fami'?getVal('store-note-fami'):'')), 
             items: items,
             subtotal: amount,
             shipping: ship,
             date: new Date().toLocaleString('zh-TW'),
             note: note,
             logistics: logisticsName,
-            join_member: isSave // 告訴後端是否要更新會員資料庫
+            join_member: isSave
         };
         
-        // 為了讓後端能正確儲存店號到 members 表，我們需要把詳細資料也塞進去 (如果後端有寫對應邏輯)
-        // 根據之前的後端 updateMemberData 邏輯，它會讀取 params.store 作為店號
-        // 所以上面的 payload 結構是正確的。
-
         try {
             const res = await API.checkout(payload);
             if(res.success) {
-                // 如果有勾選儲存，我們可以順便更新本地的 LocalStorage，讓使用者下次不用再查一次
                 if (isSave) {
                     const localData = { 
                         phone, name, email, 
@@ -451,8 +440,7 @@ title: KEICHA 網路商店
             console.error(e);
             alert("系統忙碌中，請稍後再試");
         } finally {
-            btn.innerHTML = oldText;
-            btn.classList.remove('opacity-50', 'pointer-events-none');
+            setBtnLoading(btn, false);
         }
     }
 
