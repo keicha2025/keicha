@@ -343,49 +343,51 @@ title: KEICHA 網路商店
         updatePageSummary();
     }
 
-    // --- 核心功能 3: 計算與總計 ---
+// --- 核心功能 3: 計算與總計 (修正版：金額大於0才顯示運費) ---
     function updatePageSummary() {
         const val = document.getElementById('input-amount').value;
         const subtotal = parseInt(val) || 0;
         let ship = 0;
 
-        if (shippingRules.length > 0) {
+        // 1. 更新各選項內的「預覽價格」
+        // 邏輯：只有在金額 > 0 時才顯示預覽，否則清空
+        if (subtotal > 0 && shippingRules.length > 0) {
             setText('price-preview-7-11', `運費 $${calcShip('7-11', subtotal)}`);
             setText('price-preview-fami', `運費 $${calcShip('全家', subtotal)}`);
             setText('price-preview-addr', `運費 $${calcShip('宅配', subtotal)}`);
+        } else {
+            // 金額為 0 或空白時，不顯示任何預覽文字
+            setText('price-preview-7-11', '');
+            setText('price-preview-fami', '');
+            setText('price-preview-addr', '');
         }
 
-        // 準備上方資訊列文字
+        // 2. 準備底部資訊列文字
         let infoText = "總金額 (含運)"; 
 
         if (currentMethod) {
             const methodMap = { '711': '7-11', 'fami': '全家', 'addr': '宅配' };
             const mName = methodMap[currentMethod];
-            ship = calcShip(mName, subtotal);
             
-            infoText = `總金額 (含運)｜${mName} 運費 +${ship}`;
+            // 邏輯：只有金額 > 0 才計算並顯示運費
+            if (subtotal > 0) {
+                ship = calcShip(mName, subtotal);
+                infoText = `總金額 (含運)｜${mName} 運費 +${ship}`;
+            } else {
+                // 有選物流但沒填金額 -> 顯示提示
+                infoText = "總金額 (含運)｜請填寫金額以計算運費";
+                ship = 0;
+            }
         } else {
             infoText = "總金額 (含運)｜尚未選擇物流";
         }
 
+        // 更新畫面
         const infoEl = document.getElementById('summary-info-text');
         if(infoEl) infoEl.innerText = infoText;
 
         const total = subtotal + ship;
         document.getElementById('summary-total').innerText = `NT$ ${total.toLocaleString()}`;
-    }
-
-    function calcShip(method, amount) {
-        if (!shippingRules || shippingRules.length === 0) return 0;
-        let rule = shippingRules.find(r => r.method == method && r.category == '自填單');
-        if (!rule) rule = shippingRules.find(r => r.method == method && (r.category == 'default' || r.category == '一般'));
-        if (!rule) return 0;
-
-        let fee = parseFloat(rule.base) || 0;
-        if (rule.t3 && amount >= parseFloat(rule.t3)) fee = parseFloat(rule.f3);
-        else if (rule.t2 && amount >= parseFloat(rule.t2)) fee = parseFloat(rule.f2);
-        else if (rule.t1 && amount >= parseFloat(rule.t1)) fee = parseFloat(rule.f1);
-        return fee;
     }
 
     // --- 核心功能 4: 送出訂單 ---
