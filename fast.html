@@ -34,7 +34,7 @@ title: KEICHA 快速結帳
     }
     .diy-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1); }
     
-    /* 強調區塊 */
+    /* 強調區塊 (統一卡片樣式) */
     .section-card { background: white; padding: 24px; border-radius: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 24px; }
     
     /* 物流選項卡片 */
@@ -86,13 +86,13 @@ title: KEICHA 快速結帳
             <span class="material-symbols-rounded text-[#6ea44c]">shopping_bag</span> 快速結帳
         </h1>
         <p class="text-xs text-gray-400 mt-1 font-bold leading-relaxed">
-            限時/專屬賣場：確認商品無誤後，填寫資料即可完成訂購。
+            若您已與我們確認訂單內容，請於此直接輸入資料完成訂購。
         </p>
     </div>
 
     <main class="container mx-auto px-4 max-w-2xl">
 
-        <section class="section-card border-t-4 border-[#6ea44c]">
+        <section class="section-card">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">本次訂購內容</h2>
             
             <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-4">
@@ -238,17 +238,15 @@ title: KEICHA 快速結帳
 </div>
 
 <script src="js/api.js"></script>
+
 <script>
     let currentMethod = null;
-    let fastConfig = null; // 儲存後端回傳的設定
-    let productAmount = 0; // 商品金額
+    let fastConfig = null;
+    let productAmount = 0;
 
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            // 1. 抓取賣場設定
             const data = await API.fetchSystemData();
-            
-            // 隱藏 Loading
             document.getElementById('loading-overlay').classList.add('hidden');
 
             if (data && data.fast_config) {
@@ -262,7 +260,6 @@ title: KEICHA 快速結帳
             document.getElementById('loading-overlay').innerText = "連線錯誤，請重新整理";
         }
         
-        // 2. LocalStorage 自動填入
         const savedUser = localStorage.getItem('keicha_v2_user');
         if (savedUser) {
             const u = JSON.parse(savedUser);
@@ -271,41 +268,32 @@ title: KEICHA 快速結帳
         }
     });
 
-    // --- 初始化頁面設定 ---
     function renderPageConfig() {
         if (!fastConfig) return;
 
-        // 1. 檢查賣場狀態
         if (fastConfig.status !== '開啟') {
             document.getElementById('closed-mask').style.display = 'flex';
             document.getElementById('main-content').classList.add('hidden');
             return;
         }
 
-        // 2. 顯示主畫面
         const main = document.getElementById('main-content');
         main.classList.remove('hidden');
-        // 簡單淡入效果
         setTimeout(() => main.classList.remove('opacity-0'), 50);
 
-        // 3. 填入商品資訊
         document.getElementById('display-items').innerText = fastConfig.items_text || "無商品說明";
         productAmount = parseInt(fastConfig.amount) || 0;
         document.getElementById('display-amount').innerText = `NT$ ${productAmount.toLocaleString()}`;
 
-        // 4. 設定物流開關
         let hasAnyMethod = false;
         
-        // 7-11
         if (fastConfig.enable_711 === true) {
             document.getElementById('card-711').classList.remove('hidden');
             hasAnyMethod = true;
-            // 計算預覽運費
             const fee = calcFastShip('7-11');
             setText('price-preview-7-11', `運費 $${fee}`);
         }
 
-        // 全家
         if (fastConfig.enable_fami === true) {
             document.getElementById('card-fami').classList.remove('hidden');
             hasAnyMethod = true;
@@ -313,7 +301,6 @@ title: KEICHA 快速結帳
             setText('price-preview-fami', `運費 $${fee}`);
         }
 
-        // 宅配
         if (fastConfig.enable_home === true) {
             document.getElementById('card-addr').classList.remove('hidden');
             hasAnyMethod = true;
@@ -325,31 +312,20 @@ title: KEICHA 快速結帳
             document.getElementById('no-logistics-msg').classList.remove('hidden');
         }
 
-        // 5. 更新底部總計
         updatePageSummary();
     }
 
-    // --- 專屬運費計算邏輯 (讀取 fastConfig) ---
     function calcFastShip(method) {
         if (!fastConfig) return 0;
-
-        // 1. 免運優先
         if (fastConfig.is_free_shipping === true) return 0;
-
-        // 2. 統一運費
         if (fastConfig.use_uniform_fee === true) {
             return parseInt(fastConfig.uniform_fee) || 0;
         }
-
-        // 3. 個別運費
         if (method === '7-11') return parseInt(fastConfig.fee_711) || 0;
         if (method === '全家') return parseInt(fastConfig.fee_fami) || 0;
         if (method === '宅配') return parseInt(fastConfig.fee_home) || 0;
-
         return 0;
     }
-
-    // --- 其他邏輯同 DIY (會員、物流選擇、送出) ---
 
     function setBtnLoading(btn, isLoading, text) {
         if (isLoading) {
@@ -375,10 +351,6 @@ title: KEICHA 快速結帳
             const res = await API.login(phone);
             if(res.success && !res.isNew) {
                 fillFormWithData(res.data);
-                // 由於不需要填商品，直接讓使用者去選物流，或者不聚焦
-                // 這裡選擇不強制聚焦，讓使用者自然瀏覽
-            } else {
-                // 新客
             }
         } catch(e) { alert("連線錯誤"); } 
         finally { setBtnLoading(btn, false); }
@@ -415,7 +387,6 @@ title: KEICHA 快速結帳
     }
 
     function updatePageSummary() {
-        // 商品金額是固定的
         const subtotal = productAmount; 
         let ship = 0;
         let infoText = "總金額 (含運)";
@@ -450,7 +421,6 @@ title: KEICHA 快速結帳
         if(!line) return alert("請填寫 LINE 名稱");
         if(!currentMethod) return alert("請選擇物流方式");
 
-        // 店號驗證
         let storeData = "";
         let storeNote = "";
         let logisticsRaw = "";
@@ -488,7 +458,6 @@ title: KEICHA 快速結帳
             line_name: line,
             store: storeData,
             store_note: storeNote,
-            // 這裡使用 Config 設定好的商品名稱
             items: fastConfig.items_text || "快速結帳商品",
             subtotal: productAmount,
             shipping: ship,
