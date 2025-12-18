@@ -74,7 +74,7 @@ title: KEICHA 網路商店
     .btn-outline-green:hover { background-color: #f9fafb; }
     .btn-outline-green:active { transform: scale(0.95); }
 
-    /* iOS 底部安全區域適配 & 底部欄位優化 */
+    /* iOS 底部安全區域適配 */
     .safe-area-pb {
         padding-bottom: env(safe-area-inset-bottom, 20px);
     }
@@ -104,9 +104,9 @@ title: KEICHA 網路商店
                     會員自動帶入
                 </button>
             </div>
-            <p class="text-[10px] text-gray-400 mt-3 flex items-center gap-1">
-                <span class="material-symbols-rounded text-sm">info</span>
-                若您曾儲存資料將自動載入收件資訊。
+            <p class="text-[10px] text-gray-400 mt-3 flex items-start gap-1 leading-relaxed">
+                <span class="material-symbols-rounded text-sm shrink-0 mt-0.5">info</span>
+                <span>若您曾經儲存資料，收件資訊將自動帶入。點選「會員自動帶入」後，您的收件資訊也會同步儲存，方便下次快速填寫。</span>
             </p>
         </section>
 
@@ -209,9 +209,9 @@ title: KEICHA 網路商店
             
             <div class="mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-[#6ea44c] transition duration-200">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input type="checkbox" id="join-member-check" class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]">
+                    <input type="checkbox" id="join-member-check" class="w-5 h-5 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c] checked:bg-[#6ea44c]" checked>
                     <span class="text-xs text-gray-600 font-bold leading-relaxed">
-                        同意儲存收件資料，下次輸入電話自動帶入 (建立會員資料)
+                        確認儲存/更新收件資料 (下次可使用「會員自動帶入」)
                     </span>
                 </label>
             </div>
@@ -260,7 +260,7 @@ title: KEICHA 網路商店
             }
         } catch (e) { console.error("Rules Error:", e); }
         
-        // 2. 如果之前有登入過，嘗試自動帶入 LocalStorage 的資料
+        // 2. LocalStorage 自動填入
         const savedUser = localStorage.getItem('keicha_v2_user');
         if (savedUser) {
             const u = JSON.parse(savedUser);
@@ -283,18 +283,21 @@ title: KEICHA 網路商店
         }
     }
 
-    // --- 核心功能 1: 電話查資料 ---
+    // --- 核心功能 1: 電話查資料 (會員自動帶入) ---
     async function lookupPhoneData(btn) {
         const phone = document.getElementById('input-phone').value.trim();
         if(!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
         
+        // 【關鍵修改】: 只要點了這個按鈕，就視為同意加入會員，強制勾選下方
+        document.getElementById('join-member-check').checked = true;
+
         setBtnLoading(btn, true, "查詢中...");
 
         try {
             const res = await API.login(phone);
             if(res.success && !res.isNew) {
                 fillFormWithData(res.data);
-                document.getElementById('join-member-check').checked = true;
+                // 視覺回饋：聚焦到下一欄
                 document.getElementById('input-items').focus();
             } else {
                 // 沒找到資料，僅聚焦到下一欄位
@@ -340,13 +343,12 @@ title: KEICHA 網路商店
         updatePageSummary();
     }
 
-    // --- 核心功能 3: 計算與總計 (UI Optimized) ---
+    // --- 核心功能 3: 計算與總計 ---
     function updatePageSummary() {
         const val = document.getElementById('input-amount').value;
         const subtotal = parseInt(val) || 0;
         let ship = 0;
 
-        // 更新各選項預覽價
         if (shippingRules.length > 0) {
             setText('price-preview-7-11', `運費 $${calcShip('7-11', subtotal)}`);
             setText('price-preview-fami', `運費 $${calcShip('全家', subtotal)}`);
@@ -354,24 +356,21 @@ title: KEICHA 網路商店
         }
 
         // 準備上方資訊列文字
-        let infoText = "總金額 (含運)"; // 預設
+        let infoText = "總金額 (含運)"; 
 
         if (currentMethod) {
             const methodMap = { '711': '7-11', 'fami': '全家', 'addr': '宅配' };
             const mName = methodMap[currentMethod];
             ship = calcShip(mName, subtotal);
             
-            // 組合字串
             infoText = `總金額 (含運)｜${mName} 運費 +${ship}`;
         } else {
             infoText = "總金額 (含運)｜尚未選擇物流";
         }
 
-        // 更新上方資訊列
         const infoEl = document.getElementById('summary-info-text');
         if(infoEl) infoEl.innerText = infoText;
 
-        // 更新總金額
         const total = subtotal + ship;
         document.getElementById('summary-total').innerText = `NT$ ${total.toLocaleString()}`;
     }
@@ -388,10 +387,9 @@ title: KEICHA 網路商店
         else if (rule.t1 && amount >= parseFloat(rule.t1)) fee = parseFloat(rule.f1);
         return fee;
     }
-    
-// --- 核心功能 4: 送出訂單 (修正版：含店名備註邏輯) ---
+
+    // --- 核心功能 4: 送出訂單 ---
     async function submitOrder(btn) {
-        // 1. 抓取資料
         const phone = getVal('input-phone');
         const items = getVal('input-items');
         const amount = parseInt(getVal('input-amount')) || 0;
@@ -401,7 +399,6 @@ title: KEICHA 網路商店
         const note = getVal('input-note');
         const isSave = document.getElementById('join-member-check').checked;
 
-        // 2. 驗證
         if(!phone || !/^09\d{8}$/.test(phone)) return alert("請輸入正確的手機號碼");
         if(!items) return alert("請填寫商品內容");
         if(amount <= 0) return alert("請填寫金額");
@@ -410,19 +407,19 @@ title: KEICHA 網路商店
         if(!line) return alert("請填寫 LINE 名稱");
         if(!currentMethod) return alert("請選擇物流方式");
 
-        // 3. 店號驗證 & 抓取備註
+        // 店號驗證
         let storeData = "";
-        let storeNote = ""; // 新增：暫存店名備註
-        let logisticsRaw = ""; // 原始物流名稱 (7-11/全家)
+        let storeNote = "";
+        let logisticsRaw = "";
         
         if (currentMethod === '711') {
             storeData = getVal('store-711');
-            storeNote = getVal('store-note-711'); // 抓取 7-11 備註
+            storeNote = getVal('store-note-711');
             if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的 7-11 「6碼純數字」店號");
             logisticsRaw = '7-11';
         } else if (currentMethod === 'fami') {
             storeData = getVal('store-fami');
-            storeNote = getVal('store-note-fami'); // 抓取 全家 備註
+            storeNote = getVal('store-note-fami');
             if(!/^\d{6}$/.test(storeData)) return alert("請輸入正確的全家 「6碼純數字」店號");
             logisticsRaw = '全家';
         } else {
@@ -431,57 +428,50 @@ title: KEICHA 網路商店
             logisticsRaw = '宅配';
         }
 
-        // 4. 計算最終運費
         const ship = calcShip(logisticsRaw, amount);
 
-        // 5. 組合「Orders」表要顯示的物流字串 (需求：方式+店名備註)
-        // 例如： "7-11" + " " + "松山店" => "7-11 松山店"
+        // 合併物流名稱 (給 Orders 表用)
         let logisticsDisplay = logisticsRaw;
         if (storeNote) {
             logisticsDisplay = `${logisticsRaw} ${storeNote}`;
         }
 
-        // 6. UI 鎖定
         setBtnLoading(btn, true, "處理中...");
 
-        // 7. Payload 準備
         const payload = {
             name: name,
             phone: phone,
             email: email,
             line_name: line,
             store: storeData,
-            store_note: storeNote, // 傳送備註給後端 (Members表用)
+            store_note: storeNote, 
             items: items,
             subtotal: amount,
             shipping: ship,
             date: new Date().toLocaleString('zh-TW'),
             note: note,
-            logistics: logisticsDisplay, // 這裡傳送合併後的字串 (Orders表用)
+            logistics: logisticsDisplay, 
             join_member: isSave
         };
         
         try {
             const res = await API.checkout(payload);
             if(res.success) {
-                // 更新 LocalStorage (修正：確保備註也被儲存)
                 if (isSave) {
-                    // 先讀取舊資料，避免覆蓋掉沒更動的欄位
                     let localData = {};
                     const oldData = localStorage.getItem('keicha_v2_user');
                     if (oldData) localData = JSON.parse(oldData);
 
-                    // 更新本次欄位
                     localData.phone = phone;
                     localData.name = name;
                     localData.email = email;
 
                     if (currentMethod === '711') {
                         localData.store_711 = storeData;
-                        localData.store_711_note = storeNote; // 儲存備註
+                        localData.store_711_note = storeNote;
                     } else if (currentMethod === 'fami') {
                         localData.store_fami = storeData;
-                        localData.store_fami_note = storeNote; // 儲存備註
+                        localData.store_fami_note = storeNote;
                     } else if (currentMethod === 'addr') {
                         localData.shipping_address = storeData;
                     }
