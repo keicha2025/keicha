@@ -1,2 +1,145 @@
 <div id="checkout-panel" class="side-panel">
+    <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center sticky top-0 z-10">
+        <h3 class="font-bold flex items-center gap-2">
+            <span class="material-symbols-rounded">shopping_cart_checkout</span> 訂單結帳確認
+        </h3>
+        <button onclick="closeAllPanels()" class="material-symbols-rounded text-white hover:opacity-70 transition">close</button>
     </div>
+
+    <div class="p-8 flex-1 overflow-y-auto space-y-10">
+        <section class="space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                <h4 class="text-xs font-bold brand-green uppercase tracking-widest">基本資料確認</h4>
+                <button onclick="toggleCheckoutEdit('info')" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-2 py-0.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">編輯</button>
+            </div>
+            
+            <div id="checkout-view-info" class="space-y-4 bg-gray-50/50 p-4 rounded-2xl">
+                <div class="field-group border-b border-gray-200 pb-3">
+                    <label class="text-[10px] text-gray-400 font-bold block mb-1">手機號碼 (會員帳號)</label>
+                    <div id="checkout-info-phone" class="font-bold text-gray-700 text-lg font-mono">-</div>
+                </div>
+
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold block mb-1">收件人全名 <span class="text-red-500">*</span></label>
+                    <div id="checkout-info-name" class="font-bold text-gray-700 text-sm">-</div>
+                </div>
+                
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold block mb-1">電子信箱 (接收訂單通知) <span class="text-red-500">*</span></label>
+                    <div id="checkout-info-email" class="font-bold text-gray-700 text-sm break-all">-</div>
+                </div>
+            </div>
+
+            <div id="checkout-edit-info" class="hidden bg-gray-50 p-4 rounded-2xl space-y-3">
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">收件人全名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="chk-input-name" class="checkout-inline-input w-full" placeholder="請輸入真實姓名">
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">電子信箱 <span class="text-red-500">*</span></label>
+                    <input type="email" id="chk-input-email" class="checkout-inline-input w-full" placeholder="例如: example@gmail.com">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="saveCheckoutData('info')" id="chk-save-info" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存資料</button>
+                    <button onclick="toggleCheckoutEdit('info')" class="flex-1 border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold">取消</button>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="text-[10px] text-gray-400 font-bold mb-1 block">LINE 顯示名稱 (核對訂單用) <span class="text-red-500">*</span></label>
+                <input type="text" id="order-line-name" class="user-edit-input font-bold" placeholder="請輸入您的 LINE 名稱">
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b border-gray-100 pb-2">選擇收件方式</h4>
+            <div id="ship-options-container" class="space-y-3">
+                
+                <div onclick="selectShipMethod('7-11')" id="opt-7-11" class="ship-opt-card p-5 rounded-3xl border-2 border-gray-50 cursor-pointer transition-all">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 text-2xl">local_shipping</span>
+                            <div>
+                                <div class="font-bold text-sm text-gray-800">7-11 店到店</div>
+                                <div id="checkout-display-7-11" class="text-[11px] text-gray-500 mt-0.5">-</div>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleCheckoutEdit('711');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
+                    </div>
+                    <div id="checkout-edit-711" class="hidden mt-4 pt-4 border-t border-gray-100 cursor-default" onclick="event.stopPropagation()">
+                         <div class="flex gap-2 mb-2">
+                             <input type="text" id="chk-input-711" class="checkout-inline-input flex-1" placeholder="請輸入6碼店號">
+                             <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-4 rounded-lg text-xs font-bold flex items-center justify-center whitespace-nowrap shadow-sm active:scale-95 transition">查詢店號</a>
+                         </div>
+                         <input type="text" id="chk-input-711-note" class="checkout-inline-input w-full mb-3" placeholder="店名備註 (例如: 科慶門市)">
+                         <div class="flex gap-2">
+                             <button onclick="saveCheckoutData('711')" id="chk-save-711" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存</button>
+                             <button onclick="toggleCheckoutEdit('711')" class="flex-1 border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold">取消</button>
+                         </div>
+                    </div>
+                </div>
+
+                <div onclick="selectShipMethod('fami')" id="opt-fami" class="ship-opt-card p-5 rounded-3xl border-2 border-gray-50 cursor-pointer transition-all">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 text-2xl">store</span>
+                            <div>
+                                <div class="font-bold text-sm text-gray-800">全家 店到店</div>
+                                <div id="checkout-display-fami" class="text-[11px] text-gray-500 mt-0.5">-</div>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleCheckoutEdit('fami');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
+                    </div>
+                      <div id="checkout-edit-fami" class="hidden mt-4 pt-4 border-t border-gray-100 cursor-default" onclick="event.stopPropagation()">
+                        <div class="flex gap-2 mb-2">
+                            <input type="text" id="chk-input-fami" class="checkout-inline-input flex-1" placeholder="請輸入6碼店號">
+                            <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-[#6ea44c] text-white px-4 rounded-lg text-xs font-bold flex items-center justify-center whitespace-nowrap shadow-sm active:scale-95 transition">查詢店號</a>
+                        </div>
+                        <input type="text" id="chk-input-fami-note" class="checkout-inline-input w-full mb-3" placeholder="店名備註 (例如: 全家慶中店)">
+                        <div class="flex gap-2">
+                            <button onclick="saveCheckoutData('fami')" id="chk-save-fami" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存</button>
+                            <button onclick="toggleCheckoutEdit('fami')" class="flex-1 border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold">取消</button>
+                        </div>
+                   </div>
+                </div>
+
+                <div onclick="selectShipMethod('addr')" id="opt-addr" class="ship-opt-card p-5 rounded-3xl border-2 border-gray-50 cursor-pointer transition-all">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 text-2xl">home</span>
+                            <div>
+                                <div class="font-bold text-sm text-gray-800">宅配到府</div>
+                                <div id="checkout-display-addr" class="text-[11px] text-gray-500 mt-0.5">-</div>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleCheckoutEdit('addr');" class="text-[10px] brand-green font-bold border border-[#6ea44c] px-3 py-1 rounded-full bg-white">編輯</button>
+                    </div>
+                    <div id="checkout-edit-addr" class="hidden mt-4 pt-4 border-t border-gray-100 cursor-default" onclick="event.stopPropagation()">
+                        <textarea id="chk-input-addr" class="checkout-inline-input w-full mb-3" rows="2" placeholder="請輸入完整地址"></textarea>
+                        <div class="flex gap-2">
+                            <button onclick="saveCheckoutData('addr')" id="chk-save-addr" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1">儲存地址</button>
+                            <button onclick="toggleCheckoutEdit('addr')" class="flex-1 border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold">取消</button>
+                        </div>
+                   </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b border-gray-100 pb-2">訂單備註</h4>
+            <textarea id="order-note" class="w-full p-4 rounded-2xl border border-gray-100 bg-gray-50/50 text-sm focus:ring-1 ring-[#6ea44c] outline-none resize-none" rows="2" placeholder="如有其他需求請填寫..."></textarea>
+        </section>
+
+        <section class="bg-gray-50 p-6 rounded-3xl space-y-4">
+            <div class="flex justify-between text-sm text-gray-500"><span>商品小計</span><span id="summary-subtotal" class="font-mono">NT$ 0</span></div>
+            <div class="flex justify-between text-sm text-gray-500"><span>運費 (<span id="summary-method" class="font-bold">未選</span>)</span><span id="summary-shipping" class="font-mono">NT$ 0</span></div>
+            <div class="flex justify-between text-xl font-bold text-gray-800 pt-4 border-t border-gray-200"><span>總計金額</span><span id="summary-total" class="brand-green font-mono">NT$ 0</span></div>
+        </section>
+
+        <div class="space-y-4 pt-4">
+            <button onclick="handlePlaceOrder()" id="btn-submit-order" class="w-full bg-[#6ea44c] text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2">
+                <span class="material-symbols-rounded">verified</span> 確認送出訂單
+            </button>
+        </div>
+    </div>
+</div>
