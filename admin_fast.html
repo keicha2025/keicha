@@ -7,25 +7,68 @@ title: 賣場管理後台
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 
 <style>
-    /* 品牌色設定 */
+    /* [UI修正] 移除數字輸入框的上下箭頭 (Spinner) */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield; 
+    }
+
     .brand-green { color: #6ea44c; }
     .bg-brand-green { background-color: #6ea44c; }
     
-    /* 輸入框與卡片基礎樣式 */
+    /* 輸入框基礎樣式 */
     .admin-input {
-        width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px;
-        font-size: 0.95rem; outline: none; transition: all 0.2s;
+        width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;
+        font-size: 1rem; outline: none; transition: all 0.2s;
+        background-color: #fff;
+        color: #1f2937;
     }
     .admin-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; }
+    
+    /* 卡片樣式 */
     .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .section-title { font-size: 0.85rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
 
-    /* Toggle Switch 開關樣式 */
-    .toggle-checkbox:checked { right: 0; border-color: #6ea44c; }
+    /* [UI修正] Toggle Switch 開關樣式 - 嚴格尺寸控制 */
+    .toggle-wrapper {
+        position: relative;
+        flex-shrink: 0; /* 禁止被壓縮 */
+        width: 52px;
+        height: 28px;
+    }
+    
+    .toggle-checkbox { 
+        position: absolute; opacity: 0; width: 0; height: 0; 
+    }
+    
+    .toggle-label { 
+        display: block;
+        width: 100%; 
+        height: 100%; 
+        background-color: #e5e7eb; 
+        border-radius: 9999px; 
+        cursor: pointer; 
+        transition: background-color 0.3s ease;
+    }
+    
+    .toggle-circle { 
+        width: 24px; 
+        height: 24px; 
+        background-color: white; 
+        border-radius: 50%; 
+        position: absolute; 
+        top: 2px; 
+        left: 2px; 
+        transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    /* 狀態連動 */
     .toggle-checkbox:checked + .toggle-label { background-color: #6ea44c; }
-    .toggle-label { width: 48px; height: 24px; background-color: #e5e7eb; border-radius: 9999px; position: relative; cursor: pointer; transition: background-color 0.2s; }
-    .toggle-circle { width: 20px; height: 20px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-    .toggle-checkbox { display: none; }
     .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(24px); }
 </style>
 
@@ -54,61 +97,64 @@ title: 賣場管理後台
             <div class="card border-l-4 border-[#6ea44c]">
                 <div class="section-title">賣場核心設定</div>
                 
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">賣場狀態</label>
-                    <select id="status" class="admin-input font-bold">
-                        <option value="開啟">🟢 開啟 (Open)</option>
-                        <option value="關閉">🔴 關閉 (Closed)</option>
-                    </select>
+                <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
+                    <div>
+                        <label class="block text-base font-bold text-gray-800 mb-1">賣場狀態開關</label>
+                        <p class="text-xs text-gray-400">開啟後顧客可下單，關閉則顯示維護中</p>
+                    </div>
+                    <div class="toggle-wrapper">
+                        <input type="checkbox" id="status_toggle" class="toggle-checkbox">
+                        <label for="status_toggle" class="toggle-label"><div class="toggle-circle"></div></label>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-gray-700 mb-1">商品內容文字</label>
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">商品內容文字</label>
                     <textarea id="items_text" rows="4" class="admin-input resize-none" placeholder="輸入商品名稱與規格..."></textarea>
-                    <p class="text-xs text-gray-400 mt-1">此欄位將直接顯示於前台，支援換行。</p>
+                    <p class="text-xs text-gray-400 mt-2">此欄位將直接顯示於前台，支援換行。</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">商品總金額</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">商品總金額</label>
                     <div class="relative">
-                        <span class="absolute left-3 top-2.5 text-gray-400 font-bold">NT$</span>
-                        <input type="number" id="amount" class="admin-input pl-10 font-mono font-bold text-lg" placeholder="0">
+                        <span class="absolute left-3 top-3 text-gray-400 font-bold">NT$</span>
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="amount" class="admin-input pl-12 font-mono font-bold text-lg" placeholder="0">
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="section-title">物流管道開關</div>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-rounded text-gray-500">local_shipping</span>
-                            <span class="font-bold text-gray-700">7-11 店到店</span>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 text-2xl">local_shipping</span>
+                            <span class="font-bold text-gray-700 text-base">7-11 店到店</span>
                         </div>
-                        <div>
+                        <div class="toggle-wrapper">
                             <input type="checkbox" id="enable_711" class="toggle-checkbox">
                             <label for="enable_711" class="toggle-label"><div class="toggle-circle"></div></label>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-rounded text-gray-500">store</span>
-                            <span class="font-bold text-gray-700">全家 店到店</span>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 text-2xl">store</span>
+                            <span class="font-bold text-gray-700 text-base">全家 店到店</span>
                         </div>
-                        <div>
+                        <div class="toggle-wrapper">
                             <input type="checkbox" id="enable_fami" class="toggle-checkbox">
                             <label for="enable_fami" class="toggle-label"><div class="toggle-circle"></div></label>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-rounded text-gray-500">home</span>
-                            <span class="font-bold text-gray-700">宅配到府</span>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-rounded text-gray-400 text-2xl">home</span>
+                            <span class="font-bold text-gray-700 text-base">宅配到府</span>
                         </div>
-                        <div>
+                        <div class="toggle-wrapper">
                             <input type="checkbox" id="enable_home" class="toggle-checkbox">
                             <label for="enable_home" class="toggle-label"><div class="toggle-circle"></div></label>
                         </div>
@@ -120,9 +166,11 @@ title: 賣場管理後台
             <div class="card">
                 <div class="section-title">運費規則設定</div>
                 
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-                    <span class="font-bold text-[#6ea44c]">✨ 全館免運活動</span>
-                    <div>
+                <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
+                    <span class="font-bold text-[#6ea44c] flex items-center gap-2 text-base">
+                        <span class="material-symbols-rounded">loyalty</span> 全館免運活動
+                    </span>
+                    <div class="toggle-wrapper">
                         <input type="checkbox" id="is_free_shipping" class="toggle-checkbox" onchange="toggleFeeInputs()">
                         <label for="is_free_shipping" class="toggle-label"><div class="toggle-circle"></div></label>
                     </div>
@@ -130,37 +178,37 @@ title: 賣場管理後台
 
                 <div class="flex items-center justify-between mb-4">
                     <span class="font-bold text-gray-700 text-sm">啟用「統一運費」</span>
-                    <div>
+                    <div class="toggle-wrapper">
                         <input type="checkbox" id="use_uniform_fee" class="toggle-checkbox" onchange="toggleFeeInputs()">
                         <label for="use_uniform_fee" class="toggle-label"><div class="toggle-circle"></div></label>
                     </div>
                 </div>
-                <div class="mb-6">
-                    <input type="number" id="uniform_fee" class="admin-input bg-gray-50" placeholder="統一運費金額">
+                <div class="mb-8">
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="uniform_fee" class="admin-input bg-gray-50 font-bold" placeholder="統一運費金額">
                 </div>
 
-                <div id="individual-fees" class="space-y-3 opacity-100 transition-opacity">
-                    <div class="grid grid-cols-3 gap-2 items-center">
-                        <span class="text-xs font-bold text-gray-500">7-11</span>
-                        <input type="number" id="fee_711" class="admin-input col-span-2" placeholder="60">
+                <div id="individual-fees" class="space-y-4 opacity-100 transition-opacity">
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-bold text-gray-500">7-11</span>
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="fee_711" class="admin-input col-span-2 text-right" placeholder="60">
                     </div>
-                    <div class="grid grid-cols-3 gap-2 items-center">
-                        <span class="text-xs font-bold text-gray-500">全家</span>
-                        <input type="number" id="fee_fami" class="admin-input col-span-2" placeholder="60">
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-bold text-gray-500">全家</span>
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="fee_fami" class="admin-input col-span-2 text-right" placeholder="60">
                     </div>
-                    <div class="grid grid-cols-3 gap-2 items-center">
-                        <span class="text-xs font-bold text-gray-500">宅配</span>
-                        <input type="number" id="fee_home" class="admin-input col-span-2" placeholder="120">
+                    <div class="grid grid-cols-3 gap-4 items-center">
+                        <span class="text-sm font-bold text-gray-500">宅配</span>
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="fee_home" class="admin-input col-span-2 text-right" placeholder="120">
                     </div>
                 </div>
             </div>
 
-            <div class="card bg-gray-800 text-white">
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-gray-400 mb-1 uppercase">管理員密碼</label>
-                    <input type="password" id="admin-password" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:border-[#6ea44c] outline-none" placeholder="請輸入密碼以儲存">
+            <div class="card bg-gray-800 border-none">
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-gray-400 mb-2 uppercase">管理員密碼</label>
+                    <input type="text" id="admin-password" class="w-full bg-white border-0 rounded-xl p-4 text-gray-900 font-bold text-lg shadow-inner outline-none focus:ring-2 ring-[#6ea44c]" placeholder="請輸入密碼">
                 </div>
-                <button type="submit" id="btn-save" class="w-full bg-[#6ea44c] hover:bg-[#5d8d41] text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                <button type="submit" id="btn-save" class="w-full bg-[#6ea44c] hover:bg-[#5d8d41] text-white font-bold py-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-lg">
                     <span class="material-symbols-rounded">save</span> 儲存設定
                 </button>
             </div>
@@ -169,12 +217,16 @@ title: 賣場管理後台
     </main>
 </div>
 
-<script src="js/api.js"></script>
 <script>
+    // [修正] 定義 API URL (解決 ReferenceError)
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
+
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            // 1. 讀取目前設定
-            const data = await API.fetchSystemData();
+            // 讀取設定
+            const res = await fetch(GAS_URL);
+            const data = await res.json();
+            
             if (data && data.fast_config) {
                 fillForm(data.fast_config);
                 document.getElementById('loading-msg').classList.add('hidden');
@@ -190,7 +242,9 @@ title: 賣場管理後台
 
     // 填入表單資料
     function fillForm(c) {
-        setVal('status', c.status);
+        // 轉換字串狀態為 Boolean 給 Toggle 使用
+        setCheck('status_toggle', c.status === '開啟');
+        
         setVal('items_text', c.items_text);
         setVal('amount', c.amount);
         
@@ -206,7 +260,7 @@ title: 賣場管理後台
         setVal('fee_fami', c.fee_fami);
         setVal('fee_home', c.fee_home);
 
-        toggleFeeInputs(); // 初始化UI狀態
+        toggleFeeInputs(); 
     }
 
     // 儲存設定
@@ -221,9 +275,10 @@ title: 賣場管理後台
         btn.classList.add('opacity-50');
 
         const payload = {
-            action: 'updateFastConfig', // 對應後端新功能
+            action: 'updateFastConfig',
             password: password,
-            status: getVal('status'),
+            // [修正] 將 Toggle 的 true/false 轉回 "開啟"/"關閉" 字串
+            status: getCheck('status_toggle') ? '開啟' : '關閉',
             items_text: getVal('items_text'),
             amount: getVal('amount'),
             enable_711: getCheck('enable_711'),
@@ -238,13 +293,8 @@ title: 賣場管理後台
         };
 
         try {
-            // 這裡我們直接用 fetch，因為 API.js 主要封裝了 login/checkout，
-            // 雖然可以用 API._post，但為了明確性這裡直接呼叫 GAS_URL (需確認 api.js 裡有把 GAS_URL export 出來，或直接在這裡定義)
-            // 假設 api.js 裡有 window.API，我們擴充它或直接 fetch
-            
-            // 直接使用 api.js 內部的 _post 方法 (如果 api.js 有暴露的話)
-            // 或者直接複製 fetch 邏輯：
-            const res = await fetch(API_URL_HERE_IF_NEEDED || "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec", {
+            // [修正] 使用定義好的 GAS_URL
+            const res = await fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
