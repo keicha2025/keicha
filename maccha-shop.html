@@ -145,9 +145,9 @@
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-600 mb-1">物流方式 <span class="text-red-500">*</span></label>
                     <select name="logistics" id="input-logistics" onchange="updateShippingFee()" class="w-full border rounded px-3 py-2 text-sm bg-white">
-                        <option value="7-11">7-11 店到店 (運費 $60)</option>
-                        <option value="全家">全家 店到店 (運費 $60)</option>
-                        <option value="郵寄/宅配">郵寄/宅配 (運費 $100)</option>
+                        <option value="7-11">7-11 店到店</option>
+                        <option value="全家">全家 店到店</option>
+                        <option value="郵寄/宅配">郵寄/宅配</option>
                     </select>
                 </div>
 
@@ -169,7 +169,7 @@
                     </div>
                     <div class="flex justify-between text-sm mb-1">
                         <span class="text-gray-600">運費</span>
-                        <span>NT$ <span id="modal-shipping">60</span></span>
+                        <span>NT$ <span id="modal-shipping">計算中...</span></span>
                     </div>
                     <div class="flex justify-between text-xl font-bold mt-2 text-brandGreen">
                         <span>總金額</span>
@@ -193,21 +193,16 @@
         // ------------------------------------------------
         // 1. 設定區 (Config)
         // ------------------------------------------------
-        
-        // A. 商品資料來源 (原有的 Display API)
-        const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; 
-        
-        // B. 訂單與會員系統 (您剛剛提供的 Order API)
+        const DISPLAY_API_URL = "https://script.google.com/macros/s/您的DISPLAY_GAS_ID/exec"; 
         const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
-        
-        // C. 圖片路徑
         const BASE_REPO_URL = "assets/images/"; 
 
         // ------------------------------------------------
         // 2. 全域變數
         // ------------------------------------------------
         let cart = []; 
-        let shippingFee = 60; // 預設 7-11
+        let shippingFee = 0; 
+        let shippingRules = []; // 存放從後端抓來的規則
 
         // ------------------------------------------------
         // 3. 購物車邏輯
@@ -284,7 +279,6 @@
             const listEl = document.getElementById('checkout-cart-list');
             listEl.innerHTML = '';
             
-            // 重算邏輯以顯示正確單價
             const brandCounts = {};
             cart.forEach(item => brandCounts[item.brand_key] = (brandCounts[item.brand_key] || 0) + item.qty);
 
@@ -302,7 +296,8 @@
                 listEl.appendChild(li);
             });
 
-            updateModalTotals();
+            // 打開時，確保運費是根據當前小計與物流方式計算的
+            updateShippingFee();
             document.getElementById('checkout-modal').classList.add('active');
         }
 
@@ -310,13 +305,41 @@
             document.getElementById('checkout-modal').classList.remove('active');
         }
 
+        /**
+         * ★ 運費計算核心 (讀取後端規則)
+         * 1. 抓取目前選擇的物流 (7-11, 全家, 宅配)
+         * 2. 在 shippingRules 裡找對應的規則 (且 category 為 '抹茶')
+         * 3. 檢查小計是否達到減免門檻 (t1, t2...)
+         */
         function updateShippingFee() {
-            const type = document.getElementById('input-logistics').value;
-            if (type.includes('7-11') || type.includes('全家')) {
-                shippingFee = 60;
-            } else {
-                shippingFee = 100; // 宅配
+            const subtotal = calculateSubtotal();
+            const selectedLogistics = document.getElementById('input-logistics').value; // e.g., "7-11"
+            
+            // 1. 找到對應的規則 (category = "抹茶")
+            // 模糊比對物流名稱，例如 "7-11" 能對應到規則裡的 "7-11"
+            const rule = shippingRules.find(r => 
+                r.category === '抹茶' && selectedLogistics.includes(r.method)
+            );
+
+            // 預設運費 (若後端沒設，給個安全值)
+            let finalFee = 60; 
+            if (selectedLogistics.includes("宅配")) finalFee = 100;
+
+            if (rule) {
+                finalFee = Number(rule.base); // 基礎運費
+
+                // 檢查門檻 (假設 t1 是免運門檻，若 subtotal >= t1，則運費變成 f1)
+                // 這裡支援多級距: t1, t2, t3
+                if (rule.t3 && subtotal >= rule.t3) {
+                    finalFee = Number(rule.f3);
+                } else if (rule.t2 && subtotal >= rule.t2) {
+                    finalFee = Number(rule.f2);
+                } else if (rule.t1 && subtotal >= rule.t1) {
+                    finalFee = Number(rule.f1);
+                }
             }
+
+            shippingFee = finalFee;
             updateModalTotals();
         }
 
@@ -340,28 +363,22 @@
             msgEl.innerText = "查詢中...";
             msgEl.className = "text-xs mt-1 text-blue-500";
 
-            // 呼叫 Order API (action: login)
             fetch(ORDER_API_URL, {
                 method: 'POST',
-                // 使用 no-cors 時無法讀取 response，但 GAS 需回傳 JSON 才能用一般 mode
-                // 這裡改用 payload 傳送
                 body: JSON.stringify({ action: "login", phone: phone })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     const info = data.data;
-                    document.getElementById('input-phone').value = info.phone; // 同步填入必填欄位
+                    document.getElementById('input-phone').value = info.phone; 
                     
                     if (info.name) {
                         msgEl.innerText = `歡迎回來，${info.name}！資料已帶入。`;
                         msgEl.className = "text-xs mt-1 text-green-600";
-                        
-                        // 自動帶入欄位
                         document.getElementById('input-name').value = info.name;
                         document.getElementById('input-email').value = info.email;
                         
-                        // 根據紀錄帶入店鋪
                         const typeSelect = document.getElementById('input-logistics');
                         if (info.store_711) {
                             typeSelect.value = "7-11";
@@ -373,7 +390,7 @@
                             typeSelect.value = "郵寄/宅配";
                             document.getElementById('input-store').value = info.shipping_address;
                         }
-                        updateShippingFee(); // 更新運費
+                        updateShippingFee(); 
                     } else {
                         msgEl.innerText = "是新朋友呢！請填寫資料，下單後自動成為會員。";
                         msgEl.className = "text-xs mt-1 text-orange-500";
@@ -397,10 +414,8 @@
             btn.disabled = true;
             btn.innerText = "處理中...";
 
-            // 準備資料
             const subtotal = calculateSubtotal();
             
-            // 組合 items 字串 (後端需要)
             const brandCounts = {};
             cart.forEach(item => brandCounts[item.brand_key] = (brandCounts[item.brand_key] || 0) + item.qty);
             
@@ -423,7 +438,7 @@
                 items: itemsStr,
                 subtotal: subtotal,
                 shipping: shippingFee,
-                temp: "常溫", // 預設
+                temp: "常溫", 
                 date: new Date().toISOString()
             };
 
@@ -435,11 +450,9 @@
             .then(data => {
                 if (data.success) {
                     alert(`訂單建立成功！\n訂單編號: ${data.orderId}\n請至 Email 收信確認。`);
-                    cart = []; // 清空購物車
+                    cart = []; 
                     updateCartUI();
                     closeCheckout();
-                    // 這裡可以選擇是否重整頁面
-                    // window.location.reload();
                 } else {
                     alert("訂單建立失敗: " + data.msg);
                 }
@@ -455,11 +468,23 @@
         }
 
         // ------------------------------------------------
-        // 5. 頁面初始化 (抓取 Display API)
+        // 5. 頁面初始化 (抓取 Display API + System Config)
         // ------------------------------------------------
         window.addEventListener('load', () => {
             const statusLoader = document.getElementById('status-loader');
 
+            // --- 抓取系統設定 (運費規則) ---
+            fetch(ORDER_API_URL) // 直接 GET 抓取 getSystemData
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.shipping_rules) {
+                        console.log("運費規則已更新:", data.shipping_rules);
+                        shippingRules = data.shipping_rules;
+                    }
+                })
+                .catch(err => console.error("無法讀取運費規則:", err));
+
+            // --- 渲染函式 (與之前相同) ---
             function renderStatusOverview(brands) {
                 const container = document.getElementById('status-grid-container');
                 if (statusLoader) statusLoader.style.display = 'none';
@@ -513,10 +538,23 @@
                     const name = product.name || '未命名';
                     const price = Number(product.price) || 0;
                     const priceMulti = Number(product.price_multi) || 0;
-                    const isSoldOut = product.stock <= 0 || product.status === '完售';
-                    const imgPath = product.img || '';
+                    const status = product.status || '';
+                    const note = product.note || '';
+                    // 強制轉字串避免報錯
+                    const imgPath = String(product.img || '');
+                    
+                    const isSoldOut = product.stock <= 0 || status === '完售';
+                    
                     let imgHTML = imgPath ? `<img src="${imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath}" class="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">` : `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">No Image</div>`;
                     
+                    // Note Badge
+                    let badgeHTML = '';
+                    if (!isSoldOut && note) {
+                        badgeHTML = `<span class="absolute top-2 right-2 bg-brandGreen text-white text-xs px-2 py-1 rounded shadow z-10">${note}</span>`;
+                    } else if (isSoldOut) {
+                        badgeHTML = `<span class="absolute top-2 right-2 bg-gray-500 text-white text-xs px-2 py-1 rounded z-10">缺貨</span>`;
+                    }
+
                     let priceHTML = (priceMulti > 0 && priceMulti < price) 
                         ? `<div class="flex flex-col items-end"><span class="text-xs text-gray-400 line-through">$${price}</span><span class="text-brandGreen font-bold">$${priceMulti}</span></div>` 
                         : `<div class="text-gray-800 font-bold">$${price}</div>`;
@@ -525,7 +563,8 @@
                     const clickEvent = isSoldOut ? '' : `onclick="addToCart('${product.brand_key}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
 
                     grid.innerHTML += `
-                        <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-100 group flex flex-col">
+                        <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-100 group flex flex-col relative">
+                            ${badgeHTML}
                             <div class="w-full pt-[100%] relative bg-gray-50 border-b border-gray-100">${imgHTML}</div>
                             <div class="p-4 flex-grow flex flex-col justify-between">
                                 <div>
