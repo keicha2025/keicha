@@ -94,7 +94,7 @@ title: 賣場管理後台
 
         <form id="config-form" class="hidden space-y-6" onsubmit="event.preventDefault(); saveConfig();">
             
-            <div class="card border-l-4 border-[#6ea44c]">
+            <div class="card">
                 <div class="section-title">賣場核心設定</div>
                 
                 <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
@@ -116,10 +116,7 @@ title: 賣場管理後台
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">商品總金額</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-3 text-gray-400 font-bold">NT$</span>
-                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="amount" class="admin-input pl-12 font-mono font-bold text-lg" placeholder="0">
-                    </div>
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="amount" class="admin-input font-mono font-bold text-lg" placeholder="0">
                 </div>
             </div>
 
@@ -168,7 +165,7 @@ title: 賣場管理後台
                 
                 <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
                     <span class="font-bold text-[#6ea44c] flex items-center gap-2 text-base">
-                        <span class="material-symbols-rounded">loyalty</span> 全館免運活動
+                        <span class="material-symbols-rounded">loyalty</span> 免運活動
                     </span>
                     <div class="toggle-wrapper">
                         <input type="checkbox" id="is_free_shipping" class="toggle-checkbox" onchange="toggleFeeInputs()">
@@ -218,12 +215,10 @@ title: 賣場管理後台
 </div>
 
 <script>
-    // [修正] 定義 API URL (解決 ReferenceError)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
 
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            // 讀取設定
             const res = await fetch(GAS_URL);
             const data = await res.json();
             
@@ -240,11 +235,8 @@ title: 賣場管理後台
         }
     });
 
-    // 填入表單資料
     function fillForm(c) {
-        // 轉換字串狀態為 Boolean 給 Toggle 使用
         setCheck('status_toggle', c.status === '開啟');
-        
         setVal('items_text', c.items_text);
         setVal('amount', c.amount);
         
@@ -263,7 +255,6 @@ title: 賣場管理後台
         toggleFeeInputs(); 
     }
 
-    // 儲存設定
     async function saveConfig() {
         const password = getVal('admin-password');
         if (!password) return alert("請輸入管理員密碼");
@@ -277,7 +268,6 @@ title: 賣場管理後台
         const payload = {
             action: 'updateFastConfig',
             password: password,
-            // [修正] 將 Toggle 的 true/false 轉回 "開啟"/"關閉" 字串
             status: getCheck('status_toggle') ? '開啟' : '關閉',
             items_text: getVal('items_text'),
             amount: getVal('amount'),
@@ -293,7 +283,6 @@ title: 賣場管理後台
         };
 
         try {
-            // [修正] 使用定義好的 GAS_URL
             const res = await fetch(GAS_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
@@ -316,7 +305,6 @@ title: 賣場管理後台
         }
     }
 
-    // UI 連動：如果是免運，就讓運費輸入框變灰
     function toggleFeeInputs() {
         const isFree = document.getElementById('is_free_shipping').checked;
         const isUniform = document.getElementById('use_uniform_fee').checked;
@@ -340,7 +328,6 @@ title: 賣場管理後台
         }
     }
 
-    // 工具函式
     function getVal(id) { return document.getElementById(id).value; }
     function setVal(id, v) { document.getElementById(id).value = v || ''; }
     function getCheck(id) { return document.getElementById(id).checked; }
