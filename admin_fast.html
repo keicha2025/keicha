@@ -291,9 +291,9 @@ title: 賣場管理後台
             const result = await res.json();
             
             if (result.success) {
-                alert("✅ 設定已更新成功！");
+                alert("設定已更新成功！");
             } else {
-                alert("❌ 更新失敗：" + result.msg);
+                alert("更新失敗：" + result.msg);
             }
         } catch (e) {
             console.error(e);
