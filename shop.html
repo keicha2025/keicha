@@ -48,7 +48,50 @@ title: KEICHA 網路商店
     .animate-spin-custom { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* 手機版商品卡片樣式修正 */
+    /* =========================================
+       📦 商品卡片樣式優化 (Product Card Styles)
+       ========================================= */
+    
+    /* 數量控制區塊：樣式化為獨立容器 */
+    .qty-control { 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; /* 按鈕與數字平均分佈 */
+        background: #ffffff; 
+        border: 1px solid #e5e7eb; 
+        border-radius: 0.75rem; /* rounded-xl (12px) 配合按鈕圓角 */
+        padding: 0 8px; 
+        height: 48px; /* 固定高度，與按鈕一致 */
+        box-sizing: border-box;
+    }
+    
+    /* 數量按鈕 */
+    .qty-btn { 
+        width: 32px; 
+        height: 32px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        background: transparent; 
+        border-radius: 8px; 
+        font-weight: bold; 
+        cursor: pointer; 
+        border: none;
+        color: #6ea44c;
+        transition: background-color 0.2s;
+    }
+    .qty-btn:hover { background-color: #f3f4f6; }
+    
+    /* 加入購物車按鈕：確保高度一致 */
+    .add-btn {
+        height: 48px !important; /* 強制高度與數量框一致 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px; /* 左右內距 */
+    }
+
+    /* 手機版適配 */
     @media (max-width: 767px) {
         .mobile-product-card { 
             display: flex !important; 
@@ -78,6 +121,7 @@ title: KEICHA 網路商店
             justify-content: space-between;
             min-height: 100px;
         }
+        /* 底部按鈕區：手機版保持橫向排列 */
         .card-bottom-row {
             display: flex !important;
             flex-direction: row !important;
@@ -86,15 +130,14 @@ title: KEICHA 網路商店
             padding: 0 !important;
             border-top: none !important;
         }
+        /* 手機版比例配置 */
         .qty-control {
-            flex: 1 !important;
-            height: 48px;
-            justify-content: space-between;
-            padding: 0 8px;
+            flex: 1 !important; 
+            /* height 已經由通用樣式設定為 48px */
         }
         .add-btn {
             flex: 1.5 !important;
-            height: 48px;
+            /* height 已經由通用樣式設定為 48px */
         }
     }
 </style>
@@ -579,6 +622,7 @@ title: KEICHA 網路商店
         if(v < 1) v = 1;
         el.innerText = v;
     }
+
     function addToCart(pid) {
         const p = globalProducts.find(x => x.product_id === pid);
         const qty = parseInt(document.getElementById(`iq-${pid}`).innerText);
@@ -591,12 +635,14 @@ title: KEICHA 網路商店
         updateCartUI();
         openCart();
     }
-    // [UI修改] 購物車：垃圾桶改為叉叉
+
+    // [UI修改] 購物車：垃圾桶 icon 改為 叉叉 close icon
     function updateCartUI() {
         const count = cart.reduce((s, i) => s + i.qty, 0);
         const elCount = document.getElementById('cart-count');
         elCount.innerText = count;
         elCount.classList.toggle('hidden', count === 0);
+        
         let total = 0;
         const container = document.getElementById('cart-items-container');
         if (cart.length === 0) {
@@ -623,6 +669,7 @@ title: KEICHA 網路商店
         }
         document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
     }
+
     function updateCartQty(idx, delta) {
         const item = cart[idx];
         const prod = globalProducts.find(x => x.product_id === item.id);
