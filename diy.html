@@ -2,17 +2,26 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>自填單結帳 | KEICHA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     
     <style>
-        /* 共用樣式區 (建議之後移入 css/style.css) */
+        /* [UI設定] 移除數字輸入框的上下箭頭 (Spinner) */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+
         .brand-green { color: #6ea44c; }
         .bg-brand-green { background-color: #6ea44c; }
         
-        /* 側邊面板 (只保留 Login 和 User Panel) */
+        /* 側邊面板 */
         .side-panel {
             position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
             background-color: white; z-index: 200; transform: translateX(100%);
@@ -30,19 +39,17 @@
         .checkout-inline-input { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
         .checkout-inline-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; }
         
-        /* 載入動畫 */
         .animate-spin-custom { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* DIY 專用強調框 */
+        /* [UI設定] DIY 專用輸入框 (改為實線 border-solid) */
         .diy-input-zone {
-            border: 2px dashed #6ea44c;
-            background-color: #f9fafb;
+            border: 2px solid #6ea44c; /* 改為實線 */
+            background-color: #fff;
             transition: all 0.3s;
         }
         .diy-input-zone:focus-within {
-            background-color: #fff;
-            box-shadow: 0 4px 12px rgba(110, 164, 76, 0.15);
+            box-shadow: 0 4px 12px rgba(110, 164, 76, 0.2);
         }
     </style>
 </head>
@@ -71,13 +78,13 @@
             <div>
                 <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">訂單金額</h2>
                 <div class="diy-input-zone rounded-2xl p-4 flex items-center justify-between">
-                    <label class="text-xs font-bold text-[#6ea44c]">商品總金額 (不含運費) <span class="text-red-500">*</span></label>
+                    <label class="text-xs font-bold text-[#6ea44c]">商品總金額 <span class="text-red-500">*</span></label>
                     <div class="flex items-center gap-2">
                         <span class="text-gray-400 font-bold">NT$</span>
-                        <input type="number" id="diy-amount" class="w-32 bg-transparent outline-none text-right text-xl font-bold text-gray-800 placeholder-gray-300" placeholder="0" oninput="updatePageSummary()">
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="diy-amount" class="w-32 bg-transparent outline-none text-right text-xl font-bold text-gray-800 placeholder-gray-300" placeholder="0" oninput="updatePageSummary()">
                     </div>
                 </div>
-                <p class="text-[10px] text-gray-400 mt-2 text-right">* 請輸入您直播得標或報價的總金額</p>
+                <p class="text-[10px] text-gray-400 mt-2 text-right">* 請輸入純數字，不含運費</p>
             </div>
         </section>
 
@@ -126,8 +133,10 @@
                         <span class="material-symbols-rounded text-gray-400">local_shipping</span>
                         <div class="text-sm font-bold text-gray-700">7-11 店到店</div>
                     </div>
-                    <div id="checkout-display-7-11" class="text-[10px] text-gray-500 max-w-[150px] truncate text-right">-</div>
+                    <div id="price-preview-7-11" class="text-xs font-bold text-gray-400"></div>
                 </div>
+                <div id="checkout-display-7-11" class="text-[10px] text-gray-500 mt-1 pl-9">-</div>
+                
                 <div id="checkout-edit-711" class="hidden mt-3 pt-3 border-t border-gray-100" onclick="event.stopPropagation()">
                     <div class="flex gap-2 mb-2">
                         <input type="text" id="chk-input-711" class="checkout-inline-input flex-1" placeholder="6碼店號">
@@ -144,8 +153,10 @@
                         <span class="material-symbols-rounded text-gray-400">store</span>
                         <div class="text-sm font-bold text-gray-700">全家 店到店</div>
                     </div>
-                    <div id="checkout-display-fami" class="text-[10px] text-gray-500 max-w-[150px] truncate text-right">-</div>
+                    <div id="price-preview-fami" class="text-xs font-bold text-gray-400"></div>
                 </div>
+                <div id="checkout-display-fami" class="text-[10px] text-gray-500 mt-1 pl-9">-</div>
+                
                 <div id="checkout-edit-fami" class="hidden mt-3 pt-3 border-t border-gray-100" onclick="event.stopPropagation()">
                     <div class="flex gap-2 mb-2">
                         <input type="text" id="chk-input-fami" class="checkout-inline-input flex-1" placeholder="6碼店號">
@@ -162,8 +173,10 @@
                         <span class="material-symbols-rounded text-gray-400">home</span>
                         <div class="text-sm font-bold text-gray-700">宅配到府</div>
                     </div>
-                    <div id="checkout-display-addr" class="text-[10px] text-gray-500 max-w-[150px] truncate text-right">-</div>
+                    <div id="price-preview-addr" class="text-xs font-bold text-gray-400"></div>
                 </div>
+                <div id="checkout-display-addr" class="text-[10px] text-gray-500 mt-1 pl-9">-</div>
+                
                 <div id="checkout-edit-addr" class="hidden mt-3 pt-3 border-t border-gray-100" onclick="event.stopPropagation()">
                     <textarea id="chk-input-addr" class="checkout-inline-input w-full mb-2" rows="2" placeholder="完整地址"></textarea>
                     <button onclick="saveUserData('addr', true)" id="chk-save-addr" class="w-full bg-[#6ea44c] text-white py-2 rounded-lg text-xs font-bold">儲存地址</button>
@@ -177,7 +190,7 @@
             
             <label class="flex items-center gap-2 mt-4 cursor-pointer">
                 <input type="checkbox" id="join-member-check" class="w-4 h-4 text-[#6ea44c] rounded border-gray-300 focus:ring-[#6ea44c]" checked>
-                <span class="text-xs text-gray-500 font-bold">同意儲存收件資料，下次自動帶入 (加入會員)</span>
+                <span class="text-xs text-gray-500 font-bold">同意儲存收件資料，下次自動帶入</span>
             </label>
         </section>
 
@@ -212,66 +225,61 @@
         </div>
     </div>
 
-    <div id="user-panel" class="side-panel">
-        <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center">
-            <h3 class="font-bold flex items-center gap-2"><span class="material-symbols-rounded">account_circle</span> 會員資料</h3>
-            <button onclick="closeAllPanels()" class="material-symbols-rounded">close</button>
-        </div>
-        <div class="p-8 space-y-6">
-            <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl">
-                <span class="text-xs font-bold text-gray-400">帳號</span>
-                <span id="display-user-phone" class="font-mono font-bold text-[#6ea44c]">-</span>
-            </div>
-            <div class="hidden">
-                <span id="text-name"></span><input id="upd-name"><span id="text-email"></span><input id="upd-email">
-                <span id="display-711"></span><input id="upd-711"><input id="upd-711-note">
-                <span id="display-fami"></span><input id="upd-fami"><input id="upd-fami-note">
-                <span id="display-addr"></span><input id="upd-addr">
-                <button id="save-btn-info"></button><button id="save-btn-711"></button>
-                <button id="save-btn-fami"></button><button id="save-btn-addr"></button>
-            </div>
-            <button onclick="handleLogout()" class="w-full text-xs text-red-400 font-bold py-3 text-center border border-red-100 rounded-xl">登出此帳號</button>
-        </div>
+    <div id="user-panel" class="side-panel hidden">
+        <span id="display-user-phone"></span>
+        <span id="text-name"></span><input id="upd-name"><span id="text-email"></span><input id="upd-email">
+        <span id="display-711"></span><input id="upd-711"><input id="upd-711-note">
+        <span id="display-fami"></span><input id="upd-fami"><input id="upd-fami-note">
+        <span id="display-addr"></span><input id="upd-addr">
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/checkout_core.js"></script>
 
     <script>
-        // DIY 頁面專屬邏輯
+        // 自填單專屬邏輯
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // 1. 初始化核心 (檢查登入)
-            initAuth();
+            // 1. 初始化核心 (檢查登入) - 使用 try-catch 確保變數錯誤不會卡死
+            try {
+                if (typeof initAuth === 'function') {
+                    initAuth();
+                } else {
+                    console.error("initAuth 未定義，請檢查 checkout_core.js");
+                }
+            } catch (e) {
+                console.error("Auth Init Error:", e);
+            }
             
-            // 2. 預先載入運費規則 (雖然這是 DIY，但我們還是需要規則來算運費)
+            // 2. 載入規則
             try {
                 const data = await API.fetchSystemData();
-                // 將全域變數 shippingRules (在 checkout_core.js 定義) 賦值
-                shippingRules = (data.shipping_rules || []).map(r => ({
-                    ...r,
-                    method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
-                }));
-            } catch (e) { console.error("Rules Error:", e); }
+                // 修正：賦值給全域變數 (checkout_core.js 中定義的 let shippingRules)
+                if (data && data.shipping_rules) {
+                    shippingRules = data.shipping_rules.map(r => ({
+                        ...r,
+                        method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
+                    }));
+                }
+            } catch (e) { 
+                console.error("Rules Error:", e); 
+            }
             
-            // 3. 如果已登入，自動填入資料到表單
+            // 3. 填表單
             fillCheckoutForm();
         });
 
-        // 複寫/實作 checkout_core.js 需要的 fillCheckoutForm
+        // 複寫: 填入表單
         function fillCheckoutForm() {
             if(!globalUser) return;
-            // 更新畫面上 "收件資料" 區塊的顯示
             setText('checkout-info-phone', globalUser.phone);
             setText('checkout-info-name', globalUser.name || '未填寫');
             setText('checkout-info-email', globalUser.email || '未填寫');
             
-            // 顯示已選物流的預覽字樣
             if(globalUser.store_711) setText('checkout-display-7-11', `${globalUser.store_711} ${globalUser.store_711_note||''}`);
             if(globalUser.store_fami) setText('checkout-display-fami', `${globalUser.store_fami} ${globalUser.store_fami_note||''}`);
             if(globalUser.shipping_address) setText('checkout-display-addr', globalUser.shipping_address);
             
-            // 填入隱藏的 input (編輯用)
             setVal('chk-input-name', globalUser.name);
             setVal('chk-input-email', globalUser.email);
             setVal('chk-input-711', globalUser.store_711);
@@ -281,17 +289,65 @@
             setVal('chk-input-addr', globalUser.shipping_address);
         }
 
-        // 實作 checkout_core.js 呼叫的 updatePageSummary
+        // [邏輯修正] 嚴格的運費計算：DIY 頁面專用
+        function calculateDiyShipping(method, amount) {
+            if (!method || !shippingRules || shippingRules.length === 0) return 0;
+            const amt = parseFloat(amount) || 0;
+
+            // 1. 優先找 category = "自填單"
+            let rule = shippingRules.find(r => r.method == method && r.category == '自填單');
+            
+            // 2. 找不到則找 category = "default" (或 "一般")
+            if (!rule) {
+                rule = shippingRules.find(r => r.method == method && (r.category == 'default' || r.category == '一般'));
+            }
+
+            if (!rule) return 0; // 真的找不到規則，運費為 0 或預設值
+
+            // 3. 計算門檻
+            let fee = parseFloat(rule.base) || 0;
+
+            // 檢查門檻 (T3 > T2 > T1) 倒序檢查
+            if (rule.t3 && amt >= parseFloat(rule.t3)) {
+                fee = parseFloat(rule.f3);
+            } else if (rule.t2 && amt >= parseFloat(rule.t2)) {
+                fee = parseFloat(rule.f2);
+            } else if (rule.t1 && amt >= parseFloat(rule.t1)) {
+                fee = parseFloat(rule.f1);
+            }
+
+            return fee;
+        }
+
+        // 實作: 更新金額
         function updatePageSummary() {
             const amountInput = document.getElementById('diy-amount');
-            const subtotal = parseInt(amountInput.value) || 0;
+            // 確保是數字
+            const val = amountInput.value.replace(/[^0-9]/g, ''); 
+            const subtotal = parseInt(val) || 0;
             
             let ship = 0;
             const shipInfoEl = document.getElementById('summary-shipping-info');
             
+            // 更新各物流選項的預覽價格 (Optional)
+            if(shippingRules.length > 0) {
+                const s7 = calculateDiyShipping('7-11', subtotal);
+                const sF = calculateDiyShipping('全家', subtotal);
+                const sH = calculateDiyShipping('宅配', subtotal);
+                setText('price-preview-7-11', `運費 $${s7}`);
+                setText('price-preview-fami', `運費 $${sF}`);
+                setText('price-preview-addr', `運費 $${sH}`);
+            }
+
             if (currentShippingMethod) {
-                ship = calculateShippingFee(currentShippingMethod, subtotal);
-                shipInfoEl.innerText = `${currentShippingMethod} 運費 +${ship}`;
+                // 使用上面新寫的 DIY 專用運費計算
+                ship = calculateDiyShipping(currentShippingMethod, subtotal);
+                
+                // 判斷顯示名稱
+                let methodName = currentShippingMethod;
+                if(methodName === 'addr') methodName = '宅配';
+                
+                shipInfoEl.innerText = `${methodName} 運費 +${ship}`;
                 shipInfoEl.classList.remove('hidden');
             } else {
                 shipInfoEl.classList.add('hidden');
@@ -301,48 +357,42 @@
             document.getElementById('summary-total').innerText = `NT$ ${total.toLocaleString()}`;
         }
 
-        // DIY 送出訂單
+        // 送出邏輯
         async function handleDiySubmit() {
-            // 1. 驗證會員
             if (!globalUser) { 
                 alert("請先輸入手機號碼登入");
                 openPanel('login-panel');
                 return;
             }
 
-            // 2. 驗證欄位
             const items = getVal('diy-items');
-            const amount = getVal('diy-amount');
+            const amountVal = document.getElementById('diy-amount').value;
+            const subtotal = parseInt(amountVal) || 0;
             const lineName = getVal('order-line-name');
             
             if (!items) return alert("請填寫商品內容");
-            if (!amount || parseInt(amount) <= 0) return alert("請填寫正確的金額");
+            if (subtotal <= 0) return alert("請填寫正確的金額");
             if (!globalUser.name) return alert("請編輯並填寫收件人姓名");
             if (!globalUser.email) return alert("請編輯並填寫電子信箱");
             if (!currentShippingMethod) return alert("請選擇物流方式");
             if (!lineName) return alert("請填寫 LINE 名稱");
 
-            // 3. UI 鎖定
             const btn = document.getElementById('btn-submit-order');
             const originalText = btn.innerHTML;
             btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">refresh</span> 處理中...`;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
             btn.disabled = true;
 
-            // 4. 計算最終金額
-            const subtotal = parseInt(amount);
-            const ship = calculateShippingFee(currentShippingMethod, subtotal);
+            const ship = calculateDiyShipping(currentShippingMethod, subtotal);
 
-            // 5. 準備資料
             const payload = {
                 name: globalUser.name,
                 phone: globalUser.phone,
                 email: globalUser.email,
                 line_name: lineName,
-                // 根據選的物流抓對應地址/店號
                 store: currentShippingMethod === '宅配' ? globalUser.shipping_address : (currentShippingMethod === '7-11' ? globalUser.store_711 : globalUser.store_fami),
-                temp: "常溫", // 預設
-                items: items, // 直接傳入客人的自填文字
+                temp: "常溫",
+                items: items,
                 subtotal: subtotal,
                 shipping: ship,
                 date: new Date().toLocaleString('zh-TW'),
@@ -351,12 +401,11 @@
                 join_member: document.getElementById('join-member-check').checked
             };
 
-            // 6. 送出
             try {
                 const res = await API.checkout(payload);
                 if (res.success) {
                     alert("訂單已送出！我們會盡快與您聯繫確認。");
-                    location.reload(); // 簡單重整清空
+                    location.reload();
                 } else {
                     alert("送出失敗：" + (res.msg || "未知錯誤"));
                 }
