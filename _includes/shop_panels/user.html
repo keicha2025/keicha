@@ -1,2 +1,117 @@
 <div id="user-panel" class="side-panel">
+    <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center sticky top-0 z-10">
+        <h3 class="font-bold flex items-center gap-2">
+            <span class="material-symbols-rounded">account_circle</span> 會員資料管理
+        </h3>
+        <button onclick="closeAllPanels()" class="material-symbols-rounded text-white hover:opacity-70 transition">close</button>
     </div>
+
+    <div id="panel-body" class="p-8 flex-1 overflow-y-auto space-y-10">
+        <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">目前帳號</span>
+            <span id="display-user-phone" class="font-mono font-bold text-[#6ea44c]">-</span>
+        </div>
+
+        <section class="space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                <h4 class="text-xs font-bold brand-green uppercase tracking-widest">個人基本資訊</h4>
+                <button onclick="toggleEdit('info')" class="material-symbols-rounded text-[#6ea44c] hover:bg-[#6ea44c]/10 rounded-full p-1 transition">edit_square</button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">收件人全名</label>
+                    <div class="min-h-[40px] flex items-center">
+                        <span id="text-name" class="font-bold text-gray-700"></span>
+                        <input type="text" id="upd-name" class="user-edit-input font-bold hidden" placeholder="請輸入姓名">
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">電子郵件</label>
+                    <div class="min-h-[40px] flex items-center">
+                        <span id="text-email" class="text-gray-700"></span>
+                        <input type="email" id="upd-email" class="user-edit-input hidden" placeholder="example@mail.com">
+                    </div>
+                </div>
+                <div id="info-edit-actions" class="hidden flex gap-3 pt-2">
+                    <button onclick="saveFullUser('info')" id="save-btn-info" class="flex-1 bg-[#6ea44c] text-white py-3 rounded-xl font-bold shadow-sm active:scale-95 transition-all flex justify-center items-center gap-2">
+                        <span class="material-symbols-rounded text-sm">save</span>儲存
+                    </button>
+                    <button onclick="toggleEdit('info')" class="flex-1 border border-gray-300 text-gray-600 py-3 rounded-xl font-bold active:scale-95 transition-all">取消</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-8">
+            <h4 class="text-xs font-bold brand-green uppercase tracking-widest border-b border-gray-100 pb-2">預設物流設定</h4>
+
+            <div class="bg-gray-50 p-5 rounded-3xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-500">7-11 門市資料</span>
+                    <div class="flex items-center gap-2">
+                        <a id="btn-711-query" href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="hidden text-[10px] bg-[#6ea44c] text-white px-3 py-1 rounded-full font-bold">查詢店號</a>
+                        <button onclick="toggleEdit('711')" class="material-symbols-rounded text-[#6ea44c] text-xl">edit_square</button>
+                    </div>
+                </div>
+                <div id="display-711" class="font-bold text-sm text-gray-700">尚未設定</div>
+                <div id="edit-711" class="hidden space-y-3">
+                    <input type="text" id="upd-711" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm font-bold bg-white" placeholder="請輸入6碼店號">
+                    <input type="text" id="upd-711-note" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm bg-white" placeholder="店名備註 (例如：科慶門市)">
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="saveFullUser('711')" id="save-btn-711" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-xl text-xs font-bold flex justify-center items-center gap-2">
+                            <span class="material-symbols-rounded text-sm">save</span>儲存
+                        </button>
+                        <button onclick="toggleEdit('711')" class="flex-1 border border-gray-300 text-gray-500 py-2 rounded-xl text-xs font-bold">取消</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-5 rounded-3xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-500">全家 門市資料</span>
+                    <div class="flex items-center gap-2">
+                        <a id="btn-fami-query" href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="hidden text-[10px] bg-[#6ea44c] text-white px-3 py-1 rounded-full font-bold">查詢店號</a>
+                        <button onclick="toggleEdit('fami')" class="material-symbols-rounded text-[#6ea44c] text-xl">edit_square</button>
+                    </div>
+                </div>
+                <div id="display-fami" class="font-bold text-sm text-gray-700">尚未設定</div>
+                <div id="edit-fami" class="hidden space-y-3">
+                    <input type="text" id="upd-fami" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm font-bold bg-white" placeholder="請輸入6碼店號">
+                    <input type="text" id="upd-fami-note" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm bg-white" placeholder="店名備註 (例如：全家慶中店)">
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="saveFullUser('fami')" id="save-btn-fami" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-xl text-xs font-bold flex justify-center items-center gap-2">
+                            <span class="material-symbols-rounded text-sm">save</span>儲存
+                        </button>
+                        <button onclick="toggleEdit('fami')" class="flex-1 border border-gray-300 text-gray-500 py-2 rounded-xl text-xs font-bold">取消</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-5 rounded-3xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-500">宅配常用地址</span>
+                    <button onclick="toggleEdit('addr')" class="material-symbols-rounded text-[#6ea44c] text-xl">edit_square</button>
+                </div>
+                <div id="display-addr" class="font-bold text-sm text-gray-700 leading-relaxed">尚未設定</div>
+                <div id="edit-addr" class="hidden space-y-3">
+                    <textarea id="upd-addr" class="w-full p-4 rounded-xl border border-gray-200 focus:ring-1 ring-[#6ea44c] outline-none text-sm resize-none bg-white" rows="3" placeholder="請輸入完整收件地址"></textarea>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="saveFullUser('addr')" id="save-btn-addr" class="flex-1 bg-[#6ea44c] text-white py-2 rounded-xl text-xs font-bold flex justify-center items-center gap-2">
+                            <span class="material-symbols-rounded text-sm">save</span>儲存
+                        </button>
+                        <button onclick="toggleEdit('addr')" class="flex-1 border border-gray-300 text-gray-500 py-2 rounded-xl text-xs font-bold">取消</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pt-6 border-t border-gray-100 flex flex-col gap-3">
+            <button onclick="closeAllPanels()" class="w-full border border-gray-200 text-gray-600 py-4 rounded-xl font-bold hover:bg-gray-50 active:scale-95 transition-all flex justify-center items-center gap-2">
+                <span class="material-symbols-rounded text-lg">expand_more</span> 關閉會員中心
+            </button>
+            <button onclick="handleLogout()" class="w-full text-xs text-gray-300 font-bold hover:text-red-400 transition-colors py-3 text-center">
+                安全登出此帳號
+            </button>
+        </section>
+    </div>
+</div>
