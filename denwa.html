@@ -446,25 +446,7 @@ scripts: ""
                     </div>
                 </section>
 
-<section id="section-contact" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm text-center">
-    <h2 class="text-2xl font-bold text-brandGreen mb-4">聯絡方式</h2>
-    <p class="mb-4 text-slate-600">本店保留隨時修改本服務條款之權利，修改後將公布於本網站。</p>
-    
-    <p class="font-semibold mb-4">若有任何服務疑問，請透過官方客服聯繫：</p>
-    
-            <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" 
-               class="inline-block bg-brandGreen text-white px-8 py-3 rounded-lg text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-md transform hover:scale-105">
-               LINE 官方客服
-            </a>
-    
-    <p class="text-slate-600 text-sm mb-2">如按鈕無法開啟，請手動輸入 ID 加入官方客服：</p>
-    
-    <input type="text" value="@366qwylw" readonly
-           onclick="this.select()"
-           class="font-mono bg-gray-50 p-2 rounded border border-gray-300 text-center w-48 focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 cursor-pointer"
-           title="點擊選取 ID"
-           onfocus="this.select()">
-</section>
+{% include contact-section.html %}
             </div>
         </main>
     </div>
@@ -688,6 +670,7 @@ scripts: ""
   它會自動去抓取 /assets/data/privacy.tsv 並填入 #privacy-container
 -->
 <script src="{{ '/assets/js/privacy-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+
 
 
 
