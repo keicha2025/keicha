@@ -188,389 +188,213 @@ title: KEICHA 抹茶代購賣場
 </div>
 
 <script>
-    // 設定
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; 
-    // 若圖片放在 GitHub keicha 儲存庫的 images 資料夾，HTML 在根目錄，則相對路徑為 images/
-    const IMG_BASE_PATH = "images/"; 
+    // ==========================================
+    // 1. 設定區 (Config)
+    // ==========================================
+    
+    // 請填入您部署成功的 GAS 網址 (商品資料 API)
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; 
+    
+    // 請填入您 GitHub Pages 的圖片儲存庫網址 (結尾要斜線)
+    // 例如: "https://yourname.github.io/keicha-shop/"
+    const BASE_REPO_URL = "assets/images/"; 
 
-    // 狀態
-    let globalBrands = [];
-    let globalProducts = [];
-    let shippingRules = [];
-    let cart = []; // 結構: { id, brand_key, name, spec, price, price_multi, img, qty, stock }
+    // 全域變數
+    let productsData = []; // 存所有商品
+    let cart = [];         // 購物車
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initShop();
-        document.getElementById('trigger-checkout-btn').addEventListener('click', openCheckout);
-    });
-
+    // ==========================================
+    // 2. 初始化與資料抓取 (Init & Fetch)
+    // ==========================================
+    
     async function initShop() {
         try {
-            const res = await fetch(GAS_URL);
-            const data = await res.json();
+            const response = await fetch(GAS_API_URL);
+            const data = await response.json();
+
+            // 錯誤檢查
+            if (!data || !data.brands || data.error) {
+                console.error("API 回傳異常:", data);
+                alert("目前無法讀取商品資料，請稍後再試。");
+                return;
+            }
+
+            // 1. 渲染上方狀態列 (Status Grid)
+            renderStatusGrid(data.brands);
+
+            // 2. 渲染商品列表 (Products)
+            renderProductSections(data.brands, data.products);
             
-            if (!data || !data.products) throw new Error("API 資料錯誤");
+            // 存入全域變數以供搜尋或購物車使用
+            productsData = data.products;
 
-            // 1. 處理品牌與排序
-            globalBrands = (data.brands || []).sort((a, b) => (a.order || 999) - (b.order || 999));
-            
-            // 2. 處理商品與 ID (產生臨時唯一 ID)
-            globalProducts = data.products.map((p, idx) => ({
-                ...p,
-                _id: `${p.brand_key}-${idx}`, // 組合 Key
-                stock: p.stock === "" || p.stock === undefined ? 999 : parseInt(p.stock),
-                max_limit: p.max_limit ? parseInt(p.max_limit) : 999
-            }));
-
-            // 3. 處理運費規則 (若 API 有回傳，否則預設)
-            shippingRules = data.shipping_rules || [];
-
-            renderShop();
-            renderTopAuth();
-            document.getElementById('products-loader').classList.add('hidden');
-        } catch (e) {
-            console.error(e);
-            document.getElementById('products-loader').innerHTML = `<p class="text-red-500 font-bold">無法載入商店資料</p>`;
+        } catch (error) {
+            console.error("初始化失敗:", error);
+            // 可以在這裡把 loading 動畫關掉
         }
     }
 
-    // --- 渲染主畫面 ---
-    function renderShop() {
-        const container = document.getElementById('shop-container');
-        if(globalBrands.length === 0) {
-            container.innerHTML = `<p class="text-center text-gray-400">目前無品牌資料</p>`;
-            return;
-        }
+    // 執行初始化
+    document.addEventListener('DOMContentLoaded', initShop);
 
-        container.innerHTML = globalBrands.map(brand => {
-            const products = globalProducts.filter(p => p.brand_key === brand.key);
-            if(products.length === 0) return ''; // 該品牌無商品則不顯示
+    // ==========================================
+    // 3. 渲染邏輯 (Rendering)
+    // ==========================================
 
-            return `
-            <section class="space-y-6">
-                <div class="flex items-center gap-3 border-l-4 border-[#6ea44c] pl-3">
-                    <h3 class="text-xl font-bold text-gray-800">${brand.name}</h3>
-                    <span class="text-xs text-white bg-[#6ea44c] px-2 py-0.5 rounded-full">${brand.status || '連線中'}</span>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-                    ${products.map(p => renderProductCard(p)).join('')}
-                </div>
-            </section>
-            `;
-        }).join('');
-    }
-
-    function renderProductCard(p) {
-        const isSoldOut = p.stock <= 0 || p.status === '售完';
-        // 圖片路徑處理
-        let imgUrl = "";
-        if(p.img) {
-            imgUrl = p.img.startsWith('http') ? p.img : (IMG_BASE_PATH + p.img.replace(/^images\//, '')); // 防止重複路徑
-        }
+    function renderStatusGrid(brands) {
+        const container = document.getElementById('status-grid-container');
+        if(!container) return;
         
-        // 價格顯示邏輯
-        const hasMultiPrice = p.price_multi && p.price_multi < p.price;
-        const priceDisplay = hasMultiPrice 
-            ? `<div class="price-tag-group">
-                 <span class="text-xs text-gray-500 mb-1">單件 NT$ ${p.price}</span>
-                 <div class="flex items-center gap-1">
-                    <span class="discount-badge">2件優惠</span>
-                    <span class="brand-green font-bold text-lg font-mono">NT$ ${p.price_multi}</span>
-                 </div>
-               </div>`
-            : `<span class="brand-green font-bold text-lg font-mono">NT$ ${p.price}</span>`;
+        container.innerHTML = brands.map(brand => `
+            <div class="status-card ${brand.status === '收單中' ? 'active' : 'closed'}">
+                <div class="brand-name">${brand.name}</div>
+                <div class="brand-status">${brand.status}</div>
+            </div>
+        `).join('');
+    }
+
+    function renderProductSections(brands, products) {
+        const container = document.getElementById('product-list-container');
+        if(!container) return;
+        container.innerHTML = ''; // 清空
+
+        // 依品牌分組渲染
+        brands.forEach(brand => {
+            // 篩選出該品牌的商品
+            const brandProducts = products.filter(p => p.brand_key === brand.key);
+            if (brandProducts.length === 0) return;
+
+            // 建立品牌標題區塊
+            const sectionHtml = `
+                <section class="brand-section" id="brand-${brand.key}">
+                    <h2 class="brand-title">${brand.name}</h2>
+                    <div class="product-grid">
+                        ${brandProducts.map(product => createProductCard(product)).join('')}
+                    </div>
+                </section>
+            `;
+            container.innerHTML += sectionHtml;
+        });
+    }
+
+    function createProductCard(product) {
+        // 圖片處理邏輯
+        let imgHtml = '';
+        if (product.img) {
+            const imgSrc = product.img.startsWith('http') ? product.img : BASE_REPO_URL + product.img;
+            imgHtml = `<div class="product-img-box"><img src="${imgSrc}" alt="${product.name}" loading="lazy"></div>`;
+        }
+
+        // 價格顯示邏輯 (單一價格 vs 雙重價格)
+        let priceHtml = '';
+        if (product.price === product.price_multi) {
+            priceHtml = `<div class="price">NT$ ${product.price}</div>`;
+        } else {
+            priceHtml = `
+                <div class="price-group">
+                    <span class="price-single">單件 $${product.price}</span>
+                    <span class="price-multi">兩件以上 $${product.price_multi}</span>
+                </div>`;
+        }
+
+        // 按鈕狀態 (庫存/完售)
+        const isSoldOut = product.stock <= 0 || product.status === '完售';
+        const btnClass = isSoldOut ? 'btn-disabled' : 'btn-add';
+        const btnText = isSoldOut ? '完售' : '加入清單';
+        const clickEvent = isSoldOut ? '' : `onclick="addToCart('${product.brand_key}', '${product.name}', ${product.price}, ${product.price_multi})"`;
+
+        // 備註與規格
+        const specHtml = product.spec ? `<div class="product-spec">${product.spec}</div>` : '';
+        const noteHtml = product.note ? `<div class="product-note">${product.note}</div>` : '';
 
         return `
-        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group">
-            
-            <div class="card-top-row md:contents">
-                ${imgUrl ? `
-                <div class="card-img-group md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
-                    <img src="${imgUrl}" loading="lazy"
-                         class="w-full h-full object-cover transition duration-500 group-hover:scale-110 ${isSoldOut ? 'opacity-30 grayscale' : ''}" 
-                         alt="${p.name}">
-                    ${isSoldOut ? `<div class="absolute inset-0 flex items-center justify-center bg-black/5"><span class="bg-gray-800/90 text-white text-[10px] px-3 py-1.5 rounded-full font-bold">已售罄</span></div>` : ''}
-                </div>
-                ` : ''} <div class="card-info-group md:p-5 md:flex-1 md:flex md:flex-col">
-                    <div class="mb-1">
-                        <h4 class="font-bold text-gray-800 text-sm md:text-base line-clamp-1">${p.name}</h4>
-                        ${p.spec ? `<p class="text-xs text-gray-500 mt-0.5">${p.spec}</p>` : ''}
-                    </div>
-                    
-                    ${p.note ? `<div class="mb-2"><span class="tag-note">${p.note}</span></div>` : ''}
-                    
-                    <div class="md:mt-auto md:mb-4 flex justify-end md:justify-start">
-                        ${priceDisplay}
-                    </div>
+            <div class="product-card" data-brand="${product.brand_key}">
+                ${imgHtml}
+                <div class="product-info">
+                    <h3>${product.name}</h3>
+                    ${specHtml}
+                    ${priceHtml}
+                    ${noteHtml}
+                    <button class="${btnClass}" ${clickEvent}>${btnText}</button>
                 </div>
             </div>
-
-            <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
-                <div class="qty-control">
-                    <button class="qty-btn" onclick="adjTempQty('${p._id}', -1)">-</button>
-                    <span id="qty-${p._id}" class="text-xs font-bold px-2 min-w-[20px] text-center">1</span>
-                    <button class="qty-btn" onclick="adjTempQty('${p._id}', 1)">+</button>
-                </div>
-                
-                <button onclick="addToCart('${p._id}')" 
-                        class="add-btn flex-1 py-3 bg-[#6ea44c] text-white rounded-xl text-xs font-bold transition active:scale-95 ${isSoldOut ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'hover:bg-[#5d8d41] shadow-md shadow-green-900/10'}" 
-                        ${isSoldOut ? 'disabled' : ''}>
-                    ${isSoldOut ? '補貨中' : '加入購物車'}
-                </button>
-            </div>
-        </div>`;
+        `;
     }
 
-    // --- 購物車與互動邏輯 ---
-    function adjTempQty(id, delta) {
-        const el = document.getElementById(`qty-${id}`);
-        let v = parseInt(el.innerText) + delta;
-        if(v < 1) v = 1;
-        el.innerText = v;
-    }
+    // ==========================================
+    // 4. 購物車與計價核心 (Cart & Logic)
+    // ==========================================
 
-    function addToCart(id) {
-        const product = globalProducts.find(p => p._id === id);
-        const qtyEl = document.getElementById(`qty-${id}`);
-        const addQty = parseInt(qtyEl.innerText);
-        
-        // 檢查庫存
-        const currentInCart = cart.find(i => i.id === id);
-        const currentQty = currentInCart ? currentInCart.qty : 0;
-        
-        if (currentQty + addQty > product.stock) {
-            return alert(`庫存不足！目前剩餘 ${product.stock} (購物車已有 ${currentQty})`);
-        }
-        if (currentQty + addQty > product.max_limit) {
-            return alert(`此商品每人限購 ${product.max_limit} 件`);
-        }
+    function addToCart(brandKey, name, price, priceMulti) {
+        // 檢查是否已在購物車
+        const existingItem = cart.find(item => item.name === name && item.brand_key === brandKey);
 
-        if (currentInCart) {
-            currentInCart.qty += addQty;
+        if (existingItem) {
+            existingItem.qty++;
         } else {
-            let imgUrl = "";
-            if(product.img) imgUrl = product.img.startsWith('http') ? product.img : (IMG_BASE_PATH + product.img.replace(/^images\//, ''));
-            
             cart.push({
-                id: product._id,
-                brand_key: product.brand_key, // 關鍵：用於湊件計算
-                name: product.name,
-                spec: product.spec || '',
-                price: product.price,
-                price_multi: product.price_multi || product.price,
-                img: imgUrl,
-                qty: addQty,
-                stock: product.stock,
-                max_limit: product.max_limit
+                brand_key: brandKey,
+                name: name,
+                price: price,
+                price_multi: priceMulti,
+                qty: 1
             });
         }
         
-        // 重置數量選單並開啟購物車
-        qtyEl.innerText = "1";
         updateCartUI();
-        openCart();
     }
 
-    // --- 核心：價格計算與 UI 更新 (Tiered Pricing) ---
     function updateCartUI() {
-        // 1. 計算各品牌總件數
+        // 1. 計算總金額 (包含湊件邏輯)
+        const total = calculateTotal();
+        
+        // 2. 生成賣貨便字串
+        const listString = generateListString();
+
+        // 3. 更新 DOM
+        const priceInput = document.getElementById('gen-price-input');
+        const nameInput = document.getElementById('gen-name-input');
+        
+        if(priceInput) priceInput.value = total;
+        if(nameInput) nameInput.value = listString;
+
+        // 若有購物車顯示區塊，也可在這裡更新
+        console.log("購物車更新:", cart);
+        console.log("目前總金額:", total);
+    }
+
+    // ★★★ 核心計價引擎 ★★★
+    function calculateTotal() {
+        // 統計各品牌的總件數
         const brandCounts = {};
         cart.forEach(item => {
-            if(!brandCounts[item.brand_key]) brandCounts[item.brand_key] = 0;
-            brandCounts[item.brand_key] += item.qty;
+            brandCounts[item.brand_key] = (brandCounts[item.brand_key] || 0) + item.qty;
         });
 
-        // 2. 渲染列表與計算總金額
-        const container = document.getElementById('cart-items-container');
-        let total = 0;
-        let totalCount = 0;
-
-        if (cart.length === 0) {
-            container.innerHTML = `<div class="flex flex-col items-center justify-center h-40 text-gray-400"><span class="material-symbols-rounded text-4xl mb-2">shopping_basket</span><p>尚未選擇商品</p></div>`;
-            document.getElementById('cart-count').classList.add('hidden');
-        } else {
-            container.innerHTML = cart.map((item, idx) => {
-                // 判斷是否套用優惠價
-                const isDiscounted = brandCounts[item.brand_key] >= 2 && (item.price_multi < item.price);
-                const finalPrice = isDiscounted ? item.price_multi : item.price;
-                const subtotal = finalPrice * item.qty;
-                total += subtotal;
-                totalCount += item.qty;
-
-                return `
-                <div class="cart-item-row">
-                    ${item.img ? `<img src="${item.img}" class="cart-item-img">` : '<div class="cart-item-img flex items-center justify-center text-gray-300 text-xs">無圖</div>'}
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start mb-1">
-                            <div>
-                                <div class="font-bold text-gray-800 text-sm">${item.name}</div>
-                                <div class="text-[10px] text-gray-400">${item.spec}</div>
-                            </div>
-                            <button onclick="removeFromCart(${idx})" class="text-gray-300 hover:text-red-500 material-symbols-rounded text-lg">close</button>
-                        </div>
-                        
-                        <div class="flex justify-between items-end mt-2">
-                            <div>
-                                ${isDiscounted 
-                                    ? `<div class="text-[10px] bg-yellow-100 text-yellow-700 px-1 rounded inline-block mb-1">已享湊件價</div>
-                                       <div class="text-xs text-gray-400 line-through">NT$ ${item.price}</div>
-                                       <div class="text-sm font-bold brand-green font-mono">NT$ ${item.price_multi}</div>`
-                                    : `<div class="text-sm font-bold text-gray-700 font-mono">NT$ ${item.price}</div>`
-                                }
-                            </div>
-                            <div class="cart-qty-control">
-                                <div class="cart-qty-btn" onclick="updateCartQty(${idx}, -1)">-</div>
-                                <div class="cart-qty-num">${item.qty}</div>
-                                <div class="cart-qty-btn" onclick="updateCartQty(${idx}, 1)">+</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+        let finalTotal = 0;
+        
+        cart.forEach(item => {
+            const brandTotalQty = brandCounts[item.brand_key] || 0;
+            // 邏輯：同品牌滿 2 件，用優惠價；否則用原價
+            const unitPrice = brandTotalQty >= 2 ? item.price_multi : item.price;
             
-            const countEl = document.getElementById('cart-count');
-            countEl.innerText = totalCount;
-            countEl.classList.remove('hidden');
-        }
-
-        document.getElementById('cart-total-price').innerText = "NT$ " + total.toLocaleString();
-    }
-
-    function updateCartQty(idx, delta) {
-        const item = cart[idx];
-        const newQty = item.qty + delta;
-        if (newQty > item.stock) return alert("已達庫存上限");
-        if (newQty > item.max_limit) return alert(`限購 ${item.max_limit} 件`);
-        
-        item.qty = newQty;
-        if (item.qty <= 0) cart.splice(idx, 1);
-        updateCartUI();
-    }
-    
-    function removeFromCart(idx) { cart.splice(idx, 1); updateCartUI(); }
-
-    // --- 結帳與生成文字 ---
-    function openCheckout() {
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        if(!u) { openLoginPanel(); return; }
-        if(cart.length === 0) { alert("購物車是空的"); return; }
-
-        generateOrderString();
-        calculateCheckoutSummary();
-
-        closeAllPanels();
-        document.getElementById('checkout-panel').classList.add('open');
-        document.getElementById('global-overlay').classList.add('open');
-    }
-
-    function generateOrderString() {
-        // 格式：[品牌] 品名 (規格) x 數量
-        const lines = cart.map(item => {
-            // 找回品牌名稱
-            const brand = globalBrands.find(b => b.key === item.brand_key);
-            const brandName = brand ? brand.name : item.brand_key;
-            const specStr = item.spec ? ` (${item.spec})` : '';
-            return `[${brandName}] ${item.name}${specStr} x ${item.qty}`;
-        });
-        
-        // 加入總金額與備註
-        const total = document.getElementById('cart-total-price').innerText;
-        const text = lines.join(', ') + `\n\n總金額：${total}`;
-        
-        document.getElementById('generated-order-text').value = text;
-    }
-    
-    function calculateCheckoutSummary() {
-        // 重新計算以確保準確 (雖然 Cart UI 也有算)
-        const brandCounts = {};
-        cart.forEach(i => { if(!brandCounts[i.brand_key]) brandCounts[i.brand_key]=0; brandCounts[i.brand_key]+=i.qty; });
-        
-        let subtotal = 0;
-        cart.forEach(item => {
-            const isDiscounted = brandCounts[item.brand_key] >= 2 && (item.price_multi < item.price);
-            subtotal += (isDiscounted ? item.price_multi : item.price) * item.qty;
+            finalTotal += unitPrice * item.qty;
         });
 
-        // 運費計算 (針對抹茶分類)
-        // 假設 shippingRules 裡有 category: '抹茶' 或 'default'
-        // 這裡簡化：若有規則則套用，否則顯示 0 或 依賣場
-        let shipping = 0;
-        // 簡易邏輯：若有滿額免運等規則可在此實作，此處先顯示依賣場規定
+        return finalTotal;
+    }
+
+    function generateListString() {
+        if (cart.length === 0) return '';
         
-        document.getElementById('summary-subtotal').innerText = `NT$ ${subtotal.toLocaleString()}`;
-        document.getElementById('summary-shipping').innerText = "依賣場規定"; 
-        document.getElementById('summary-total').innerText = `NT$ ${subtotal.toLocaleString()}`;
-    }
-
-    function copyOrderText() {
-        const el = document.getElementById('generated-order-text');
-        el.select();
-        document.execCommand('copy');
-        alert("已複製訂單內容！請前往賣場貼上。");
-    }
-
-    async function handlePlaceOrder() {
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        const orderText = document.getElementById('generated-order-text').value;
-        const totalStr = document.getElementById('summary-total').innerText;
-        const btn = document.getElementById('btn-submit-order');
+        // 格式：[品牌] 品名 x 數量
+        // 這裡需要透過 brand_key 找回 品牌中文名，建議在 init 時建立一個對照表
+        // 這裡簡化直接用 key 或需從 productsData 查找
         
-        btn.innerHTML = `<span class="material-symbols-rounded animate-spin-custom">refresh</span> 處理中...`;
-        btn.disabled = true;
-
-        const payload = {
-            action: 'checkout_maccha', // 區別於一般商店
-            name: u.name,
-            phone: u.phone,
-            items: orderText, // 直接傳送生成的字串
-            total_display: totalStr,
-            raw_cart: JSON.stringify(cart), // 傳送原始購物車供後端備查
-            date: new Date().toLocaleString('zh-TW')
-        };
-
-        try {
-            await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
-            alert("訂單紀錄已送出！請務必前往賣場完成下單付款。");
-            cart = []; updateCartUI(); closeAllPanels();
-        } catch(e) {
-            alert("連線錯誤，但您已複製內容，可直接前往賣場。");
-        }
-        
-        btn.innerHTML = `<span class="material-symbols-rounded">verified</span> 送出訂單並結束`;
-        btn.disabled = false;
+        return cart.map(item => {
+            // 嘗試找回中文品牌名 (選擇性)
+            // const brandName = ... 
+            return `${item.name} x ${item.qty}`;
+        }).join(', ');
     }
-
-    // --- 用戶與面板通用功能 (沿用) ---
-    function handleQuickLogin() {
-        const phone = document.getElementById('login-phone').value.trim();
-        if(!/^09\d{8}$/.test(phone)) return alert("格式錯誤");
-        const u = { phone: phone, name: '抹茶會員' }; // 簡化登入
-        localStorage.setItem('keicha_v2_user', JSON.stringify(u));
-        renderTopAuth(); closeAllPanels();
-    }
-    function handleLogout() { localStorage.removeItem('keicha_v2_user'); location.reload(); }
-    function renderTopAuth() {
-        const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
-        document.getElementById('top-auth-zone').innerHTML = u ? `<button onclick="openUserPanel()" class="flex items-center gap-1 brand-green font-bold text-sm"><span class="material-symbols-rounded text-lg">account_circle</span> ${u.phone}</button>` : `<button onclick="openLoginPanel()" class="text-gray-400 text-sm font-bold">登入</button>`;
-    }
-    
-    function openLoginPanel() { closeAllPanels(); document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function openUserPanel() { document.getElementById('display-user-phone').innerText = JSON.parse(localStorage.getItem('keicha_v2_user'))?.phone; document.getElementById('user-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function openCart() { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
-    function closeAllPanels() { document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')); }
-
-    window.openCart = openCart;
-    window.closeAllPanels = closeAllPanels;
-    window.handleQuickLogin = handleQuickLogin;
-    window.handleLogout = handleLogout;
-    window.openLoginPanel = openLoginPanel;
-    window.openUserPanel = openUserPanel;
-    window.addToCart = addToCart;
-    window.adjTempQty = adjTempQty;
-    window.updateCartQty = updateCartQty;
-    window.removeFromCart = removeFromCart;
-    window.openCheckout = openCheckout;
-    window.copyOrderText = copyOrderText;
-    window.handlePlaceOrder = handlePlaceOrder;
 </script>
