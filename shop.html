@@ -128,7 +128,7 @@ title: KEICHA 網路商店
         <div class="text-center space-y-2"><p class="text-gray-600 font-bold">歡迎來到 KEICHA</p><p class="text-xs text-gray-400">請輸入手機號碼快速登入</p></div>
         <input type="tel" id="login-phone" placeholder="例如：0912345678" class="w-full p-4 bg-gray-50 border rounded-2xl text-lg font-bold outline-none focus:ring-1 ring-[#6ea44c]">
         <button onclick="handleQuickLogin()" id="login-submit-btn" class="w-full bg-[#6ea44c] text-white py-4 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2">
-            <span id="login-text">獲取資料</span><span id="login-icon" class="material-symbols-rounded">arrow_forward</span>
+            <span id="login-text">下一步</span><span id="login-icon" class="material-symbols-rounded">arrow_forward</span>
         </button>
     </div>
 </div>
@@ -290,17 +290,17 @@ title: KEICHA 網路商店
             </div>
             
             <div id="checkout-view-info" class="space-y-4 bg-gray-50/50 p-4 rounded-2xl">
-                <div class="flex justify-between">
-                    <div class="field-group">
-                        <label class="text-[10px] text-gray-400 font-bold block mb-1">收件人全名 <span class="text-red-500">*</span></label>
-                        <div id="checkout-info-name" class="font-bold text-gray-700 text-sm">-</div>
-                    </div>
-                    <div class="field-group text-right">
-                        <label class="text-[10px] text-gray-400 font-bold block mb-1">手機號碼</label>
-                        <div id="checkout-info-phone" class="font-bold text-gray-700 text-sm font-mono">-</div>
-                    </div>
+                <div class="field-group border-b border-gray-200 pb-3">
+                    <label class="text-[10px] text-gray-400 font-bold block mb-1">手機號碼 (會員帳號)</label>
+                    <div id="checkout-info-phone" class="font-bold text-gray-700 text-lg font-mono">-</div>
                 </div>
-                <div class="field-group border-t border-gray-200 pt-3">
+
+                <div class="field-group">
+                    <label class="text-[10px] text-gray-400 font-bold block mb-1">收件人全名 <span class="text-red-500">*</span></label>
+                    <div id="checkout-info-name" class="font-bold text-gray-700 text-sm">-</div>
+                </div>
+                
+                <div class="field-group">
                     <label class="text-[10px] text-gray-400 font-bold block mb-1">電子信箱 (接收訂單通知) <span class="text-red-500">*</span></label>
                     <div id="checkout-info-email" class="font-bold text-gray-700 text-sm break-all">-</div>
                 </div>
@@ -591,6 +591,7 @@ title: KEICHA 網路商店
         updateCartUI();
         openCart();
     }
+    // [UI修改] 購物車：垃圾桶改為叉叉
     function updateCartUI() {
         const count = cart.reduce((s, i) => s + i.qty, 0);
         const elCount = document.getElementById('cart-count');
@@ -615,7 +616,7 @@ title: KEICHA 網路商店
                             <div class="cart-qty-num">${i.qty}</div>
                             <div class="cart-qty-btn" onclick="updateCartQty(${idx}, 1)">+</div>
                         </div>
-                        <button onclick="removeFromCart(${idx})" class="material-symbols-rounded text-gray-300 hover:text-red-500 text-xl">delete</button>
+                        <button onclick="removeFromCart(${idx})" class="material-symbols-rounded text-gray-300 hover:text-red-500 text-xl">close</button>
                     </div>
                 </div>`;
             }).join('');
@@ -828,6 +829,7 @@ title: KEICHA 網路商店
     }
 
     // --- 會員系統 (User Panel 邏輯已恢復) ---
+    // [UI修改] 按鈕文字：載入後還原為「下一步」
     function handleQuickLogin() {
         const phone = document.getElementById('login-phone').value.trim();
         if(!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
@@ -837,7 +839,7 @@ title: KEICHA 網路商店
         fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'login', phone }) })
             .then(res => res.json()).then(res => {
                 if(res.success) { localStorage.setItem('keicha_v2_user', JSON.stringify(res.data)); renderTopAuth(); closeAllPanels(); }
-            }).finally(() => { icon.classList.remove('animate-spin'); text.innerText = "獲取資料"; });
+            }).finally(() => { icon.classList.remove('animate-spin'); text.innerText = "下一步"; });
     }
 
     function renderUserFields() {
