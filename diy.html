@@ -74,7 +74,7 @@ title: KEICHA 網路商店
     .btn-outline-green:hover { background-color: #f9fafb; }
     .btn-outline-green:active { transform: scale(0.95); }
 
-    /* iOS 底部安全區域適配 */
+    /* iOS 底部安全區域適配 & 底部欄位優化 */
     .safe-area-pb {
         padding-bottom: env(safe-area-inset-bottom, 20px);
     }
@@ -288,19 +288,15 @@ title: KEICHA 網路商店
         const phone = document.getElementById('input-phone').value.trim();
         if(!/^09\d{8}$/.test(phone)) return alert("請輸入正確的 09 開頭 10 碼電話");
         
-        // 【關鍵修改】: 只要點了這個按鈕，就視為同意加入會員，強制勾選下方
         document.getElementById('join-member-check').checked = true;
-
         setBtnLoading(btn, true, "查詢中...");
 
         try {
             const res = await API.login(phone);
             if(res.success && !res.isNew) {
                 fillFormWithData(res.data);
-                // 視覺回饋：聚焦到下一欄
                 document.getElementById('input-items').focus();
             } else {
-                // 沒找到資料，僅聚焦到下一欄位
                 document.getElementById('input-items').focus();
             }
         } catch(e) {
@@ -349,21 +345,31 @@ title: KEICHA 網路商店
         const subtotal = parseInt(val) || 0;
         let ship = 0;
 
-        if (shippingRules.length > 0) {
+        // 1. 更新各選項內的「預覽價格」 (金額 > 0 才顯示)
+        if (subtotal > 0 && shippingRules.length > 0) {
             setText('price-preview-7-11', `運費 $${calcShip('7-11', subtotal)}`);
             setText('price-preview-fami', `運費 $${calcShip('全家', subtotal)}`);
             setText('price-preview-addr', `運費 $${calcShip('宅配', subtotal)}`);
+        } else {
+            setText('price-preview-7-11', '');
+            setText('price-preview-fami', '');
+            setText('price-preview-addr', '');
         }
 
-        // 準備上方資訊列文字
+        // 2. 準備底部資訊列文字
         let infoText = "總金額 (含運)"; 
 
         if (currentMethod) {
             const methodMap = { '711': '7-11', 'fami': '全家', 'addr': '宅配' };
             const mName = methodMap[currentMethod];
-            ship = calcShip(mName, subtotal);
             
-            infoText = `總金額 (含運)｜${mName} 運費 +${ship}`;
+            if (subtotal > 0) {
+                ship = calcShip(mName, subtotal);
+                infoText = `總金額 (含運)｜${mName} 運費 +${ship}`;
+            } else {
+                infoText = "總金額 (含運)｜請填寫金額以計算運費";
+                ship = 0;
+            }
         } else {
             infoText = "總金額 (含運)｜尚未選擇物流";
         }
@@ -375,6 +381,7 @@ title: KEICHA 網路商店
         document.getElementById('summary-total').innerText = `NT$ ${total.toLocaleString()}`;
     }
 
+    // 【重要】運費計算函式 (先前可能被刪除，現已補回)
     function calcShip(method, amount) {
         if (!shippingRules || shippingRules.length === 0) return 0;
         let rule = shippingRules.find(r => r.method == method && r.category == '自填單');
