@@ -12,7 +12,6 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         width: 100%; padding: 0.75rem;
         border: 1px solid #e2e8f0; border-radius: 0.5rem;
         background-color: #f8fafc; transition: all 0.2s;
-        /* 讓 Select 下拉選單在手機上更好點擊 */
         font-size: 16px; 
     }
     .form-input:focus {
@@ -28,12 +27,12 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         margin-bottom: 1.5rem; margin-top: 2rem;
     }
     
-    /* 人數計數器按鈕樣式 - 優化結構 */
+    /* 人數計數器 */
     .counter-wrapper {
         display: flex; align-items: center; justify-content: space-between;
         background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem;
         padding: 0.25rem;
-        width: 140px; /* 固定總寬度 */
+        width: 140px; 
     }
     .counter-btn {
         width: 36px; height: 36px;
@@ -41,22 +40,32 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         color: #6ea44c; font-weight: bold; font-size: 1.25rem;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer; user-select: none;
-        flex-shrink: 0; /* 防止被擠壓 */
+        flex-shrink: 0; 
         transition: background 0.1s;
     }
     .counter-btn:active { background: #f1f5f9; }
-    
-    /* 中間數字顯示區：固定寬度，避免推擠 */
     .counter-value {
         width: 48px; text-align: center; background: transparent; border: none;
         font-weight: bold; color: #334155; font-size: 1.1rem;
         padding: 0; margin: 0;
     }
     
-    /* Radio Button 品牌色 */
-    input[type="radio"] {
-        accent-color: #6ea44c;
+    /* === 自定義 Radio Button 樣式 === */
+    .custom-radio {
+        appearance: none;
+        -webkit-appearance: none;
         width: 1.25rem; height: 1.25rem;
+        border-radius: 50%;
+        background-color: white;
+        border: 2px solid #cbd5e1; /* 未選取時：灰色邊框 */
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+    .custom-radio:checked {
+        border-color: white; /* 選取時：白色外框 */
+        /* 選取時：中間品牌色圓點 (利用漸層模擬) */
+        background-image: radial-gradient(circle, #6ea44c 45%, transparent 50%);
     }
 
     /* 骨架屏 */
@@ -81,9 +90,10 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
     
     .content-safe-area { padding-bottom: 120px; }
 
-    /* Material Icons 微調 */
     .material-symbols-outlined {
         vertical-align: middle;
+        /* 確保 icon 大小一致 */
+        font-size: 18px !important; 
     }
 </style>
 
@@ -177,7 +187,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
             </label>
             <textarea id="childDetails" class="form-input border-[#6ea44c]/30 focus:border-[#6ea44c] focus:ring-[#6ea44c]/20" rows="2" placeholder="例如：一位3歲(需兒童椅)、一位5歲(不用餐)"></textarea>
             <p class="text-xs text-slate-500 mt-2 flex items-center">
-                <span class="material-symbols-outlined text-[16px] mr-1">info</span>
+                <span class="material-symbols-outlined mr-1">info</span>
                 請務必告知店家小孩年齡與是否佔位/用餐。
             </p>
         </div>
@@ -194,10 +204,10 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
 
         <div class="mb-6">
             <label class="form-label" for="japanContact">在日聯絡資訊 (選填)</label>
-            <input type="text" id="japanContact" name="japanContact" class="form-input" placeholder="請填寫您在日本的聯絡電話，或預定入住的飯店名稱與電話">
-            <div class="flex items-start mt-2 text-xs text-slate-500">
-                <span class="material-symbols-outlined text-[16px] mr-1 text-slate-400">info</span>
-                <span>部分店家需要日本聯絡電話才能接受預約。</span>
+            <input type="text" id="japanContact" name="japanContact" class="form-input" placeholder="">
+            <div class="flex items-center mt-2 text-xs text-slate-500">
+                <span class="material-symbols-outlined mr-1 flex-shrink-0 text-slate-400">info</span>
+                <span>部分店家需要日本聯絡電話才能接受預約，如有在日聯絡方式，或預定入住的飯店名稱與電話請填寫於此。</span>
             </div>
         </div>
 
@@ -235,25 +245,19 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
     let currentPrice = 0;
 
     document.addEventListener('DOMContentLoaded', () => {
-        // 1. 初始化日期
         const dateInput = document.getElementById('serviceDate');
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         dateInput.valueAsDate = tomorrow;
 
-        // 2. 初始化時間選擇器 (00:00 - 23:30)
         initTimeSelect();
-
-        // 3. 讀取方案
         fetchPlans();
     });
 
-    // 初始化時間選擇器函式
     function initTimeSelect() {
         const select = document.getElementById('serviceTime');
-        const interval = 30; // 30分鐘
+        const interval = 30; 
         
-        // 生成 00:00 到 23:30 的選項
         for (let hour = 0; hour < 24; hour++) {
             for (let min = 0; min < 60; min += interval) {
                 const hStr = hour.toString().padStart(2, '0');
@@ -266,8 +270,6 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
                 select.appendChild(option);
             }
         }
-
-        // 預設選中 12:00 (作為視覺錨點)
         select.value = "12:00";
     }
 
@@ -293,19 +295,30 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         plans.forEach((plan, index) => {
             const isChecked = index === 0 ? 'checked' : '';
             
-            // Radio Button 樣式調整：accent-color 依賴 CSS 控制
+            // HTML 結構修改重點：
+            // 1. input type="radio" 使用 class="custom-radio" 來套用新 CSS
+            // 2. 說明文字外層增加 <div class="pr-4"> 容器 (透明容器)
+            // 3. 說明文字 span 增加 text-justify 與左右對齊樣式
+            // 4. 金額區域增加 shrink-0 確保不被推擠
+            
             const html = `
             <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#6ea44c]/10">
+                
                 <input type="radio" name="paymentPlan" value="${plan.name}" 
                        data-link="${plan.link}" 
-                       class="cursor-pointer" 
+                       class="custom-radio" 
                        ${isChecked} 
                        onchange="updatePrice(${plan.price})">
-                <div class="ml-4 flex-1">
-                    <span class="block text-slate-800 font-bold">${plan.name}</span>
-                    <span class="block text-sm text-slate-500">${plan.desc}</span>
+                
+                <div class="ml-4 flex-1 pr-4"> <span class="block text-slate-800 font-bold mb-1">${plan.name}</span>
+                    <div class="w-full">
+                        <span class="block text-sm text-slate-500 text-justify leading-relaxed">${plan.desc}</span>
+                    </div>
                 </div>
-                <div class="text-lg font-bold text-[#6ea44c]">$${plan.price}</div>
+                
+                <div class="text-lg font-bold text-[#6ea44c] shrink-0 text-right whitespace-nowrap pl-2">
+                    $${plan.price}
+                </div>
             </label>
             `;
             container.insertAdjacentHTML('beforeend', html);
@@ -323,10 +336,8 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         const input = document.getElementById(id);
         let val = parseInt(input.value) || 0;
         val += delta;
-        
         if (val < 0) val = 0;
         if (id === 'adultCount' && val < 1) val = 1; 
-        
         input.value = val;
         calculateTotal();
     }
@@ -363,8 +374,6 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         document.getElementById('loading-overlay').style.display = 'flex';
 
         const formData = new FormData(form);
-        
-        // 處理備註
         const noteInput = document.getElementById('note');
         const originalNote = noteInput.value;
         const childDetails = document.getElementById('childDetails').value;
@@ -376,12 +385,8 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         }
         formData.set('note', finalNote);
 
-        // 付款連結
         const selectedPlan = document.querySelector('input[name="paymentPlan"]:checked');
         const paymentLink = selectedPlan ? selectedPlan.getAttribute('data-link') : '';
-
-        // **注意：japanContact 欄位已由 input name="japanContact" 自動包含在 formData 中，
-        // GAS 後端會接收到 params.japanContact，並寫入對應欄位 (Code.gs 需確保有接收此參數)**
 
         fetch(SCRIPT_URL, {
             method: 'POST',
