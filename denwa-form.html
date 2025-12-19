@@ -5,7 +5,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
 ---
 
 <style>
-    /* 基礎樣式 */
+    /* 基礎表單樣式 */
     .form-input {
         width: 100%; padding: 0.75rem;
         border: 1px solid #e2e8f0; border-radius: 0.5rem;
@@ -24,7 +24,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         margin-bottom: 1.5rem; margin-top: 2rem;
     }
     
-    /* 計數器樣式 */
+    /* 人數計數器按鈕樣式 */
     .counter-wrapper {
         display: flex; align-items: center; justify-content: space-between;
         background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem;
@@ -43,14 +43,14 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         font-weight: bold; color: #334155; font-size: 1rem;
     }
     
-    /* 骨架屏 */
+    /* 骨架屏 (載入方案前顯示) */
     .skeleton {
         height: 80px; background: #e2e8f0; border-radius: 0.75rem;
         margin-bottom: 1rem; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 
-    /* Loading Overlay */
+    /* 全螢幕 Loading 遮罩 */
     #loading-overlay {
         display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(255,255,255,0.8); z-index: 9999;
@@ -63,7 +63,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* 內容底部保留空間，避免被 Bar 擋住 */
+    /* 為了不被底部 Bar 擋住內容的 Padding */
     .content-safe-area { padding-bottom: 120px; }
 </style>
 
@@ -197,21 +197,25 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
 </div>
 
 <script>
-    // 請確認此處為您的 GAS 網址
+    // 您的 Google Apps Script 網址
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaiaR2hPXA8RN2E1_5GUYFNtzGnkUZC5Kq2xXt6Mw80QVRw0Wi7fBrM2k3MxyZhon4/exec";
     
     let currentPlans = [];
     let currentPrice = 0;
 
+    // 初始化
     document.addEventListener('DOMContentLoaded', () => {
+        // 設定日期預設為明天
         const dateInput = document.getElementById('serviceDate');
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         dateInput.valueAsDate = tomorrow;
 
+        // 讀取方案
         fetchPlans();
     });
 
+    // 從後端讀取方案
     function fetchPlans() {
         const container = document.getElementById('plan-container');
         
@@ -227,6 +231,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         });
     }
 
+    // 渲染方案列表
     function renderPlans(plans) {
         const container = document.getElementById('plan-container');
         container.innerHTML = ''; 
@@ -234,10 +239,11 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         plans.forEach((plan, index) => {
             const isChecked = index === 0 ? 'checked' : '';
             
-            // 這裡更新了選中時的樣式：bg-[#6ea44c]/10 (品牌綠10%)
+            // 樣式設定：選中狀態顯示 bg-[#6ea44c]/10
             const html = `
             <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#6ea44c]/10">
                 <input type="radio" name="paymentPlan" value="${plan.name}" 
+                       data-link="${plan.link}" 
                        class="w-5 h-5 text-[#6ea44c] border-gray-300 focus:ring-[#6ea44c]" 
                        ${isChecked} 
                        onchange="updatePrice(${plan.price})">
@@ -254,21 +260,27 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         });
     }
 
+    // 更新價格顯示
     function updatePrice(price) {
         currentPrice = price;
         document.getElementById('price-display').innerText = price;
     }
 
+    // 更新人數 (+/- 按鈕)
     function updateCount(id, delta) {
         const input = document.getElementById(id);
         let val = parseInt(input.value) || 0;
         val += delta;
+        
+        // 最小值限制
         if (val < 0) val = 0;
         if (id === 'adultCount' && val < 1) val = 1; 
+        
         input.value = val;
         calculateTotal();
     }
 
+    // 計算總人數並切換小孩區塊顯示
     function calculateTotal() {
         const adult = parseInt(document.getElementById('adultCount').value) || 0;
         const child = parseInt(document.getElementById('childCount').value) || 0;
@@ -290,6 +302,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         }
     }
 
+    // 送出表單
     function submitForm() {
         const form = document.getElementById('booking-form');
         
@@ -301,6 +314,8 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         document.getElementById('loading-overlay').style.display = 'flex';
 
         const formData = new FormData(form);
+        
+        // 合併小孩備註
         const noteInput = document.getElementById('note');
         const originalNote = noteInput.value;
         const childDetails = document.getElementById('childDetails').value;
@@ -310,9 +325,13 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         if (childCount > 0 && childDetails) {
             finalNote = `[小孩需求]: ${childDetails}\n[其他備註]: ${originalNote}`;
         }
-        
         formData.set('note', finalNote);
 
+        // 抓取選中方案的付款連結
+        const selectedPlan = document.querySelector('input[name="paymentPlan"]:checked');
+        const paymentLink = selectedPlan ? selectedPlan.getAttribute('data-link') : '';
+
+        // 發送資料至 GAS
         fetch(SCRIPT_URL, {
             method: 'POST',
             body: formData
@@ -320,15 +339,35 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         .then(response => response.json())
         .then(data => {
             if (data.result === 'success') {
-                window.location.href = `form-result.html?status=success&order_id=${data.order_id}`;
+                
+                // 儲存資料至 sessionStorage 供結果頁顯示
+                const displayData = {
+                    orderId: data.order_id,
+                    customerName: formData.get('customerName'),
+                    lineName: formData.get('lineName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    shopName: formData.get('shopName'),
+                    dateTime: `${formData.get('serviceDate')} ${formData.get('serviceTime')}`,
+                    people: `大人 ${formData.get('adultCount')} / 小孩 ${formData.get('childCount')} (共 ${formData.get('totalCount')} 人)`,
+                    bookingName: formData.get('bookingName'),
+                    planName: formData.get('paymentPlan'),
+                    note: finalNote,
+                    paymentLink: paymentLink
+                };
+                
+                sessionStorage.setItem('orderResult', JSON.stringify(displayData));
+                
+                // 跳轉至結果頁
+                window.location.href = `form-result.html`;
             } else {
-                alert('失敗：' + data.message);
+                alert('預約失敗：' + data.message);
                 document.getElementById('loading-overlay').style.display = 'none';
             }
         })
         .catch(error => {
-            console.error(error);
-            alert('發生錯誤，請檢查網路。');
+            console.error('Error:', error);
+            alert('發生錯誤，請檢查網路連線。');
             document.getElementById('loading-overlay').style.display = 'none';
         });
     }
