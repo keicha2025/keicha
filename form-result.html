@@ -1,42 +1,57 @@
 ---
 layout: default
-title: 電話代播預約完成 | KEICHA 服務
+title: 預約申請完成 | KEICHA 服務
 description: KEICHA 電話代播服務預約結果。
 ---
 
 <style>
-    /* 隱藏內容，直到 JS 檢查通過 */
-    #result-content { display: none; }
-     
+    /* 品牌 Icon 樣式：品牌色 10% 背景 */
     .brand-icon-wrapper {
         width: 80px; height: 80px;
-        background-color: #f0fdf4;
+        background-color: rgba(110, 164, 76, 0.1); /* #6ea44c 10% */
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         margin: 0 auto 1.5rem auto;
     }
-     
     .brand-icon-svg {
         width: 40px; height: 40px; color: #6ea44c;
     }
 
+    /* 按鈕樣式 */
     .btn-brand {
-        display: inline-block;
-        background-color: #6ea44c;
-        color: white;
-        font-weight: bold;
-        padding: 12px 32px;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: opacity 0.2s ease;
-        border: none;
-        cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
+        background-color: #6ea44c; color: white;
+        font-weight: bold; padding: 12px 32px; border-radius: 50px;
+        text-decoration: none; transition: all 0.2s ease;
+        border: none; cursor: pointer;
+        box-shadow: 0 4px 6px -1px rgba(110, 164, 76, 0.2);
     }
-    .btn-brand:hover { opacity: 0.9; }
+    .btn-brand:hover { background-color: #5d8c40; transform: translateY(-1px); }
+
+    .btn-outline {
+        display: inline-flex; align-items: center; justify-content: center;
+        background-color: white; color: #475569; border: 1px solid #cbd5e1;
+        font-weight: bold; padding: 12px 32px; border-radius: 50px;
+        text-decoration: none; transition: all 0.2s ease;
+    }
+    .btn-outline:hover { background-color: #f8fafc; border-color: #94a3b8; }
+
+    /* 明細表格樣式 */
+    .details-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .details-table th { 
+        width: 30%; color: #64748b; font-weight: normal; 
+        padding: 12px 0; border-bottom: 1px solid #f1f5f9; vertical-align: top;
+    }
+    .details-table td { 
+        width: 70%; color: #1e293b; font-weight: 600; 
+        padding: 12px 0; border-bottom: 1px solid #f1f5f9; padding-left: 12px;
+    }
+    .details-table tr:last-child th, 
+    .details-table tr:last-child td { border-bottom: none; }
 </style>
 
-<div class="container mx-auto max-w-3xl px-4 py-12 md:py-20">
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 md:p-12 text-center">
+<div class="container mx-auto max-w-2xl px-4 py-12 md:py-20">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-10 text-center">
         
         <div id="success-view" style="display: none;">
             <div class="brand-icon-wrapper">
@@ -45,32 +60,61 @@ description: KEICHA 電話代播服務預約結果。
                 </svg>
             </div>
 
-            <h1 class="text-3xl font-bold text-[#6ea44c] mb-4">預約需求已送出</h1>
-            <p class="text-slate-600 text-lg mb-8">系統已成功記錄您的請求，確認信已發送至您的電子信箱。</p>
+            <h1 class="text-3xl font-bold text-slate-800 mb-4">預約申請已送出</h1>
+            
+            <div class="text-slate-600 mb-8 space-y-1">
+                <p>確認信已同步發送至您的信箱與 <span class="font-mono text-sm bg-slate-100 px-2 py-1 rounded">keicha.nihoncha@gmail.com</span></p>
+            </div>
 
-            <div class="bg-slate-50 rounded-xl p-6 mb-8 text-left border border-slate-200">
-                <h3 class="font-bold text-slate-800 text-lg mb-3">下一步：聯繫客服與支付費用</h3>
+            <div id="payment-section" class="mb-8 hidden">
+                <p class="text-[#6ea44c] font-bold mb-3 animate-pulse">👇 您的方案包含線上付款連結，請點擊支付 👇</p>
+                <a id="payment-btn" href="#" target="_blank" class="btn-brand w-full md:w-auto text-lg">
+                    前往付款
+                </a>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl p-6 mb-8 text-left border border-slate-200 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-[#6ea44c] text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
+                    請截圖此畫面
+                </div>
                 
-                <p class="text-lg font-bold text-brandGreen mb-3">
-                    您的預約單號：<span id="result-order-id" class="text-xl"></span>
-                </p>
+                <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#6ea44c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    預約內容明細
+                </h3>
                 
+                <table class="details-table">
+                    <tr><th>訂單編號</th><td id="d-orderId" class="text-[#6ea44c] font-bold text-lg"></td></tr>
+                    <tr><th>中文姓名</th><td id="d-name"></td></tr>
+                    <tr><th>LINE 名稱</th><td id="d-line"></td></tr>
+                    <tr><th>聯絡電話</th><td id="d-phone"></td></tr>
+                    <tr><th>Email</th><td id="d-email"></td></tr>
+                    <tr><th>預約店家</th><td id="d-shop"></td></tr>
+                    <tr><th>日期時間</th><td id="d-time"></td></tr>
+                    <tr><th>預約人數</th><td id="d-people"></td></tr>
+                    <tr><th>登記英文名</th><td id="d-bookingName"></td></tr>
+                    <tr><th>選擇方案</th><td id="d-plan"></td></tr>
+                    <tr><th>備註事項</th><td id="d-note" style="white-space: pre-line;"></td></tr>
+                </table>
+            </div>
+
+            <div class="mb-8">
+                <p class="text-slate-700 font-bold mb-2">下一步：</p>
                 <p class="text-slate-600 mb-4">
-                   請至您的信箱收取確認信。為了加速服務，建議您點擊下方按鈕加入官方 LINE，並告知客服人員您的<strong>預約單號</strong>，我們將引導您完成預付款。
+                    請將<strong>「上方明細截圖」</strong>，並點擊下方按鈕聯絡官方 LINE 客服。<br>
+                    客服人員將根據截圖為您核對並安排服務。
                 </p>
-                <ul class="text-sm text-slate-500 list-disc list-inside space-y-1">
-                    <li>若您尚未完成支付，服務將不會啟動。</li>
-                    <li>請保留確認信或此頁面截圖以供備查。</li>
-                </ul>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="https://lin.ee/QJU5mUO" target="_blank" class="btn-brand">
-                    聯繫官方客服
+                    聯絡官方客服 (傳送截圖)
                 </a>
                 
-                <a href="{{ '/denwa-form.html' | relative_url }}" class="inline-flex items-center justify-center px-6 py-3 bg-white border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors duration-200">
-                    返回代播服務頁
+                <a href="{{ '/denwa-form.html' | relative_url }}" class="btn-outline">
+                    返回首頁
                 </a>
             </div>
         </div>
@@ -81,11 +125,9 @@ description: KEICHA 電話代播服務預約結果。
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <h2 class="text-2xl font-bold text-slate-700 mb-2">預約失敗或資料遺失</h2>
-            <p class="text-slate-500 mb-8">我們無法讀取您的預約單號。<br>請直接聯繫 LINE 客服並告知您的訂購姓名、日期與時間。</p>
-            <a href="{{ '/denwa-form.html' | relative_url }}" class="btn-brand">
-                返回表單重新預約
-            </a>
+            <h2 class="text-2xl font-bold text-slate-700 mb-2">查無資料</h2>
+            <p class="text-slate-500 mb-8">無法讀取您的預約資料，可能是頁面已過期。<br>請檢查信箱確認信，或直接聯繫客服。</p>
+            <a href="{{ '/denwa-form.html' | relative_url }}" class="btn-brand">重新預約</a>
         </div>
 
     </div>
@@ -93,16 +135,41 @@ description: KEICHA 電話代播服務預約結果。
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const status = urlParams.get('status');
-        const orderId = urlParams.get('order_id');
-
-        const orderIdEl = document.getElementById('result-order-id');
+        // 從 sessionStorage 讀取資料 (由上一頁寫入)
+        const storedData = sessionStorage.getItem('orderResult');
         
-        if (status === 'success' && orderId) { 
+        if (storedData) {
+            const data = JSON.parse(storedData);
+            
+            // 填寫表格
+            document.getElementById('d-orderId').textContent = data.orderId;
+            document.getElementById('d-name').textContent = data.customerName;
+            document.getElementById('d-line').textContent = data.lineName || '-';
+            document.getElementById('d-phone').textContent = data.phone;
+            document.getElementById('d-email').textContent = data.email;
+            document.getElementById('d-shop').textContent = data.shopName;
+            document.getElementById('d-time').textContent = data.dateTime;
+            document.getElementById('d-people').textContent = data.people;
+            document.getElementById('d-bookingName').textContent = data.bookingName;
+            document.getElementById('d-plan').textContent = data.planName;
+            document.getElementById('d-note').textContent = data.note || '無';
+
+            // 處理付款按鈕
+            if (data.paymentLink && data.paymentLink.startsWith('http')) {
+                const paySection = document.getElementById('payment-section');
+                const payBtn = document.getElementById('payment-btn');
+                payBtn.href = data.paymentLink;
+                paySection.classList.remove('hidden');
+            }
+
+            // 顯示成功區塊
             document.getElementById('success-view').style.display = 'block';
-            if (orderIdEl) orderIdEl.textContent = orderId;
+
+            // 建議：讀取完後清除，避免重新整理時資料還在 (視需求而定，保留也可方便使用者)
+            // sessionStorage.removeItem('orderResult'); 
+            
         } else {
+            // 如果沒有資料 (例如直接輸入網址進來)，顯示錯誤
             document.getElementById('error-view').style.display = 'block';
         }
     });
