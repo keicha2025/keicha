@@ -1,0 +1,253 @@
+---
+layout: default
+title: 電話代播預約申請 | KEICHA 服務
+description: 線上填寫代播需求，我們將為您聯繫日本店家。
+---
+
+<style>
+    /* 表單基礎優化 */
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+    }
+    .form-input:focus {
+        background-color: #fff;
+        border-color: #6ea44c;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.1);
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        border-left: 4px solid #6ea44c;
+        padding-left: 1rem;
+        margin-bottom: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    /* 載入中遮罩 */
+    #loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(255,255,255,0.8);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #6ea44c;
+        border-radius: 50%;
+        width: 40px; height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    /* 為了避免底部 sticky bar 遮擋內容，增加底部 padding */
+    .safe-area-pb {
+        padding-bottom: 120px; 
+    }
+</style>
+
+<div class="container mx-auto max-w-2xl px-4 py-8 safe-area-pb">
+    
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">電話代播預約</h1>
+        <p class="text-slate-500">免登入・快速填寫・Email確認</p>
+    </div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="text-slate-600 font-bold">正在送出預約，請稍候...</div>
+    </div>
+
+    <form id="booking-form" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+        
+        <h3 class="section-title mt-0">聯絡人資訊</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="form-label" for="customerName">您的姓名 <span class="text-red-500">*</span></label>
+                <input type="text" id="customerName" name="customerName" class="form-input" placeholder="王小明" required>
+            </div>
+            <div>
+                <label class="form-label" for="lineName">LINE 顯示名稱</label>
+                <input type="text" id="lineName" name="lineName" class="form-input" placeholder="方便客服核對用">
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="form-label" for="email">電子郵件 (接收確認信) <span class="text-red-500">*</span></label>
+            <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
+            <p class="text-xs text-slate-400 mt-1">預約成功後，系統將自動發送確認信至此信箱。</p>
+        </div>
+
+        <div class="mb-6">
+            <label class="form-label" for="phone">聯絡電話 <span class="text-red-500">*</span></label>
+            <input type="tel" id="phone" name="phone" class="form-input" placeholder="0912-345-678" required>
+        </div>
+
+        <h3 class="section-title">代播需求內容</h3>
+
+        <div class="mb-6">
+            <label class="form-label" for="shopName">預約餐廳/店家名稱 <span class="text-red-500">*</span></label>
+            <input type="text" id="shopName" name="shopName" class="form-input" placeholder="例如：叙叙苑 晴空塔店" required>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="form-label" for="serviceDate">預約日期 <span class="text-red-500">*</span></label>
+                <input type="date" id="serviceDate" name="serviceDate" class="form-input" required>
+            </div>
+            <div>
+                <label class="form-label" for="serviceTime">預約時間 <span class="text-red-500">*</span></label>
+                <input type="time" id="serviceTime" name="serviceTime" class="form-input" required>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div>
+                <label class="form-label" for="adultCount">大人</label>
+                <input type="number" id="adultCount" name="adultCount" class="form-input" value="2" min="1" onchange="updateTotal()">
+            </div>
+            <div>
+                <label class="form-label" for="childCount">小孩</label>
+                <input type="number" id="childCount" name="childCount" class="form-input" value="0" min="0" onchange="updateTotal()">
+            </div>
+            <div>
+                <label class="form-label">總人數</label>
+                <input type="text" id="totalCount" name="totalCount" class="form-input bg-slate-100" value="2" readonly>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="form-label" for="bookingName">訂位登記姓名 (英文) <span class="text-red-500">*</span></label>
+            <input type="text" id="bookingName" name="bookingName" class="form-input" placeholder="WANG HSIAO-MING" required>
+            <p class="text-xs text-slate-400 mt-1">請填寫護照上的英文拼音，以免店家無法核對。</p>
+        </div>
+
+        <div class="mb-6">
+            <label class="form-label" for="note">特殊備註 (選填)</label>
+            <textarea id="note" name="note" class="form-input" rows="3" placeholder="例如：希望是禁菸席、有過敏食材等..."></textarea>
+        </div>
+
+        <h3 class="section-title">選擇方案</h3>
+        
+        <div class="grid grid-cols-1 gap-4 mb-8">
+            <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#f0fdf4]">
+                <input type="radio" name="paymentPlan" value="一般預約" class="w-5 h-5 text-[#6ea44c] border-gray-300 focus:ring-[#6ea44c]" checked onchange="updatePrice(150)">
+                <div class="ml-4 flex-1">
+                    <span class="block text-slate-800 font-bold">一般預約代播</span>
+                    <span class="block text-sm text-slate-500">適用於大多數餐廳訂位、一般詢問。</span>
+                </div>
+                <div class="text-lg font-bold text-[#6ea44c]">$150</div>
+            </label>
+
+            <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#f0fdf4]">
+                <input type="radio" name="paymentPlan" value="急件處理" class="w-5 h-5 text-[#6ea44c] border-gray-300 focus:ring-[#6ea44c]" onchange="updatePrice(250)">
+                <div class="ml-4 flex-1">
+                    <span class="block text-slate-800 font-bold">急件/困難預約</span>
+                    <span class="block text-sm text-slate-500">24小時內急件，或需搶票之熱門餐廳。</span>
+                </div>
+                <div class="text-lg font-bold text-[#6ea44c]">$250</div>
+            </label>
+        </div>
+
+        <input type="hidden" name="serviceItem" value="代播預約">
+        <input type="hidden" name="japanContact" value="無">
+
+    </form>
+</div>
+
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb">
+    <div class="container mx-auto max-w-2xl flex items-center justify-between">
+        <div class="flex flex-col">
+            <span class="text-xs text-slate-500">預估費用</span>
+            <div class="text-2xl font-bold text-[#6ea44c]">
+                TWD <span id="price-display">150</span>
+            </div>
+        </div>
+        
+        <button type="button" onclick="submitForm()" class="bg-[#6ea44c] hover:bg-[#5d8c40] text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
+            確認送出
+        </button>
+    </div>
+</div>
+
+<script>
+    // 您的 Google Apps Script 網頁應用程式網址
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaiaR2hPXA8RN2E1_5GUYFNtzGnkUZC5Kq2xXt6Mw80QVRw0Wi7fBrM2k3MxyZhon4/exec";
+
+    // 更新總人數
+    function updateTotal() {
+        const adult = parseInt(document.getElementById('adultCount').value) || 0;
+        const child = parseInt(document.getElementById('childCount').value) || 0;
+        document.getElementById('totalCount').value = adult + child;
+    }
+
+    // 更新底部價格顯示
+    function updatePrice(price) {
+        document.getElementById('price-display').innerText = price;
+    }
+
+    // 表單驗證與送出
+    function submitForm() {
+        const form = document.getElementById('booking-form');
+        
+        // 簡易驗證
+        if (!form.checkValidity()) {
+            // 觸發瀏覽器預設的錯誤提示
+            form.reportValidity();
+            return;
+        }
+
+        // 顯示 Loading
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        // 準備資料
+        const formData = new FormData(form);
+
+        // 使用 fetch 送出 POST 請求
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result === 'success') {
+                // 成功跳轉至結果頁，並帶上訂單編號
+                window.location.href = `form-result.html?status=success&order_id=${data.order_id}`;
+            } else {
+                alert('預約送出失敗，請稍後再試：' + data.message);
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('發生錯誤，請檢查網路連線。');
+            document.getElementById('loading-overlay').style.display = 'none';
+        });
+    }
+
+    // 初始化日期欄位 (預設為明天)
+    document.addEventListener('DOMContentLoaded', () => {
+        const dateInput = document.getElementById('serviceDate');
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.valueAsDate = tomorrow;
+    });
+</script>
