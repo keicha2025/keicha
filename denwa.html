@@ -75,9 +75,6 @@ styles: |
             font-weight: 600;
         }
         .accordion-content {
-            /* 注意：這裡的 max-height 預設是 0 (折疊)。
-               但在下方的隱私權區塊 HTML 中，我們會用 inline style 覆蓋它來預設展開。
-            */
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
@@ -475,10 +472,10 @@ scripts: ""
                         
                         <button class="accordion-header flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition-colors">
                             <h2 class="text-2xl font-bold text-brandGreen m-0">隱私權條款</h2>
-                            <span class="transform transition-transform duration-300 text-gray-400 text-xl" style="transform: rotate(180deg);">▼</span>
+                            <span class="transform transition-transform duration-300 text-gray-400 text-xl">▼</span>
                         </button>
 
-                        <div class="accordion-content" style="max-height: none; overflow: visible;">
+                        <div class="accordion-content">
                             <div class="px-6 pb-6 pt-0 border-t border-gray-100 mt-2">
                                 <div id="privacy-loader" class="flex justify-center items-center h-24">
                                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-10 w-10"></div>
@@ -674,8 +671,7 @@ scripts: ""
         }
         
         // --- [EXISTING] 折疊選單 (Accordion) 邏輯 ---
-        // ★ [UPDATED] 這個邏輯現在也會被應用到由 JS 產生的隱私權條款區塊
-        // 我們需要使用「事件委派 (Event Delegation)」來處理動態生成的元素
+        // ★ [UPDATED] 恢復為標準的折疊邏輯
         const privacyContainer = document.getElementById('privacy-container');
         
         // 處理靜態的 Accordion (退款規則等)
@@ -687,17 +683,12 @@ scripts: ""
                 const icon = header.querySelector('span:last-child');
                 
                 header.addEventListener('click', () => {
-                    // 檢查目前是否為展開狀態 (檢查 style.maxHeight 是否有值且不為 0px，或者為 none)
-                    const isNone = content.style.maxHeight === 'none';
-                    const hasHeight = content.style.maxHeight && content.style.maxHeight !== '0px';
-                    const isOpen = isNone || hasHeight;
+                    // 恢復最簡單的判斷
+                    const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
                     
-                    // 關閉其他 (選擇性)
-                    // ...
                     if (isOpen) {
                         content.style.maxHeight = '0px';
                         icon.style.transform = 'rotate(0deg)';
-                        content.style.overflow = 'hidden'; // 確保關閉時隱藏
                     } else {
                         content.style.maxHeight = content.scrollHeight + 'px';
                         icon.style.transform = 'rotate(180deg)';
