@@ -1,11 +1,13 @@
 ---
 layout: default
 title: KEICHA 網路商店
+permalink: /shop/
 ---
 
-<!-- 引入樣式 -->
+<!-- 1. 引入樣式 -->
 {% include shop_panels/style.html %}
 
+<!-- 2. 頁面內容 -->
 <div class="bg-white border-b border-gray-100">
     <div class="container mx-auto px-4 max-w-6xl py-6 flex justify-between items-center">
         <h1 class="text-2xl font-bold tracking-tight text-gray-800">KEICHA 網路商店</h1>
@@ -24,12 +26,12 @@ title: KEICHA 網路商店
     <div id="category-container" class="space-y-16"></div>
 </main>
 
-<!-- 引入功能模組 -->
+<!-- 3. 引入功能面板 -->
 {% include shop_panels/overlay.html %}
 {% include shop_panels/login.html %}
 {% include shop_panels/cart.html %}
 {% include shop_panels/user.html %}
 {% include shop_panels/checkout.html %}
 
-<!-- 引入腳本 -->
+<!-- 4. 引入 JS (關鍵在這裡：只要這一行，不要保留舊的 <script> 區塊) -->
 {% include shop_panels/script.html %}
