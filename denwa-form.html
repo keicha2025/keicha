@@ -43,7 +43,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         font-weight: bold; color: #334155; font-size: 1rem;
     }
     
-    /* 方案卡片載入中的骨架屏 */
+    /* 骨架屏 */
     .skeleton {
         height: 80px; background: #e2e8f0; border-radius: 0.75rem;
         margin-bottom: 1rem; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -63,10 +63,11 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    .safe-area-pb { padding-bottom: 120px; }
+    /* 內容底部保留空間，避免被 Bar 擋住 */
+    .content-safe-area { padding-bottom: 120px; }
 </style>
 
-<div class="container mx-auto max-w-2xl px-4 py-8 safe-area-pb">
+<div class="container mx-auto max-w-2xl px-4 py-8 content-safe-area">
     
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-slate-800 mb-2">電話代播預約</h1>
@@ -149,12 +150,12 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
             </div>
         </div>
 
-        <div id="child-details-section" class="mb-6 p-4 bg-orange-50 rounded-xl border border-orange-100 hidden">
-            <label class="form-label text-orange-800" for="childDetails">
+        <div id="child-details-section" class="mb-6 p-4 rounded-xl border border-[#6ea44c]/30 bg-[#6ea44c]/10 hidden">
+            <label class="form-label text-[#5d8c40]" for="childDetails">
                 小孩詳細資訊 (年齡 / 是否用餐) <span class="text-red-500">*</span>
             </label>
-            <textarea id="childDetails" class="form-input border-orange-200 focus:border-orange-400 focus:ring-orange-200" rows="2" placeholder="例如：一位3歲(需兒童椅)、一位5歲(不用餐)"></textarea>
-            <p class="text-xs text-orange-600 mt-1">請務必告知店家小孩年齡與是否佔位/用餐。</p>
+            <textarea id="childDetails" class="form-input border-[#6ea44c]/30 focus:border-[#6ea44c] focus:ring-[#6ea44c]/20" rows="2" placeholder="例如：一位3歲(需兒童椅)、一位5歲(不用餐)"></textarea>
+            <p class="text-xs text-[#5d8c40]/80 mt-1">請務必告知店家小孩年齡與是否佔位/用餐。</p>
         </div>
 
         <div class="mb-6">
@@ -180,11 +181,11 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
     </form>
 </div>
 
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 px-6 flex items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-40 safe-area-pb">
-    <div class="container mx-auto max-w-2xl flex items-center justify-between">
-        <div class="flex flex-col">
-            <span class="text-xs text-slate-500">預估費用</span>
-            <div class="text-2xl font-bold text-[#6ea44c]">
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 h-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-50">
+    <div class="container mx-auto max-w-2xl h-full px-6 flex items-center justify-between">
+        <div class="flex flex-col justify-center">
+            <span class="text-xs text-slate-500 leading-tight">預估費用</span>
+            <div class="text-2xl font-bold text-[#6ea44c] leading-tight">
                 TWD <span id="price-display">--</span>
             </div>
         </div>
@@ -202,7 +203,6 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
     let currentPlans = [];
     let currentPrice = 0;
 
-    // 1. 初始化：載入日期與抓取方案
     document.addEventListener('DOMContentLoaded', () => {
         const dateInput = document.getElementById('serviceDate');
         const tomorrow = new Date();
@@ -212,7 +212,6 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         fetchPlans();
     });
 
-    // 2. 從 GAS 抓取方案
     function fetchPlans() {
         const container = document.getElementById('plan-container');
         
@@ -228,17 +227,16 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         });
     }
 
-    // 3. 渲染方案到畫面上
     function renderPlans(plans) {
         const container = document.getElementById('plan-container');
-        container.innerHTML = ''; // 清空 Skeleton
+        container.innerHTML = ''; 
 
         plans.forEach((plan, index) => {
-            // 預設選中第一個方案
             const isChecked = index === 0 ? 'checked' : '';
             
+            // 這裡更新了選中時的樣式：bg-[#6ea44c]/10 (品牌綠10%)
             const html = `
-            <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#f0fdf4]">
+            <label class="relative flex items-center p-4 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors border-slate-200 has-[:checked]:border-[#6ea44c] has-[:checked]:bg-[#6ea44c]/10">
                 <input type="radio" name="paymentPlan" value="${plan.name}" 
                        class="w-5 h-5 text-[#6ea44c] border-gray-300 focus:ring-[#6ea44c]" 
                        ${isChecked} 
@@ -252,33 +250,25 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
             `;
             container.insertAdjacentHTML('beforeend', html);
             
-            // 初始化價格顯示
             if (index === 0) updatePrice(plan.price);
         });
     }
 
-    // 4. 更新底部價格
     function updatePrice(price) {
         currentPrice = price;
         document.getElementById('price-display').innerText = price;
     }
 
-    // 5. 更新人數 (包含 +/- 按鈕邏輯)
     function updateCount(id, delta) {
         const input = document.getElementById(id);
         let val = parseInt(input.value) || 0;
         val += delta;
-        
-        // 限制最小值
         if (val < 0) val = 0;
-        if (id === 'adultCount' && val < 1) val = 1; // 大人至少 1 人
-        
+        if (id === 'adultCount' && val < 1) val = 1; 
         input.value = val;
-        
         calculateTotal();
     }
 
-    // 6. 計算總人數並控制小孩區塊顯示
     function calculateTotal() {
         const adult = parseInt(document.getElementById('adultCount').value) || 0;
         const child = parseInt(document.getElementById('childCount').value) || 0;
@@ -287,21 +277,19 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
         document.getElementById('totalCount').value = total;
         document.getElementById('totalCountDisplay').innerText = total;
 
-        // 小孩區塊顯示邏輯
         const childSection = document.getElementById('child-details-section');
         const childDetailsInput = document.getElementById('childDetails');
         
         if (child > 0) {
             childSection.classList.remove('hidden');
-            childDetailsInput.required = true; // 有小孩時，此欄位變為必填
+            childDetailsInput.required = true;
         } else {
             childSection.classList.add('hidden');
             childDetailsInput.required = false;
-            childDetailsInput.value = ''; // 清空內容
+            childDetailsInput.value = '';
         }
     }
 
-    // 7. 送出表單
     function submitForm() {
         const form = document.getElementById('booking-form');
         
@@ -312,13 +300,7 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
 
         document.getElementById('loading-overlay').style.display = 'flex';
 
-        // 準備資料
         const formData = new FormData(form);
-
-        // --- 特殊邏輯：合併小孩資訊到備註 ---
-        // 我們不修改 formData 物件本身(較麻煩)，而是攔截內容重新包裝
-        // 或者簡單地，直接修改 DOM 中的 note 值再送出 (最簡單)
-        
         const noteInput = document.getElementById('note');
         const originalNote = noteInput.value;
         const childDetails = document.getElementById('childDetails').value;
@@ -329,7 +311,6 @@ description: 線上填寫代播需求，我們將為您聯繫日本店家。
             finalNote = `[小孩需求]: ${childDetails}\n[其他備註]: ${originalNote}`;
         }
         
-        // 將合併後的備註塞回 formData (如果直接修改 input value 使用者會看到閃跳，所以用 append 覆蓋)
         formData.set('note', finalNote);
 
         fetch(SCRIPT_URL, {
