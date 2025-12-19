@@ -1,112 +1,115 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KEICHA 抹茶代購 - 開發測試版</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+---
+layout: default
+title: KEICHA 網路商店
+---
+
+<!-- 引入 Tailwind 與 Icon -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+
+<style>
+    /* 區域性樣式，避免影響全站 */
+    .shop-container { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .brand-green { color: #6ea44c; }
+    .bg-brand-green { background-color: #6ea44c; }
     
-    <style>
-        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .brand-green { color: #6ea44c; }
-        .bg-brand-green { background-color: #6ea44c; }
-        
-        /* 側邊面板與遮罩 */
-        .side-panel {
-            position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
-            background-color: white; z-index: 200; transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
-        }
-        .side-panel.open { transform: translateX(0); }
-        
-        .overlay {
-            position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 190;
-            opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
-        }
-        .overlay.open { opacity: 1; visibility: visible; }
+    /* 側邊面板與遮罩 (保持 Fixed 以覆蓋全站) */
+    .side-panel {
+        position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
+        background-color: white; z-index: 9999; transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
+        box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+    }
+    .side-panel.open { transform: translateX(0); }
+    
+    .overlay {
+        position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 9990;
+        opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
+    }
+    .overlay.open { opacity: 1; visibility: visible; }
 
-        /* 購物車樣式 */
-        .cart-item-row { display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #f3f4f6; }
-        .cart-item-img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; background-color: #f9fafb; flex-shrink: 0; }
-        .cart-qty-control { display: flex; align-items: center; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 2px; }
-        .cart-qty-btn { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #6ea44c; cursor: pointer; }
-        .cart-qty-num { width: 30px; text-align: center; font-size: 13px; font-weight: 700; color: #374151; }
-        
-        /* 按鈕樣式 */
-        .btn-outline-brand { background-color: white; color: #6ea44c; border: 2px solid #6ea44c; width: 100%; padding: 0.8rem; border-radius: 0.75rem; font-weight: bold; transition: all 0.2s; font-size: 0.875rem; }
-        .btn-outline-brand:hover { background-color: rgba(110, 164, 76, 0.05); }
-        .user-edit-input { width: 100%; padding: 0.5rem 0; border: none; border-bottom: 2px solid #6ea44c; outline: none; background-color: transparent; transition: all 0.3s; }
-        .checkout-inline-input { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
-        .checkout-inline-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; }
-        
-        /* 懸浮購物車按鈕 */
-        .cart-floating-btn {
-            position: fixed; bottom: 2rem; right: 2rem; width: 4rem; height: 4rem;
-            background-color: #6ea44c; color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
-        }
-        .cart-floating-btn:active { transform: scale(0.95); }
+    /* 購物車樣式 */
+    .cart-item-row { display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #f3f4f6; }
+    .cart-item-img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; background-color: #f9fafb; flex-shrink: 0; }
+    .cart-qty-control { display: flex; align-items: center; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 2px; }
+    .cart-qty-btn { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #6ea44c; cursor: pointer; }
+    .cart-qty-num { width: 30px; text-align: center; font-size: 13px; font-weight: 700; color: #374151; }
+    
+    /* 按鈕樣式 */
+    .btn-outline-brand { background-color: white; color: #6ea44c; border: 2px solid #6ea44c; width: 100%; padding: 0.8rem; border-radius: 0.75rem; font-weight: bold; transition: all 0.2s; font-size: 0.875rem; }
+    .btn-outline-brand:hover { background-color: rgba(110, 164, 76, 0.05); }
+    .user-edit-input { width: 100%; padding: 0.5rem 0; border: none; border-bottom: 2px solid #6ea44c; outline: none; background-color: transparent; transition: all 0.3s; }
+    .checkout-inline-input { width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+    .checkout-inline-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; }
+    
+    /* 懸浮購物車按鈕 (保持 Fixed) */
+    .cart-floating-btn {
+        position: fixed; bottom: 2rem; right: 2rem; width: 4rem; height: 4rem;
+        background-color: #6ea44c; color: white; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 9900;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
+    }
+    .cart-floating-btn:active { transform: scale(0.95); }
 
-        /* 載入中動畫 */
-        .animate-spin-custom { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    /* 載入中動畫 */
+    .animate-spin-custom { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* 商品卡片優化 */
-        .qty-control { 
-            display: flex; align-items: center; justify-content: space-between; 
-            background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem; 
-            padding: 0 8px; height: 40px; box-sizing: border-box;
-        }
-        .qty-btn { 
-            width: 32px; height: 100%; display: flex; align-items: center; justify-content: center; 
-            background: transparent; border: none; color: #6ea44c; font-weight: bold; cursor: pointer;
-        }
-        .add-btn { height: 40px !important; display: flex; align-items: center; justify-content: center; padding: 0 16px; }
+    /* 商品卡片優化 */
+    .qty-control { 
+        display: flex; align-items: center; justify-content: space-between; 
+        background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem; 
+        padding: 0 8px; height: 40px; box-sizing: border-box;
+    }
+    .qty-btn { 
+        width: 32px; height: 100%; display: flex; align-items: center; justify-content: center; 
+        background: transparent; border: none; color: #6ea44c; font-weight: bold; cursor: pointer;
+    }
+    .add-btn { height: 40px !important; display: flex; align-items: center; justify-content: center; padding: 0 16px; }
 
-        /* 手機版適配 */
-        @media (max-width: 767px) {
-            .mobile-product-card { display: flex !important; flex-direction: column !important; padding: 16px !important; gap: 12px !important; }
-            .card-top-row { display: flex !important; flex-direction: row !important; align-items: flex-start !important; gap: 16px !important; width: 100%; }
-            .card-img-group { width: 100px !important; height: 100px !important; flex-shrink: 0 !important; border-radius: 12px !important; overflow: hidden; background-color: #f9fafb; }
-            .card-info-group { flex: 1 !important; display: flex !important; flex-direction: column !important; justify-content: space-between; min-height: 100px; padding: 0 !important; }
-            .card-bottom-row { display: flex !important; flex-direction: row !important; gap: 12px !important; width: 100%; padding: 0 !important; border-top: none !important; }
-            .qty-control { flex: 1 !important; }
-            .add-btn { flex: 1.5 !important; }
-        }
-    </style>
-</head>
-<body class="bg-white text-gray-800">
+    /* 手機版適配 */
+    @media (max-width: 767px) {
+        .mobile-product-card { display: flex !important; flex-direction: column !important; padding: 16px !important; gap: 12px !important; }
+        .card-top-row { display: flex !important; flex-direction: row !important; align-items: flex-start !important; gap: 16px !important; width: 100%; }
+        .card-img-group { width: 100px !important; height: 100px !important; flex-shrink: 0 !important; border-radius: 12px !important; overflow: hidden; background-color: #f9fafb; }
+        .card-info-group { flex: 1 !important; display: flex !important; flex-direction: column !important; justify-content: space-between; min-height: 100px; padding: 0 !important; }
+        .card-bottom-row { display: flex !important; flex-direction: row !important; gap: 12px !important; width: 100%; padding: 0 !important; border-top: none !important; }
+        .qty-control { flex: 1 !important; }
+        .add-btn { flex: 1.5 !important; }
+    }
+</style>
 
-<!-- 頂部導航 -->
-<div class="bg-white border-b border-gray-100 sticky top-0 z-50 bg-opacity-95 backdrop-blur-sm">
-    <div class="container mx-auto px-4 max-w-6xl py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
-            <span class="text-[#6ea44c] material-symbols-rounded">eco</span> KEICHA
-        </h1>
-        <div id="top-auth-zone"></div>
+<div class="shop-container bg-white text-gray-800">
+
+    <!-- 商店標題列 (已移除 sticky, 改為 relative，隨內容捲動) -->
+    <div class="bg-white border-b border-gray-100 relative z-10">
+        <div class="container mx-auto px-4 max-w-6xl py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
+                <span class="text-[#6ea44c] material-symbols-rounded">eco</span> KEICHA 商店
+            </h1>
+            <div id="top-auth-zone"></div>
+        </div>
     </div>
+
+    <!-- 公告區塊 -->
+    <section id="announcement-section" class="hidden py-3 bg-yellow-50 border-b border-yellow-100">
+        <div class="container mx-auto px-4 text-center text-sm font-medium text-yellow-800 flex items-center justify-center gap-2">
+            <span class="material-symbols-rounded text-base">campaign</span>
+            <span id="announcement-content"></span>
+        </div>
+    </section>
+
+    <!-- 主內容區 -->
+    <main class="max-w-6xl mx-auto p-4 md:p-8 space-y-12 min-h-screen pb-24">
+        <div id="products-loader" class="flex flex-col justify-center items-center h-64 gap-4">
+            <div class="w-10 h-10 border-4 border-gray-200 border-t-[#6ea44c] rounded-full animate-spin"></div>
+            <p class="text-gray-400 text-sm font-medium">正在為您準備茶品...</p>
+        </div>
+        <div id="category-container" class="space-y-16"></div>
+    </main>
+
 </div>
-
-<!-- 公告區塊 -->
-<section id="announcement-section" class="hidden py-3 bg-yellow-50 border-b border-yellow-100">
-    <div class="container mx-auto px-4 text-center text-sm font-medium text-yellow-800 flex items-center justify-center gap-2">
-        <span class="material-symbols-rounded text-base">campaign</span>
-        <span id="announcement-content"></span>
-    </div>
-</section>
-
-<!-- 主內容區 -->
-<main class="max-w-6xl mx-auto p-4 md:p-8 space-y-12 min-h-screen pb-24">
-    <div id="products-loader" class="flex flex-col justify-center items-center h-64 gap-4">
-        <div class="w-10 h-10 border-4 border-gray-200 border-t-[#6ea44c] rounded-full animate-spin"></div>
-        <p class="text-gray-400 text-sm font-medium">正在為您準備茶品...</p>
-    </div>
-    <div id="category-container" class="space-y-16"></div>
-</main>
 
 <!-- 全域遮罩 -->
 <div id="global-overlay" class="overlay" onclick="closeAllPanels()"></div>
@@ -162,15 +165,13 @@
     </div>
 </div>
 
-<!-- 3. 會員資料面板 (保留完整邏輯) -->
+<!-- 3. 會員資料面板 -->
 <div id="user-panel" class="side-panel">
     <div class="p-6 bg-[#6ea44c] text-white flex justify-between items-center sticky top-0 z-10 shadow-md">
         <h3 class="font-bold flex items-center gap-2"><span class="material-symbols-rounded">account_circle</span> 會員中心</h3>
         <button onclick="closeAllPanels()" class="material-symbols-rounded text-white hover:opacity-70 transition">close</button>
     </div>
     <div id="panel-body" class="p-6 flex-1 overflow-y-auto space-y-8 bg-white">
-        <!-- 會員資訊顯示區 (省略重複結構，邏輯由 JS 動態生成) -->
-        <!-- 此處結構將由 renderUserFields 動態填入，保持原樣 -->
         <div id="user-panel-content"></div> 
     </div>
 </div>
@@ -184,12 +185,11 @@
         <button onclick="closeAllPanels()" class="material-symbols-rounded text-white hover:opacity-70 transition">close</button>
     </div>
     <div class="p-6 flex-1 overflow-y-auto space-y-8 bg-gray-50/30">
-        <!-- 結帳內容，將動態帶入 -->
         <div id="checkout-form-container"></div>
     </div>
 </div>
 
-<!-- 懸浮按鈕 -->
+<!-- 懸浮按鈕 (保持 Fixed) -->
 <div class="cart-floating-btn" onclick="openCart()">
     <span class="material-symbols-rounded text-3xl">shopping_cart</span>
     <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-white font-bold hidden shadow-sm">0</span>
@@ -197,9 +197,8 @@
 
 <script>
     // ==========================================
-    // 1. 系統設定與初始化
+    // 1. 系統設定與初始化 (測試版)
     // ==========================================
-    // 測試版 GAS URL
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzLB_AkSWkLI63JWb875KselknJX42eH2k-1BPVnzCEgQm46056ZVOE86R4GeY6i27n/exec";
     
     let cart = [];
@@ -213,7 +212,6 @@
         const checkoutBtn = document.getElementById('trigger-checkout-btn');
         if(checkoutBtn) checkoutBtn.addEventListener('click', openCheckout);
         
-        // 渲染會員面板的基本結構 (後續用 JS 填充值)
         renderUserPanelStructure();
         renderCheckoutStructure();
     });
@@ -229,7 +227,6 @@
             globalBrands = data.brands;
             shippingRules = data.shipping_rules || [];
             
-            // 處理運費資料相容性
             shippingRules = shippingRules.map(r => ({
                 ...r,
                 method: (r.method && r.method.toString().includes('2025-')) ? '7-11' : r.method
@@ -237,7 +234,6 @@
 
             renderProducts(globalProducts, globalBrands);
             
-            // 公告
             if(data.settings && data.settings.announcement) {
                 document.getElementById('announcement-content').innerText = data.settings.announcement;
                 document.getElementById('announcement-section').classList.remove('hidden');
@@ -246,9 +242,6 @@
             document.getElementById('products-loader').classList.add('hidden');
             renderTopAuth();
             
-            // 恢復購物車 (若有)
-            /* 可選：若要實作 localStorage 購物車記憶，可在此讀取 */
-            
         } catch (e) { 
             console.error("Init Error:", e);
             document.getElementById('products-loader').innerHTML = `<p class="text-red-500 font-bold">連線錯誤，請重新整理頁面</p>`;
@@ -256,23 +249,20 @@
     }
 
     // ==========================================
-    // 2. 核心計價引擎 (Pricing Engine) ★★★
+    // 2. 核心計價引擎 (Pricing Engine)
     // ==========================================
     function calculateCartLogic() {
-        // 步驟 1: 分組統計 (Group by Brand)
         let brandCounts = {};
         cart.forEach(item => {
             const bKey = item.brand_key || 'other';
             brandCounts[bKey] = (brandCounts[bKey] || 0) + item.qty;
         });
 
-        // 步驟 2: 判定單價
         let total = 0;
         cart.forEach(item => {
             const bKey = item.brand_key || 'other';
             const count = brandCounts[bKey];
             
-            // 判定邏輯：同品牌滿 2 件且有設定優惠價
             if (count >= 2 && item.price_multi > 0 && item.price_multi < item.price) {
                 item.final_price = item.price_multi;
                 item.is_discounted = true;
@@ -295,11 +285,9 @@
         if (!products || !brands) return;
 
         container.innerHTML = brands.map(brand => {
-            // 篩選該品牌商品
             const brandItems = products.filter(p => p.brand_key === brand.key);
-            if (brandItems.length === 0) return ''; // 無商品則不顯示
+            if (brandItems.length === 0) return '';
 
-            // 品牌狀態處理
             const isBrandOutOfStock = brand.status === 'out-of-stock';
             const statusBadge = isBrandOutOfStock 
                 ? `<span class="text-xs text-white bg-gray-400 px-2 py-1 rounded-full">品牌暫停接單</span>`
@@ -316,14 +304,11 @@
                     ${brandItems.map(p => {
                         const stock = parseInt(p.stock) || 999;
                         const isSoldOut = stock <= 0 || p.status === 'out-of-stock' || isBrandOutOfStock;
-                        
-                        // 價格顯示邏輯：若有優惠價則顯示雙價格
                         const showDualPrice = p.price_multi > 0 && p.price_multi < p.price;
 
                         return `
                         <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group h-full">
                             <div class="card-top-row md:contents">
-                                <!-- 圖片區 -->
                                 <div class="card-img-group md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden relative">
                                     <img src="${p.img || 'https://placehold.co/300x300?text=No+Image'}" 
                                          class="w-full h-full object-cover transition duration-500 group-hover:scale-105 ${isSoldOut ? 'grayscale opacity-60' : ''}" 
@@ -332,7 +317,6 @@
                                     ${p.note ? `<div class="absolute top-2 right-2"><span class="text-[10px] font-bold text-white bg-[#6ea44c]/90 px-2 py-1 rounded-lg shadow-sm backdrop-blur-sm">${p.note}</span></div>` : ''}
                                 </div>
                                 
-                                <!-- 資訊區 -->
                                 <div class="card-info-group md:p-5 md:flex-1 md:flex md:flex-col">
                                     <div class="mb-auto">
                                         <h4 class="font-bold text-gray-800 mb-1 text-sm md:text-base leading-tight">${p.name}</h4>
@@ -358,7 +342,6 @@
                                 </div>
                             </div>
 
-                            <!-- 操作區 -->
                             <div class="card-bottom-row md:p-5 md:pt-0 md:mt-auto">
                                 <div class="flex gap-3">
                                     <div class="qty-control flex-1">
@@ -402,17 +385,15 @@
         
         if ((inCart ? inCart.qty : 0) + qty > stock) return alert(`庫存不足 (剩餘 ${stock})`);
 
-        // 重置數量顯示
         qtyEl.innerText = 1;
 
         if (inCart) {
             inCart.qty += qty;
         } else {
-            // ★★★ 關鍵：寫入計價參數
             cart.push({
                 id: pid,
                 name: p.name,
-                brand_key: p.brand_key, // 供分組用
+                brand_key: p.brand_key,
                 brand_name: p.brand_name,
                 price: p.price,
                 price_multi: p.price_multi,
@@ -422,7 +403,6 @@
             });
         }
         
-        // 加入動畫效果
         const floatBtn = document.querySelector('.cart-floating-btn');
         floatBtn.classList.add('scale-110');
         setTimeout(() => floatBtn.classList.remove('scale-110'), 200);
@@ -432,10 +412,7 @@
     }
 
     function updateCartUI() {
-        // 1. 執行核心計價
         const subtotal = calculateCartLogic();
-        
-        // 2. 更新計數
         const count = cart.reduce((s, i) => s + i.qty, 0);
         const elCount = document.getElementById('cart-count');
         const elTotalCount = document.getElementById('cart-total-count');
@@ -444,7 +421,6 @@
         elCount.classList.toggle('hidden', count === 0);
         if(elTotalCount) elTotalCount.innerText = `${count} 件`;
 
-        // 3. 渲染列表
         const container = document.getElementById('cart-items-container');
         if (cart.length === 0) {
             container.innerHTML = `
@@ -455,7 +431,6 @@
                 </div>`;
         } else {
             container.innerHTML = cart.map((i, idx) => {
-                // 價格顯示 HTML
                 let priceHtml = '';
                 if (i.is_discounted) {
                     priceHtml = `
@@ -491,11 +466,9 @@
             }).join('');
         }
         
-        // 更新金額
         const totalEl = document.getElementById('cart-total-price');
         if(totalEl) totalEl.innerText = "NT$ " + subtotal.toLocaleString();
         
-        // 同步更新 Checkout 摘要
         if(document.getElementById('checkout-panel').classList.contains('open')) {
             updateSummary();
         }
@@ -521,7 +494,6 @@
     function openCheckout() {
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
         if(!u) { 
-            // 尚未登入：先開登入，登入成功後再開結帳 (需實作 callback 或 flag)
             alert("請先登入會員");
             openLoginPanel(); 
             return; 
@@ -536,15 +508,11 @@
         document.getElementById('global-overlay').classList.add('open');
     }
 
-    function renderCheckoutStructure() {
-        // 僅佔位，實際內容由 openCheckout -> renderCheckoutContent 產生
-    }
+    function renderCheckoutStructure() {}
 
-    // 動態生成結帳表單 (避免 HTML 過長)
     function renderCheckoutContent(u) {
         const container = document.getElementById('checkout-form-container');
         container.innerHTML = `
-            <!-- 基本資料 -->
             <section class="space-y-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2">
                     <h4 class="text-xs font-bold brand-green uppercase tracking-widest">訂購人資訊</h4>
@@ -561,7 +529,6 @@
                 </div>
             </section>
 
-            <!-- 物流選擇 -->
             <section class="space-y-4">
                 <h4 class="text-xs font-bold brand-green uppercase tracking-widest px-1">配送方式</h4>
                 <div class="space-y-3">
@@ -571,12 +538,10 @@
                 </div>
             </section>
 
-            <!-- 備註 -->
             <section>
                 <textarea id="order-note" class="w-full p-4 rounded-2xl border border-gray-200 text-sm focus:ring-1 ring-[#6ea44c] outline-none resize-none shadow-inner" rows="2" placeholder="訂單備註 (選填)..."></textarea>
             </section>
 
-            <!-- 金額摘要 -->
             <section class="bg-gray-800 text-white p-6 rounded-3xl space-y-4 shadow-xl shadow-gray-200">
                 <div class="flex justify-between text-sm text-gray-400"><span>商品小計</span><span id="summary-subtotal" class="font-mono text-white">NT$ 0</span></div>
                 <div class="flex justify-between text-sm text-gray-400"><span>運費 (<span id="summary-method" class="font-bold text-white">未選</span>)</span><span id="summary-shipping" class="font-mono text-white">NT$ 0</span></div>
@@ -616,7 +581,6 @@
     function selectShipMethod(key) {
         selectedMethod = (key === 'fami') ? '全家' : (key === 'addr' ? '宅配' : '7-11');
         
-        // UI 更新
         document.querySelectorAll('.ship-opt-card').forEach(el => {
             el.classList.remove('border-[#6ea44c]', 'bg-green-50/50', 'ring-1', 'ring-[#6ea44c]');
             el.querySelector('.check-dot').classList.add('hidden');
@@ -630,17 +594,12 @@
     }
 
     function updateSummary() {
-        const subtotal = calculateCartLogic(); // 使用新版計價
+        const subtotal = calculateCartLogic();
         
-        // 運費計算邏輯
         let ship = 0;
         if(selectedMethod && shippingRules.length > 0) {
-            // 簡化版：取最大值
-            // 完整版需遍歷購物車品項 Category 比對 Rules
-            // 此處示範：抓取 Default 或對應 Method 的基礎運費
             const rule = shippingRules.find(r => r.method === selectedMethod) || { base: 60 };
             
-            // 滿額免運判斷 (若規則有寫)
             if(rule.t3 && subtotal >= rule.t3) ship = rule.f3;
             else if(rule.t2 && subtotal >= rule.t2) ship = rule.f2;
             else if(rule.t1 && subtotal >= rule.t1) ship = rule.f1;
@@ -670,9 +629,7 @@
         const shipStr = document.getElementById('summary-shipping').innerText.replace('NT$ ','');
         const ship = parseInt(shipStr) || 0;
 
-        // 生成訂單字串 (含優惠資訊)
         const itemsStr = cart.map(i => {
-            // 格式: [品牌] 品名 x 數量 ($單價)
             return `[${i.brand_name||''}] ${i.name} x ${i.qty} ($${i.final_price})`;
         }).join(', ');
 
@@ -731,7 +688,6 @@
                     localStorage.setItem('keicha_v2_user', JSON.stringify(res.data));
                     renderTopAuth();
                     closeAllPanels();
-                    // 若是新會員，自動開啟會員面板引導填寫
                     if(res.isNew) {
                         alert("歡迎新朋友！請先完善會員資料");
                         setTimeout(openUserPanel, 500);
@@ -758,7 +714,6 @@
     function renderUserPanelStructure() {
         document.getElementById('user-panel-content').innerHTML = `
             <div class="space-y-6">
-                <!-- 基本資料 -->
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                     <h4 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">個人檔案</h4>
                     <div class="space-y-3">
@@ -767,7 +722,6 @@
                     </div>
                 </div>
 
-                <!-- 物流資料 -->
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                      <h4 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider flex justify-between">
                         <span>常用物流</span>
@@ -800,7 +754,6 @@
         const u = JSON.parse(localStorage.getItem('keicha_v2_user'));
         if(!u) return openLoginPanel();
         
-        // 填入資料
         ['name', 'email', 'store_711', 'store_fami', 'shipping_address'].forEach(k => {
             const el = document.getElementById(`u-input-${k}`);
             if(el) el.value = u[k] || '';
@@ -836,7 +789,6 @@
                     renderTopAuth();
                     alert("儲存成功");
                     closeAllPanels();
-                    // 若在結帳頁面，同步更新
                     if(document.getElementById('checkout-form-container').innerHTML !== '') {
                         renderCheckoutContent(newData);
                     }
@@ -858,12 +810,9 @@
         }
     }
 
-    // 面板控制
     function openLoginPanel() { closeAllPanels(); document.getElementById('login-panel').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
     function openCart() { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('global-overlay').classList.add('open'); }
     function closeAllPanels() { document.querySelectorAll('.side-panel, .overlay').forEach(p => p.classList.remove('open')); }
     window.closeAllPanels = closeAllPanels;
 
 </script>
-</body>
-</html>
