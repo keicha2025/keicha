@@ -130,7 +130,7 @@
             }
             .card-top-row { 
                 display: flex !important; flex-direction: row !important; 
-                /* JS 會動態加入 items-center (有圖) 或 items-start (無圖) */
+                /* JS 會控制 items-center (置中) */
                 gap: 16px !important; width: 100%;
             }
             .card-img-group { 
@@ -704,7 +704,7 @@
                 });
             }
 
-// 4. 渲染商品卡片 (完美間距版：所有內容都在同一容器內，由 gap-3 自動控制)
+            // 4. 渲染商品卡片 (修正：價格一律靠右，雙價格上下排列)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -752,41 +752,19 @@
                          badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
                     }
 
-                    // --- [價格佈局邏輯] ---
-                    let insidePriceHTML = '';  
-                    let mobileMultiPriceHTML = ''; 
-                    let desktopMultiPriceHTML = ''; 
-
+                    // --- [價格佈局邏輯：全部靠右、雙價格上下排列] ---
+                    let priceHTML = '';
                     if (hasMultiPrice) {
-                        if (hasImage) {
-                            // [情境 1] 雙價格 + 手機 + 有圖片 => 左右並列
-                            // 注意：移除了原本的 px-5 pb-2，因為現在它在容器內，會自動對齊
-                            mobileMultiPriceHTML = `
-                                <div class="w-full flex flex-row justify-between items-center md:hidden">
-                                    <span class="text-xs text-gray-400">單件 $${price}</span>
-                                    <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
-                                </div>`;
-                        } else {
-                            // [情境 2] 雙價格 + 手機 + 無圖片 => 靠右堆疊
-                            mobileMultiPriceHTML = `
-                                <div class="w-full flex flex-col items-end md:hidden">
-                                    <span class="text-xs text-gray-400">單件 $${price}</span>
-                                    <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
-                                </div>`;
-                        }
-                        
-                        // 桌機版雙價格
-                        desktopMultiPriceHTML = `
-                            <div class="hidden md:block">
-                                <div class="flex flex-col items-start text-xs">
-                                    <span class="text-gray-500">單件 <span class="font-medium">$${price}</span></span>
-                                    <span class="brand-green font-bold text-lg font-mono">2件起單價 <span class="text-xl">$${priceMulti}</span></span>
-                                </div>
+                        // 雙價格：上下排列 (flex-col)，靠右對齊 (items-end / text-right)
+                        priceHTML = `
+                            <div class="flex flex-col items-end w-full">
+                                <span class="text-xs text-gray-400">單件 $${price}</span>
+                                <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
                             </div>`;
                     } else {
-                        // [情境 3] 單一價格 => 統一靠右
-                        insidePriceHTML = `
-                            <div class="w-full text-right md:text-left">
+                        // 單一價格：靠右對齊 (text-right)
+                        priceHTML = `
+                            <div class="w-full text-right">
                                 <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
                             </div>`;
                     }
@@ -796,6 +774,7 @@
                     const btnText = isSoldOut ? '完售' : '加入購物車';
                     const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
                     
+                    // 手機版有圖片時圖片置中
                     const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
 
                     grid.innerHTML += `
@@ -814,8 +793,9 @@
 
                                     ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
 
-                                    <div>
-                                        ${insidePriceHTML}       ${mobileMultiPriceHTML}  ${desktopMultiPriceHTML} </div>
+                                    <div class="mt-auto">
+                                        ${priceHTML}
+                                    </div>
                                 </div>
                             </div>
 
