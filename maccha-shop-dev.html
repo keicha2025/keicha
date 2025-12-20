@@ -722,7 +722,7 @@
                 });
             }
 
-// 4. 渲染商品卡片 (已修正結構：標籤移入圖片區、描述位於標題下)
+// 4. 渲染商品卡片 (最終確認版：Tag=右上角，Note=標題下方)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -741,45 +741,39 @@
                     const priceMulti = Number(product.price_multi) || 0;
                     const status = product.status || '';
                     
-                    //對應 r[8] (Itag) - 右上角標籤
-                    const note = product.note || '';     
-                    
-                    //對應 r[7] (Hnote) - 標題下方描述
-                    const tag = product.tag || '';       
-                    
-                    const spec = product.spec || '';     
+                    // --- [資料對應區] ---
+                    // 根據您的 JSON: {"note":"一月底到貨", "tag":"現貨"}
+                    const note = product.note || '';     // 顯示在「標題下方」的說明文字
+                    const tag = product.tag || '';       // 顯示在「右上角」的綠色標籤
+                    const spec = product.spec || '';     // 顯示在「標題旁」的規格
                     const imgPath = String(product.img || ''); 
                     
-                    // 庫存判斷
+                    // 庫存判斷 (0 或 完售)
                     let isStockZero = false;
                     if (product.stock !== "" && product.stock !== undefined) {
                         if (Number(product.stock) <= 0) isStockZero = true;
                     }
                     const isSoldOut = isStockZero || status.includes('完售');
                     
-                    // --- [結構修改 1] 準備 Note (Itag) 的 HTML，尚未插入 ---
-                    // 使用 absolute, top-0, right-0 貼齊右上
-                    let noteHTML = '';
-                    if (note) {
-                        noteHTML = `<span class="absolute top-0 right-0 z-10 bg-brandGreen text-white text-xs font-bold px-3 py-1.5 rounded-bl-xl shadow-sm">${note}</span>`;
-                    } else if (isSoldOut) {
-                         noteHTML = `<span class="absolute top-0 right-0 z-10 bg-gray-500 text-white text-xs font-bold px-3 py-1.5 rounded-bl-xl shadow-sm">缺貨</span>`;
-                    }
-
-                    // --- [結構修改 2] 圖片容器區塊 (Image Container) ---
-                    // 父層加上 relative，並將 noteHTML 放入此區塊內
+                    // 圖片顯示邏輯
                     let imgHTML = '';
                     if (imgPath) {
                         const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
-                        imgHTML = `
-                        <div class="card-img-group relative w-full aspect-square overflow-hidden bg-gray-50 md:order-first md:w-full">
-                             ${noteHTML}
-                             
-                             <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
-                        </div>`;
+                        imgHTML = `<div class="card-img-group w-full aspect-square relative overflow-hidden bg-gray-50 md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
+                                     <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
+                                   </div>`;
                     }
                     
-                    // 價格邏輯
+                    // --- [右上角標籤邏輯] ---
+                    // 優先顯示 tag (例如: "現貨")，若沒 tag 但缺貨則顯示 "缺貨"
+                    let badgeHTML = '';
+                    if (tag) {
+                        badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
+                    } else if (isSoldOut) {
+                        badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
+                    }
+
+                    // 價格顯示邏輯
                     let priceHTML = '';
                     if (priceMulti > 0 && priceMulti < price) {
                         priceHTML = `
@@ -797,13 +791,11 @@
                     const btnText = isSoldOut ? '完售' : '加入購物車';
                     const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
 
-                    // 組合最終卡片 HTML
                     grid.innerHTML += `
                         <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
                             
-                            <div class="card-top-row md:contents">
+                            ${badgeHTML} <div class="card-top-row md:contents">
                                 ${imgHTML}
-                                
                                 <div class="card-info-group md:p-5 md:flex-1 md:flex md:flex-col">
                                     
                                     <h4 class="font-bold text-gray-800 mb-1 text-sm md:text-base line-clamp-1 flex items-baseline">
@@ -811,8 +803,8 @@
                                         ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
                                     </h4>
 
-                                    <p class="hnote-text text-gray-500 text-xs mt-1 mb-3 leading-relaxed line-clamp-2 min-h-[2.5em] block">
-                                        ${tag}
+                                    <p class="text-gray-400 text-[11px] leading-relaxed mb-3 line-clamp-2 min-h-[32px]">
+                                        ${note}
                                     </p>
 
                                     ${priceHTML}
@@ -830,7 +822,7 @@
                         </div>`;
                 });
             }
-
+            
             // 5. 抓取主要資料
             fetch(DISPLAY_API_URL)
                 .then(res => res.json())
