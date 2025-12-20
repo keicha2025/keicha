@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KEICHA 抹茶代購下單區</title>
     <link rel="icon" href="data:,">
-    
+    <link rel="stylesheet" href="card.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -704,16 +704,25 @@
                 });
             }
 
-<script>
-    const BASE_REPO_URL = "https://your-url-here/";
-</script>
+<script src="card.js"></script>
 
-<script src="/keicha/src/js/product-renderer.js"></script>
-    
-<script>
-    // 當你 fetch 完資料後，依然可以直接呼叫
-    renderProductCards(brandKey, products);
-</script>
+    <script>
+
+        // ★ 3. 修改後的渲染函式 (變得非常短)
+        function renderProductCards(brandKey, products) {
+            const grid = document.getElementById(`${brandKey}-grid`);
+            if (!grid) return;
+            
+            if (products.length === 0) {
+                grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`;
+                return;
+            }
+
+            products.forEach(product => {
+                // 呼叫 card.js 裡的產生器
+                grid.innerHTML += createProductCard(product);
+            });
+        }
 
             fetch(DISPLAY_API_URL)
                 .then(res => res.json())
