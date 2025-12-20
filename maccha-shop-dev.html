@@ -704,7 +704,7 @@
                 });
             }
 
-// 4. 渲染商品卡片 (最終版：自動間距、價格佈局優化)
+// 4. 渲染商品卡片 (完美間距版：所有內容都在同一容器內，由 gap-3 自動控制)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -759,16 +759,17 @@
 
                     if (hasMultiPrice) {
                         if (hasImage) {
-                            // [情境 1] 雙價格 + 手機 + 有圖片 => 左右並列 (row), 垂直置中 (items-center)
+                            // [情境 1] 雙價格 + 手機 + 有圖片 => 左右並列
+                            // 注意：移除了原本的 px-5 pb-2，因為現在它在容器內，會自動對齊
                             mobileMultiPriceHTML = `
-                                <div class="px-5 pb-2 w-full flex flex-row justify-between items-center md:hidden">
+                                <div class="w-full flex flex-row justify-between items-center md:hidden">
                                     <span class="text-xs text-gray-400">單件 $${price}</span>
                                     <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
                                 </div>`;
                         } else {
-                            // [情境 2] 雙價格 + 手機 + 無圖片 => 靠右堆疊 (col)
+                            // [情境 2] 雙價格 + 手機 + 無圖片 => 靠右堆疊
                             mobileMultiPriceHTML = `
-                                <div class="px-5 pb-2 w-full flex flex-col items-end md:hidden">
+                                <div class="w-full flex flex-col items-end md:hidden">
                                     <span class="text-xs text-gray-400">單件 $${price}</span>
                                     <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
                                 </div>`;
@@ -795,7 +796,6 @@
                     const btnText = isSoldOut ? '完售' : '加入購物車';
                     const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
                     
-                    // 若有圖片則垂直置中，無圖片則靠上對齊
                     const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
 
                     grid.innerHTML += `
@@ -812,16 +812,12 @@
                                         ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
                                     </h4>
 
-                                    ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2">${note}</p>` : '' }
+                                    ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
 
                                     <div>
-                                        ${insidePriceHTML}
-                                        ${desktopMultiPriceHTML}
-                                    </div>
+                                        ${insidePriceHTML}       ${mobileMultiPriceHTML}  ${desktopMultiPriceHTML} </div>
                                 </div>
                             </div>
-
-                            ${mobileMultiPriceHTML}
 
                             <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
                                 <div class="qty-control">
