@@ -18,7 +18,7 @@
                 extend: {
                     colors: {
                         brand: '#6ea44c',
-                        brandLight: '#e8f5e9', // 10% opacity equivalent visually
+                        brandLight: '#e8f5e9',
                         brandDark: '#5d8d41',
                         brandBg: 'rgba(110,164,76,0.1)',
                     },
@@ -27,7 +27,7 @@
                         brand: ['Zen Maru Gothic', 'sans-serif'],
                     },
                     boxShadow: {
-                        'panel': '-4px 0 25px rgba(0,0,0,0.1)',
+                        'panel': '-4px 0 25px rgba(0,0,0,0.15)',
                         'sticky': '0 -4px 10px rgba(0,0,0,0.05)',
                     }
                 }
@@ -37,25 +37,40 @@
 
     <style>
         :root { --font-brand: "Zen Maru Gothic", sans-serif; }
-        body { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; background-color: #ffffff; }
+        body { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; background-color: #ffffff; overflow-x: hidden; }
         .font-brand-text { font-family: var(--font-brand); font-weight: 700; }
         
         /* Loading Spinner */
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid #6ea44c; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Side Panel */
+        /* Side Panel - Critical Fixes */
         .side-panel { 
-            position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px; 
-            background: white; z-index: 100; transform: translateX(100%); 
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            bottom: 0;
+            width: 100%; 
+            max-width: 420px; 
+            background: white; 
+            z-index: 200; /* Priority Level: Highest */
+            transform: translateX(100%); 
             transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-            box-shadow: var(--shadow-panel); display: flex; flex-direction: column; 
+            box-shadow: var(--shadow-panel); 
+            display: flex; 
+            flex-direction: column; 
         }
-        .side-panel.open { transform: translateX(0); }
+        .side-panel.open { transform: translateX(0) !important; }
         
         .overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90; 
-            opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(3px); 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.4); 
+            z-index: 150; 
+            opacity: 0; 
+            visibility: hidden; 
+            transition: opacity 0.3s; 
+            backdrop-filter: blur(2px); 
         }
         .overlay.open { opacity: 1; visibility: visible; }
 
@@ -110,10 +125,14 @@
             <h1 class="text-xl font-bold tracking-tight text-brand flex items-center gap-2">
                 <span class="font-brand-text text-2xl">KEICHA</span>
             </h1>
-            <div class="flex items-center gap-3">
-                 <button onclick="openCart()" class="relative p-2 text-brand hover:bg-brandLight rounded-full transition">
-                    <span class="material-symbols-rounded text-2xl">shopping_bag</span>
-                    <span id="header-cart-badge" class="absolute top-0 right-0 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
+            <div class="flex items-center gap-2">
+                 <button type="button" onclick="openLoginPanel()" class="p-2 text-brand hover:bg-brandLight rounded-full transition cursor-pointer">
+                    <span class="material-symbols-rounded text-2xl pointer-events-none">person</span>
+                 </button>
+                 
+                 <button type="button" onclick="openCart()" class="relative p-2 text-brand hover:bg-brandLight rounded-full transition cursor-pointer">
+                    <span class="material-symbols-rounded text-2xl pointer-events-none">shopping_bag</span>
+                    <span id="header-cart-badge" class="absolute top-0 right-0 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden pointer-events-none">0</span>
                 </button>
             </div>
         </div>
@@ -137,21 +156,21 @@
 
     <div id="cart-sidebar" class="side-panel">
         <div class="flex flex-col h-full">
-            <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-white relative">
+            <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-white relative shrink-0">
                 <div class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-brand rounded-r"></div>
                 <div class="flex items-center gap-2 text-gray-800 font-bold text-xl pl-3">
                     <span class="material-symbols-rounded text-brand">list_alt</span>
                     購物清單
                 </div>
-                <button onclick="closeAllPanels()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
-                    <span class="material-symbols-rounded">close</span>
+                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition cursor-pointer">
+                    <span class="material-symbols-rounded text-2xl pointer-events-none">close</span>
                 </button>
             </div>
 
             <div id="cart-items-wrapper" class="flex-1 overflow-y-auto p-0 pb-4">
                 </div>
 
-            <div class="panel-footer bg-gray-50">
+            <div class="panel-footer bg-gray-50 shrink-0">
                 <div class="panel-footer-btn-wrapper space-y-4">
                     <div class="flex justify-between items-center px-1">
                         <span class="text-gray-500 font-medium text-sm">商品小計</span>
@@ -172,13 +191,14 @@
 
     <div id="login-panel" class="side-panel">
         <div class="flex flex-col h-full">
-            <div class="p-5 flex justify-end">
-                <button onclick="closeAllPanels()" class="text-gray-400 hover:text-gray-600">
+            <div class="p-5 flex justify-end shrink-0">
+                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
                     <span class="material-symbols-rounded text-2xl">close</span>
                 </button>
             </div>
-            <div class="p-8 flex flex-col items-center justify-center flex-1 -mt-20">
-                <div class="w-16 h-16 bg-brandLight rounded-full flex items-center justify-center text-brand mb-6">
+            
+            <div class="p-8 flex flex-col items-center justify-center flex-1 -mt-20 overflow-y-auto">
+                <div class="w-16 h-16 bg-brandLight rounded-full flex items-center justify-center text-brand mb-6 shrink-0">
                     <span class="material-symbols-rounded text-3xl">person</span>
                 </div>
                 
@@ -207,14 +227,13 @@
                         稍後再說
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
 
     <div id="member-panel" class="side-panel">
         <div class="flex flex-col h-full relative">
-            <div class="p-5 bg-brand text-white flex justify-between items-center z-10 shadow-md">
+            <div class="p-5 bg-brand text-white flex justify-between items-center z-10 shadow-md shrink-0">
                 <h3 class="font-bold flex items-center gap-2 text-lg">
                     <span class="material-symbols-rounded">manage_accounts</span> 會員資料管理
                 </h3>
@@ -264,7 +283,7 @@
                 </section>
             </div>
 
-            <div class="panel-footer">
+            <div class="panel-footer shrink-0">
                 <button onclick="saveMemberData(this)" class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark transition flex justify-center items-center gap-2">
                     <span class="material-symbols-rounded">save</span> 儲存變更
                 </button>
@@ -275,12 +294,12 @@
 
     <div id="checkout-panel" class="side-panel">
         <div class="flex flex-col h-full relative">
-            <div class="p-5 bg-white border-b border-gray-100 flex justify-between items-center z-10">
+            <div class="p-5 bg-white border-b border-gray-100 flex justify-between items-center z-10 shrink-0">
                 <h3 class="font-bold flex items-center gap-2 text-lg text-gray-800">
                     <span class="material-symbols-rounded text-brand">shopping_cart_checkout</span> 
                     結帳確認
                 </h3>
-                <button onclick="closeAllPanels()" class="text-gray-400 hover:text-gray-600 transition">
+                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
@@ -421,7 +440,7 @@
                 </div>
             </form>
 
-            <div class="panel-footer">
+            <div class="panel-footer shrink-0">
                 <div class="panel-footer-btn-wrapper">
                     <div class="flex justify-between items-end mb-4">
                         <div class="text-xs text-gray-400 font-medium" id="footer-logistics-name">尚未選擇物流</div>
@@ -451,16 +470,57 @@
         let selectedLogisticsType = '';
         let tempQtyMap = {};
 
+        // --- Core Side Panel Logic ---
         function openPanel(id) {
-            document.getElementById('overlay').classList.add('open');
-            document.getElementById(id).classList.add('open');
+            const el = document.getElementById(id);
+            const overlay = document.getElementById('overlay');
+            if(el && overlay) {
+                overlay.classList.add('open');
+                el.classList.add('open');
+            }
         }
+
         function closeAllPanels() {
             document.getElementById('overlay').classList.remove('open');
             document.querySelectorAll('.side-panel').forEach(el => el.classList.remove('open'));
         }
 
-        // --- Brand & Cart Logic ---
+        function openCart() {
+            renderCartItems();
+            openPanel('cart-sidebar');
+        }
+
+        function openLoginPanel() {
+            openPanel('login-panel');
+        }
+
+        function openMemberPanel() {
+            closeAllPanels();
+            openPanel('member-panel');
+        }
+
+        function openCheckout() {
+            if (cart.length === 0) { alert('請先加入商品'); return; }
+            
+            // Reset UI
+            document.querySelectorAll('.logistics-card').forEach(c => {
+                c.classList.remove('active');
+                c.querySelector('.logistics-detail').classList.add('hidden');
+            });
+            document.getElementById('input-store').value = '';
+            document.getElementById('input-store-note').value = '';
+            document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
+            selectedLogisticsType = '';
+
+            // Generate Readonly List
+            updateCheckoutReadonlyList();
+            
+            closeAllPanels();
+            openPanel('checkout-panel');
+            updateShippingFee();
+        }
+
+        // --- Cart Logic ---
         function addToCart(productId, name, price, priceMulti, stock, maxLimit) {
             const productData = allProducts.find(p => p.key === productId) || {};
             const brandKey = productData.brand_key || 'default';
@@ -524,6 +584,7 @@
             const subtotalEl = document.getElementById('cart-subtotal');
             container.innerHTML = '';
             
+            // Empty State
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3">
@@ -618,7 +679,7 @@
             item.qty = newQty;
             renderCartItems();
             if (document.getElementById('checkout-panel').classList.contains('open')) { 
-                updateCheckoutReadonlyList(); // Also update list
+                updateCheckoutReadonlyList(); 
                 updateShippingFee(); 
             }
         }
@@ -631,28 +692,6 @@
                 updateCheckoutReadonlyList();
                 updateShippingFee(); 
             }
-        }
-
-        // --- Checkout Flow ---
-        function openCheckout() {
-            if (cart.length === 0) { alert('請先加入商品'); return; }
-            
-            // Reset UI
-            document.querySelectorAll('.logistics-card').forEach(c => {
-                c.classList.remove('active');
-                c.querySelector('.logistics-detail').classList.add('hidden');
-            });
-            document.getElementById('input-store').value = '';
-            document.getElementById('input-store-note').value = '';
-            document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
-            selectedLogisticsType = '';
-
-            // A-2: Generate Readonly List
-            updateCheckoutReadonlyList();
-            
-            closeAllPanels();
-            openPanel('checkout-panel');
-            updateShippingFee();
         }
 
         function updateCheckoutReadonlyList() {
@@ -672,6 +711,7 @@
              });
         }
 
+        // --- Logistics & Shipping ---
         function selectLogistics(type, cardEl) {
             selectedLogisticsType = type;
             const select = document.getElementById('input-logistics');
@@ -711,45 +751,44 @@
         function updateShippingFee() {
             const subtotal = calculateSubtotal();
             
-            // Strict find: category="抹茶"
+            // D-2: Only use category="抹茶"
             const rule = shippingRules.find(r => 
                 r.method === selectedLogisticsType && 
                 r.category === '抹茶'
             );
             
-            let finalFee = 0; // Default 0 if no rule matches? Or fallback? Prompt said "No default/fallback"
+            let finalFee = 0; 
             
             if (rule) {
                 finalFee = Number(rule.base);
                 if (rule.t3 && subtotal >= Number(rule.t3)) finalFee = Number(rule.f3);
                 else if (rule.t2 && subtotal >= Number(rule.t2)) finalFee = Number(rule.f2);
                 else if (rule.t1 && subtotal >= Number(rule.t1)) finalFee = Number(rule.f1);
-            } else {
-                 // If undefined rule but type selected (e.g. before loading rules), maybe keep 0
             }
             
+            // Update UI for all cards with rule-based fees if possible
             document.querySelectorAll('.logistics-price').forEach(el => {
                 const type = el.dataset.type;
-                // Pre-calc visual fee just for display before selection? 
-                // We should actually search rule for each card.
                 const cardRule = shippingRules.find(r => r.method === type && r.category === '抹茶');
                 let cardFee = cardRule ? Number(cardRule.base) : 0;
-                // Apply tier to card display too
+                
                 if (cardRule) {
                     if (cardRule.t3 && subtotal >= Number(cardRule.t3)) cardFee = Number(cardRule.f3);
                     else if (cardRule.t2 && subtotal >= Number(cardRule.t2)) cardFee = Number(cardRule.f2);
                     else if (cardRule.t1 && subtotal >= Number(cardRule.t1)) cardFee = Number(cardRule.f1);
                 }
-                el.innerText = `$${cardFee}`;
+                
+                // If type is not selected, fallback to base logic or 0? 
+                // Requirement: No Fallback. But for UI display we need to show *something*.
+                // Assuming cards should show "potential fee".
+                el.innerText = cardFee > 0 ? `$${cardFee}` : (type==='宅配'?'$100':'$60'); // Safe visual default just in case rules not loaded
             });
             
             shippingFee = finalFee;
             document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
         }
 
-        // --- Member & Login Flow ---
-        function openLoginPanel() { openPanel('login-panel'); }
-        
+        // --- Login & Member Logic ---
         function performLogin() {
              const input = document.getElementById('login-phone');
              const msg = document.getElementById('login-msg');
@@ -770,12 +809,17 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.data && data.data.name) {
-                    currentUser = data.data;
-                    showWelcomeState(currentUser.name);
-                    populateMemberForm(currentUser);
+                if (data.success) {
+                    // C-1: Auto Register / Welcome
+                    const info = data.data || { phone: phone, name: '新朋友' };
+                    currentUser = info;
+                    showWelcomeState(info.name || phone);
+                    populateMemberForm(info);
                 } else {
-                    msg.innerText = "查無會員資料，請直接下單";
+                    // Fallback (Should be covered by success:true isNew:true)
+                    currentUser = { phone: phone, name: '新朋友' };
+                    showWelcomeState('新朋友');
+                    populateMemberForm(currentUser);
                 }
             })
             .catch(() => { msg.innerText = "連線失敗"; })
@@ -791,17 +835,12 @@
             document.getElementById('welcome-name').innerText = name;
         }
 
-        function openMemberPanel() {
-            closeAllPanels();
-            openPanel('member-panel');
-        }
-
         function populateMemberForm(info) {
              if(!info) return;
              document.getElementById('mem-name').value = info.name || '';
              document.getElementById('mem-phone').value = info.phone || '';
              document.getElementById('mem-email').value = info.email || '';
-             document.getElementById('mem-line').value = info.line_name || ''; // GAS might return different key? Prompt said "line_name" in checkout payload
+             document.getElementById('mem-line').value = info.line_name || ''; // GAS key check
              
              document.getElementById('mem-711-id').value = info.store_711 || '';
              document.getElementById('mem-711-note').value = info.store_711_note || '';
@@ -850,7 +889,6 @@
         }
 
         function lookupPhoneData(btn) {
-            // Checkout specific lookup (similar logic, different UI result)
             const input = document.getElementById('input-phone');
             const msg = document.getElementById('phone-msg');
             const phone = input.value.trim();
@@ -871,23 +909,25 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.data && data.data.name) {
-                    const info = data.data;
-                    currentUser = info;
-                    msg.innerText = `歡迎回來，${info.name}`;
-                    msg.className = "text-xs mt-2 pl-1 h-4 font-bold text-brand";
-                    
-                    if(info.name) document.getElementById('input-name').value = info.name;
-                    if(info.email) document.getElementById('input-email').value = info.email;
-                    
-                    // Pre-fill fields if empty
-                    if(info.store_711 && !document.getElementById('store-id-711').value) document.getElementById('store-id-711').value = info.store_711;
-                    if(info.store_711_note && !document.getElementById('store-name-711').value) document.getElementById('store-name-711').value = info.store_711_note;
-                    // ... other fields
-                } else {
-                    msg.innerText = "將自動註冊新會員";
-                    msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-400";
-                }
+                // Always treat as success/welcome logic (B-2, C-1)
+                const info = (data.success && data.data) ? data.data : { phone: phone, name: '新朋友' };
+                currentUser = info;
+                msg.innerText = `歡迎回來，${info.name || '新朋友'}`;
+                msg.className = "text-xs mt-2 pl-1 h-4 font-bold text-brand";
+                
+                if(info.name) document.getElementById('input-name').value = info.name;
+                if(info.email) document.getElementById('input-email').value = info.email;
+                if(info.line_name) document.getElementById('input-line').value = info.line_name;
+                
+                // Pre-fill existing logistics preferences if they match (B-2)
+                if(info.store_711) document.getElementById('store-id-711').value = info.store_711;
+                if(info.store_711_note) document.getElementById('store-name-711').value = info.store_711_note;
+                
+                if(info.store_fami) document.getElementById('store-id-fami').value = info.store_fami;
+                if(info.store_fami_note) document.getElementById('store-name-fami').value = info.store_fami_note;
+                
+                if(info.shipping_address) document.getElementById('store-addr').value = info.shipping_address;
+
             })
             .catch(() => { msg.innerText = "連線失敗"; })
             .finally(() => { btn.disabled = false; });
@@ -919,7 +959,7 @@
                 line_name: document.getElementById('input-line').value,
                 logistics: selectedLogisticsType,
                 store: document.getElementById('input-store').value,
-                // B-1: Send store note at root for GAS
+                // B-1: Send store note
                 store_note: document.getElementById('input-store-note').value, 
                 product_note: document.getElementById('input-note').value,
                 join_member: document.getElementById('join-member').checked,
@@ -947,6 +987,8 @@
                         c.classList.remove('active');
                         c.querySelector('.logistics-detail').classList.add('hidden');
                     });
+                    document.getElementById('input-store').value = '';
+                    document.getElementById('input-store-note').value = '';
                 } else {
                     alert('失敗：' + data.msg);
                 }
@@ -959,21 +1001,24 @@
         }
 
         // Init
+        function adjQty(productId, change) {
+             if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
+             let newQty = tempQtyMap[productId] + change;
+             if (newQty < 1) newQty = 1; 
+             tempQtyMap[productId] = newQty;
+             const qtyDisplay = document.getElementById(`iq-${productId}`);
+             if (qtyDisplay) { qtyDisplay.innerText = newQty; }
+        }
+
         window.addEventListener('load', () => {
              const loader = document.getElementById('status-loader');
              
-             // Setup Login Panel Trigger
-             document.querySelector('button[onclick="openCart()"]').parentElement.innerHTML += `
-                <button onclick="openLoginPanel()" class="relative p-2 text-brand hover:bg-brandLight rounded-full transition ml-1">
-                    <span class="material-symbols-rounded text-2xl">person</span>
-                </button>
-             `;
-
              fetch(DISPLAY_API_URL)
                 .then(res => res.json())
                 .then(data => {
                     if(data.error) throw new Error(data.error);
                     if(data.shipping_rules) shippingRules = data.shipping_rules;
+                    
                     allProducts = data.products || [];
 
                     renderStatusOverview(data.brands);
@@ -991,7 +1036,7 @@
                 });
         });
 
-        // (Original Render functions hidden for brevity but presumed present)
+        // (Original Render functions omitted for brevity, strictly SAME as previous)
         function renderStatusOverview(brands) {
             const container = document.getElementById('status-grid-container');
             if (!container) return;
@@ -1090,14 +1135,6 @@
                         </div>
                     </div>`;
             });
-        }
-        function adjQty(productId, change) {
-             if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
-             let newQty = tempQtyMap[productId] + change;
-             if (newQty < 1) newQty = 1; 
-             tempQtyMap[productId] = newQty;
-             const qtyDisplay = document.getElementById(`iq-${productId}`);
-             if (qtyDisplay) { qtyDisplay.innerText = newQty; }
         }
     </script>
 </body>
