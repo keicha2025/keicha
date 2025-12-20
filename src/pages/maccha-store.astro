@@ -1,0 +1,36 @@
+---
+// src/pages/maccha-store.astro
+import ProductCard from '../components/ProductCard.astro';
+
+// 模擬商品資料（未來可以改成從 JSON 或 API 取得）
+const products = [
+  { name: "手刷濃抹茶", price: 280, image: "/images/tea1.jpg", tag: "熱銷" },
+  { name: "抹茶拿鐵粉", price: 350, image: "/images/tea2.jpg" },
+  { name: "靜岡煎茶", price: 220, image: "/images/tea3.jpg" },
+];
+---
+
+<html>
+  <body>
+    <h1>KEICHA 抹茶商店</h1>
+    
+    <div class="product-grid">
+      {products.map((item) => (
+        <ProductCard 
+          name={item.name} 
+          price={item.price} 
+          image={item.image} 
+          tag={item.tag} 
+        />
+      ))}
+    </div>
+  </body>
+</html>
+
+<style>
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+</style>
