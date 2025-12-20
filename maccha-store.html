@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KEICHA 抹茶代購下單區</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="card.css">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -122,6 +122,25 @@
             padding: 0 16px; 
         }
 
+        /* 查詢按鈕特定樣式 */
+        .btn-store-query {
+            background-color: white;
+            color: #6ea44c;
+            border: 1px solid #6ea44c;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background-color 0.2s;
+        }
+        .btn-store-query:hover {
+            background-color: rgba(110, 164, 76, 0.1);
+        }
+
         /* 手機版適配 */
         @media (max-width: 767px) {
             .mobile-product-card { 
@@ -163,7 +182,7 @@
                 <p class="text-xs text-brand/60 mt-0.5">同品牌任選 2 件 • 即享多入優惠價</p>
             </div>
             <div id="top-auth-zone">
-                <button onclick="openPanel('login-panel')" class="flex items-center gap-1 text-brand font-bold text-sm bg-brand-10 px-3 py-1.5 rounded-full hover:bg-brand-10/80 transition">
+                <button onclick="handleAuthClick()" class="flex items-center gap-1 text-brand font-bold text-sm bg-brand-10 px-3 py-1.5 rounded-full hover:bg-brand-10/80 transition">
                     <span class="material-symbols-rounded text-lg">account_circle</span> 
                     <span id="header-user-name" class="hidden md:inline">會員登入</span>
                 </button>
@@ -211,6 +230,72 @@
             <button onclick="checkMember()" id="login-submit-btn" class="w-full btn-primary py-4 rounded-2xl flex justify-center items-center gap-2">
                 <span id="login-text">下一步</span><span id="login-icon" class="material-symbols-rounded">arrow_forward</span>
             </button>
+        </div>
+    </div>
+
+    <div id="member-panel" class="side-panel">
+        <div class="p-6 bg-brand text-white flex justify-between items-center sticky top-0 z-20 shadow-md">
+            <h3 class="font-bold flex items-center gap-2 text-white"><span class="material-symbols-rounded">person_edit</span> 會員資料管理</h3>
+            <button onclick="closeAllPanels()" class="material-symbols-rounded text-white">close</button>
+        </div>
+        <div class="p-8 flex-1 overflow-y-auto space-y-6 pb-24">
+            
+            <div>
+                <label class="text-[10px] text-brand font-bold mb-1 block uppercase tracking-widest">手機號碼 (無法變更)</label>
+                <div class="relative">
+                    <input type="tel" id="mem-phone" disabled class="w-full p-3 bg-gray-100 text-gray-500 border border-gray-200 rounded-xl font-bold cursor-not-allowed">
+                    <span class="material-symbols-rounded absolute right-3 top-3 text-gray-400 text-lg">lock</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">基本資料</h4>
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">收件人全名</label>
+                    <input type="text" id="mem-name" class="checkout-inline-input bg-gray-50" placeholder="請輸入真實姓名">
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">電子信箱</label>
+                    <input type="email" id="mem-email" class="checkout-inline-input bg-gray-50" placeholder="訂單通知用">
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold mb-1 block">LINE ID / 暱稱</label>
+                    <input type="text" id="mem-line" class="checkout-inline-input bg-gray-50">
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">預設取貨門市</h4>
+                
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-bold text-gray-700 flex items-center gap-1"><span class="material-symbols-rounded text-brand text-base">local_shipping</span> 7-11</span>
+                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-store-query">
+                            <span class="material-symbols-rounded text-sm">search</span> 店號查詢
+                        </a>
+                    </div>
+                    <input type="text" id="mem-store-711" class="checkout-inline-input text-xs" placeholder="請輸入店號 / 門市名稱">
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-bold text-gray-700 flex items-center gap-1"><span class="material-symbols-rounded text-brand text-base">store</span> 全家</span>
+                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-store-query">
+                            <span class="material-symbols-rounded text-sm">search</span> 店號查詢
+                        </a>
+                    </div>
+                    <input type="text" id="mem-store-fami" class="checkout-inline-input text-xs" placeholder="請輸入店號 / 門市名稱">
+                </div>
+            </div>
+
+            <div class="pt-4 space-y-3">
+                <button onclick="updateMemberInfo()" id="btn-update-mem" class="w-full btn-primary py-3 rounded-xl flex justify-center items-center gap-2">
+                    <span class="material-symbols-rounded">save</span> 儲存變更
+                </button>
+                <button onclick="logout()" class="w-full btn-outline-brand py-3 rounded-xl flex justify-center items-center gap-2">
+                    <span class="material-symbols-rounded">logout</span> 登出會員
+                </button>
+            </div>
         </div>
     </div>
 
@@ -298,7 +383,9 @@
                         <div id="area-7-11" class="hidden space-y-2 mt-2 pt-2 border-t border-dashed border-gray-200">
                              <div class="flex gap-2">
                                 <input type="text" class="checkout-inline-input flex-1 text-xs" placeholder="輸入6碼店號" onchange="syncStoreValue(this)">
-                                <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="bg-gray-100 text-gray-600 px-3 py-1 rounded text-xs flex items-center hover:bg-gray-200" onclick="event.stopPropagation()">查詢</a>
+                                <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-store-query" onclick="event.stopPropagation()">
+                                    <span class="material-symbols-rounded text-sm">search</span> 查詢
+                                </a>
                              </div>
                              <input type="text" class="checkout-inline-input w-full text-xs" placeholder="門市名稱 (選填)" onchange="syncStoreValue(this)">
                         </div>
@@ -312,7 +399,9 @@
                         <div id="area-fami" class="hidden space-y-2 mt-2 pt-2 border-t border-dashed border-gray-200">
                              <div class="flex gap-2">
                                 <input type="text" class="checkout-inline-input flex-1 text-xs" placeholder="輸入6碼店號" onchange="syncStoreValue(this)">
-                                <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-gray-100 text-gray-600 px-3 py-1 rounded text-xs flex items-center hover:bg-gray-200" onclick="event.stopPropagation()">查詢</a>
+                                <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-store-query" onclick="event.stopPropagation()">
+                                    <span class="material-symbols-rounded text-sm">search</span> 查詢
+                                </a>
                              </div>
                              <input type="text" class="checkout-inline-input w-full text-xs" placeholder="門市名稱 (選填)" onchange="syncStoreValue(this)">
                         </div>
@@ -362,6 +451,7 @@
 
     <script>
         let tempQtyMap = {}; 
+        let currentUser = null; // 儲存當前會員資料
 
         function adjQty(productId, change) {
             if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
@@ -380,6 +470,90 @@
         function closeAllPanels() {
             document.getElementById('overlay').classList.remove('open');
             document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
+        }
+
+        // 新增：處理右上角按鈕點擊
+        function handleAuthClick() {
+            if (currentUser) {
+                // 已登入 -> 開啟會員面板
+                populateMemberPanel();
+                openPanel('member-panel');
+            } else {
+                // 未登入 -> 開啟登入面板
+                openPanel('login-panel');
+            }
+        }
+
+        // 新增：填入會員面板資料
+        function populateMemberPanel() {
+            if (!currentUser) return;
+            document.getElementById('mem-phone').value = currentUser.phone || '';
+            document.getElementById('mem-name').value = currentUser.name || '';
+            document.getElementById('mem-email').value = currentUser.email || '';
+            document.getElementById('mem-line').value = currentUser.line_id || ''; // 假設 API 回傳欄位
+            document.getElementById('mem-store-711').value = currentUser.store_711 || '';
+            document.getElementById('mem-store-fami').value = currentUser.store_fami || '';
+        }
+
+        // 新增：登出邏輯
+        function logout() {
+            if(confirm('確定要登出嗎？')) {
+                currentUser = null;
+                document.getElementById('header-user-name').innerText = "會員登入";
+                document.getElementById('input-phone').value = '';
+                document.getElementById('input-name').value = '';
+                document.getElementById('input-email').value = '';
+                document.getElementById('input-line').value = '';
+                closeAllPanels();
+                alert('已登出');
+            }
+        }
+
+        // 新增：更新會員資料 API 呼叫
+        function updateMemberInfo() {
+            if (!currentUser) return;
+            const btn = document.getElementById('btn-update-mem');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader h-4 w-4 border-2 border-white rounded-full"></span> 儲存中...';
+
+            const payload = {
+                action: "update_member", // 需要後端支援此 action
+                phone: document.getElementById('mem-phone').value,
+                name: document.getElementById('mem-name').value,
+                email: document.getElementById('mem-email').value,
+                line_id: document.getElementById('mem-line').value,
+                store_711: document.getElementById('mem-store-711').value,
+                store_fami: document.getElementById('mem-store-fami').value
+            };
+
+            fetch(ORDER_API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('資料更新成功！');
+                    // 更新本地 currentUser
+                    currentUser = { ...currentUser, ...payload };
+                    // 同步更新結帳頁面資料 (如果已經填寫的話)
+                    document.getElementById('input-name').value = payload.name;
+                    document.getElementById('input-email').value = payload.email;
+                    document.getElementById('input-line').value = payload.line_id;
+                    document.getElementById('header-user-name').innerText = payload.name;
+                    closeAllPanels();
+                } else {
+                    alert('更新失敗: ' + (data.msg || '未知錯誤'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('網路連線錯誤');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-rounded">save</span> 儲存變更';
+            });
         }
 
         function openCart() {
@@ -557,18 +731,30 @@
             .then(data => {
                 if (data.success) {
                     const info = data.data;
+                    currentUser = info; // 儲存用戶狀態
+
                     document.getElementById('input-phone').value = info.phone; 
                     closeAllPanels();
                     document.getElementById('header-user-name').innerText = info.name || "會員";
-                    alert(`歡迎回來，${info.name}！\n資料已自動帶入結帳頁面。`);
+                    alert(`歡迎回來，${info.name}！\n資料已自動帶入。`);
+                    
+                    // 自動填入結帳資料
                     if (info.name) {
                         document.getElementById('input-name').value = info.name;
                         document.getElementById('input-email').value = info.email;
+                        document.getElementById('input-line').value = info.line_id || '';
+                        
+                        // 優先使用 7-11 預設店鋪
                         if (info.store_711) {
                             uiSelectLogistics('7-11');
-                            document.querySelector('#area-7-11 input:last-child').value = info.store_711;
+                            document.querySelector('#area-7-11 input:first-child').value = info.store_711;
                             document.getElementById('input-store').value = info.store_711;
                         } 
+                        else if (info.store_fami) {
+                             uiSelectLogistics('全家');
+                             document.querySelector('#area-fami input:first-child').value = info.store_fami;
+                             document.getElementById('input-store').value = info.store_fami;
+                        }
                         updateShippingFee(); 
                     }
                 } else {
@@ -704,25 +890,108 @@
                 });
             }
 
-<script src="card.js"></script>
+            function renderProductCards(brandKey, products) {
+                const grid = document.getElementById(`${brandKey}-grid`);
+                if (!grid) return;
+                
+                const visibleProducts = products; 
+                if (visibleProducts.length === 0) {
+                    grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`;
+                    return;
+                }
 
-    <script>
+                visibleProducts.forEach(product => {
+                    const productId = product.key || Math.random().toString(36).substr(2, 9); 
+                    const name = product.name || '未命名';
+                    const price = Number(product.price) || 0;
+                    const priceMulti = Number(product.price_multi) || 0;
+                    const status = product.status || '';
+                    
+                    const note = product.note || '';      
+                    const tag = product.tag || '';        
+                    const spec = product.spec || '';      
+                    const imgPath = String(product.img || ''); 
+                    
+                    let isStockZero = false;
+                    if (product.stock !== "" && product.stock !== undefined) {
+                        if (Number(product.stock) <= 0) isStockZero = true;
+                    }
+                    const isSoldOut = isStockZero || status.includes('完售');
+                    const hasImage = imgPath !== '';
+                    const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
 
-        // ★ 3. 修改後的渲染函式 (變得非常短)
-        function renderProductCards(brandKey, products) {
-            const grid = document.getElementById(`${brandKey}-grid`);
-            if (!grid) return;
-            
-            if (products.length === 0) {
-                grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`;
-                return;
+                    // 圖片
+                    let imgHTML = '';
+                    if (hasImage) {
+                        const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
+                        imgHTML = `<div class="card-img-group w-full aspect-square relative overflow-hidden bg-gray-50 md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
+                                     <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
+                                   </div>`;
+                    }
+                    
+                    // Badge
+                    let badgeHTML = '';
+                    if (tag) {
+                        badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
+                    } else if (isSoldOut) {
+                         badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
+                    }
+
+                    // 價格佈局
+                    let priceHTML = '';
+                    if (hasMultiPrice) {
+                        priceHTML = `
+                            <div class="flex flex-col items-end w-full">
+                                <span class="text-xs text-gray-400">單件 $${price}</span>
+                                <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
+                            </div>`;
+                    } else {
+                        priceHTML = `
+                            <div class="w-full text-right">
+                                <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
+                            </div>`;
+                    }
+
+                    const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
+                    const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
+                    const btnText = isSoldOut ? '完售' : '加入購物車';
+                    const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
+                    
+                    const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
+
+                    grid.innerHTML += `
+                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
+                            ${badgeHTML}
+                            
+                            <div class="${topRowClass}">
+                                ${imgHTML}
+                                
+                                <div class="card-info-group p-5 flex-1 flex flex-col gap-3">
+                                    
+                                    <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-1 flex items-baseline">
+                                        ${name}
+                                        ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
+                                    </h4>
+
+                                    ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
+
+                                    <div class="mt-auto">
+                                        ${priceHTML}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
+                                <div class="qty-control">
+                                    <button class="qty-btn" onclick="adjQty('${productId}', -1)" ${qtyDisable}>-</button>
+                                    <span id="iq-${productId}" class="text-xs font-bold px-2 min-w-[20px] text-center">1</span>
+                                    <button class="qty-btn" onclick="adjQty('${productId}', 1)" ${qtyDisable}>+</button>
+                                </div>
+                                <button class="add-btn flex-1 py-3 rounded-xl text-xs font-bold ${btnClass}" ${clickEvent}>${btnText}</button>
+                            </div>
+                        </div>`;
+                });
             }
-
-            products.forEach(product => {
-                // 呼叫 card.js 裡的產生器
-                grid.innerHTML += createProductCard(product);
-            });
-        }
 
             fetch(DISPLAY_API_URL)
                 .then(res => res.json())
