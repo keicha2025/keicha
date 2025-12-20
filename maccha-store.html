@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>KEICHA 抹茶代購下單區</title>
     <link rel="icon" href="data:,">
     
@@ -18,7 +18,7 @@
                 extend: {
                     colors: {
                         brand: '#6ea44c',
-                        brandLight: '#e8f5e9', // 10% opacity equivalent visually
+                        brandLight: '#e8f5e9',
                         brandDark: '#5d8d41',
                     },
                     fontFamily: {
@@ -36,14 +36,14 @@
 
     <style>
         :root { --font-brand: "Zen Maru Gothic", sans-serif; }
-        body { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; background-color: #ffffff; }
+        body { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; background-color: #ffffff; }
         .font-brand-text { font-family: var(--font-brand); font-weight: 700; }
         
         /* Loading Spinner */
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid #6ea44c; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Side Panel (Mobile First Optimized) */
+        /* Side Panel */
         .side-panel { 
             position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px; 
             background: white; z-index: 100; transform: translateX(100%); 
@@ -78,7 +78,7 @@
         }
         .logistics-card:active { transform: scale(0.99); }
 
-        /* Store Query Button (Specific Request) */
+        /* Store Query Button */
         .btn-query-store {
             background-color: white; color: #6ea44c; border: 1px solid #6ea44c;
             display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -87,11 +87,15 @@
         }
         .btn-query-store:hover { background-color: #e8f5e9; }
 
-        /* Sticky Footer */
+        /* Sticky Footer with Safe Area */
         .panel-footer { 
             background: white; padding: 16px 20px; border-top: 1px solid #f1f5f9; 
             box-shadow: var(--shadow-sticky); z-index: 20; 
-            padding-bottom: env(safe-area-inset-bottom, 20px);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 24px); /* 加大底部間距 */
+        }
+        /* 按鈕本身與 Bar 底部的間距 */
+        .panel-footer-btn-wrapper {
+            margin-bottom: 16px;
         }
 
         /* Product Card Styles (Untouched) */
@@ -135,35 +139,38 @@
 
     <div id="cart-sidebar" class="side-panel">
         <div class="flex flex-col h-full">
-            <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-white">
-                <div class="flex items-center gap-2 text-gray-800 font-bold text-lg">
-                    <span class="material-symbols-rounded text-brand">shopping_cart</span>
-                    購物車
+            <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-white relative">
+                <div class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-brand rounded-r"></div>
+                <div class="flex items-center gap-2 text-gray-800 font-bold text-xl pl-3">
+                    <span class="material-symbols-rounded text-brand">list_alt</span>
+                    購物清單
                 </div>
                 <button onclick="closeAllPanels()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
 
-            <div id="cart-items-wrapper" class="flex-1 overflow-y-auto p-5 space-y-6">
+            <div id="cart-items-wrapper" class="flex-1 overflow-y-auto p-0 pb-4">
                 <div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3">
                     <span class="material-symbols-rounded text-5xl">shopping_basket</span>
                     <p class="text-sm font-medium">購物車是空的</p>
                 </div>
             </div>
 
-            <div class="panel-footer bg-gray-50 space-y-4">
-                <div class="flex justify-between items-center px-1">
-                    <span class="text-gray-500 font-medium text-sm">商品小計</span>
-                    <span class="text-xl font-bold text-brand font-mono">NT$ <span id="cart-subtotal">0</span></span>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="closeAllPanels()" class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">
-                        繼續選購
-                    </button>
-                    <button onclick="openCheckout()" class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">
-                        前往結帳 <span class="material-symbols-rounded text-sm">arrow_forward</span>
-                    </button>
+            <div class="panel-footer bg-gray-50">
+                <div class="panel-footer-btn-wrapper space-y-4">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="text-gray-500 font-medium text-sm">商品小計</span>
+                        <span class="text-xl font-bold text-brand font-mono">NT$ <span id="cart-subtotal">0</span></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="closeAllPanels()" class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">
+                            繼續選購
+                        </button>
+                        <button onclick="openCheckout()" class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">
+                            前往結帳 <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,7 +191,7 @@
                 <p class="text-sm text-gray-400 mb-8 text-center">輸入手機號碼以查詢訂單或累積消費</p>
                 
                 <div class="w-full space-y-4">
-                     <button onclick="openCheckout()" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark transition">
+                    <button onclick="openCheckout()" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark transition">
                         前往結帳與查詢
                     </button>
                     <button onclick="closeAllPanels()" class="w-full text-gray-400 text-sm hover:text-gray-600 py-2">
@@ -207,12 +214,12 @@
                 </button>
             </div>
 
-            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white"> 
-                <div class="p-5 space-y-8 pb-32">
+            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white pb-40"> 
+                <div class="p-5 space-y-8">
                     
                     <section class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                         <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1">
-                            <span class="material-symbols-rounded text-sm text-brand">smartphone</span> 會員查詢
+                            <span class="material-symbols-rounded text-sm text-brand">smartphone</span> 手機號碼
                         </label>
                         <div class="flex gap-2">
                             <input type="tel" id="input-phone" 
@@ -223,7 +230,7 @@
                                 required>
                             <button type="button" onclick="lookupPhoneData(this)" 
                                 class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50">
-                                <span class="material-symbols-rounded">search</span>
+                                <span class="material-symbols-rounded">arrow_forward</span>
                             </button>
                         </div>
                         <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300"></p>
@@ -309,6 +316,7 @@
                             </div>
                             
                             <input type="hidden" name="store" id="input-store" required>
+                            <input type="hidden" name="store_note" id="input-store-note">
                         </div>
                     </section>
 
@@ -350,16 +358,18 @@
             </form>
 
             <div class="panel-footer">
-                <div class="flex justify-between items-end mb-4">
-                    <div class="text-xs text-gray-400 font-medium" id="footer-logistics-name">尚未選擇物流</div>
-                    <div class="text-right flex items-baseline gap-2">
-                        <span class="text-xs text-gray-400">總金額</span>
-                        <span class="text-2xl font-bold text-brand font-mono">NT$ <span id="modal-total">0</span></span>
+                <div class="panel-footer-btn-wrapper">
+                    <div class="flex justify-between items-end mb-4">
+                        <div class="text-xs text-gray-400 font-medium" id="footer-logistics-name">尚未選擇物流</div>
+                        <div class="text-right flex items-baseline gap-2">
+                            <span class="text-xs text-gray-400">總金額</span>
+                            <span class="text-2xl font-bold text-brand font-mono">NT$ <span id="modal-total">0</span></span>
+                        </div>
                     </div>
+                    <button onclick="submitOrder(this)" class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                        <span class="material-symbols-rounded">verified</span> 確認送出訂單
+                    </button>
                 </div>
-                <button onclick="submitOrder(this)" class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
-                    <span class="material-symbols-rounded">verified</span> 確認送出訂單
-                </button>
             </div>
         </div>
     </div>
@@ -369,6 +379,7 @@
         const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec";
         const BASE_REPO_URL = "assets/images/"; 
 
+        let allProducts = []; // Global storage for product lookup
         let cart = [];
         let shippingFee = 60;
         let shippingRules = [];
@@ -385,17 +396,35 @@
             document.querySelectorAll('.side-panel').forEach(el => el.classList.remove('open'));
         }
 
+        // --- Core Logic Update: Brand Key Lookup & Total Qty Check ---
         function addToCart(productId, name, price, priceMulti, stock, maxLimit) {
+            // Find full product object to get brand_key (without modifying Product Card HTML)
+            const productData = allProducts.find(p => p.key === productId) || {};
+            const brandKey = productData.brand_key || 'default';
+
             const qtyToAdd = tempQtyMap[productId] || 1;
-            const existingItem = cart.find(item => item.name === name);
-            let currentCartQty = existingItem ? existingItem.qty : 0;
+            const existingItem = cart.find(item => item.productId === productId); // Use productId for unique check
             
+            // Check Limits
+            let currentCartQty = existingItem ? existingItem.qty : 0;
             if (currentCartQty + qtyToAdd > stock) { alert("抱歉，庫存不足！"); return; }
             if (currentCartQty + qtyToAdd > maxLimit) { alert(`此商品每人限購 ${maxLimit} 件`); return; }
 
-            if (existingItem) { existingItem.qty += qtyToAdd; } 
-            else { cart.push({ brand_key: "default", productId: productId, name: name, price: price, price_multi: priceMulti, qty: qtyToAdd, stock: stock }); }
+            if (existingItem) { 
+                existingItem.qty += qtyToAdd; 
+            } else { 
+                cart.push({ 
+                    productId: productId, // Important for uniqueness
+                    brand_key: brandKey, 
+                    name: name, 
+                    price: price, 
+                    price_multi: priceMulti, 
+                    qty: qtyToAdd, 
+                    stock: stock 
+                }); 
+            }
             
+            // Reset Temp Qty
             tempQtyMap[productId] = 1;
             const qtyDisplay = document.getElementById(`iq-${productId}`);
             if(qtyDisplay) qtyDisplay.innerText = 1;
@@ -405,9 +434,27 @@
             openCart();
         }
 
-        function openCart() {
-            renderCartItems();
-            openPanel('cart-sidebar');
+        // --- New Cart Logic: Calculate Brand Counts ---
+        function getBrandCounts() {
+            let counts = {};
+            cart.forEach(item => {
+                let k = item.brand_key || 'default';
+                counts[k] = (counts[k] || 0) + item.qty;
+            });
+            return counts;
+        }
+
+        function calculateSubtotal() {
+            const brandCounts = getBrandCounts();
+            let subtotal = 0;
+            cart.forEach(item => {
+                let k = item.brand_key || 'default';
+                // New Logic: Total Qty > 1 (meaning 2 or more)
+                let useDiscount = brandCounts[k] > 1;
+                let finalPrice = useDiscount ? item.price_multi : item.price;
+                subtotal += finalPrice * item.qty;
+            });
+            return subtotal;
         }
 
         function renderCartItems() {
@@ -426,48 +473,75 @@
                 return;
             }
 
-            let subtotal = 0;
-            let totalQty = 0;
-
-            cart.forEach((item, index) => {
-                const unitPrice = item.qty >= 2 ? item.price_multi : item.price;
-                subtotal += unitPrice * item.qty;
-                totalQty += item.qty;
-
-                // [UI Change] Use Close icon top-right, improved layout
-                container.innerHTML += `
-                    <div class="relative flex gap-4 items-start border-b border-gray-50 pb-6 last:border-0 group">
-                        <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-100">
-                           <span class="material-symbols-rounded text-gray-300 text-3xl">image</span>
-                        </div>
-                        
-                        <div class="flex-1 min-w-0 flex flex-col justify-between min-h-[80px]">
-                            <div class="pr-6">
-                                <div class="font-bold text-gray-800 text-sm leading-tight line-clamp-2">${item.name}</div>
-                                <div class="text-xs text-gray-400 mt-1 font-mono">$${unitPrice}</div>
-                            </div>
-                            
-                            <div class="flex justify-between items-end mt-2">
-                                <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8">
-                                    <button onclick="updateCartQty(${index}, -1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-l-lg transition font-bold">-</button>
-                                    <span class="w-8 text-center text-xs font-bold text-gray-700 font-mono">${item.qty}</span>
-                                    <button onclick="updateCartQty(${index}, 1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-r-lg transition font-bold">+</button>
-                                </div>
-                                <div class="font-bold text-brand font-mono">$${unitPrice * item.qty}</div>
-                            </div>
-                        </div>
-
-                        <button onclick="removeFromCart(${index})" class="absolute top-0 right-0 text-gray-300 hover:text-gray-500 transition p-1">
-                            <span class="material-symbols-rounded text-xl">close</span>
-                        </button>
-                    </div>
-                `;
+            // Group by Brand for Rendering
+            const brandCounts = getBrandCounts();
+            const groupedCart = {};
+            cart.forEach(item => {
+                let k = item.brand_key || 'default';
+                if(!groupedCart[k]) groupedCart[k] = [];
+                groupedCart[k].push(item);
             });
 
-            subtotalEl.innerText = subtotal.toLocaleString();
+            // Render Groups
+            for (const [brandKey, items] of Object.entries(groupedCart)) {
+                // Determine if Discount Applies
+                const isDiscountActive = brandCounts[brandKey] > 1;
+                
+                // Render Group Header/Banner if Discount Active
+                if(isDiscountActive) {
+                    container.innerHTML += `
+                        <div class="bg-brandLight text-brandDark text-xs font-bold px-4 py-2 flex items-center gap-1">
+                            <span class="material-symbols-rounded text-sm">verified</span>
+                            已套用同品牌多件優惠
+                        </div>
+                    `;
+                }
+
+                items.forEach((item, index) => {
+                    // Find actual index in main cart array for updates
+                    const mainIndex = cart.indexOf(item);
+                    
+                    const unitPrice = isDiscountActive ? item.price_multi : item.price;
+                    const isMultiPriceApplied = isDiscountActive && (item.price !== item.price_multi);
+
+                    container.innerHTML += `
+                        <div class="relative flex gap-4 items-start border-b border-gray-50 p-5 last:border-0 group bg-white">
+                             <div class="w-16 h-16 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-100">
+                               <span class="material-symbols-rounded text-gray-300 text-2xl">local_mall</span>
+                            </div>
+                            
+                            <div class="flex-1 min-w-0 flex flex-col justify-between min-h-[64px]">
+                                <div class="pr-6">
+                                    <div class="font-bold text-gray-800 text-sm leading-tight line-clamp-2">${item.name}</div>
+                                    <div class="text-xs text-gray-400 mt-1 font-mono">
+                                        ${isMultiPriceApplied ? `<span class="line-through text-gray-300 mr-1">$${item.price}</span>` : ''}
+                                        <span class="${isMultiPriceApplied ? 'text-brand font-bold' : ''}">$${unitPrice}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between items-end mt-2">
+                                    <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8">
+                                        <button onclick="updateCartQty(${mainIndex}, -1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-l-lg transition font-bold">-</button>
+                                        <span class="w-8 text-center text-xs font-bold text-gray-700 font-mono">${item.qty}</span>
+                                        <button onclick="updateCartQty(${mainIndex}, 1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-r-lg transition font-bold">+</button>
+                                    </div>
+                                    <div class="font-bold text-brand font-mono">$${unitPrice * item.qty}</div>
+                                </div>
+                            </div>
+
+                            <button onclick="removeFromCart(${mainIndex})" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition p-1">
+                                <span class="material-symbols-rounded text-xl">close</span>
+                            </button>
+                        </div>
+                    `;
+                });
+            }
+
+            subtotalEl.innerText = calculateSubtotal().toLocaleString();
             const badge = document.getElementById('header-cart-badge');
+            const totalQty = cart.reduce((acc, i) => acc + i.qty, 0);
             badge.innerText = totalQty;
-            badge.classList.remove('hidden');
+            badge.classList.toggle('hidden', totalQty === 0);
         }
 
         function updateCartQty(index, delta) {
@@ -490,18 +564,17 @@
             if (document.getElementById('checkout-panel').classList.contains('open')) { updateShippingFee(); }
         }
 
-        function calculateSubtotal() {
-            return cart.reduce((acc, item) => acc + (item.qty * (item.qty >= 2 ? item.price_multi : item.price)), 0);
-        }
-
+        function openCart() { renderCartItems(); openPanel('cart-sidebar'); }
         function openCheckout() {
             if (cart.length === 0) { alert('請先加入商品'); return; }
             
+            // UI Reset
             document.querySelectorAll('.logistics-card').forEach(c => {
                 c.classList.remove('active');
                 c.querySelector('.logistics-detail').classList.add('hidden');
             });
             document.getElementById('input-store').value = '';
+            document.getElementById('input-store-note').value = '';
             document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
             selectedLogisticsType = '';
             
@@ -528,26 +601,26 @@
         }
 
         function syncStoreInput() {
-            let val = '';
-            // [Logic] Concatenate ID and Name for the backend 'store' field
+            let storeId = '';
+            let storeName = '';
+
             if (selectedLogisticsType === '7-11') {
-                const id = document.getElementById('store-id-711').value;
-                const name = document.getElementById('store-name-711').value;
-                val = id + (name ? ` / ${name}` : '');
+                storeId = document.getElementById('store-id-711').value;
+                storeName = document.getElementById('store-name-711').value;
             } else if (selectedLogisticsType === '全家') {
-                const id = document.getElementById('store-id-fami').value;
-                const name = document.getElementById('store-name-fami').value;
-                val = id + (name ? ` / ${name}` : '');
+                storeId = document.getElementById('store-id-fami').value;
+                storeName = document.getElementById('store-name-fami').value;
             } else if (selectedLogisticsType.includes('宅配')) {
-                val = document.getElementById('store-addr').value;
+                storeId = document.getElementById('store-addr').value; // For home, address is ID
             }
-            document.getElementById('input-store').value = val;
+
+            document.getElementById('input-store').value = storeId;
+            document.getElementById('input-store-note').value = storeName;
         }
 
         function updateShippingFee() {
             const subtotal = calculateSubtotal();
             const rule = shippingRules.find(r => r.category === '抹茶' && selectedLogisticsType.includes(r.method));
-            
             let finalFee = 60;
             if (selectedLogisticsType.includes("宅配")) finalFee = 100;
             
@@ -560,8 +633,7 @@
             
             document.querySelectorAll('.logistics-price').forEach(el => {
                 const type = el.dataset.type;
-                if(type === '宅配') el.innerText = '$100';
-                else el.innerText = '$60';
+                el.innerText = type === '宅配' ? '$100' : '$60';
             });
             
             shippingFee = selectedLogisticsType ? finalFee : 0;
@@ -592,7 +664,7 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.data && data.data.name) { // Ensure name exists to say "Welcome back"
+                if (data.success && data.data && data.data.name) {
                     const info = data.data;
                     currentUser = info;
                     msg.innerText = `歡迎回來，${info.name}`;
@@ -600,12 +672,13 @@
                     
                     if(info.name) document.getElementById('input-name').value = info.name;
                     if(info.email) document.getElementById('input-email').value = info.email;
-                    // [Logic] Backend maps store_note to these fields implicitly
+                    
+                    // Logic: Backend mapping for Store Note (Store name)
                     if(info.store_711) document.getElementById('store-id-711').value = info.store_711;
+                    if(info.store_711_note) document.getElementById('store-name-711').value = info.store_711_note;
+                    if(info.store_fami) document.getElementById('store-id-fami').value = info.store_fami;
+                    if(info.store_fami_note) document.getElementById('store-name-fami').value = info.store_fami_note;
                 } else {
-                    // [UI Change] User requested NOT to show "Welcome back" if not found.
-                    // The backend returns success=true even for new users (isNew: true).
-                    // We check if data.name is present. If not, we show a neutral message.
                     msg.innerText = "完成下單後將自動註冊會員";
                     msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-400";
                 }
@@ -616,17 +689,13 @@
             })
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = '<span class="material-symbols-rounded">search</span>';
+                btn.innerHTML = '<span class="material-symbols-rounded">arrow_forward</span>';
             });
         }
 
         function submitOrder(btn) {
             const form = document.getElementById('order-form');
-            if (!form.checkValidity()) {
-                alert('請檢查欄位是否填寫正確');
-                form.reportValidity();
-                return;
-            }
+            if (!form.checkValidity()) { alert('請檢查欄位是否填寫正確'); form.reportValidity(); return; }
             if (!selectedLogisticsType) { alert('請選擇配送方式'); return; }
             if (!document.getElementById('input-store').value) { alert('請填寫店號或地址'); return; }
 
@@ -634,8 +703,14 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '<span class="loader border-white border-t-transparent mr-2"></span> 處理中...';
 
-            const subtotal = calculateSubtotal();
-            const itemsStr = cart.map(item => `${item.name} x${item.qty} ($${item.qty >= 2 ? item.price_multi : item.price})`).join('\n');
+            // Logic: Recalculate price with new discount logic for payload
+            const brandCounts = getBrandCounts();
+            const itemsStr = cart.map(item => {
+                let k = item.brand_key || 'default';
+                let useDiscount = brandCounts[k] > 1;
+                let finalP = useDiscount ? item.price_multi : item.price;
+                return `${item.name} x${item.qty} ($${finalP})`;
+            }).join('\n');
 
             const payload = {
                 action: "checkout",
@@ -645,10 +720,11 @@
                 line_name: document.getElementById('input-line').value,
                 logistics: selectedLogisticsType,
                 store: document.getElementById('input-store').value,
+                store_note: document.getElementById('input-store-note').value, // Critical: Send Store Name
                 product_note: document.getElementById('input-note').value,
                 join_member: document.getElementById('join-member').checked,
                 items: itemsStr,
-                subtotal: subtotal,
+                subtotal: calculateSubtotal(),
                 shipping: shippingFee,
                 date: new Date().toISOString()
             };
@@ -667,6 +743,7 @@
                     form.reset();
                     document.querySelectorAll('.logistics-card').forEach(c => c.classList.remove('active'));
                     document.getElementById('input-store').value = '';
+                    document.getElementById('input-store-note').value = '';
                 } else {
                     alert('失敗：' + data.msg);
                 }
@@ -681,14 +758,17 @@
             });
         }
 
-        // --- Init Product List ---
+        // --- Init ---
         function adjQty(productId, change) {
-            if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
-            let newQty = tempQtyMap[productId] + change;
-            if (newQty < 1) newQty = 1; 
-            tempQtyMap[productId] = newQty;
-            const qtyDisplay = document.getElementById(`iq-${productId}`);
-            if (qtyDisplay) { qtyDisplay.innerText = newQty; }
+             // Wrapper for product card calls to use new addToCart logic
+             // However, Product Card Qty is local visual only until Added.
+             // We reuse the visual update logic.
+             if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
+             let newQty = tempQtyMap[productId] + change;
+             if (newQty < 1) newQty = 1; 
+             tempQtyMap[productId] = newQty;
+             const qtyDisplay = document.getElementById(`iq-${productId}`);
+             if (qtyDisplay) { qtyDisplay.innerText = newQty; }
         }
 
         window.addEventListener('load', () => {
@@ -699,6 +779,9 @@
                     if(data.error) throw new Error(data.error);
                     if(data.shipping_rules) shippingRules = data.shipping_rules;
                     
+                    // Store ALL products globally for lookup
+                    allProducts = data.products || [];
+
                     renderStatusOverview(data.brands);
                     renderProductSections(data.brands);
                     data.brands.forEach(brand => {
@@ -714,7 +797,7 @@
                 });
         });
 
-        // (Original Render Functions hidden for brevity, assume they are same as before)
+        // (Render functions omitted for brevity - strictly SAME as before as requested)
         function renderStatusOverview(brands) {
             const container = document.getElementById('status-grid-container');
             if (!container) return;
@@ -756,6 +839,10 @@
             if (products.length === 0) { grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`; return; }
             products.forEach(product => {
                 const productId = product.key || Math.random().toString(36).substr(2, 9); 
+                // We inject 'key' into the DOM element ID or data attribute implicitly via addToCart
+                // Note: We MUST assign product.key to productId variable if it exists from API to ensure lookup works
+                // The loop above defines: const productId = product.key || ... 
+                
                 const name = product.name || '未命名';
                 const price = Number(product.price) || 0;
                 const priceMulti = Number(product.price_multi) || 0;
