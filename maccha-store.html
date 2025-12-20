@@ -20,6 +20,7 @@
                     colors: {
                         brand: '#6ea44c',
                         brandLight: 'rgba(110, 164, 76, 0.1)',
+                        brandGreen: '#6ea44c', /* 兼容舊 class */
                     },
                     fontFamily: {
                         sans: ['Noto Sans TC', 'sans-serif'],
@@ -32,7 +33,7 @@
 
     <style>
         :root { --font-brand: "Zen Maru Gothic", sans-serif; }
-        body { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; }
+        body { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; background-color: #ffffff; }
         .font-brand-text { font-family: var(--font-brand); font-weight: 700; }
         
         /* Loading Spinner */
@@ -56,6 +57,12 @@
         
         /* Sticky Footer */
         .checkout-footer { position: absolute; bottom: 0; left: 0; right: 0; background: white; padding: 16px; border-top: 1px solid #f3f4f6; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); z-index: 20; }
+
+        /* Product Card Styles (from original) */
+        .card-img-group { width: 100px; height: 100px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background-color: #f9fafb; }
+        @media (min-width: 768px) {
+            .card-img-group { width: 100%; height: auto; aspect-ratio: 1/1; }
+        }
     </style>
 </head>
 <body class="bg-white text-gray-800">
@@ -76,10 +83,21 @@
         </div>
     </div>
 
-    <main class="max-w-5xl mx-auto px-4 py-6">
-        <div id="status-loader" class="flex justify-center py-10">
-            <span class="loader w-8 h-8 border-brand border-t-transparent"></span>
+    <section class="py-8 bg-white border-b border-gray-100">
+        <div class="container mx-auto px-4 max-w-5xl">
+            <h2 class="text-xl font-bold text-center mb-6 text-gray-800 flex items-center justify-center gap-2">
+                <span class="material-symbols-rounded text-brand">storefront</span> 品牌總覽
+            </h2>
+            
+            <div id="status-loader" class="flex justify-center h-20 items-center">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div>
+            </div>
+            
+            <div id="status-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </div>
+    </section>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 pb-32">
         <div id="product-list-container" class="space-y-12"></div>
     </main>
 
@@ -130,7 +148,8 @@
                 </button>
             </div>
 
-            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto pb-[140px]"> <div class="p-5 space-y-8">
+            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto pb-[140px]"> 
+                <div class="p-5 space-y-8">
                     
                     <section>
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
@@ -300,16 +319,18 @@
     </div>
 
     <script>
-        // 全域變數初始化 (模擬原系統環境)
         const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
         const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec";
+        const BASE_REPO_URL = "assets/images/"; 
+
         let cart = [];
         let shippingFee = 60;
         let shippingRules = [];
         let currentUser = null;
         let selectedLogisticsType = '';
+        let tempQtyMap = {};
 
-        // --- UI Logic: Side Panels ---
+        // --- UI Panel Control ---
         function openPanel(id) {
             document.getElementById('overlay').classList.add('open');
             document.getElementById(id).classList.add('open');
@@ -319,7 +340,33 @@
             document.querySelectorAll('.side-panel').forEach(el => el.classList.remove('open'));
         }
 
-        // --- UI Logic: Cart Sidebar (Required Functions) ---
+        // --- Cart Logic ---
+        function addToCart(productId, name, price, priceMulti, stock, maxLimit) {
+            // 從 tempQtyMap 取得數量，預設為 1
+            const qtyToAdd = tempQtyMap[productId] || 1;
+            const existingItem = cart.find(item => item.name === name);
+            let currentCartQty = existingItem ? existingItem.qty : 0;
+            
+            if (currentCartQty + qtyToAdd > stock) { alert("抱歉，庫存不足！"); return; }
+            if (currentCartQty + qtyToAdd > maxLimit) { alert(`此商品每人限購 ${maxLimit} 件`); return; }
+
+            if (existingItem) { 
+                existingItem.qty += qtyToAdd; 
+            } else { 
+                // brand_key 為 demo 預設
+                cart.push({ brand_key: "default", productId: productId, name: name, price: price, price_multi: priceMulti, qty: qtyToAdd, stock: stock }); 
+            }
+            
+            // 重置臨時數量
+            tempQtyMap[productId] = 1;
+            const qtyDisplay = document.getElementById(`iq-${productId}`);
+            if(qtyDisplay) qtyDisplay.innerText = 1;
+
+            if (navigator.vibrate) navigator.vibrate(50);
+            renderCartItems();
+            openCart();
+        }
+
         function openCart() {
             renderCartItems();
             openPanel('cart-sidebar');
@@ -349,11 +396,8 @@
                 subtotal += unitPrice * item.qty;
                 totalQty += item.qty;
 
-                const imgHtml = item.img ? `<img src="${item.img}" class="w-16 h-16 object-cover rounded-lg bg-gray-50 border border-gray-100">` : '';
-
                 container.innerHTML += `
                     <div class="cart-item-row flex gap-3 items-start border-b border-gray-50 pb-4 last:border-0">
-                        ${imgHtml}
                         <div class="flex-1 min-w-0">
                             <div class="font-bold text-gray-800 text-sm truncate">${item.name}</div>
                             <div class="text-xs text-gray-500 mt-0.5">$${unitPrice} / 件</div>
@@ -380,28 +424,24 @@
             badge.classList.remove('hidden');
         }
 
-        // Required Function: Update Qty
         function updateCartQty(index, delta) {
             if (!cart[index]) return;
             const item = cart[index];
             const newQty = item.qty + delta;
             
-            // Basic stock check (if stock exists in item data)
             if (delta > 0 && item.stock && newQty > item.stock) {
                 alert('庫存不足');
                 return;
             }
-            if (newQty < 1) return; // Min 1
+            if (newQty < 1) return;
 
             item.qty = newQty;
             renderCartItems();
-            // If checkout is open, update its totals too
             if (document.getElementById('checkout-panel').classList.contains('open')) {
                 updateShippingFee();
             }
         }
 
-        // Required Function: Remove Item
         function removeFromCart(index) {
             if (!confirm('確定要移除此商品嗎？')) return;
             cart.splice(index, 1);
@@ -415,11 +455,10 @@
             return cart.reduce((acc, item) => acc + (item.qty * (item.qty >= 2 ? item.price_multi : item.price)), 0);
         }
 
-        // --- UI Logic: Checkout Flow ---
+        // --- Checkout UI Logic ---
         function openCheckout() {
             if (cart.length === 0) { alert('請先加入商品'); return; }
             
-            // Reset Logistics UI
             document.querySelectorAll('.logistics-card').forEach(c => {
                 c.classList.remove('active');
                 c.querySelector('.logistics-detail').classList.add('hidden');
@@ -433,13 +472,11 @@
             updateShippingFee();
         }
 
-        // Logistics Selection Logic
         function selectLogistics(type, cardEl) {
             selectedLogisticsType = type;
             const select = document.getElementById('input-logistics');
             select.value = type;
 
-            // Update UI Cards
             document.querySelectorAll('.logistics-card').forEach(c => {
                 c.classList.remove('active');
                 c.querySelector('.logistics-detail').classList.add('hidden');
@@ -448,15 +485,11 @@
             cardEl.classList.add('active');
             cardEl.querySelector('.logistics-detail').classList.remove('hidden');
 
-            // Update Footer UI
             document.getElementById('footer-logistics-name').innerText = `已選擇：${type}`;
-            
-            // Sync fee logic
             updateShippingFee();
         }
 
         function syncStoreInput() {
-            // Combine inputs based on active type
             let val = '';
             if (selectedLogisticsType === '7-11') {
                 const id = document.getElementById('store-id-711').value;
@@ -474,10 +507,9 @@
 
         function updateShippingFee() {
             const subtotal = calculateSubtotal();
-            // Logic reused from original
             const rule = shippingRules.find(r => r.category === '抹茶' && selectedLogisticsType.includes(r.method));
             
-            let finalFee = 60; // default
+            let finalFee = 60;
             if (selectedLogisticsType.includes("宅配")) finalFee = 100;
             
             if (rule) {
@@ -487,11 +519,9 @@
                 else if (rule.t1 && subtotal >= rule.t1) finalFee = Number(rule.f1);
             }
             
-            // UI Update
             document.querySelectorAll('.logistics-price').forEach(el => {
-                // simple visual update, logic remains on submit
                 const type = el.dataset.type;
-                if(type === '宅配') el.innerText = '$100'; // simplified visualization
+                if(type === '宅配') el.innerText = '$100';
                 else el.innerText = '$60';
             });
             
@@ -499,7 +529,6 @@
             document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
         }
 
-        // Required Function: Phone Lookup
         function lookupPhoneData(btn) {
             const input = document.getElementById('input-phone');
             const msg = document.getElementById('phone-msg');
@@ -530,16 +559,10 @@
                     msg.innerText = `歡迎回來，${info.name}`;
                     msg.className = "text-xs mt-2 text-brand font-bold pl-1 h-4";
                     
-                    // Auto-fill
                     if(info.name) document.getElementById('input-name').value = info.name;
                     if(info.email) document.getElementById('input-email').value = info.email;
                     if(info.line_id) document.getElementById('input-line').value = info.line_id;
-                    
-                    // Logistics Pre-fill attempt
-                    if(info.store_711) {
-                         document.getElementById('store-id-711').value = info.store_711;
-                         // Trigger logic? User still needs to select card manually to confirm
-                    }
+                    if(info.store_711) document.getElementById('store-id-711').value = info.store_711;
                 } else {
                     msg.innerText = "新朋友！下單後將自動註冊";
                     msg.className = "text-xs mt-2 text-brand pl-1 h-4";
@@ -555,9 +578,7 @@
             });
         }
 
-        // Required Function: Submit Order
         function submitOrder(btn) {
-            // Frontend Validation
             const form = document.getElementById('order-form');
             if (!form.checkValidity()) {
                 alert('請檢查紅色欄位格式是否正確');
@@ -573,12 +594,10 @@
                 return;
             }
 
-            // Lock UI
             btn.disabled = true;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<span class="loader border-white border-t-transparent mr-2"></span> 訂單建立中...';
 
-            // Construct Logic Payload (Original Logic)
             const subtotal = calculateSubtotal();
             const itemsStr = cart.map(item => `${item.name} x${item.qty} ($${item.qty >= 2 ? item.price_multi : item.price})`).join('\n');
 
@@ -610,7 +629,6 @@
                     renderCartItems();
                     closeAllPanels();
                     form.reset();
-                    // Clear logistics selection
                     document.querySelectorAll('.logistics-card').forEach(c => c.classList.remove('active'));
                     document.getElementById('input-store').value = '';
                 } else {
@@ -627,28 +645,191 @@
             });
         }
 
-        // Init (Load Products - Simulated for this view)
+        // --- Product Display Logic ---
+        // 數量暫存
+        function adjQty(productId, change) {
+            if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
+            let newQty = tempQtyMap[productId] + change;
+            if (newQty < 1) newQty = 1; 
+            tempQtyMap[productId] = newQty;
+            const qtyDisplay = document.getElementById(`iq-${productId}`);
+            if (qtyDisplay) { qtyDisplay.innerText = newQty; }
+        }
+
+        // 載入商品資料
         window.addEventListener('load', () => {
-             fetch(DISPLAY_API_URL).then(r=>r.json()).then(data => {
-                 document.getElementById('status-loader').style.display = 'none';
-                 if(data.shipping_rules) shippingRules = data.shipping_rules;
-                 // 這裡只負責載入商品列表 (邏輯略)
-                 renderProductList(data); 
-             });
+             const loader = document.getElementById('status-loader');
+             
+             fetch(DISPLAY_API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.error) throw new Error(data.error);
+                    
+                    if(data.shipping_rules) shippingRules = data.shipping_rules;
+                    
+                    // 呼叫渲染函數
+                    renderStatusOverview(data.brands);
+                    renderProductSections(data.brands);
+                    data.brands.forEach(brand => {
+                        renderProductCards(brand.key, data.products.filter(p => p.brand_key === brand.key));
+                    });
+                    
+                    loader.style.display = 'none';
+                })
+                .catch(err => {
+                    console.error(err);
+                    const container = document.getElementById('status-grid-container');
+                    if(container) container.innerHTML = `<p class="text-center text-red-500 w-full col-span-2">資料載入失敗，請稍後再試</p>`;
+                    loader.style.display = 'none';
+                });
         });
 
-        // Helper to render products (Simplified for context)
-        function renderProductList(data) {
+        function renderStatusOverview(brands) {
+            const container = document.getElementById('status-grid-container');
+            if (!container) return;
+            container.innerHTML = '';
+            const sortedBrands = brands.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+
+            sortedBrands.forEach(brand => {
+                const rawStatus = (brand.status || '').toLowerCase().trim();
+                let statusText = brand.status || '未定';
+                let statusClass = 'bg-gray-200 text-gray-600';
+                
+                if (['available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus)) {
+                    statusText = '可訂購';
+                    statusClass = 'bg-brandGreen text-white';
+                } else {
+                    statusText = '缺貨中'; 
+                }
+                
+                container.innerHTML += `
+                    <a href="#brand-${brand.key}" class="block group transform hover:-translate-y-1 transition-transform duration-300">
+                        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
+                            <span class="font-bold text-gray-800 text-lg group-hover:text-brandGreen transition-colors">${brand.name}</span>
+                            <span class="${statusClass} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
+                                ${statusText}
+                            </span>
+                        </div>
+                    </a>`;
+            });
+        }
+
+        function renderProductSections(brands) {
             const container = document.getElementById('product-list-container');
-            // ... (Use previous rendering logic here, omitted for brevity as instruction was UI ONLY for Checkout/Cart)
-            // Just ensuring cart works:
-            window.addToCart = function(key, name, price, priceMulti) {
-                const existing = cart.find(i => i.name === name);
-                if(existing) existing.qty++;
-                else cart.push({key, name, price, price_multi: priceMulti, qty: 1});
-                renderCartItems();
-                openCart();
+            if (!container) return;
+            container.innerHTML = '';
+            brands.forEach(brand => {
+                container.innerHTML += `
+                    <section id="brand-${brand.key}" class="scroll-mt-24">
+                        <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b pb-4">
+                            <span class="w-2 h-6 bg-brand rounded-full"></span>
+                            ${brand.name}
+                        </h2>
+                        <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    </section>`;
+            });
+        }
+
+        function renderProductCards(brandKey, products) {
+            const grid = document.getElementById(`${brandKey}-grid`);
+            if (!grid) return;
+            
+            if (products.length === 0) {
+                grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`;
+                return;
             }
+
+            products.forEach(product => {
+                const productId = product.key || Math.random().toString(36).substr(2, 9); 
+                const name = product.name || '未命名';
+                const price = Number(product.price) || 0;
+                const priceMulti = Number(product.price_multi) || 0;
+                const status = product.status || '';
+                
+                const note = product.note || '';      
+                const tag = product.tag || '';        
+                const spec = product.spec || '';      
+                const imgPath = String(product.img || ''); 
+                
+                let isStockZero = false;
+                if (product.stock !== "" && product.stock !== undefined) {
+                    if (Number(product.stock) <= 0) isStockZero = true;
+                }
+                const isSoldOut = isStockZero || status.includes('完售');
+                const hasImage = imgPath !== '';
+                const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
+
+                // 圖片
+                let imgHTML = '';
+                if (hasImage) {
+                    const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
+                    imgHTML = `<div class="card-img-group w-full aspect-square relative overflow-hidden bg-gray-50 md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
+                                    <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
+                                </div>`;
+                }
+                
+                // Badge
+                let badgeHTML = '';
+                if (tag) {
+                    badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
+                } else if (isSoldOut) {
+                        badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
+                }
+
+                // 價格佈局
+                let priceHTML = '';
+                if (hasMultiPrice) {
+                    priceHTML = `
+                        <div class="flex flex-col items-end w-full">
+                            <span class="text-xs text-gray-400">單件 $${price}</span>
+                            <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
+                        </div>`;
+                } else {
+                    priceHTML = `
+                        <div class="w-full text-right">
+                            <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
+                        </div>`;
+                }
+
+                const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
+                // 更新：呼叫全域 addToCart
+                const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
+                const btnText = isSoldOut ? '完售' : '加入購物車';
+                const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
+                
+                const topRowClass = `flex gap-4 md:contents ${hasImage ? 'items-center' : ''}`;
+
+                grid.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
+                        ${badgeHTML}
+                        
+                        <div class="p-4 md:p-0 ${topRowClass}">
+                            ${imgHTML}
+                            
+                            <div class="card-info-group flex-1 flex flex-col gap-3 md:p-5">
+                                <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-1 flex items-baseline">
+                                    ${name}
+                                    ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
+                                </h4>
+
+                                ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
+
+                                <div class="mt-auto">
+                                    ${priceHTML}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 p-4 pt-0 md:p-5 md:border-t">
+                            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-2 h-12 w-1/3">
+                                <button class="w-8 h-full flex items-center justify-center text-brand font-bold" onclick="adjQty('${productId}', -1)" ${qtyDisable}>-</button>
+                                <span id="iq-${productId}" class="text-xs font-bold px-2 text-center">1</span>
+                                <button class="w-8 h-full flex items-center justify-center text-brand font-bold" onclick="adjQty('${productId}', 1)" ${qtyDisable}>+</button>
+                            </div>
+                            <button class="flex-1 h-12 rounded-xl text-xs font-bold ${btnClass}" ${clickEvent}>${btnText}</button>
+                        </div>
+                    </div>`;
+            });
         }
     </script>
 </body>
