@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KEICHA 抹茶代購下單區</title>
+    <link rel="icon" href="data:,">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +22,6 @@
                         brandLight: '#e8f5e9',
                     },
                     fontFamily: {
-                        // 設定 Tailwind 使用 CSS 變數
                         sans: ['var(--font-body)', 'sans-serif'],
                         brand: ['var(--font-brand)', 'sans-serif'],
                     }
@@ -31,23 +31,21 @@
     </script>
 
     <style>
-        /* 定義字型變數 */
+        /* 字型變數 */
         :root {
             --font-brand: "Zen Maru Gothic", sans-serif;
             --font-body: "Noto Sans TC", sans-serif;
         }
 
-        /* 全域設定：預設使用內文字型 */
         body { 
             font-family: var(--font-body); 
             background-color: #ffffff; 
             overflow-x: hidden; 
         }
         
-        /* 專用於 "KEICHA" 的品牌字型 Class */
         .font-brand-text {
             font-family: var(--font-brand);
-            font-weight: 700; /* 品牌字通常加粗較好看 */
+            font-weight: 700;
         }
 
         /* 品牌色輔助類 */
@@ -58,11 +56,11 @@
         .bg-brandGreen { background-color: #6ea44c; }
         .bg-brand-10 { background-color: rgba(110, 164, 76, 0.1); }
         
-        /* Loading 動畫 */
+        /* Loading */
         .loader { border-top-color: #6ea44c; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 側邊滑出面板 */
+        /* 側邊面板 */
         .side-panel {
             position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
             background-color: white; z-index: 200; transform: translateX(100%);
@@ -71,14 +69,13 @@
         }
         .side-panel.open { transform: translateX(0); }
         
-        /* 黑色遮罩 */
         .overlay {
             position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 190;
             opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(4px);
         }
         .overlay.open { opacity: 1; visibility: visible; }
 
-        /* 元件：按鈕與輸入框 */
+        /* 元件樣式 */
         .btn-outline-brand { 
             background-color: white; color: #6ea44c; border: 2px solid #6ea44c; 
             width: 100%; padding: 0.8rem; border-radius: 0.75rem; 
@@ -102,7 +99,6 @@
         
         .ship-opt-card.selected { border-color: #6ea44c; background-color: rgba(110, 164, 76, 0.1); }
 
-        /* 元件：懸浮購物車按鈕 */
         .cart-floating-btn {
             position: fixed; bottom: 2rem; right: 2rem; width: 4rem; height: 4rem;
             background-color: #6ea44c; color: white; border-radius: 50%;
@@ -111,7 +107,6 @@
         }
         .cart-floating-btn:active { transform: scale(0.95); }
 
-        /* 元件：數量選擇器與加入按鈕 */
         .qty-control { 
             display: flex; align-items: center; justify-content: space-between;
             background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem;
@@ -128,7 +123,7 @@
             padding: 0 16px; 
         }
 
-        /* 手機版 RWD 適配 */
+        /* 手機版適配 */
         @media (max-width: 767px) {
             .mobile-product-card { 
                 display: flex !important; flex-direction: column !important; 
@@ -144,8 +139,7 @@
             }
             .card-info-group {
                 flex: 1 !important; display: flex !important; flex-direction: column !important;
-                justify-content: flex-start; /* 讓 gap 控制間距 */
-                min-height: 100px;
+                justify-content: flex-start; min-height: 100px;
             }
             .card-bottom-row {
                 display: flex !important; flex-direction: row !important; gap: 12px !important;
@@ -168,7 +162,7 @@
                 </h1>
                 <p class="text-xs text-brand/60 mt-0.5">同品牌任選 2 件 • 即享多入優惠價</p>
             </div>
-<div id="top-auth-zone">
+            <div id="top-auth-zone">
                 <button onclick="openPanel('login-panel')" class="flex items-center gap-1 text-brand font-bold text-sm bg-brand-10 px-3 py-1.5 rounded-full hover:bg-brand-10/80 transition">
                     <span class="material-symbols-rounded text-lg">account_circle</span> 
                     <span id="header-user-name" class="hidden md:inline">會員登入</span>
@@ -367,9 +361,7 @@
     </div>
 
     <script>
-        // ========================================================
-        // [邏輯] 數量選擇器 (本地暫存)
-        // ========================================================
+        // 數量選擇器
         let tempQtyMap = {}; 
 
         function adjQty(productId, change) {
@@ -381,9 +373,7 @@
             if (qtyDisplay) { qtyDisplay.innerText = newQty; }
         }
 
-        // ========================================================
-        // [邏輯] UI 顯示與切換 (面板、遮罩)
-        // ========================================================
+        // 面板與購物車 UI
         function openPanel(panelId) {
             document.getElementById('overlay').classList.add('open');
             document.getElementById(panelId).classList.add('open');
@@ -399,9 +389,6 @@
             updateCartSidebarRender(); 
         }
 
-        // ========================================================
-        // [邏輯] 物流選擇與表單同步
-        // ========================================================
         function uiSelectLogistics(value) {
             const select = document.getElementById('input-logistics');
             select.value = value;
@@ -428,9 +415,6 @@
             document.getElementById('input-store').value = vals;
         }
         
-        // ========================================================
-        // [邏輯] 購物車渲染與計算
-        // ========================================================
         function updateCartSidebarRender() {
             const container = document.getElementById('cart-items-container');
             container.innerHTML = '';
@@ -462,9 +446,7 @@
             document.querySelectorAll('#bar-total').forEach(el => el.innerText = "NT$ " + sub.toLocaleString());
         }
 
-        // ========================================================
-        // [核心] 資料與API互動
-        // ========================================================
+        // 核心邏輯
         const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; 
         const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
         const BASE_REPO_URL = "assets/images/"; 
@@ -508,9 +490,7 @@
         function updateCartUI() {
             const subtotal = calculateSubtotal();
             const badge = document.getElementById('cart-badge');
-            
             document.querySelectorAll('#bar-total').forEach(el => el.innerText = subtotal.toLocaleString());
-            
             const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
             if(badge) {
                 badge.innerText = totalQty;
@@ -528,7 +508,6 @@
             cart.forEach(item => {
                 const unitPrice = item.qty >= 2 ? item.price_multi : item.price;
                 const sub = unitPrice * item.qty;
-                
                 const li = document.createElement('li');
                 li.className = "flex justify-between border-b border-gray-100 pb-2 last:border-0";
                 li.innerHTML = `
@@ -546,19 +525,15 @@
         function updateShippingFee() {
             const subtotal = calculateSubtotal();
             const selectedLogistics = document.getElementById('input-logistics').value; 
-            
             const rule = shippingRules.find(r => r.category === '抹茶' && selectedLogistics.includes(r.method));
-
             let finalFee = 60; 
             if (selectedLogistics.includes("宅配")) finalFee = 100;
-
             if (rule) {
                 finalFee = Number(rule.base); 
                 if (rule.t3 && subtotal >= rule.t3) { finalFee = Number(rule.f3); } 
                 else if (rule.t2 && subtotal >= rule.t2) { finalFee = Number(rule.f2); } 
                 else if (rule.t1 && subtotal >= rule.t1) { finalFee = Number(rule.f1); }
             }
-
             shippingFee = finalFee;
             updateModalTotals();
         }
@@ -573,9 +548,7 @@
         function checkMember() {
             const phone = document.getElementById('member-phone-search').value.trim();
             const msgEl = document.getElementById('member-msg');
-            
             if (!phone) { alert("請輸入電話號碼"); return; }
-
             msgEl.innerText = "查詢中...";
             msgEl.className = "text-xs mt-1 text-gray-400"; 
 
@@ -591,17 +564,14 @@
                     closeAllPanels();
                     document.getElementById('header-user-name').innerText = info.name || "會員";
                     alert(`歡迎回來，${info.name}！\n資料已自動帶入結帳頁面。`);
-                    
                     if (info.name) {
                         document.getElementById('input-name').value = info.name;
                         document.getElementById('input-email').value = info.email;
-                        
                         if (info.store_711) {
                             uiSelectLogistics('7-11');
                             document.querySelector('#area-7-11 input:last-child').value = info.store_711;
                             document.getElementById('input-store').value = info.store_711;
                         } 
-                        // ...
                         updateShippingFee(); 
                     }
                 } else {
@@ -628,7 +598,6 @@
             btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span> 處理中...';
 
             const subtotal = calculateSubtotal();
-            
             const itemsStr = cart.map(item => {
                 const unitPrice = item.qty >= 2 ? item.price_multi : item.price;
                 return `${item.name} x${item.qty} ($${unitPrice})`;
@@ -677,13 +646,9 @@
             });
         }
 
-        // ========================================================
-        // [核心] 初始化與畫面渲染 (Render Functions)
-        // ========================================================
         window.addEventListener('load', () => {
             const statusLoader = document.getElementById('status-loader');
 
-            // 1. 抓取運費規則
             fetch(ORDER_API_URL) 
                 .then(res => res.json())
                 .then(data => {
@@ -693,15 +658,11 @@
                 })
                 .catch(err => console.error("無法讀取運費規則:", err));
 
-            // 2. 渲染品牌總覽 (兩欄式、綠色系、排序)
             function renderStatusOverview(brands) {
                 const container = document.getElementById('status-grid-container');
                 if (statusLoader) statusLoader.style.display = 'none';
                 if (!container) return;
-                
                 container.innerHTML = '';
-                
-                // 排序：依據 order 欄位
                 const sortedBrands = brands.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
 
                 sortedBrands.forEach(brand => {
@@ -710,13 +671,12 @@
                     let statusClass = 'bg-gray-200 text-gray-600';
                     let hoverClass = 'group-hover:text-gray-600';
                     
-                    // 判斷狀態顏色 (綠色 vs 灰色)
                     if (['available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus)) {
                         statusText = '可訂購';
                         statusClass = 'bg-brandGreen text-white';
                         hoverClass = 'group-hover:text-brandGreen';
                     } else {
-                        statusText = '缺貨中'; // 若要顯示原始文字可改回 brand.status
+                        statusText = '缺貨中'; 
                     }
                     
                     container.innerHTML += `
@@ -731,7 +691,6 @@
                 });
             }
 
-            // 3. 渲染品牌區塊容器
             function renderProductSections(brands) {
                 const container = document.getElementById('product-list-container');
                 if (!container) return;
@@ -748,8 +707,7 @@
                 });
             }
 
-            // 4. 渲染商品卡片 (包含規格位置、Tag顯示、Note標籤、庫存邏輯)
- // 4. 渲染商品卡片 (手機版優化：價格位置重排、圖片垂直置中、會員文字隱藏)
+            // 4. 渲染商品卡片 (修正：Tag=右上角, Note=中間)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -772,7 +730,6 @@
                     const spec = product.spec || '';     
                     const imgPath = String(product.img || ''); 
                     
-                    // 狀態判斷
                     let isStockZero = false;
                     if (product.stock !== "" && product.stock !== undefined) {
                         if (Number(product.stock) <= 0) isStockZero = true;
@@ -781,7 +738,6 @@
                     const hasImage = imgPath !== '';
                     const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
 
-                    // 圖片 HTML
                     let imgHTML = '';
                     if (hasImage) {
                         const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
@@ -790,7 +746,6 @@
                                    </div>`;
                     }
                     
-                    // Badge HTML
                     let badgeHTML = '';
                     if (tag) {
                         badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
@@ -798,14 +753,11 @@
                          badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
                     }
 
-                    // --- [價格佈局邏輯] ---
-                    
-                    let insidePriceHTML = '';  // 放在資訊區塊內的價格 (單價)
-                    let outsidePriceHTML = ''; // 放在資訊區塊外的價格 (雙價，位於底部按鈕上方)
+                    // 價格 HTML
+                    let insidePriceHTML = ''; 
+                    let outsidePriceHTML = ''; 
 
                     if (hasMultiPrice) {
-                        // 情境 A: 雙重價格 -> 移出 card-info-group，放在 card-bottom-row 上方
-                        // 靠右對齊 (items-end)
                         outsidePriceHTML = `
                             <div class="px-5 pt-0 pb-2 w-full flex flex-col items-end md:hidden">
                                 <span class="text-gray-400 text-xs line-through">單件 $${price}</span>
@@ -818,22 +770,16 @@
                                 </div>
                             </div>`;
                     } else {
-                        // 情境 B: 單一價格 -> 留在 card-info-group 內
-                        // 修改：強制靠右對齊 (text-right) 以符合無圖片純文字卡的需求
                         insidePriceHTML = `
                             <div class="mt-auto w-full text-right md:text-left">
                                 <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
                             </div>`;
                     }
 
-                    // 按鈕狀態
                     const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
                     const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
                     const btnText = isSoldOut ? '完售' : '加入購物車';
                     const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
-
-                    // 容器樣式：如果有圖片，則垂直置中 (items-center)；否則預設靠上
-                    // 注意：card-top-row 在手機版是 flex-row (因為我們在 CSS 定義了)
                     const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
 
                     grid.innerHTML += `
@@ -860,24 +806,3 @@
                             </div>
 
                             ${hasMultiPrice ? outsidePriceHTML.split('
-
-            // 5. 抓取主要資料
-            fetch(DISPLAY_API_URL)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) throw new Error(data.error);
-                    renderStatusOverview(data.brands);
-                    renderProductSections(data.brands);
-                    data.brands.forEach(brand => {
-                        renderProductCards(brand.key, data.products.filter(p => p.brand_key === brand.key));
-                    });
-                })
-                .catch(err => {
-                    console.error(err);
-                    if(document.getElementById('status-grid-container')) 
-                        document.getElementById('status-grid-container').innerHTML = `<p class="text-brand">載入失敗</p>`;
-                });
-        });
-    </script>
-</body>
-</html>
