@@ -1,0 +1,104 @@
+---
+// 接收外部傳入的商品資料
+const { product } = Astro.props;
+
+// 定義圖片基礎路徑 (也可以從環境變數讀取)
+const BASE_REPO_URL = "/assets/images/"; 
+
+// --- 資料清洗與預設值 ---
+const {
+  key,
+  name = '未命名',
+  price = 0,
+  price_multi = 0,
+  status = '',
+  note = '',
+  tag = '',
+  spec = '',
+  img = '',
+  stock = ""
+} = product;
+
+const productId = key || Math.random().toString(36).substr(2, 9);
+
+// --- 狀態判斷 ---
+let isStockZero = false;
+if (stock !== "" && stock !== undefined) {
+  if (Number(stock) <= 0) isStockZero = true;
+}
+const isSoldOut = isStockZero || status.includes('完售');
+const hasImage = img !== '';
+const hasMultiPrice = (Number(price_multi) > 0 && Number(price_multi) < Number(price));
+
+// 圖片路徑處理
+const imgSrc = img.startsWith('http') ? img : `${BASE_REPO_URL}${img}`;
+---
+
+<div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
+  
+  {tag ? (
+    <span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">
+      {tag}
+    </span>
+  ) : isSoldOut && (
+    <span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">
+      缺貨
+    </span>
+  )}
+
+  <div class={`card-top-row md:contents ${hasImage ? 'items-center' : ''}`}>
+    
+    {hasImage && (
+      <div class="card-img-group w-full aspect-square relative overflow-hidden bg-gray-50 md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
+        <img 
+          src={imgSrc} 
+          class="w-full h-full object-cover transition duration-500 group-hover:scale-110" 
+          loading="lazy" 
+          alt={name}
+        />
+      </div>
+    )}
+
+    <div class="card-info-group p-5 flex-1 flex flex-col gap-3">
+      
+      <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-1 flex items-baseline">
+        {name}
+        {spec && <span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">{spec}</span>}
+      </h4>
+
+      {note && (
+        <p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">
+          {note}
+        </p>
+      )}
+
+      <div class="mt-auto text-right">
+        {hasMultiPrice ? (
+          <div class="flex flex-col items-end w-full">
+            <span class="text-xs text-gray-400">單件 ${price}</span>
+            <span class="brand-green font-bold text-lg font-mono">2件起 ${price_multi}</span>
+          </div>
+        ) : (
+          <div class="w-full text-right">
+            <span class="brand-green font-bold text-lg font-mono">NT$ {price}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
+    <div class="qty-control">
+      <button class="qty-btn" onclick={`adjQty('${productId}', -1)`} disabled={isSoldOut}>-</button>
+      <span id={`iq-${productId}`} class="text-xs font-bold px-2 min-w-[20px] text-center">1</span>
+      <button class="qty-btn" onclick={`adjQty('${productId}', 1)`} disabled={isSoldOut}>+</button>
+    </div>
+    
+    <button 
+      class={`add-btn flex-1 py-3 rounded-xl text-xs font-bold ${isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10'}`}
+      onclick={!isSoldOut ? `addToCart('${productId}', '${name}', ${price}, ${price_multi}, ${stock})` : null}
+    >
+      {isSoldOut ? '完售' : '加入購物車'}
+    </button>
+  </div>
+</div>
