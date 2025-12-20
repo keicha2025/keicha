@@ -31,7 +31,6 @@
     </script>
 
     <style>
-        /* 字型變數 */
         :root {
             --font-brand: "Zen Maru Gothic", sans-serif;
             --font-body: "Noto Sans TC", sans-serif;
@@ -131,7 +130,8 @@
             }
             .card-top-row { 
                 display: flex !important; flex-direction: row !important; 
-                align-items: flex-start !important; gap: 16px !important; width: 100%;
+                /* 修改：移除 align-items: flex-start !important，改由 JS 控制置中 */
+                gap: 16px !important; width: 100%;
             }
             .card-img-group { 
                 width: 100px !important; height: 100px !important; flex-shrink: 0 !important;
@@ -707,7 +707,7 @@
                 });
             }
 
-            // 4. 渲染商品卡片 (修正：Tag=右上角, Note=中間)
+            // 4. 渲染商品卡片 (手機版優化：價格位置重排、圖片垂直置中、會員文字隱藏)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -730,6 +730,7 @@
                     const spec = product.spec || '';     
                     const imgPath = String(product.img || ''); 
                     
+                    // 狀態判斷
                     let isStockZero = false;
                     if (product.stock !== "" && product.stock !== undefined) {
                         if (Number(product.stock) <= 0) isStockZero = true;
@@ -738,6 +739,7 @@
                     const hasImage = imgPath !== '';
                     const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
 
+                    // 圖片 HTML
                     let imgHTML = '';
                     if (hasImage) {
                         const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
@@ -746,6 +748,7 @@
                                    </div>`;
                     }
                     
+                    // Badge HTML
                     let badgeHTML = '';
                     if (tag) {
                         badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
@@ -753,15 +756,18 @@
                          badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
                     }
 
-                    // 價格 HTML
-                    let insidePriceHTML = ''; 
-                    let outsidePriceHTML = ''; 
+                    // --- [價格佈局邏輯] ---
+                    
+                    let insidePriceHTML = '';  // 放在資訊區塊內的價格 (單價)
+                    let outsidePriceHTML = ''; // 放在資訊區塊外的價格 (雙價，位於底部按鈕上方)
 
                     if (hasMultiPrice) {
+                        // 情境 A: 雙重價格 -> 移出 card-info-group，放在 card-bottom-row 上方
+                        // 靠右對齊 (items-end)
                         outsidePriceHTML = `
-                            <div class="px-5 pt-0 pb-2 w-full flex flex-col items-end md:hidden">
-                                <span class="text-gray-400 text-xs line-through">單件 $${price}</span>
-                                <span class="brand-green font-bold text-lg font-mono">2件起單價 <span class="text-xl">$${priceMulti}</span></span>
+                            <div class="px-5 pb-2 w-full flex flex-col items-end md:hidden">
+                                <span class="text-xs text-gray-400 line-through">單件 $${price}</span>
+                                <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
                             </div>
                             <div class="hidden md:block mt-auto">
                                 <div class="flex flex-col items-start text-xs">
@@ -770,16 +776,22 @@
                                 </div>
                             </div>`;
                     } else {
+                        // 情境 B: 單一價格 -> 留在 card-info-group 內
+                        // 修改：強制靠右對齊 (text-right) 以符合無圖片純文字卡的需求
                         insidePriceHTML = `
                             <div class="mt-auto w-full text-right md:text-left">
                                 <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
                             </div>`;
                     }
 
+                    // 按鈕狀態
                     const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
                     const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
                     const btnText = isSoldOut ? '完售' : '加入購物車';
                     const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
+
+                    // 容器樣式：如果有圖片，則垂直置中 (items-center)；否則預設靠上
+                    // 注意：card-top-row 在手機版是 flex-row (因為我們在 CSS 定義了)
                     const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
 
                     grid.innerHTML += `
