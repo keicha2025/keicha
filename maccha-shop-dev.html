@@ -704,7 +704,7 @@
                 });
             }
 
-            // 4. 渲染商品卡片 (穩定版：移除複雜字串切割，確保手機/桌機邏輯分離)
+// 4. 渲染商品卡片 (樣式修正：標題變大、價格緊跟上方元素)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -735,7 +735,7 @@
                     const hasImage = imgPath !== '';
                     const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
 
-                    // 圖片
+                    // 圖片 HTML
                     let imgHTML = '';
                     if (hasImage) {
                         const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
@@ -744,7 +744,7 @@
                                    </div>`;
                     }
                     
-                    // Badge
+                    // Badge HTML
                     let badgeHTML = '';
                     if (tag) {
                         badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
@@ -752,22 +752,22 @@
                          badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
                     }
 
-                    // --- [價格邏輯重寫 - 確保穩定] ---
-                    let insidePriceHTML = '';  // 單價 (顯示在資訊區)
-                    let mobileMultiPriceHTML = ''; // 手機版雙價 (顯示在底部按鈕上方)
-                    let desktopMultiPriceHTML = ''; // 桌機版雙價 (顯示在資訊區)
+                    // --- [價格佈局] ---
+                    let insidePriceHTML = '';  
+                    let mobileMultiPriceHTML = ''; 
+                    let desktopMultiPriceHTML = ''; 
 
                     if (hasMultiPrice) {
-                        // 雙重價格：手機版顯示
+                        // 手機版雙價格 (底部)
                         mobileMultiPriceHTML = `
                             <div class="px-5 pb-2 w-full flex flex-col items-end md:hidden">
                                 <span class="text-xs text-gray-400">單件 $${price}</span>
-                                <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
+                                <span class="brand-green font-bold text-lg font-mono">2件起單價 <span class="text-xl">$${priceMulti}</span></span>
                             </div>`;
                         
-                        // 雙重價格：桌機版顯示
+                        // 桌機版雙價格 (資訊區)
                         desktopMultiPriceHTML = `
-                            <div class="hidden md:block mt-auto">
+                            <div class="hidden md:block">
                                 <div class="flex flex-col items-start text-xs">
                                     <span class="text-gray-500">單件 <span class="font-medium">$${price}</span></span>
                                     <span class="brand-green font-bold text-lg font-mono">2件起單價 <span class="text-xl">$${priceMulti}</span></span>
@@ -776,7 +776,7 @@
                     } else {
                         // 單一價格
                         insidePriceHTML = `
-                            <div class="mt-auto w-full text-right md:text-left">
+                            <div class="w-full text-right md:text-left">
                                 <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
                             </div>`;
                     }
@@ -796,17 +796,17 @@
                                 
                                 <div class="card-info-group p-5 flex-1 flex flex-col gap-3">
                                     
-                                    <h4 class="font-bold text-gray-800 text-sm md:text-base line-clamp-1 flex items-baseline">
+                                    <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-1 flex items-baseline">
                                         ${name}
                                         ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
                                     </h4>
 
-                                    <p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">
-                                        ${note}
-                                    </p>
+                                    ${note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2">${note}</p>` : ''}
 
-                                    ${insidePriceHTML}
-                                    ${desktopMultiPriceHTML}
+                                    <div>
+                                        ${insidePriceHTML}
+                                        ${desktopMultiPriceHTML}
+                                    </div>
                                 </div>
                             </div>
 
