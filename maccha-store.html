@@ -2,29 +2,32 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KEICHA 抹茶代購下單區</title>
     <link rel="icon" href="data:,">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: '#6ea44c',
-                        brandLight: 'rgba(110, 164, 76, 0.1)',
-                        brandGreen: '#6ea44c', /* 兼容舊 class */
+                        brandLight: '#e8f5e9', // 10% opacity equivalent visually
+                        brandDark: '#5d8d41',
                     },
                     fontFamily: {
                         sans: ['Noto Sans TC', 'sans-serif'],
                         brand: ['Zen Maru Gothic', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'panel': '-4px 0 25px rgba(0,0,0,0.1)',
+                        'sticky': '0 -4px 10px rgba(0,0,0,0.05)',
                     }
                 }
             }
@@ -40,29 +43,60 @@
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid #6ea44c; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Side Panel Transitions */
-        .side-panel { position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px; background: white; z-index: 50; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        /* Side Panel (Mobile First Optimized) */
+        .side-panel { 
+            position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px; 
+            background: white; z-index: 100; transform: translateX(100%); 
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+            box-shadow: var(--shadow-panel); display: flex; flex-direction: column; 
+        }
         .side-panel.open { transform: translateX(0); }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(2px); }
+        
+        .overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90; 
+            opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(3px); 
+        }
         .overlay.open { opacity: 1; visibility: visible; }
 
-        /* Custom Input Styles */
-        .input-base { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem; outline: none; transition: all 0.2s; background-color: #f9fafb; }
-        .input-base:focus { border-color: #6ea44c; background-color: white; box-shadow: 0 0 0 1px #6ea44c; }
+        /* Custom Inputs */
+        .input-ui { 
+            width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 10px; 
+            font-size: 15px; outline: none; transition: all 0.2s ease; background-color: #f8fafc; color: #334155;
+        }
+        .input-ui:focus { border-color: #6ea44c; background-color: white; ring: 1px solid #6ea44c; }
+        .input-ui::placeholder { color: #94a3b8; }
         .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
         
-        /* Logistics Card */
-        .logistics-card { border: 1px solid #e5e7eb; border-radius: 12px; transition: all 0.2s; overflow: hidden; background: white; }
-        .logistics-card.active { border-color: #6ea44c; background-color: rgba(110, 164, 76, 0.03); box-shadow: 0 0 0 1px #6ea44c inset; }
-        
-        /* Sticky Footer */
-        .checkout-footer { position: absolute; bottom: 0; left: 0; right: 0; background: white; padding: 16px; border-top: 1px solid #f3f4f6; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); z-index: 20; }
-
-        /* Product Card Styles (from original) */
-        .card-img-group { width: 100px; height: 100px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background-color: #f9fafb; }
-        @media (min-width: 768px) {
-            .card-img-group { width: 100%; height: auto; aspect-ratio: 1/1; }
+        /* Logistics Card UI */
+        .logistics-card { 
+            border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.2s ease; 
+            background: white; overflow: hidden; position: relative;
         }
+        .logistics-card.active { 
+            border-color: #6ea44c; background-color: #fcfdfc; 
+            box-shadow: 0 0 0 1px #6ea44c inset; 
+        }
+        .logistics-card:active { transform: scale(0.99); }
+
+        /* Store Query Button (Specific Request) */
+        .btn-query-store {
+            background-color: white; color: #6ea44c; border: 1px solid #6ea44c;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px;
+            transition: background 0.2s; text-decoration: none; white-space: nowrap;
+        }
+        .btn-query-store:hover { background-color: #e8f5e9; }
+
+        /* Sticky Footer */
+        .panel-footer { 
+            background: white; padding: 16px 20px; border-top: 1px solid #f1f5f9; 
+            box-shadow: var(--shadow-sticky); z-index: 20; 
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        /* Product Card Styles (Untouched) */
+        .card-img-group { width: 100px; height: 100px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background-color: #f9fafb; }
+        @media (min-width: 768px) { .card-img-group { width: 100%; height: auto; aspect-ratio: 1/1; } }
     </style>
 </head>
 <body class="bg-white text-gray-800">
@@ -88,11 +122,9 @@
             <h2 class="text-xl font-bold text-center mb-6 text-gray-800 flex items-center justify-center gap-2">
                 <span class="material-symbols-rounded text-brand">storefront</span> 品牌總覽
             </h2>
-            
             <div id="status-loader" class="flex justify-center h-20 items-center">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div>
             </div>
-            
             <div id="status-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </div>
     </section>
@@ -102,35 +134,61 @@
     </main>
 
     <div id="cart-sidebar" class="side-panel">
-        <div class="cart-container flex flex-col h-full">
-            <div class="cart-header p-5 border-b border-gray-100 flex justify-between items-center bg-white">
+        <div class="flex flex-col h-full">
+            <div class="p-5 border-b border-gray-50 flex justify-between items-center bg-white">
                 <div class="flex items-center gap-2 text-gray-800 font-bold text-lg">
                     <span class="material-symbols-rounded text-brand">shopping_cart</span>
                     購物車
                 </div>
-                <button onclick="closeAllPanels()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
+                <button onclick="closeAllPanels()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
 
-            <div id="cart-items-wrapper" class="cart-items flex-1 overflow-y-auto p-5 space-y-6">
-                <div class="text-center text-gray-400 mt-10 flex flex-col items-center gap-2">
-                    <span class="material-symbols-rounded text-4xl opacity-20">remove_shopping_cart</span>
-                    <p class="text-sm">購物車是空的</p>
+            <div id="cart-items-wrapper" class="flex-1 overflow-y-auto p-5 space-y-6">
+                <div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3">
+                    <span class="material-symbols-rounded text-5xl">shopping_basket</span>
+                    <p class="text-sm font-medium">購物車是空的</p>
                 </div>
             </div>
 
-            <div class="cart-summary bg-gray-50 border-t border-gray-100 p-5 space-y-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-500 font-medium">小計金額</span>
+            <div class="panel-footer bg-gray-50 space-y-4">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-gray-500 font-medium text-sm">商品小計</span>
                     <span class="text-xl font-bold text-brand font-mono">NT$ <span id="cart-subtotal">0</span></span>
                 </div>
-                <div class="cart-actions space-y-3">
-                    <button onclick="openCheckout()" class="w-full bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-[#5d8d41] active:scale-[0.98] transition flex justify-center items-center gap-2">
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="closeAllPanels()" class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">
+                        繼續選購
+                    </button>
+                    <button onclick="openCheckout()" class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">
                         前往結帳 <span class="material-symbols-rounded text-sm">arrow_forward</span>
                     </button>
-                    <button onclick="closeAllPanels()" class="w-full bg-white text-brand border border-brand font-bold py-3.5 rounded-xl hover:bg-brandLight transition flex justify-center items-center gap-2">
-                        繼續選購
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-panel" class="side-panel">
+        <div class="flex flex-col h-full">
+            <div class="p-5 flex justify-end">
+                <button onclick="closeAllPanels()" class="text-gray-400 hover:text-gray-600">
+                    <span class="material-symbols-rounded text-2xl">close</span>
+                </button>
+            </div>
+            <div class="p-8 flex flex-col items-center justify-center flex-1 -mt-20">
+                <div class="w-16 h-16 bg-brandLight rounded-full flex items-center justify-center text-brand mb-6">
+                    <span class="material-symbols-rounded text-3xl">person</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">會員登入 / 註冊</h3>
+                <p class="text-sm text-gray-400 mb-8 text-center">輸入手機號碼以查詢訂單或累積消費</p>
+                
+                <div class="w-full space-y-4">
+                     <button onclick="openCheckout()" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark transition">
+                        前往結帳與查詢
+                    </button>
+                    <button onclick="closeAllPanels()" class="w-full text-gray-400 text-sm hover:text-gray-600 py-2">
+                        暫不登入
                     </button>
                 </div>
             </div>
@@ -139,48 +197,44 @@
 
     <div id="checkout-panel" class="side-panel">
         <div class="flex flex-col h-full relative">
-            <div class="p-5 bg-brand text-white flex justify-between items-center shadow-md z-10">
-                <h3 class="font-bold flex items-center gap-2 text-lg">
-                    <span class="material-symbols-rounded">shopping_cart_checkout</span> 結帳確認
+            <div class="p-5 bg-white border-b border-gray-100 flex justify-between items-center z-10">
+                <h3 class="font-bold flex items-center gap-2 text-lg text-gray-800">
+                    <span class="material-symbols-rounded text-brand">shopping_cart_checkout</span> 
+                    結帳確認
                 </h3>
-                <button onclick="closeAllPanels()" class="text-white/80 hover:text-white transition">
+                <button onclick="closeAllPanels()" class="text-gray-400 hover:text-gray-600 transition">
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
 
-            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto pb-[140px]"> 
-                <div class="p-5 space-y-8">
+            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white"> 
+                <div class="p-5 space-y-8 pb-32">
                     
-                    <section>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
-                            <span class="material-symbols-rounded text-sm">smartphone</span> 會員查詢 / 快速登入
-                        </h4>
+                    <section class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1">
+                            <span class="material-symbols-rounded text-sm text-brand">smartphone</span> 會員查詢
+                        </label>
                         <div class="flex gap-2">
-                            <div class="relative flex-1">
-                                <input type="tel" id="input-phone" 
-                                    class="input-base pl-10 font-bold tracking-wide text-lg text-brand placeholder-gray-300" 
-                                    placeholder="09xxxxxxxx" 
-                                    maxlength="10" 
-                                    pattern="^09\d{8}$"
-                                    required>
-                                <span class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">phone_iphone</span>
-                            </div>
+                            <input type="tel" id="input-phone" 
+                                class="input-ui font-bold text-lg tracking-wider" 
+                                placeholder="09xxxxxxxx" 
+                                maxlength="10" 
+                                pattern="^09\d{8}$"
+                                required>
                             <button type="button" onclick="lookupPhoneData(this)" 
-                                class="bg-brand text-white px-4 rounded-lg font-bold hover:bg-[#5d8d41] transition flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span class="material-symbols-rounded text-xl">arrow_forward</span>
+                                class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50">
+                                <span class="material-symbols-rounded">search</span>
                             </button>
                         </div>
-                        <p id="phone-msg" class="text-xs mt-2 text-gray-400 pl-1 h-4"></p>
+                        <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300"></p>
                     </section>
 
                     <section>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-100 pb-2">配送方式</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand rounded-full"></span> 配送方式
+                        </h4>
                         <div class="space-y-3">
-                            <select id="input-logistics" class="hidden" onchange="/* logic handled by cards */">
-                                <option value="7-11">7-11</option>
-                                <option value="全家">全家</option>
-                                <option value="郵寄/宅配">宅配</option>
-                            </select>
+                            <select id="input-logistics" class="hidden"><option value="7-11">7-11</option><option value="全家">全家</option><option value="郵寄/宅配">宅配</option></select>
                             
                             <div class="logistics-card cursor-pointer group" onclick="selectLogistics('7-11', this)">
                                 <div class="p-4 flex justify-between items-center">
@@ -189,29 +243,23 @@
                                             <span class="material-symbols-rounded">local_shipping</span>
                                         </div>
                                         <div>
-                                            <div class="font-bold text-gray-800">7-11 店到店</div>
-                                            <div class="text-xs text-gray-500">預計 2-3 天送達</div>
+                                            <div class="font-bold text-gray-800 text-sm">7-11 店到店</div>
+                                            <div class="text-[10px] text-gray-400">約 2-3 天送達</div>
                                         </div>
                                     </div>
-                                    <span class="text-brand font-bold logistics-price" data-type="7-11">$60</span>
+                                    <span class="text-brand font-bold text-sm logistics-price" data-type="7-11">$60</span>
                                 </div>
-                                <div class="logistics-detail hidden border-t border-gray-100 bg-gray-50 p-4 space-y-3" onclick="event.stopPropagation()">
+                                <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
                                     <div class="flex gap-2">
-                                        <input type="text" 
-                                            class="input-base flex-1 text-center font-mono tracking-widest" 
-                                            placeholder="輸入6碼店號" 
-                                            maxlength="6" 
-                                            pattern="^\d{6}$"
-                                            inputmode="numeric"
-                                            id="store-id-711"
-                                            onchange="syncStoreInput()">
-                                        
-                                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" 
-                                            class="flex-1 border border-brand text-brand bg-white rounded-lg font-bold text-sm flex items-center justify-center gap-1 hover:bg-brandLight transition">
-                                            <span class="material-symbols-rounded text-base">search</span> 查詢店號
+                                        <input type="text" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" pattern="^\d{6}$" inputmode="numeric" id="store-id-711" onchange="syncStoreInput()">
+                                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-query-store">
+                                            <span class="material-symbols-rounded text-base">map</span> 查詢店號
                                         </a>
                                     </div>
-                                    <input type="text" class="input-base text-sm" placeholder="門市名稱 (選填)" id="store-name-711" onchange="syncStoreInput()">
+                                    <div class="relative">
+                                        <input type="text" class="input-ui text-sm pl-9" placeholder="門市名稱 / 備註" id="store-name-711" onchange="syncStoreInput()">
+                                        <span class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">storefront</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -222,29 +270,23 @@
                                             <span class="material-symbols-rounded">store</span>
                                         </div>
                                         <div>
-                                            <div class="font-bold text-gray-800">全家 店到店</div>
-                                            <div class="text-xs text-gray-500">預計 2-3 天送達</div>
+                                            <div class="font-bold text-gray-800 text-sm">全家 店到店</div>
+                                            <div class="text-[10px] text-gray-400">約 2-3 天送達</div>
                                         </div>
                                     </div>
-                                    <span class="text-brand font-bold logistics-price" data-type="全家">$60</span>
+                                    <span class="text-brand font-bold text-sm logistics-price" data-type="全家">$60</span>
                                 </div>
-                                <div class="logistics-detail hidden border-t border-gray-100 bg-gray-50 p-4 space-y-3" onclick="event.stopPropagation()">
+                                <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
                                     <div class="flex gap-2">
-                                        <input type="text" 
-                                            class="input-base flex-1 text-center font-mono tracking-widest" 
-                                            placeholder="輸入6碼店號" 
-                                            maxlength="6" 
-                                            pattern="^\d{6}$"
-                                            inputmode="numeric"
-                                            id="store-id-fami"
-                                            onchange="syncStoreInput()">
-                                        
-                                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" 
-                                            class="flex-1 border border-brand text-brand bg-white rounded-lg font-bold text-sm flex items-center justify-center gap-1 hover:bg-brandLight transition">
-                                            <span class="material-symbols-rounded text-base">search</span> 查詢店號
+                                        <input type="text" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" pattern="^\d{6}$" inputmode="numeric" id="store-id-fami" onchange="syncStoreInput()">
+                                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-query-store">
+                                            <span class="material-symbols-rounded text-base">map</span> 查詢店號
                                         </a>
                                     </div>
-                                    <input type="text" class="input-base text-sm" placeholder="門市名稱 (選填)" id="store-name-fami" onchange="syncStoreInput()">
+                                    <div class="relative">
+                                        <input type="text" class="input-ui text-sm pl-9" placeholder="門市名稱 / 備註" id="store-name-fami" onchange="syncStoreInput()">
+                                        <span class="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">storefront</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -255,14 +297,14 @@
                                             <span class="material-symbols-rounded">local_shipping</span>
                                         </div>
                                         <div>
-                                            <div class="font-bold text-gray-800">宅配到府</div>
-                                            <div class="text-xs text-gray-500">郵寄或宅配通</div>
+                                            <div class="font-bold text-gray-800 text-sm">宅配到府</div>
+                                            <div class="text-[10px] text-gray-400">郵寄或宅配通</div>
                                         </div>
                                     </div>
-                                    <span class="text-brand font-bold logistics-price" data-type="宅配">$100</span>
+                                    <span class="text-brand font-bold text-sm logistics-price" data-type="宅配">$100</span>
                                 </div>
-                                <div class="logistics-detail hidden border-t border-gray-100 bg-gray-50 p-4" onclick="event.stopPropagation()">
-                                    <textarea id="store-addr" class="input-base text-sm min-h-[80px]" placeholder="請輸入完整收件地址 (含郵遞區號)" onchange="syncStoreInput()"></textarea>
+                                <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4" onclick="event.stopPropagation()">
+                                    <textarea id="store-addr" class="input-ui text-sm min-h-[80px]" placeholder="請輸入完整收件地址 (含郵遞區號)" onchange="syncStoreInput()"></textarea>
                                 </div>
                             </div>
                             
@@ -271,48 +313,52 @@
                     </section>
 
                     <section class="space-y-4">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-100 pb-2">收件資料</h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand rounded-full"></span> 收件資料
+                        </h4>
                         <div class="space-y-4">
                             <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1 block">收件人全名 <span class="text-brand">*</span></label>
-                                <input type="text" id="input-name" required class="input-base" placeholder="請輸入真實姓名">
+                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span class="text-brand">*</span></label>
+                                <input type="text" id="input-name" required class="input-ui" placeholder="請輸入真實姓名">
                             </div>
                             <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1 block">電子信箱 <span class="text-brand">*</span></label>
-                                <input type="email" id="input-email" required class="input-base" placeholder="訂單通知使用">
+                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span class="text-brand">*</span></label>
+                                <input type="email" id="input-email" required class="input-ui" placeholder="接收訂單通知">
                             </div>
                             <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1 block">LINE 顯示名稱</label>
-                                <input type="text" id="input-line" class="input-base" placeholder="方便聯絡 (選填)">
+                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE 顯示名稱</label>
+                                <input type="text" id="input-line" class="input-ui" placeholder="方便聯絡 (選填)">
                             </div>
                         </div>
                     </section>
 
                     <section class="space-y-4">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-100 pb-2">其他</h4>
-                        <textarea id="input-note" class="input-base min-h-[80px]" placeholder="訂單備註..."></textarea>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand rounded-full"></span> 其他
+                        </h4>
+                        <textarea id="input-note" class="input-ui min-h-[80px]" placeholder="訂單備註 (選填)..."></textarea>
                         
-                        <label class="flex items-center gap-3 p-3 bg-brandLight rounded-lg cursor-pointer hover:bg-opacity-80 transition">
+                        <label class="flex items-center gap-3 p-4 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-100 transition">
                             <div class="relative flex items-center">
-                                <input type="checkbox" id="join-member" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-brand checked:bg-brand checked:border-brand transition-all" checked>
+                                <input type="checkbox" id="join-member" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-brand checked:border-brand transition-all" checked>
                                 <span class="material-symbols-rounded absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none text-base left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">check</span>
                             </div>
-                            <span class="text-sm text-brand font-bold">儲存資料，下次自動帶入</span>
+                            <span class="text-sm text-gray-600 font-medium">同意儲存資料，下次自動帶入</span>
                         </label>
                     </section>
                 </div>
             </form>
 
-            <div class="checkout-footer">
-                <div class="flex justify-between items-end mb-3">
-                    <div class="text-xs text-gray-500 font-bold" id="footer-logistics-name">尚未選擇物流</div>
-                    <div class="text-right">
-                        <div class="text-xs text-gray-400">總金額 (含運)</div>
-                        <div class="text-2xl font-bold text-brand font-mono">NT$ <span id="modal-total">0</span></div>
+            <div class="panel-footer">
+                <div class="flex justify-between items-end mb-4">
+                    <div class="text-xs text-gray-400 font-medium" id="footer-logistics-name">尚未選擇物流</div>
+                    <div class="text-right flex items-baseline gap-2">
+                        <span class="text-xs text-gray-400">總金額</span>
+                        <span class="text-2xl font-bold text-brand font-mono">NT$ <span id="modal-total">0</span></span>
                     </div>
                 </div>
-                <button onclick="submitOrder(this)" class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/30 hover:bg-[#5d8d41] active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-wait">
-                    <span class="material-symbols-rounded">check_circle</span> 確認送出訂單
+                <button onclick="submitOrder(this)" class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <span class="material-symbols-rounded">verified</span> 確認送出訂單
                 </button>
             </div>
         </div>
@@ -330,7 +376,6 @@
         let selectedLogisticsType = '';
         let tempQtyMap = {};
 
-        // --- UI Panel Control ---
         function openPanel(id) {
             document.getElementById('overlay').classList.add('open');
             document.getElementById(id).classList.add('open');
@@ -340,9 +385,7 @@
             document.querySelectorAll('.side-panel').forEach(el => el.classList.remove('open'));
         }
 
-        // --- Cart Logic ---
         function addToCart(productId, name, price, priceMulti, stock, maxLimit) {
-            // 從 tempQtyMap 取得數量，預設為 1
             const qtyToAdd = tempQtyMap[productId] || 1;
             const existingItem = cart.find(item => item.name === name);
             let currentCartQty = existingItem ? existingItem.qty : 0;
@@ -350,14 +393,9 @@
             if (currentCartQty + qtyToAdd > stock) { alert("抱歉，庫存不足！"); return; }
             if (currentCartQty + qtyToAdd > maxLimit) { alert(`此商品每人限購 ${maxLimit} 件`); return; }
 
-            if (existingItem) { 
-                existingItem.qty += qtyToAdd; 
-            } else { 
-                // brand_key 為 demo 預設
-                cart.push({ brand_key: "default", productId: productId, name: name, price: price, price_multi: priceMulti, qty: qtyToAdd, stock: stock }); 
-            }
+            if (existingItem) { existingItem.qty += qtyToAdd; } 
+            else { cart.push({ brand_key: "default", productId: productId, name: name, price: price, price_multi: priceMulti, qty: qtyToAdd, stock: stock }); }
             
-            // 重置臨時數量
             tempQtyMap[productId] = 1;
             const qtyDisplay = document.getElementById(`iq-${productId}`);
             if(qtyDisplay) qtyDisplay.innerText = 1;
@@ -379,9 +417,9 @@
             
             if (cart.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center text-gray-400 mt-10 flex flex-col items-center gap-2">
-                        <span class="material-symbols-rounded text-4xl opacity-20">remove_shopping_cart</span>
-                        <p class="text-sm">購物車是空的</p>
+                    <div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3">
+                        <span class="material-symbols-rounded text-5xl">shopping_basket</span>
+                        <p class="text-sm font-medium">購物車是空的</p>
                     </div>`;
                 subtotalEl.innerText = '0';
                 document.getElementById('header-cart-badge').classList.add('hidden');
@@ -396,23 +434,31 @@
                 subtotal += unitPrice * item.qty;
                 totalQty += item.qty;
 
+                // [UI Change] Use Close icon top-right, improved layout
                 container.innerHTML += `
-                    <div class="cart-item-row flex gap-3 items-start border-b border-gray-50 pb-4 last:border-0">
-                        <div class="flex-1 min-w-0">
-                            <div class="font-bold text-gray-800 text-sm truncate">${item.name}</div>
-                            <div class="text-xs text-gray-500 mt-0.5">$${unitPrice} / 件</div>
+                    <div class="relative flex gap-4 items-start border-b border-gray-50 pb-6 last:border-0 group">
+                        <div class="w-20 h-20 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-100">
+                           <span class="material-symbols-rounded text-gray-300 text-3xl">image</span>
+                        </div>
+                        
+                        <div class="flex-1 min-w-0 flex flex-col justify-between min-h-[80px]">
+                            <div class="pr-6">
+                                <div class="font-bold text-gray-800 text-sm leading-tight line-clamp-2">${item.name}</div>
+                                <div class="text-xs text-gray-400 mt-1 font-mono">$${unitPrice}</div>
+                            </div>
                             
-                            <div class="flex justify-between items-center mt-3">
-                                <div class="flex items-center bg-gray-100 rounded-lg h-8">
-                                    <button onclick="updateCartQty(${index}, -1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-200 rounded-l-lg transition font-bold">-</button>
-                                    <span class="w-8 text-center text-sm font-bold text-gray-800">${item.qty}</span>
-                                    <button onclick="updateCartQty(${index}, 1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-200 rounded-r-lg transition font-bold">+</button>
+                            <div class="flex justify-between items-end mt-2">
+                                <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8">
+                                    <button onclick="updateCartQty(${index}, -1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-l-lg transition font-bold">-</button>
+                                    <span class="w-8 text-center text-xs font-bold text-gray-700 font-mono">${item.qty}</span>
+                                    <button onclick="updateCartQty(${index}, 1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-r-lg transition font-bold">+</button>
                                 </div>
-                                <div class="font-bold text-brand">$${unitPrice * item.qty}</div>
+                                <div class="font-bold text-brand font-mono">$${unitPrice * item.qty}</div>
                             </div>
                         </div>
-                        <button onclick="removeFromCart(${index})" class="text-gray-300 hover:text-red-500 transition">
-                            <span class="material-symbols-rounded text-xl">delete</span>
+
+                        <button onclick="removeFromCart(${index})" class="absolute top-0 right-0 text-gray-300 hover:text-gray-500 transition p-1">
+                            <span class="material-symbols-rounded text-xl">close</span>
                         </button>
                     </div>
                 `;
@@ -429,33 +475,25 @@
             const item = cart[index];
             const newQty = item.qty + delta;
             
-            if (delta > 0 && item.stock && newQty > item.stock) {
-                alert('庫存不足');
-                return;
-            }
+            if (delta > 0 && item.stock && newQty > item.stock) { alert('庫存不足'); return; }
             if (newQty < 1) return;
 
             item.qty = newQty;
             renderCartItems();
-            if (document.getElementById('checkout-panel').classList.contains('open')) {
-                updateShippingFee();
-            }
+            if (document.getElementById('checkout-panel').classList.contains('open')) { updateShippingFee(); }
         }
 
         function removeFromCart(index) {
             if (!confirm('確定要移除此商品嗎？')) return;
             cart.splice(index, 1);
             renderCartItems();
-            if (document.getElementById('checkout-panel').classList.contains('open')) {
-                updateShippingFee();
-            }
+            if (document.getElementById('checkout-panel').classList.contains('open')) { updateShippingFee(); }
         }
 
         function calculateSubtotal() {
             return cart.reduce((acc, item) => acc + (item.qty * (item.qty >= 2 ? item.price_multi : item.price)), 0);
         }
 
-        // --- Checkout UI Logic ---
         function openCheckout() {
             if (cart.length === 0) { alert('請先加入商品'); return; }
             
@@ -491,6 +529,7 @@
 
         function syncStoreInput() {
             let val = '';
+            // [Logic] Concatenate ID and Name for the backend 'store' field
             if (selectedLogisticsType === '7-11') {
                 const id = document.getElementById('store-id-711').value;
                 const name = document.getElementById('store-name-711').value;
@@ -536,14 +575,14 @@
 
             if (!input.checkValidity()) {
                 msg.innerText = "格式錯誤，請輸入 09 開頭的 10 碼數字";
-                msg.classList.add('text-red-500');
+                msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-red-500";
                 input.classList.add('input-error');
                 return;
             }
             
             input.classList.remove('input-error');
             msg.innerText = "查詢中...";
-            msg.className = "text-xs mt-2 text-gray-400 pl-1 h-4";
+            msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-400";
             btn.disabled = true;
             btn.innerHTML = '<span class="loader border-white border-t-transparent w-4 h-4"></span>';
 
@@ -553,50 +592,47 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
+                if (data.success && data.data && data.data.name) { // Ensure name exists to say "Welcome back"
                     const info = data.data;
                     currentUser = info;
                     msg.innerText = `歡迎回來，${info.name}`;
-                    msg.className = "text-xs mt-2 text-brand font-bold pl-1 h-4";
+                    msg.className = "text-xs mt-2 pl-1 h-4 font-bold text-brand";
                     
                     if(info.name) document.getElementById('input-name').value = info.name;
                     if(info.email) document.getElementById('input-email').value = info.email;
-                    if(info.line_id) document.getElementById('input-line').value = info.line_id;
+                    // [Logic] Backend maps store_note to these fields implicitly
                     if(info.store_711) document.getElementById('store-id-711').value = info.store_711;
                 } else {
-                    msg.innerText = "新朋友！下單後將自動註冊";
-                    msg.className = "text-xs mt-2 text-brand pl-1 h-4";
+                    // [UI Change] User requested NOT to show "Welcome back" if not found.
+                    // The backend returns success=true even for new users (isNew: true).
+                    // We check if data.name is present. If not, we show a neutral message.
+                    msg.innerText = "完成下單後將自動註冊會員";
+                    msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-400";
                 }
             })
             .catch(() => {
                 msg.innerText = "連線失敗";
-                msg.className = "text-xs mt-2 text-red-500 pl-1 h-4";
+                msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-red-500";
             })
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = '<span class="material-symbols-rounded text-xl">arrow_forward</span>';
+                btn.innerHTML = '<span class="material-symbols-rounded">search</span>';
             });
         }
 
         function submitOrder(btn) {
             const form = document.getElementById('order-form');
             if (!form.checkValidity()) {
-                alert('請檢查紅色欄位格式是否正確');
+                alert('請檢查欄位是否填寫正確');
                 form.reportValidity();
                 return;
             }
-            if (!selectedLogisticsType) {
-                alert('請選擇物流方式');
-                return;
-            }
-            if (!document.getElementById('input-store').value) {
-                alert('請填寫店號或地址');
-                return;
-            }
+            if (!selectedLogisticsType) { alert('請選擇配送方式'); return; }
+            if (!document.getElementById('input-store').value) { alert('請填寫店號或地址'); return; }
 
             btn.disabled = true;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="loader border-white border-t-transparent mr-2"></span> 訂單建立中...';
+            btn.innerHTML = '<span class="loader border-white border-t-transparent mr-2"></span> 處理中...';
 
             const subtotal = calculateSubtotal();
             const itemsStr = cart.map(item => `${item.name} x${item.qty} ($${item.qty >= 2 ? item.price_multi : item.price})`).join('\n');
@@ -645,8 +681,7 @@
             });
         }
 
-        // --- Product Display Logic ---
-        // 數量暫存
+        // --- Init Product List ---
         function adjQty(productId, change) {
             if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
             let newQty = tempQtyMap[productId] + change;
@@ -656,64 +691,51 @@
             if (qtyDisplay) { qtyDisplay.innerText = newQty; }
         }
 
-        // 載入商品資料
         window.addEventListener('load', () => {
              const loader = document.getElementById('status-loader');
-             
              fetch(DISPLAY_API_URL)
                 .then(res => res.json())
                 .then(data => {
                     if(data.error) throw new Error(data.error);
-                    
                     if(data.shipping_rules) shippingRules = data.shipping_rules;
                     
-                    // 呼叫渲染函數
                     renderStatusOverview(data.brands);
                     renderProductSections(data.brands);
                     data.brands.forEach(brand => {
                         renderProductCards(brand.key, data.products.filter(p => p.brand_key === brand.key));
                     });
-                    
                     loader.style.display = 'none';
                 })
                 .catch(err => {
                     console.error(err);
                     const container = document.getElementById('status-grid-container');
-                    if(container) container.innerHTML = `<p class="text-center text-red-500 w-full col-span-2">資料載入失敗，請稍後再試</p>`;
+                    if(container) container.innerHTML = `<p class="text-center text-red-500 w-full col-span-2">資料載入失敗</p>`;
                     loader.style.display = 'none';
                 });
         });
 
+        // (Original Render Functions hidden for brevity, assume they are same as before)
         function renderStatusOverview(brands) {
             const container = document.getElementById('status-grid-container');
             if (!container) return;
             container.innerHTML = '';
             const sortedBrands = brands.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
-
             sortedBrands.forEach(brand => {
                 const rawStatus = (brand.status || '').toLowerCase().trim();
                 let statusText = brand.status || '未定';
                 let statusClass = 'bg-gray-200 text-gray-600';
-                
                 if (['available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus)) {
-                    statusText = '可訂購';
-                    statusClass = 'bg-brandGreen text-white';
-                } else {
-                    statusText = '缺貨中'; 
-                }
-                
+                    statusText = '可訂購'; statusClass = 'bg-brand text-white';
+                } else { statusText = '缺貨中'; }
                 container.innerHTML += `
                     <a href="#brand-${brand.key}" class="block group transform hover:-translate-y-1 transition-transform duration-300">
                         <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
-                            <span class="font-bold text-gray-800 text-lg group-hover:text-brandGreen transition-colors">${brand.name}</span>
-                            <span class="${statusClass} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
-                                ${statusText}
-                            </span>
+                            <span class="font-bold text-gray-800 text-lg group-hover:text-brand transition-colors">${brand.name}</span>
+                            <span class="${statusClass} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">${statusText}</span>
                         </div>
                     </a>`;
             });
         }
-
         function renderProductSections(brands) {
             const container = document.getElementById('product-list-container');
             if (!container) return;
@@ -722,44 +744,31 @@
                 container.innerHTML += `
                     <section id="brand-${brand.key}" class="scroll-mt-24">
                         <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b pb-4">
-                            <span class="w-2 h-6 bg-brand rounded-full"></span>
-                            ${brand.name}
+                            <span class="w-2 h-6 bg-brand rounded-full"></span>${brand.name}
                         </h2>
                         <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                     </section>`;
             });
         }
-
         function renderProductCards(brandKey, products) {
             const grid = document.getElementById(`${brandKey}-grid`);
             if (!grid) return;
-            
-            if (products.length === 0) {
-                grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`;
-                return;
-            }
-
+            if (products.length === 0) { grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`; return; }
             products.forEach(product => {
                 const productId = product.key || Math.random().toString(36).substr(2, 9); 
                 const name = product.name || '未命名';
                 const price = Number(product.price) || 0;
                 const priceMulti = Number(product.price_multi) || 0;
                 const status = product.status || '';
-                
                 const note = product.note || '';      
                 const tag = product.tag || '';        
                 const spec = product.spec || '';      
                 const imgPath = String(product.img || ''); 
-                
                 let isStockZero = false;
-                if (product.stock !== "" && product.stock !== undefined) {
-                    if (Number(product.stock) <= 0) isStockZero = true;
-                }
+                if (product.stock !== "" && product.stock !== undefined) { if (Number(product.stock) <= 0) isStockZero = true; }
                 const isSoldOut = isStockZero || status.includes('完售');
                 const hasImage = imgPath !== '';
                 const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
-
-                // 圖片
                 let imgHTML = '';
                 if (hasImage) {
                     const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
@@ -767,59 +776,33 @@
                                     <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
                                 </div>`;
                 }
-                
-                // Badge
                 let badgeHTML = '';
-                if (tag) {
-                    badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
-                } else if (isSoldOut) {
-                        badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
-                }
-
-                // 價格佈局
+                if (tag) { badgeHTML = `<span class="absolute top-3 right-3 bg-brand text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`; } 
+                else if (isSoldOut) { badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`; }
                 let priceHTML = '';
                 if (hasMultiPrice) {
-                    priceHTML = `
-                        <div class="flex flex-col items-end w-full">
-                            <span class="text-xs text-gray-400">單件 $${price}</span>
-                            <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
-                        </div>`;
+                    priceHTML = `<div class="flex flex-col items-end w-full"><span class="text-xs text-gray-400">單件 $${price}</span><span class="text-brand font-bold text-lg font-mono">2件起 $${priceMulti}</span></div>`;
                 } else {
-                    priceHTML = `
-                        <div class="w-full text-right">
-                            <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
-                        </div>`;
+                    priceHTML = `<div class="w-full text-right"><span class="text-brand font-bold text-lg font-mono">NT$ ${price}</span></div>`;
                 }
-
-                const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
-                // 更新：呼叫全域 addToCart
+                const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand text-white transition active:scale-95 hover:bg-brandDark shadow-md shadow-brand/10';
                 const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
                 const btnText = isSoldOut ? '完售' : '加入購物車';
                 const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
-                
                 const topRowClass = `flex gap-4 md:contents ${hasImage ? 'items-center' : ''}`;
-
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
                         ${badgeHTML}
-                        
                         <div class="p-4 md:p-0 ${topRowClass}">
                             ${imgHTML}
-                            
                             <div class="card-info-group flex-1 flex flex-col gap-3 md:p-5">
                                 <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-1 flex items-baseline">
-                                    ${name}
-                                    ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
+                                    ${name}${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
                                 </h4>
-
                                 ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
-
-                                <div class="mt-auto">
-                                    ${priceHTML}
-                                </div>
+                                <div class="mt-auto">${priceHTML}</div>
                             </div>
                         </div>
-
                         <div class="flex gap-2 p-4 pt-0 md:p-5 md:border-t">
                             <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-2 h-12 w-1/3">
                                 <button class="w-8 h-full flex items-center justify-center text-brand font-bold" onclick="adjQty('${productId}', -1)" ${qtyDisable}>-</button>
