@@ -1,0 +1,52 @@
+/* card.css */
+
+/* 數量加減控制器 */
+.qty-control { 
+    display: flex; align-items: center; justify-content: space-between;
+    background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem;
+    padding: 0 8px; height: 48px; box-sizing: border-box;
+}
+.qty-btn { 
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; 
+    background: transparent; border-radius: 8px; font-weight: bold; cursor: pointer; border: none;
+    color: #6ea44c; transition: background-color 0.2s;
+}
+.qty-btn:hover { background-color: #f3f4f6; }
+
+/* 加入購物車按鈕 */
+.add-btn {
+    height: 48px !important; display: flex; align-items: center; justify-content: center;
+    padding: 0 16px; 
+}
+
+/* 圖片區塊樣式 */
+.card-img-group {
+    width: 100%; aspect-ratio: 1/1; position: relative; overflow: hidden; background-color: #f9fafb;
+}
+
+/* --- 手機版強制轉向核心 CSS --- */
+@media (max-width: 767px) {
+    .mobile-product-card { 
+        display: flex !important; flex-direction: column !important; 
+        padding: 16px !important; gap: 12px !important;
+    }
+    .card-top-row { 
+        display: flex !important; flex-direction: row !important; 
+        gap: 16px !important; width: 100%; align-items: center;
+    }
+    .card-img-group { 
+        width: 100px !important; height: 100px !important; flex-shrink: 0 !important;
+        border-radius: 12px !important; overflow: hidden; background-color: #f9fafb;
+        aspect-ratio: auto !important; /* 手機版覆寫 */
+    }
+    .card-info-group {
+        flex: 1 !important; display: flex !important; flex-direction: column !important;
+        justify-content: flex-start; min-height: 100px;
+    }
+    .card-bottom-row {
+        display: flex !important; flex-direction: row !important; gap: 12px !important;
+        width: 100%; padding: 0 !important; border-top: none !important;
+    }
+    .qty-control { flex: 1 !important; }
+    .add-btn { flex: 1.5 !important; }
+}
