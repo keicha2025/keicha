@@ -1,0 +1,72 @@
+---
+layout: default
+title: 已送出 | KEICHA
+description: KEICHA 填表結果。
+---
+
+<style>
+    /* 確認 Icon 樣式：品牌色 10% 背景 */
+    .brand-icon-wrapper {
+        width: 80px; height: 80px;
+        background-color: rgba(110, 164, 76, 0.1); /* #6ea44c 10% */
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.5rem auto;
+    }
+    .brand-icon-svg {
+        width: 40px; height: 40px; color: #6ea44c;
+    }
+
+    /* 主要按鈕 (聯絡客服) */
+    .btn-brand {
+        display: inline-flex; align-items: center; justify-content: center;
+        background-color: #6ea44c; color: white;
+        font-weight: bold; padding: 12px 32px; border-radius: 50px;
+        text-decoration: none; transition: all 0.2s ease;
+        border: none; cursor: pointer; width: 100%;
+        box-shadow: 0 4px 6px -1px rgba(110, 164, 76, 0.2);
+    }
+    .btn-brand:hover { background-color: #5d8c40; transform: translateY(-1px); }
+
+    /* 返回首頁按鈕 (灰框) */
+    .btn-outline {
+        display: inline-flex; align-items: center; justify-content: center;
+        background-color: white; color: #64748b; border: 1px solid #e2e8f0;
+        font-weight: bold; padding: 12px 32px; border-radius: 50px;
+        text-decoration: none; transition: all 0.2s ease;
+        width: 100%; margin-top: 12px;
+    }
+    .btn-outline:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+
+</style>
+
+<div class="container mx-auto max-w-2xl px-4 py-12 md:py-20">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-10 text-center">
+        
+        <div id="success-view">
+            <div class="brand-icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="brand-icon-svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>
+
+            <h1 class="text-3xl font-bold text-slate-800 mb-4">預約申請已送出</h1>
+
+            <div class="mb-6">
+                <p class="text-slate-700 mb-4 leading-relaxed">
+                    LINE 客服ID：@366qwylw
+                </p>
+
+                <div class="flex flex-col max-w-sm mx-auto">
+                    <a href="https://lin.ee/QJU5mUO" target="_blank" class="btn-brand">
+                        聯絡客服
+                    </a>
+                    <a href="{{ '/denwa-form.html' | relative_url }}" class="btn-outline">
+                        返回首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
