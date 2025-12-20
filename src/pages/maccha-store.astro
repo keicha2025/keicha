@@ -2,35 +2,26 @@
 // src/pages/maccha-store.astro
 import ProductCard from '../components/ProductCard.astro';
 
-// 模擬商品資料（未來可以改成從 JSON 或 API 取得）
-const products = [
-  { name: "手刷濃抹茶", price: 280, image: "/images/tea1.jpg", tag: "熱銷" },
-  { name: "抹茶拿鐵粉", price: 350, image: "/images/tea2.jpg" },
-  { name: "靜岡煎茶", price: 220, image: "/images/tea3.jpg" },
-];
+// 假設這是從你的資料來源取得的
+const BASE_REPO_URL = "https://your-repo-url.com";
+const products = [ /* ... 你的商品陣列 ... */ ];
 ---
 
-<html>
-  <body>
-    <h1>KEICHA 抹茶商店</h1>
-    
-    <div class="product-grid">
-      {products.map((item) => (
-        <ProductCard 
-          name={item.name} 
-          price={item.price} 
-          image={item.image} 
-          tag={item.tag} 
-        />
-      ))}
-    </div>
-  </body>
-</html>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {products.length > 0 ? (
+    products.map((item) => (
+      <ProductCard product={item} BASE_REPO_URL={BASE_REPO_URL} />
+    ))
+  ) : (
+    <p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>
+  )}
+</div>
 
-<style>
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+<script is:inline>
+  function addToCart(id, name, p1, p2, stock, limit) {
+    // 你的購物車 JS 邏輯
   }
-</style>
+  function adjQty(id, delta) {
+    // 你的數量加減 JS 邏輯
+  }
+</script>
