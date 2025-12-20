@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KEICHA 抹茶代購下單區</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
     
@@ -17,7 +21,9 @@
                         brandLight: '#e8f5e9',
                     },
                     fontFamily: {
-                        sans: ['"Microsoft JhengHei"', '"Heiti TC"', 'sans-serif']
+                        // 設定 Tailwind 使用 CSS 變數
+                        sans: ['var(--font-body)', 'sans-serif'],
+                        brand: ['var(--font-brand)', 'sans-serif'],
                     }
                 }
             }
@@ -25,8 +31,25 @@
     </script>
 
     <style>
-        body { font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; background-color: #f9f9f7; overflow-x: hidden; }
+        /* 定義字型變數 */
+        :root {
+            --font-brand: "Zen Maru Gothic", sans-serif;
+            --font-body: "Noto Sans TC", sans-serif;
+        }
+
+        /* 全域設定：預設使用內文字型 */
+        body { 
+            font-family: var(--font-body); 
+            background-color: #ffffff; 
+            overflow-x: hidden; 
+        }
         
+        /* 專用於 "KEICHA" 的品牌字型 Class */
+        .font-brand-text {
+            font-family: var(--font-brand);
+            font-weight: 700; /* 品牌字通常加粗較好看 */
+        }
+
         /* 品牌色輔助類 */
         .text-brand { color: #6ea44c; }
         .bg-brand { background-color: #6ea44c; }
@@ -121,7 +144,8 @@
             }
             .card-info-group {
                 flex: 1 !important; display: flex !important; flex-direction: column !important;
-                justify-content: space-between; min-height: 100px;
+                justify-content: flex-start; /* 讓 gap 控制間距 */
+                min-height: 100px;
             }
             .card-bottom-row {
                 display: flex !important; flex-direction: row !important; gap: 12px !important;
@@ -136,22 +160,24 @@
 
     <div id="overlay" class="overlay" onclick="closeAllPanels()"></div>
 
-    <header class="bg-white border-b border-gray-100 shadow-sm">
+    <div class="bg-white border-b border-gray-100 shadow-sm">
         <div class="container mx-auto px-4 max-w-6xl py-4 flex justify-between items-center">
             <div>
-                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-brand">KEICHA 抹茶代購下單區</h1>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-brand">
+                    <span class="font-brand-text">KEICHA</span> 抹茶代購下單區
+                </h1>
                 <p class="text-xs text-brand/60 mt-0.5">同品牌任選 2 件 • 即享多入優惠價</p>
             </div>
-            <div id="top-auth-zone">
+<div id="top-auth-zone">
                 <button onclick="openPanel('login-panel')" class="flex items-center gap-1 text-brand font-bold text-sm bg-brand-10 px-3 py-1.5 rounded-full hover:bg-brand-10/80 transition">
                     <span class="material-symbols-rounded text-lg">account_circle</span> 
-                    <span id="header-user-name">會員登入</span>
+                    <span id="header-user-name" class="hidden md:inline">會員登入</span>
                 </button>
             </div>
         </div>
-    </header>
+    </div>
 
-    <section class="py-8 bg-gray-50 border-b border-gray-200">
+    <section class="py-8 bg-white border-b border-gray-100">
         <div class="container mx-auto px-4 max-w-5xl">
             <h2 class="text-xl font-bold text-center mb-6 text-gray-800 flex items-center justify-center gap-2">
                 <span class="material-symbols-rounded text-brand">storefront</span> 品牌總覽
@@ -182,7 +208,7 @@
         </div>
         <div class="p-8 space-y-6">
             <div class="text-center space-y-2">
-                <p class="text-gray-600 font-bold text-xl">歡迎來到 KEICHA</p>
+                <p class="text-gray-600 font-bold text-xl">歡迎來到 <span class="font-brand-text">KEICHA</span></p>
                 <p class="text-sm text-gray-400">請輸入手機號碼快速登入/註冊</p>
             </div>
             <input type="tel" id="member-phone-search" placeholder="例如：0912345678" class="w-full p-4 bg-gray-50 border rounded-2xl text-lg font-bold outline-none focus:ring-1 ring-brand text-brand">
@@ -722,12 +748,12 @@
                 });
             }
 
-// 4. 渲染商品卡片 (最終確認版：Tag=右上角，Note=標題下方)
+            // 4. 渲染商品卡片 (包含規格位置、Tag顯示、Note標籤、庫存邏輯)
+ // 4. 渲染商品卡片 (手機版優化：價格位置重排、圖片垂直置中、會員文字隱藏)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
                 
-                // 過濾隱藏商品
                 const visibleProducts = products; 
                 if (visibleProducts.length === 0) {
                     grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`;
@@ -741,48 +767,63 @@
                     const priceMulti = Number(product.price_multi) || 0;
                     const status = product.status || '';
                     
-                    // --- [資料對應區] ---
-                    // 根據您的 JSON: {"note":"一月底到貨", "tag":"現貨"}
-                    const note = product.note || '';     // 顯示在「標題下方」的說明文字
-                    const tag = product.tag || '';       // 顯示在「右上角」的綠色標籤
-                    const spec = product.spec || '';     // 顯示在「標題旁」的規格
+                    const note = product.note || '';     
+                    const tag = product.tag || '';       
+                    const spec = product.spec || '';     
                     const imgPath = String(product.img || ''); 
                     
-                    // 庫存判斷 (0 或 完售)
+                    // 狀態判斷
                     let isStockZero = false;
                     if (product.stock !== "" && product.stock !== undefined) {
                         if (Number(product.stock) <= 0) isStockZero = true;
                     }
                     const isSoldOut = isStockZero || status.includes('完售');
-                    
-                    // 圖片顯示邏輯
+                    const hasImage = imgPath !== '';
+                    const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
+
+                    // 圖片 HTML
                     let imgHTML = '';
-                    if (imgPath) {
+                    if (hasImage) {
                         const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
                         imgHTML = `<div class="card-img-group w-full aspect-square relative overflow-hidden bg-gray-50 md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
                                      <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
                                    </div>`;
                     }
                     
-                    // --- [右上角標籤邏輯] ---
-                    // 優先顯示 tag (例如: "現貨")，若沒 tag 但缺貨則顯示 "缺貨"
+                    // Badge HTML
                     let badgeHTML = '';
                     if (tag) {
                         badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
                     } else if (isSoldOut) {
-                        badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
+                         badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
                     }
 
-                    // 價格顯示邏輯
-                    let priceHTML = '';
-                    if (priceMulti > 0 && priceMulti < price) {
-                        priceHTML = `
-                            <div class="flex flex-col items-end md:items-start text-xs md:mt-auto md:mb-4">
-                                <span class="text-gray-500">單件 <span class="font-medium">$${price}</span></span>
-                                <span class="brand-green font-bold text-lg font-mono">2入+ <span class="text-xl">$${priceMulti}</span></span>
+                    // --- [價格佈局邏輯] ---
+                    
+                    let insidePriceHTML = '';  // 放在資訊區塊內的價格 (單價)
+                    let outsidePriceHTML = ''; // 放在資訊區塊外的價格 (雙價，位於底部按鈕上方)
+
+                    if (hasMultiPrice) {
+                        // 情境 A: 雙重價格 -> 移出 card-info-group，放在 card-bottom-row 上方
+                        // 靠右對齊 (items-end)
+                        outsidePriceHTML = `
+                            <div class="px-5 pt-0 pb-2 w-full flex flex-col items-end md:hidden">
+                                <span class="text-gray-400 text-xs line-through">單件 $${price}</span>
+                                <span class="brand-green font-bold text-lg font-mono">2件起單價 <span class="text-xl">$${priceMulti}</span></span>
+                            </div>
+                            <div class="hidden md:block mt-auto">
+                                <div class="flex flex-col items-start text-xs">
+                                    <span class="text-gray-500">單件 <span class="font-medium">$${price}</span></span>
+                                    <span class="brand-green font-bold text-lg font-mono">2件起單價 <span class="text-xl">$${priceMulti}</span></span>
+                                </div>
                             </div>`;
                     } else {
-                        priceHTML = `<div class="md:mt-auto md:mb-4"><span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span></div>`;
+                        // 情境 B: 單一價格 -> 留在 card-info-group 內
+                        // 修改：強制靠右對齊 (text-right) 以符合無圖片純文字卡的需求
+                        insidePriceHTML = `
+                            <div class="mt-auto w-full text-right md:text-left">
+                                <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
+                            </div>`;
                     }
 
                     // 按鈕狀態
@@ -791,38 +832,35 @@
                     const btnText = isSoldOut ? '完售' : '加入購物車';
                     const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
 
+                    // 容器樣式：如果有圖片，則垂直置中 (items-center)；否則預設靠上
+                    // 注意：card-top-row 在手機版是 flex-row (因為我們在 CSS 定義了)
+                    const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
+
                     grid.innerHTML += `
                         <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
+                            ${badgeHTML}
                             
-                            ${badgeHTML} <div class="card-top-row md:contents">
+                            <div class="${topRowClass}">
                                 ${imgHTML}
-                                <div class="card-info-group md:p-5 md:flex-1 md:flex md:flex-col">
+                                
+                                <div class="card-info-group p-5 flex-1 flex flex-col gap-3">
                                     
-                                    <h4 class="font-bold text-gray-800 mb-1 text-sm md:text-base line-clamp-1 flex items-baseline">
+                                    <h4 class="font-bold text-gray-800 text-sm md:text-base line-clamp-1 flex items-baseline">
                                         ${name}
                                         ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
                                     </h4>
 
-                                    <p class="text-gray-400 text-[11px] leading-relaxed mb-3 line-clamp-2 min-h-[32px]">
+                                    <p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">
                                         ${note}
                                     </p>
 
-                                    ${priceHTML}
+                                    ${insidePriceHTML}
+                                    ${hasMultiPrice ? outsidePriceHTML.match(/<div class="hidden md:block[\s\S]*?<\/div>/)[0] : ''}
                                 </div>
                             </div>
 
-                            <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
-                                <div class="qty-control">
-                                    <button class="qty-btn" onclick="adjQty('${productId}', -1)" ${qtyDisable}>-</button>
-                                    <span id="iq-${productId}" class="text-xs font-bold px-2 min-w-[20px] text-center">1</span>
-                                    <button class="qty-btn" onclick="adjQty('${productId}', 1)" ${qtyDisable}>+</button>
-                                </div>
-                                <button class="add-btn flex-1 py-3 rounded-xl text-xs font-bold ${btnClass}" ${clickEvent}>${btnText}</button>
-                            </div>
-                        </div>`;
-                });
-            }
-            
+                            ${hasMultiPrice ? outsidePriceHTML.split('
+
             // 5. 抓取主要資料
             fetch(DISPLAY_API_URL)
                 .then(res => res.json())
