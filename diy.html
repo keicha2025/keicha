@@ -486,8 +486,9 @@ title: KEICHA 網路商店
                     localStorage.setItem('keicha_v2_user', JSON.stringify(localData));
                 }
                 
-                alert("訂單已成功送出！");
-                location.reload();
+alert("訂單已成功送出！");
+// 導向確認
+window.location.href = "fast-diy-result.html";
             } else {
                 alert("送出失敗：" + res.msg);
             }
