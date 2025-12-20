@@ -130,7 +130,7 @@
             }
             .card-top-row { 
                 display: flex !important; flex-direction: row !important; 
-                /* 修改：移除 align-items: flex-start !important，改由 JS 控制置中 */
+                /* JS 會動態加入 items-center (有圖) 或 items-start (無圖) */
                 gap: 16px !important; width: 100%;
             }
             .card-img-group { 
@@ -361,7 +361,6 @@
     </div>
 
     <script>
-        // 數量選擇器
         let tempQtyMap = {}; 
 
         function adjQty(productId, change) {
@@ -373,7 +372,6 @@
             if (qtyDisplay) { qtyDisplay.innerText = newQty; }
         }
 
-        // 面板與購物車 UI
         function openPanel(panelId) {
             document.getElementById('overlay').classList.add('open');
             document.getElementById(panelId).classList.add('open');
@@ -446,7 +444,6 @@
             document.querySelectorAll('#bar-total').forEach(el => el.innerText = "NT$ " + sub.toLocaleString());
         }
 
-        // 核心邏輯
         const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; 
         const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
         const BASE_REPO_URL = "assets/images/"; 
@@ -707,7 +704,7 @@
                 });
             }
 
-  // 4. 渲染商品卡片 (穩定版：移除複雜字串切割，確保手機/桌機邏輯分離)
+            // 4. 渲染商品卡片 (穩定版：移除複雜字串切割，確保手機/桌機邏輯分離)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -826,3 +823,23 @@
                         </div>`;
                 });
             }
+
+            fetch(DISPLAY_API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    renderStatusOverview(data.brands);
+                    renderProductSections(data.brands);
+                    data.brands.forEach(brand => {
+                        renderProductCards(brand.key, data.products.filter(p => p.brand_key === brand.key));
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    if(document.getElementById('status-grid-container')) 
+                        document.getElementById('status-grid-container').innerHTML = `<p class="text-brand">載入失敗</p>`;
+                });
+        });
+    </script>
+</body>
+</html>
