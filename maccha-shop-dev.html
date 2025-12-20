@@ -704,7 +704,7 @@
                 });
             }
 
-// 4. 渲染商品卡片 (手機版優化：雙價格左右並列)
+// 4. 渲染商品卡片 (優化版：Note 若無內容則完全不渲染，讓 gap-3 自動控制間距)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -752,20 +752,20 @@
                          badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
                     }
 
-                    // --- [價格佈局] ---
+                    // --- [價格邏輯] ---
                     let insidePriceHTML = '';  
                     let mobileMultiPriceHTML = ''; 
                     let desktopMultiPriceHTML = ''; 
 
                     if (hasMultiPrice) {
-                        // 手機版雙價格 (改為左右並列，垂直置中)
+                        // 手機版雙價格 (左右並列)
                         mobileMultiPriceHTML = `
                             <div class="px-5 pb-2 w-full flex flex-row justify-between items-center md:hidden">
                                 <span class="text-xs text-gray-400">單件 $${price}</span>
                                 <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
                             </div>`;
                         
-                        // 桌機版雙價格 (維持在資訊區內堆疊)
+                        // 桌機版雙價格
                         desktopMultiPriceHTML = `
                             <div class="hidden md:block">
                                 <div class="flex flex-col items-start text-xs">
@@ -774,7 +774,7 @@
                                 </div>
                             </div>`;
                     } else {
-                        // 單一價格 (維持靠右)
+                        // 單一價格
                         insidePriceHTML = `
                             <div class="w-full text-right md:text-left">
                                 <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
@@ -787,6 +787,9 @@
                     const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
                     const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
 
+                    // --- [HTML 組合] ---
+                    // 注意 note 的處理方式：如果 note 有值，才渲染 <p>；否則回傳空字串。
+                    // 父容器 div.card-info-group 已經設定 flex flex-col gap-3，所以元素消失後間距會自動遞補。
                     grid.innerHTML += `
                         <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
                             ${badgeHTML}
@@ -801,7 +804,7 @@
                                         ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
                                     </h4>
 
-                                    ${note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2">${note}</p>` : ''}
+                                    ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2">${note}</p>` : '' }
 
                                     <div>
                                         ${insidePriceHTML}
