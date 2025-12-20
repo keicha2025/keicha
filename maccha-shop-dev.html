@@ -704,7 +704,7 @@
                 });
             }
 
-// 4. 渲染商品卡片 (完美間距版：所有內容都在同一容器內，由 gap-3 自動控制)
+// 4. 渲染商品卡片 (手機版優化：左文右圖、價格全靠左、圖片垂直置中)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -735,7 +735,7 @@
                     const hasImage = imgPath !== '';
                     const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
 
-                    // 圖片
+                    // 圖片 HTML
                     let imgHTML = '';
                     if (hasImage) {
                         const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
@@ -744,7 +744,7 @@
                                    </div>`;
                     }
                     
-                    // Badge
+                    // Badge HTML (維持右上角)
                     let badgeHTML = '';
                     if (tag) {
                         badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
@@ -758,24 +758,15 @@
                     let desktopMultiPriceHTML = ''; 
 
                     if (hasMultiPrice) {
-                        if (hasImage) {
-                            // [情境 1] 雙價格 + 手機 + 有圖片 => 左右並列
-                            // 注意：移除了原本的 px-5 pb-2，因為現在它在容器內，會自動對齊
-                            mobileMultiPriceHTML = `
-                                <div class="w-full flex flex-row justify-between items-center md:hidden">
-                                    <span class="text-xs text-gray-400">單件 $${price}</span>
-                                    <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
-                                </div>`;
-                        } else {
-                            // [情境 2] 雙價格 + 手機 + 無圖片 => 靠右堆疊
-                            mobileMultiPriceHTML = `
-                                <div class="w-full flex flex-col items-end md:hidden">
-                                    <span class="text-xs text-gray-400">單件 $${price}</span>
-                                    <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
-                                </div>`;
-                        }
+                        // [手機版雙價] 修改：全部靠左 (items-start)，上下排列 (flex-col)
+                        // 注意：已移除 w-full，避免撐開導致版面混亂
+                        mobileMultiPriceHTML = `
+                            <div class="flex flex-col items-start md:hidden">
+                                <span class="text-xs text-gray-400">單件 $${price}</span>
+                                <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
+                            </div>`;
                         
-                        // 桌機版雙價格
+                        // [桌機版雙價] 維持原樣
                         desktopMultiPriceHTML = `
                             <div class="hidden md:block">
                                 <div class="flex flex-col items-start text-xs">
@@ -784,13 +775,55 @@
                                 </div>
                             </div>`;
                     } else {
-                        // [情境 3] 單一價格 => 統一靠右
+                        // [單一價格] 修改：統一靠左 (text-left)
                         insidePriceHTML = `
-                            <div class="w-full text-right md:text-left">
+                            <div class="text-left">
                                 <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
                             </div>`;
                     }
 
+                    const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
+                    const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
+                    const btnText = isSoldOut ? '完售' : '加入購物車';
+                    const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
+                    
+                    // 修改：強制加入 items-center 確保圖片與文字垂直置中
+                    const topRowClass = `card-top-row md:contents items-center`;
+
+                    grid.innerHTML += `
+                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
+                            ${badgeHTML}
+                            
+                            <div class="${topRowClass}">
+                                
+                                <div class="card-info-group p-5 flex-1 flex flex-col gap-3 min-w-0">
+                                    
+                                    <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-2 flex flex-wrap items-baseline">
+                                        ${name}
+                                        ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
+                                    </h4>
+
+                                    ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
+
+                                    <div>
+                                        ${insidePriceHTML}       ${mobileMultiPriceHTML}  ${desktopMultiPriceHTML} </div>
+                                </div>
+
+                                ${imgHTML}
+                                
+                            </div>
+
+                            <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
+                                <div class="qty-control">
+                                    <button class="qty-btn" onclick="adjQty('${productId}', -1)" ${qtyDisable}>-</button>
+                                    <span id="iq-${productId}" class="text-xs font-bold px-2 min-w-[20px] text-center">1</span>
+                                    <button class="qty-btn" onclick="adjQty('${productId}', 1)" ${qtyDisable}>+</button>
+                                </div>
+                                <button class="add-btn flex-1 py-3 rounded-xl text-xs font-bold ${btnClass}" ${clickEvent}>${btnText}</button>
+                            </div>
+                        </div>`;
+                });
+            }
                     const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
                     const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit})"`;
                     const btnText = isSoldOut ? '完售' : '加入購物車';
