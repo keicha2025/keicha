@@ -704,7 +704,7 @@
                 });
             }
 
-// 4. 渲染商品卡片 (樣式修正：標題變大、價格緊跟上方元素)
+// 4. 渲染商品卡片 (手機版優化：雙價格左右並列)
             function renderProductCards(brandKey, products) {
                 const grid = document.getElementById(`${brandKey}-grid`);
                 if (!grid) return;
@@ -735,7 +735,7 @@
                     const hasImage = imgPath !== '';
                     const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
 
-                    // 圖片 HTML
+                    // 圖片
                     let imgHTML = '';
                     if (hasImage) {
                         const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
@@ -744,7 +744,7 @@
                                    </div>`;
                     }
                     
-                    // Badge HTML
+                    // Badge
                     let badgeHTML = '';
                     if (tag) {
                         badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
@@ -758,14 +758,14 @@
                     let desktopMultiPriceHTML = ''; 
 
                     if (hasMultiPrice) {
-                        // 手機版雙價格 (底部)
+                        // 手機版雙價格 (改為左右並列，垂直置中)
                         mobileMultiPriceHTML = `
-                            <div class="px-5 pb-2 w-full flex flex-col items-end md:hidden">
+                            <div class="px-5 pb-2 w-full flex flex-row justify-between items-center md:hidden">
                                 <span class="text-xs text-gray-400">單件 $${price}</span>
-                                <span class="brand-green font-bold text-lg font-mono">2件起單價 <span class="text-xl">$${priceMulti}</span></span>
+                                <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
                             </div>`;
                         
-                        // 桌機版雙價格 (資訊區)
+                        // 桌機版雙價格 (維持在資訊區內堆疊)
                         desktopMultiPriceHTML = `
                             <div class="hidden md:block">
                                 <div class="flex flex-col items-start text-xs">
@@ -774,7 +774,7 @@
                                 </div>
                             </div>`;
                     } else {
-                        // 單一價格
+                        // 單一價格 (維持靠右)
                         insidePriceHTML = `
                             <div class="w-full text-right md:text-left">
                                 <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
