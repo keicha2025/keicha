@@ -667,14 +667,14 @@
             return { isValid, errorMsg };
         }
 
-        function submitOrder(e) {
+function submitOrder(e) {
             e.preventDefault();
             
-            // 2. 驗證必要欄位
+            // 1. 驗證欄位
             const validation = validateCheckoutForm();
             if (!validation.isValid) {
                 alert("請檢查以下欄位：\n" + validation.errorMsg);
-                return; // 不得送出
+                return; 
             }
 
             const btn = document.getElementById('btn-submit');
@@ -683,7 +683,6 @@
 
             const subtotal = calculateSubtotal();
             
-            // 3. 組合 order payload
             // 商品字串化
             const itemsStr = cart.map(item => {
                 const unitPrice = item.qty >= 2 ? item.price_multi : item.price;
@@ -692,41 +691,33 @@
 
             const selectedMethod = document.getElementById('input-logistics').value;
             
-            // 取得對應的 selected store data for Order
-            let selectedStoreData = "";
-            let selectedStoreNote = ""; // for params.logistics.store_note
+            // 2. 準備後端需要的「扁平」資料
+            // 後端 updateMemberData 需要 p.store (店號) 和 p.store_note (店名)
+            let finalStoreData = "";
+            let finalStoreNote = "";
             
             if(selectedMethod.includes('7-11')) {
-                selectedStoreData = document.getElementById('store-id-711').value;
-                selectedStoreNote = document.getElementById('store-note-711').value;
+                finalStoreData = document.getElementById('store-id-711').value;   // 店號
+                finalStoreNote = document.getElementById('store-note-711').value; // 店名
             } else if (selectedMethod.includes('全家')) {
-                selectedStoreData = document.getElementById('store-id-fami').value;
-                selectedStoreNote = document.getElementById('store-note-fami').value;
+                finalStoreData = document.getElementById('store-id-fami').value;  // 店號
+                finalStoreNote = document.getElementById('store-note-fami').value;// 店名
             } else {
-                selectedStoreData = document.getElementById('store-addr').value;
+                finalStoreData = document.getElementById('store-addr').value;     // 地址
+                // 宅配通常沒有 store_note，保持空字串
             }
 
-            // 4. 組合 members payload (與是否選取無關)
-            let membersLogisticsPayload = {};
-            
-            const s711 = document.getElementById('store-id-711').value.trim();
-            const n711 = document.getElementById('store-note-711').value.trim();
-            if (s711 || n711) {
-                membersLogisticsPayload.seven = { store_id: s711, store_note: n711 };
-            }
-            
-            const sFami = document.getElementById('store-id-fami').value.trim();
-            const nFami = document.getElementById('store-note-fami').value.trim();
-            if (sFami || nFami) {
-                membersLogisticsPayload.fami = { store_id: sFami, store_note: nFami };
-            }
+            // 為了讓訂單表(Orders)的顯示更完整(因為後端直接寫入 p.store)，
+            // 我們可以把「店號 (店名)」組在一起給 p.store，
+            // 但這樣會影響會員表(Members)的店號欄位格式。
+            // 
+            // 依照您的後端邏輯：
+            // u711 = p.store; (會員表只存 p.store)
+            // 所以 p.store 必須是純店號，不能混雜店名，否則下次查詢會員會格式混亂。
+            // 
+            // 結論：維持 p.store 只有店號/地址，p.store_note 傳送店名。
 
-            const sAddr = document.getElementById('store-addr').value.trim();
-            if (sAddr) {
-                membersLogisticsPayload.home = { address: sAddr };
-            }
-
-            // 最終 Payload
+            // 3. 組合 Payload (完全符合現有 GAS 格式)
             const payload = {
                 action: "checkout",
                 name: document.getElementById('input-name').value,
@@ -734,18 +725,17 @@
                 email: document.getElementById('input-email').value,
                 line_name: document.getElementById('input-line').value,
                 
-                // Order Logistics Data
-                logistics: {
-                    method: selectedMethod,
-                    store_data: selectedStoreData,
-                    store_note: selectedStoreNote // 會寫入 params.logistics.store_note
-                },
+                // ★ 修正點：logistics 傳送純字串，讓後端 .includes() 正常運作
+                logistics: selectedMethod, 
+                
+                // ★ 修正點：store 傳送店號/地址 (對應後端 p.store)
+                store: finalStoreData,     
+                
+                // ★ 修正點：store_note 傳送店名 (對應後端 p.store_note)
+                store_note: finalStoreNote, 
 
-                // Member Update Payload (後端需處理: 若不存在則建立，並更新此物件)
-                member_data: {
-                    logistics: membersLogisticsPayload
-                },
-
+                // 這邊不需要 member_data 物件了，因為您的後端是直接讀取根目錄的參數
+                
                 product_note: document.getElementById('input-note').value,
                 join_member: document.getElementById('join-member').checked,
                 items: itemsStr,
@@ -755,23 +745,20 @@
                 date: new Date().toISOString()
             };
 
-            // 5. 呼叫 submitOrder (fetch)
             fetch(ORDER_API_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload) // 改回使用 JSON
             })
             .then(res => res.json())
             .then(data => {
-                // 7. 送出成功條件 (嚴格)
-                if (data.success === true && data.orderInserted === true) {
+                if (data.success) {
                     alert(`訂單建立成功！\n訂單編號: ${data.orderId}\n請至 Email 收信確認。`);
                     cart = []; 
                     updateCartUI();
                     closeAllPanels();
                     document.getElementById('order-form').reset();
                 } else {
-                    // 8. 錯誤回饋 (後端失敗)
-                    alert("送出失敗，請稍後再試。\n錯誤訊息: " + (data.msg || "未知錯誤"));
+                    alert("送出失敗: " + (data.msg || "未知錯誤"));
                 }
             })
             .catch(err => {
