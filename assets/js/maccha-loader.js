@@ -6,7 +6,7 @@
 window.addEventListener('load', () => {
 
     // --- 設定區 ---
-    const gasUrl = "您的_GAS_WEB_APP_URL"; // 請在此貼上您的 GAS 部署網址
+    const gasUrl = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; // 請在此貼上您的 GAS 部署網址
     // --- 設定區結束 ---
 
     const statusGrid = document.getElementById('status-grid-container');
