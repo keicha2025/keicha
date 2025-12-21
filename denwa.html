@@ -8,8 +8,56 @@ keywords: KEICHA, 電話代播, 電話代打, 日文電話, 餐廳預約, 日本
 # ★ denwa.html 專屬的 CSS 和 JS
 styles: |
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
-
     <style>
+        /* --- [NEW] 載入動畫樣式 --- */
+        #intro-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        }
+        #intro-loader.hidden-fade {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .handset-icon {
+            color: #6ea44c; /* brandGreen */
+            animation: handset-rock 1.2s infinite ease-in-out;
+            margin-bottom: 2rem;
+        }
+        @keyframes handset-rock {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-12deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(12deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .intro-text {
+            text-align: center;
+            color: #6ea44c;
+            line-height: 1.8;
+            letter-spacing: 0.15em;
+            font-family: 'Zen Maru Gothic', sans-serif;
+        }
+        .title-line { font-size: 1.25rem; font-weight: 700; display: block; margin-bottom: 0.5rem; }
+        .subtitle-line { font-size: 0.95rem; font-weight: 400; opacity: 0.8; display: block; }
+
+        /* --- 主內容初期隱藏 --- */
+        #main-wrapper {
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        #main-wrapper.visible {
+            opacity: 1;
+        }
         /* [NEW] Lightbox 燈箱樣式 */
         .lightbox {
             display: none;
@@ -153,7 +201,17 @@ scripts: ""
         font-weight: 500 !important;
     }
 </style>
-
+<div id="intro-loader">
+    <div class="handset-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.053 15.053 0 01-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1.01A11.36 11.36 0 018.59 3.91c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/>
+        </svg>
+    </div>
+<div class="intro-text brand-title-font"> <span class="title-line">讓對話零距離</span>
+    <span class="subtitle-line">正在準備代播服務指南</span>
+</div>
+</div>
+<div id="main-wrapper">
 <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
     <header class="text-center mb-8 md:mb-12">
         <h1 class="text-3xl md:text-4xl brand-title-font text-brandGreen">KEICHA 電話代播服務</h1>
@@ -488,19 +546,40 @@ scripts: ""
                     </div>
                 </section>
             </div>
-        </main>
-</div>
-</div>
-<section id="section-contact" class="w-full">
+</main>
+    </div> </div> <section id="section-contact" class="w-full">
     {% include contact-section.html %}
 </section>
-
+</div>
 <div id="lightbox" class="lightbox">
     <span class="lightbox-close">&times;</span>
     <img class="lightbox-content" id="lightbox-img">
 </div>
 
 <script>
+    // [NEW] 載入動畫計時邏輯
+    const MIN_LOADING_TIME = 1800;
+    const startTime = Date.now();
+
+    window.addEventListener('load', function() {
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
+
+        setTimeout(() => {
+            const loader = document.getElementById('intro-loader');
+            const mainWrapper = document.getElementById('main-wrapper');
+            
+            if (loader && mainWrapper) {
+                loader.classList.add('hidden-fade');
+                mainWrapper.classList.add('visible');
+
+                // 徹底移除 DOM 避免干擾點擊
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 800);
+            }
+        }, remainingTime);
+    });
   window.KEICHA_BASEURL = "{{ site.baseurl | default: '' }}";
 </script>
 
@@ -700,3 +779,4 @@ scripts: ""
     }); // 結束 DOMContentLoaded
 </script>
 <script src="{{ '/assets/js/privacy-loader.js' | relative_url }}" data-cf-async="false" defer></script>
+
