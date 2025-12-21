@@ -4,7 +4,7 @@
 
 window.addEventListener('load', () => {
 
-    const gasUrl = "您的_GAS_WEB_APP_URL"; 
+    const gasUrl = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; 
 
     const statusGrid = document.getElementById('status-grid-container');
     const statusLoader = document.getElementById('status-loader');
