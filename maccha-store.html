@@ -357,79 +357,32 @@
         let tempQtyMap = {};
         let cachedMemberData = null;
 
-// --- Helper: 嚴格取得運費規則 ---
-        function getApplicableRule(uiMethod) {
-            if (!uiMethod) return null;
-
-            // 1. 名稱轉換：將前端的 '郵寄/宅配' 轉為後端用的 '宅配'
-            //    注意：這裡直接比對字串，因為上面已經做過 trim() 清洗
-            let dbMethod = uiMethod;
-            if (uiMethod.includes('宅配')) dbMethod = '宅配';
-            if (uiMethod.includes('7-11')) dbMethod = '7-11';
-            if (uiMethod.includes('全家')) dbMethod = '全家';
-
-            // 2. 優先找 'category' 為 '抹茶' 的規則
-            let rule = shippingRules.find(r => r.method === dbMethod && r.category === '抹茶');
+// --- 核心功能：純粹的運費計算 (移植自您的成功範例) ---
+        function calcShip(method, amount) {
+            if (!shippingRules || shippingRules.length === 0) return 0;
             
-            // 3. 沒找到，找 'category' 為 'default' 的規則
+            // 1. 名稱轉換 (處理前端 '郵寄/宅配' vs 後端 '宅配')
+            const dbMethod = method.includes('宅配') ? '宅配' : method;
+
+            // 2. 優先找 '抹茶'，沒找到找 'default'
+            let rule = shippingRules.find(r => r.method == dbMethod && r.category == '抹茶');
             if (!rule) {
-                rule = shippingRules.find(r => r.method === dbMethod && r.category === 'default');
+                rule = shippingRules.find(r => r.method == dbMethod && r.category == 'default');
             }
             
-            return rule;
-        }
+            // 如果真的沒規則，回傳 0 (或是您想要的預設值)
+            if (!rule) return 0;
 
-        // --- 更新 UI 卡片上的基礎運費顯示 ---
-        function updateLogisticsCardPrices() {
-            const types = ['7-11', '全家', '宅配'];
+            // 3. 計算金額 (Base -> 門檻)
+            let fee = parseFloat(rule.base) || 0;
             
-            types.forEach(type => {
-                // 根據 data-type 找到對應的 UI
-                const el = document.querySelector(`.logistics-price[data-type="${type}"]`);
-                if (el) {
-                    const rule = getApplicableRule(type); 
-                    if (rule) {
-                        // 【修正重點 2】如果有規則，顯示 base；如果 base 是 0 就顯示 FREE 或 $0
-                        el.innerText = `$${rule.base}`;
-                    } else {
-                        // 【修正重點 3】如果找不到規則，顯示 "未設定" 或 "$0"，絕對不要顯示 $60
-                        // 這樣您一看就知道是規則沒抓到
-                        el.innerText = '待確認'; 
-                        console.warn(`警告：找不到 ${type} 的運費規則 (抹茶/default)`);
-                    }
-                }
-            });
-        }
-
-        // --- 核心運費計算 (結帳用) ---
-        function updateShippingFee() {
-            const subtotal = calculateSubtotal();
-            const uiMethod = selectedLogisticsType; 
-
-            if (!uiMethod) {
-                setFeeUI(0, uiMethod);
-                return;
-            }
-
-            const rule = getApplicableRule(uiMethod);
-            let finalFee = 0;
-
-            if (rule) {
-                // 1. 基礎運費 (已經在 fetch 時轉為數字了)
-                finalFee = rule.base;
-                
-                // 2. 門檻計算 (由高至低)
-                // 檢查 t3 是否存在 (非 null) 且 達標
-                if (rule.t3 !== null && subtotal >= rule.t3) finalFee = rule.f3;
-                else if (rule.t2 !== null && subtotal >= rule.t2) finalFee = rule.f2;
-                else if (rule.t1 !== null && subtotal >= rule.t1) finalFee = rule.f1;
-            } else {
-                // 如果真的沒規則，運費就是 0，不要自己亂加
-                finalFee = 0; 
-            }
-
-            shippingFee = finalFee;
-            setFeeUI(finalFee, uiMethod, subtotal);
+            // 由高門檻往低門檻檢查 (T3 -> T2 -> T1)
+            // 注意：這裡假設 amount 達到門檻就使用對應的 fee
+            if (rule.t3 && amount >= parseFloat(rule.t3)) fee = parseFloat(rule.f3);
+            else if (rule.t2 && amount >= parseFloat(rule.t2)) fee = parseFloat(rule.f2);
+            else if (rule.t1 && amount >= parseFloat(rule.t1)) fee = parseFloat(rule.f1);
+            
+            return fee;
         }
 
         // --- Core Panel Logic ---
@@ -464,8 +417,6 @@
             document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
             selectedLogisticsType = '';
 
-            // Update card base prices using loaded rules
-            updateLogisticsCardPrices();
 
             if (cachedMemberData) {
                 autoFillLogistics(cachedMemberData);
@@ -477,31 +428,7 @@
             updateShippingFee();
         }
 
-        // --- Update UI Prices based on Rules ---
-        function updateLogisticsCardPrices() {
-            const types = ['7-11', '全家', '宅配'];
-            
-            // 這裡為了讓前端迴圈能找到 UI 上的 data-type，我們需要手動對應一下
-            // data-type="7-11", data-type="全家", data-type="宅配" (對應 HTML)
-            
-            types.forEach(type => {
-                // 如果是宅配，UI 的 data-type 是 '宅配'，我們傳入 '郵寄/宅配' 讓 getApplicableRule 處理
-                // 但因為 getApplicableRule 已經會自動轉 '郵寄/宅配' -> '宅配'
-                // 我們可以直接傳 '宅配' 給 helper，因為 helper 內部比對的是 dbMethod
-                
-                const rule = getApplicableRule(type); 
-                const el = document.querySelector(`.logistics-price[data-type="${type}"]`);
-                
-                if (el) {
-                    if (rule) {
-                        el.innerText = `$${parseFloat(rule.base) || 0}`;
-                    } else {
-                        // Fallback display
-                        el.innerText = (type === '宅配') ? '$100' : '$60';
-                    }
-                }
-            });
-        }
+}
 
         // --- Cart Logic ---
         function addToCart(productId, name, price, priceMulti, stock, maxLimit) {
@@ -769,34 +696,37 @@
             document.getElementById('input-store-note').value = storeName;
         }
 
-        // 核心運費計算 (使用 getApplicableRule 統一邏輯)
+// --- UI 更新：更新卡片上的價格 & 底部總結 ---
         function updateShippingFee() {
             const subtotal = calculateSubtotal();
-            const uiMethod = selectedLogisticsType; 
+            
+            // 1. 遍歷所有物流卡片，依據目前小計更新「預覽運費」
+            // 這樣使用者還沒選之前，就能看到 7-11 運費是多少，全家是多少
+            ['7-11', '全家', '宅配'].forEach(type => {
+                const fee = calcShip(type, subtotal);
+                const el = document.querySelector(`.logistics-price[data-type="${type}"]`);
+                if (el) {
+                    el.innerText = `運費 $${fee}`;
+                }
+            });
 
-            if (!uiMethod || !shippingRules || shippingRules.length === 0) {
-                setFeeUI(0, uiMethod);
-                return;
-            }
+            // 2. 處理「已選擇」的物流狀態 (底部欄位)
+            const uiMethod = selectedLogisticsType;
+            
+            if (uiMethod) {
+                // 重新計算一次選定物流的最終運費
+                const finalFee = calcShip(uiMethod, subtotal);
+                shippingFee = finalFee; // 更新全域變數
 
-            // 使用 Helper 取得規則 (Helper 內部已經處理了 dbMethod 對應)
-            const rule = getApplicableRule(uiMethod);
-
-            let finalFee = 0;
-
-            if (rule) {
-                finalFee = parseFloat(rule.base) || 0;
-                
-                if (rule.t3 && subtotal >= parseFloat(rule.t3)) finalFee = parseFloat(rule.f3);
-                else if (rule.t2 && subtotal >= parseFloat(rule.t2)) finalFee = parseFloat(rule.f2);
-                else if (rule.t1 && subtotal >= parseFloat(rule.t1)) finalFee = parseFloat(rule.f1);
+                // 推送到底部欄位
+                document.getElementById('footer-logistics-name').innerText = `已選擇：${uiMethod} (運費 $${finalFee})`;
+                document.getElementById('modal-total').innerText = (subtotal + finalFee).toLocaleString();
             } else {
-                // Fallback (Safe Default)
-                finalFee = (uiMethod.includes('宅配')) ? 100 : 60;
+                // 尚未選擇
+                shippingFee = 0;
+                document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
+                document.getElementById('modal-total').innerText = subtotal.toLocaleString();
             }
-
-            shippingFee = finalFee;
-            setFeeUI(finalFee, uiMethod, subtotal);
         }
 
         function setFeeUI(fee, method, subtotal = 0) {
@@ -806,63 +736,88 @@
             document.getElementById('modal-total').innerText = total.toLocaleString();
         }
         
+// --- 送出訂單 (含嚴格驗證) ---
         function submitOrder(btn) {
+            // 1. 取得欄位值
             const phone = document.getElementById('input-phone').value.trim();
             const name = document.getElementById('input-name').value.trim();
             const email = document.getElementById('input-email').value.trim();
-            const type = document.getElementById('input-logistics').value;
+            const line = document.getElementById('input-line').value.trim();
+            const note = document.getElementById('input-note').value.trim();
+            
+            // 物流相關
+            const type = selectedLogisticsType; // 從全域變數拿比較穩
             const store = document.getElementById('input-store').value.trim();
             const storeNote = document.getElementById('input-store-note').value.trim();
+            const isMemberCheck = document.getElementById('join-member').checked;
 
-            const phoneRegex = /^09\d{8}$/;
-            if (!phoneRegex.test(phone)) {
-                alert("請填寫正確的手機號碼 (09開頭共10碼)");
+            // 2. 基礎驗證
+            if (!/^09\d{8}$/.test(phone)) {
+                alert("請輸入正確的手機號碼 (09開頭共10碼)");
                 document.getElementById('input-phone').focus();
                 return;
             }
-
             if (!name) { alert("請填寫收件人姓名"); document.getElementById('input-name').focus(); return; }
             if (!email) { alert("請填寫電子信箱"); document.getElementById('input-email').focus(); return; }
-
-            if (!type || !store) {
-                alert("請選擇物流方式並填寫店號/地址");
+            
+            if (!type) {
+                alert("請選擇物流方式");
                 document.getElementById('input-logistics').parentElement.scrollIntoView({behavior: 'smooth'});
                 return;
             }
 
-            if (type === '7-11' || type === '全家') {
-                if (!/^\d{6}$/.test(store)) {
-                    alert(`${type} 店號格式錯誤，請輸入 6 碼數字`);
-                    const targetId = type === '7-11' ? 'store-id-711' : 'store-id-fami';
-                    document.getElementById(targetId).focus();
+            // 3. 店號/地址 嚴格驗證 (仿照您的成功範例)
+            if (type === '7-11') {
+                if(!/^\d{6}$/.test(store)) {
+                    alert("請輸入正確的 7-11 「6碼純數字」店號");
+                    document.getElementById('store-id-711').focus();
+                    return;
+                }
+            } else if (type === '全家') {
+                if(!/^\d{6}$/.test(store)) {
+                    alert("請輸入正確的全家 「6碼純數字」店號");
+                    document.getElementById('store-id-fami').focus();
+                    return;
+                }
+            } else if (type.includes('宅配')) {
+                if(!store) {
+                    alert("請填寫宅配地址");
+                    document.getElementById('store-addr').focus();
                     return;
                 }
             }
 
+            // 4. 準備送出
             btn.disabled = true;
             btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span> 處理中...';
 
             const subtotal = calculateSubtotal();
-            
+            // 送出前再算一次運費確保正確
+            const finalShip = calcShip(type, subtotal);
+
+            // 組合商品字串
             const itemsStr = cart.map(item => {
                 return `${item.brand_key}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.qty>1 && item.price_multi ? item.price_multi : item.price})`;
             }).join('\n');
 
+            // 組合物流字串： "物流方式 店名備註"
             const logisticsStr = storeNote ? `${type} ${storeNote}` : type;
 
             const payload = {
                 action: "checkout",
-                phone, name, email,
-                line_name: document.getElementById('input-line').value,
-                logistics: logisticsStr,
-                store: store,
-                store_note: storeNote,
+                phone: phone, 
+                name: name, 
+                email: email,
+                line_name: line,
+                logistics: logisticsStr, // 組合後的字串
+                store: store,            // 純店號/地址
+                store_note: storeNote,   // 純備註
                 items: itemsStr,
-                subtotal, 
-                shipping: shippingFee,
+                subtotal: subtotal, 
+                shipping: finalShip,     // 使用 calcShip 算出的結果
                 date: new Date().toISOString(),
-                product_note: document.getElementById('input-note').value,
-                join_member: document.getElementById('join-member').checked
+                product_note: note,
+                join_member: isMemberCheck
             };
 
             fetch(ORDER_API_URL, {
@@ -873,6 +828,7 @@
             .then(data => {
                 if(data.success) {
                     alert(`訂單建立成功！\n編號：${data.orderId}`);
+                    // 重置購物車
                     cart = [];
                     updateCartQty(0, 0); 
                     document.getElementById('cart-items-wrapper').innerHTML = ''; 
@@ -891,7 +847,7 @@
                 btn.innerHTML = '<span class="material-symbols-rounded">verified</span> 確認送出訂單';
             });
         }
-
+        
         function adjQty(productId, change) {
              if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
              let newQty = tempQtyMap[productId] + change;
@@ -901,7 +857,7 @@
              if (qtyDisplay) { qtyDisplay.innerText = newQty; }
         }
 
-window.addEventListener('load', () => {
+        window.addEventListener('load', () => {
              const loader = document.getElementById('status-loader');
              
              fetch(DISPLAY_API_URL)
@@ -909,27 +865,15 @@ window.addEventListener('load', () => {
                 .then(data => {
                     if(data.error) throw new Error(data.error);
                     
-                    // 【修正重點 1】強力資料清洗：確保所有比對欄位都沒有空白，且格式正確
+                    // 【重點修正】: 在載入時就先清洗運費規則的 "7-11" 字串，並去除前後空白
                     if (data.shipping_rules) {
                         shippingRules = data.shipping_rules.map(r => ({
                             ...r,
-                            // 修正 GAS 日期格式問題，並去除前後空白
                             method: (r.method && String(r.method).includes('-')) ? '7-11' : String(r.method || '').trim(),
-                            // 確保 category 去除空白
-                            category: String(r.category || '').trim(),
-                            // 確保 base 是數字，若為空則補 0
-                            base: parseFloat(r.base) || 0, 
-                            // 確保門檻與費用也是數字
-                            t1: r.t1 ? parseFloat(r.t1) : null,
-                            f1: r.f1 ? parseFloat(r.f1) : null,
-                            t2: r.t2 ? parseFloat(r.t2) : null,
-                            f2: r.f2 ? parseFloat(r.f2) : null,
-                            t3: r.t3 ? parseFloat(r.t3) : null,
-                            f3: r.f3 ? parseFloat(r.f3) : null
+                            category: String(r.category || '').trim()
                         }));
                     }
                     
-                    // 商品 ID 生成
                     allProducts = (data.products || []).map(p => {
                         p.key = p.brand_key + '_' + p.name; 
                         return p;
@@ -941,8 +885,6 @@ window.addEventListener('load', () => {
                         renderProductCards(brand.key, allProducts.filter(p => p.brand_key === brand.key));
                     });
                     
-                    // 初始化運費顯示 (讀取正確的 Base)
-                    updateLogisticsCardPrices();
 
                     loader.style.display = 'none';
                 })
@@ -954,6 +896,7 @@ window.addEventListener('load', () => {
                 });
         });
 
+        // (Render functions same as previous)
         function renderStatusOverview(brands) {
             const container = document.getElementById('status-grid-container');
             if (!container) return;
