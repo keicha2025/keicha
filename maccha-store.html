@@ -828,7 +828,7 @@ keywords: 抹茶代購, 抹茶, 丸久小山園, 山政小山園, 星野製茶�
     function renderProductCards(brandKey, products) {
         const grid = document.getElementById(`${brandKey}-grid`);
         if (!grid) return;
-        if (products.length === 0) { grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`; return; }
+        if (products.length === 0) { grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項或是缺貨中</p>`; return; }
         products.forEach(product => {
             const productId = product.key;
             const name = product.name || '未命名';
