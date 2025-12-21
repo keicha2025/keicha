@@ -56,7 +56,7 @@ window.addEventListener('load', () => {
         });
     }
 
-    function renderProducts(brands, allProducts) {
+function renderProducts(brands, allProducts) {
         if (!productContainer) return;
         productContainer.innerHTML = '';
 
@@ -64,7 +64,6 @@ window.addEventListener('load', () => {
             const brandProducts = allProducts.filter(p => {
                 const isStatusOut = p.status === 'out-of-stock';
                 const hasTag = (p.tag && p.tag.trim() !== '');
-                // 邏輯 A：如 status 為 out-of-stock 且沒 tag，就完全隱藏不顯示
                 if (isStatusOut && !hasTag) return false;
                 return p.brand_key === brand.key;
             });
@@ -80,7 +79,7 @@ window.addEventListener('load', () => {
                 const isStockZero = (p.stock === 0 || p.stock === '0');
                 const hasTag = (p.tag && p.tag.trim() !== '');
                 
-                // 標籤邏輯：tag 優先，沒 tag 且 stock:0 顯示缺貨
+                // 1. 標籤邏輯
                 let badge = '';
                 if (hasTag) {
                     badge = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-bold px-2.5 py-1 rounded-full">${p.tag}</span>`;
@@ -88,10 +87,10 @@ window.addEventListener('load', () => {
                     badge = `<span class="absolute top-3 right-3 bg-gray-300 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full">缺貨中</span>`;
                 }
 
-                // 價格邏輯：status 為 out-of-stock 則不顯示價格
+                // 2. 價格邏輯：status 為 out-of-stock 隱藏價格
                 let priceHTML = '';
                 if (isStatusOut) {
-                    priceHTML = `<p class="text-gray-400 text-sm">請私訊詢價</p>`; // 或是留空
+                    priceHTML = `<p class="text-gray-400 text-sm">暫不提供價格</p>`;
                 } else {
                     if (p.price_multi > 0 && p.price_multi < p.price) {
                         priceHTML = `
@@ -104,8 +103,12 @@ window.addEventListener('load', () => {
                     }
                 }
 
-                // 名稱與規格：spec 直接串接不加括號
-                const displayName = p.spec ? `${p.name} ${p.spec}` : p.name;
+                // ★ 3. 名稱與規格：將 spec 改為小字、灰色，且不加括號
+                const displayName = `
+                    ${p.name} 
+                    ${p.spec ? `<span class="text-sm font-normal text-gray-500 ml-1">${p.spec}</span>` : ''}
+                `;
+                
                 const cardClass = isStatusOut || isStockZero ? 'bg-gray-100 opacity-80' : 'bg-white transform hover:scale-105';
 
                 productCardsHTML += `
