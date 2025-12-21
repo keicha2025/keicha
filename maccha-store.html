@@ -246,33 +246,30 @@
         let tempQtyMap = {};
         let cachedMemberData = null;
 
-        // --- 核心運費計算 (依照總表規則：抹茶 > default) ---
-        function calcShip(method, amount) {
+        // --- 核心運費計算 (修正版：僅使用 category='抹茶' + 嚴格階梯計算) ---
+        function calcShip(selectedLogistics, subtotal) {
+            // 1. 資料來源檢查
             if (!shippingRules || shippingRules.length === 0) return 0;
             
-            // 1. 名稱轉換 (處理前端 '郵寄/宅配' vs 後端 '宅配')
-            let dbMethod = method;
-            if (method.includes('宅配')) dbMethod = '宅配';
-            else if (method.includes('7-11')) dbMethod = '7-11';
-            else if (method.includes('全家')) dbMethod = '全家';
+            // 2. 規則選擇：category 為 '抹茶' 且 selectedLogistics 包含 rule.method
+            const rule = shippingRules.find(r => 
+                r.category === '抹茶' && 
+                selectedLogistics.includes(r.method)
+            );
 
-            // 2. 優先找 'category' 為 '抹茶'，沒找到找 'default'
-            let rule = shippingRules.find(r => r.method === dbMethod && r.category === '抹茶');
-            if (!rule) {
-                rule = shippingRules.find(r => r.method === dbMethod && r.category === 'default');
-            }
-            
-            // 如果真的沒規則，回傳 0 (依照您要求，不自訂 fallback)
+            // 若無對應規則，依要求不使用 fallback，直接回傳 0
             if (!rule) return 0;
 
-            // 3. 計算金額 (Base -> 門檻)
-            let fee = Number(rule.base) || 0;
+            // 3. 運費計算流程 (Base -> T3 -> T2 -> T1)
+            let fee = Number(rule.base);
             
-            // 由高門檻往低門檻檢查 (T3 -> T2 -> T1)
-            // 注意：GAS 的空值可能是 "" 或 null，故使用嚴格檢查
-            if (rule.t3 !== "" && rule.t3 != null && amount >= Number(rule.t3)) fee = Number(rule.f3);
-            else if (rule.t2 !== "" && rule.t2 != null && amount >= Number(rule.t2)) fee = Number(rule.f2);
-            else if (rule.t1 !== "" && rule.t1 != null && amount >= Number(rule.t1)) fee = Number(rule.f1);
+            if (rule.t3 && subtotal >= Number(rule.t3)) {
+                fee = Number(rule.f3);
+            } else if (rule.t2 && subtotal >= Number(rule.t2)) {
+                fee = Number(rule.f2);
+            } else if (rule.t1 && subtotal >= Number(rule.t1)) {
+                fee = Number(rule.f1);
+            }
             
             return fee;
         }
@@ -326,9 +323,15 @@
             const subtotal = calculateSubtotal();
             
             // 1. 遍歷所有物流卡片，依據目前小計更新「預覽運費」
-            ['7-11', '全家', '宅配'].forEach(type => {
+            // 注意：這裡傳入的 type (如 '7-11', '郵寄/宅配') 會被 calcShip 用來對應規則
+            ['7-11', '全家', '郵寄/宅配'].forEach(type => {
                 const fee = calcShip(type, subtotal);
-                const el = document.querySelector(`.logistics-price[data-type="${type}"]`);
+                // 這裡的 data-type 對應 HTML 上的設定 ('7-11', '全家', '宅配')
+                // 由於 '郵寄/宅配' 在 HTML data-type 是 '宅配'，需做對應
+                let uiType = type;
+                if(type === '郵寄/宅配') uiType = '宅配';
+
+                const el = document.querySelector(`.logistics-price[data-type="${uiType}"]`);
                 if (el) {
                     el.innerText = `運費 $${fee}`;
                 }
@@ -659,7 +662,7 @@
             btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span> 處理中...';
 
             const subtotal = calculateSubtotal();
-            // 送出前再算一次運費確保正確
+            // 送出前再算一次運費確保正確，payload 將使用此變數
             const finalShip = calcShip(type, subtotal);
 
             // 組合商品字串
@@ -681,7 +684,7 @@
                 store_note: storeNote,   // 純備註
                 items: itemsStr,
                 subtotal: subtotal, 
-                shipping: finalShip,     // 使用 calcShip 算出的結果
+                shipping: finalShip,     // 使用 calcShip 算出的結果 (唯一修改重點)
                 date: new Date().toISOString(),
                 product_note: note,
                 join_member: isMemberCheck
@@ -726,28 +729,28 @@
         window.addEventListener('load', () => {
              const loader = document.getElementById('status-loader');
              
-             fetch(DISPLAY_API_URL)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.error) throw new Error(data.error);
-                    
-                    // 【重點修正】: 在載入時就先清洗運費規則的 "7-11" 字串，並去除前後空白
-                    if (data.shipping_rules) {
-                        shippingRules = data.shipping_rules.map(r => ({
-                            ...r,
-                            method: (r.method && String(r.method).includes('-')) ? '7-11' : String(r.method || '').trim(),
-                            category: String(r.category || '').trim()
-                        }));
+             // 並行請求：ORDER_API_URL 抓取運費規則 (必須)，DISPLAY_API_URL 抓取商品 (維持原狀)
+             Promise.all([
+                 fetch(ORDER_API_URL).then(res => res.json()), // 請求運費規則
+                 fetch(DISPLAY_API_URL).then(res => res.json()) // 請求商品資料
+             ])
+                .then(([rulesData, displayData]) => {
+                    // 1. 處理運費規則 (完整保存，來自 ORDER_API_URL)
+                    if (rulesData.shipping_rules) {
+                        shippingRules = rulesData.shipping_rules;
                     }
+
+                    // 2. 處理商品資料 (維持原狀)
+                    if(displayData.error) throw new Error(displayData.error);
                     
-                    allProducts = (data.products || []).map(p => {
+                    allProducts = (displayData.products || []).map(p => {
                         p.key = p.brand_key + '_' + p.name; 
                         return p;
                     });
 
-                    renderStatusOverview(data.brands);
-                    renderProductSections(data.brands);
-                    data.brands.forEach(brand => {
+                    renderStatusOverview(displayData.brands);
+                    renderProductSections(displayData.brands);
+                    displayData.brands.forEach(brand => {
                         renderProductCards(brand.key, allProducts.filter(p => p.brand_key === brand.key));
                     });
                     
@@ -811,7 +814,7 @@
                 const priceMulti = Number(product.price_multi) || 0;
                 const status = product.status || '';
                 const note = product.note || '';       
-                const tag = product.tag || '';         
+                const tag = product.tag || '';          
                 const spec = product.spec || '';       
                 const imgPath = String(product.img || ''); 
                 let isStockZero = false;
