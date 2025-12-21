@@ -44,7 +44,7 @@
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid #6ea44c; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Side Panel - Critical Fixes */
+        /* Side Panel */
         .side-panel { 
             position: fixed; 
             top: 0; 
@@ -53,7 +53,7 @@
             width: 100%; 
             max-width: 420px; 
             background: white; 
-            z-index: 200; /* Priority Level: Highest */
+            z-index: 200; 
             transform: translateX(100%); 
             transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
             box-shadow: var(--shadow-panel); 
@@ -103,13 +103,12 @@
         }
         .btn-query-store:hover { background-color: #e8f5e9; }
 
-        /* Sticky Footer with Safe Area */
+        /* Sticky Footer */
         .panel-footer { 
             background: white; padding: 16px 20px; border-top: 1px solid #f1f5f9; 
             box-shadow: var(--shadow-sticky); z-index: 20; 
             padding-bottom: calc(env(safe-area-inset-bottom) + 24px); 
         }
-        .panel-footer-btn-wrapper { margin-bottom: 16px; }
 
         /* Product Card Styles */
         .card-img-group { width: 100px; height: 100px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background-color: #f9fafb; }
@@ -126,10 +125,6 @@
                 <span class="font-brand-text text-2xl">KEICHA</span>
             </h1>
             <div class="flex items-center gap-2">
-                 <button type="button" onclick="openLoginPanel()" class="p-2 text-brand hover:bg-brandLight rounded-full transition cursor-pointer">
-                    <span class="material-symbols-rounded text-2xl pointer-events-none">person</span>
-                 </button>
-                 
                  <button type="button" onclick="openCart()" class="relative p-2 text-brand hover:bg-brandLight rounded-full transition cursor-pointer">
                     <span class="material-symbols-rounded text-2xl pointer-events-none">shopping_bag</span>
                     <span id="header-cart-badge" class="absolute top-0 right-0 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden pointer-events-none">0</span>
@@ -167,11 +162,10 @@
                 </button>
             </div>
 
-            <div id="cart-items-wrapper" class="flex-1 overflow-y-auto p-0 pb-4">
-                </div>
+            <div id="cart-items-wrapper" class="flex-1 overflow-y-auto p-0 pb-4"></div>
 
             <div class="panel-footer bg-gray-50 shrink-0">
-                <div class="panel-footer-btn-wrapper space-y-4">
+                <div class="space-y-4">
                     <div class="flex justify-between items-center px-1">
                         <span class="text-gray-500 font-medium text-sm">商品小計</span>
                         <span class="text-xl font-bold text-brand font-mono">NT$ <span id="cart-subtotal">0</span></span>
@@ -189,109 +183,6 @@
         </div>
     </div>
 
-    <div id="login-panel" class="side-panel">
-        <div class="flex flex-col h-full">
-            <div class="p-5 flex justify-end shrink-0">
-                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
-                    <span class="material-symbols-rounded text-2xl">close</span>
-                </button>
-            </div>
-            
-            <div class="p-8 flex flex-col items-center justify-center flex-1 -mt-20 overflow-y-auto">
-                <div class="w-16 h-16 bg-brandLight rounded-full flex items-center justify-center text-brand mb-6 shrink-0">
-                    <span class="material-symbols-rounded text-3xl">person</span>
-                </div>
-                
-                <div id="login-state-default" class="w-full text-center">
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">會員查詢 / 登入</h3>
-                    <p class="text-sm text-gray-400 mb-8">輸入手機號碼管理訂單與資料</p>
-                    
-                    <div class="flex gap-2 mb-4">
-                         <input type="tel" id="login-phone" class="input-ui font-bold text-lg tracking-wider text-center" placeholder="09xxxxxxxx" maxlength="10" pattern="^09\d{8}$">
-                    </div>
-                    
-                    <button onclick="performLogin()" id="btn-login-action" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark transition mb-4">
-                        查詢會員資料
-                    </button>
-                    <p id="login-msg" class="text-xs h-4 text-red-500"></p>
-                </div>
-
-                <div id="login-state-welcome" class="hidden w-full text-center space-y-6">
-                    <h3 class="text-xl font-bold text-brand mb-2">歡迎回來，<span id="welcome-name"></span></h3>
-                    <p class="text-sm text-gray-500">請選擇接下來要做的事：</p>
-                    
-                    <button onclick="openMemberPanel()" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark transition flex items-center justify-center gap-2">
-                        <span class="material-symbols-rounded">edit_square</span> 現在輸入收件資料
-                    </button>
-                    <button onclick="closeAllPanels()" class="w-full bg-white border border-gray-200 text-gray-600 font-bold py-4 rounded-xl hover:bg-gray-50 transition">
-                        稍後再說
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="member-panel" class="side-panel">
-        <div class="flex flex-col h-full relative">
-            <div class="p-5 bg-brand text-white flex justify-between items-center z-10 shadow-md shrink-0">
-                <h3 class="font-bold flex items-center gap-2 text-lg">
-                    <span class="material-symbols-rounded">manage_accounts</span> 會員資料管理
-                </h3>
-                <button onclick="closeAllPanels()" class="text-white/80 hover:text-white transition">
-                    <span class="material-symbols-rounded">close</span>
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto bg-gray-50 p-5 space-y-6 pb-32">
-                <section class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-2">
-                        <span class="material-symbols-rounded text-brand text-lg">badge</span> 基本資料
-                    </h4>
-                    <input type="text" id="mem-name" class="input-ui" placeholder="姓名">
-                    <input type="tel" id="mem-phone" class="input-ui bg-gray-100 text-gray-500 cursor-not-allowed" disabled placeholder="手機">
-                    <input type="email" id="mem-email" class="input-ui" placeholder="Email">
-                    <input type="text" id="mem-line" class="input-ui" placeholder="LINE 顯示名稱">
-                </section>
-
-                <section class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-2">
-                        <span class="material-symbols-rounded text-brand text-lg">local_shipping</span> 7-11 預設門市
-                    </h4>
-                    <div class="flex gap-2">
-                        <input type="text" id="mem-711-id" class="input-ui flex-1 font-mono text-center" placeholder="6碼店號" maxlength="6">
-                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-query-store">查詢</a>
-                    </div>
-                    <input type="text" id="mem-711-note" class="input-ui text-sm" placeholder="門市名稱">
-                </section>
-
-                <section class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-2">
-                        <span class="material-symbols-rounded text-brand text-lg">store</span> 全家 預設門市
-                    </h4>
-                    <div class="flex gap-2">
-                        <input type="text" id="mem-fami-id" class="input-ui flex-1 font-mono text-center" placeholder="6碼店號" maxlength="6">
-                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-query-store">查詢</a>
-                    </div>
-                    <input type="text" id="mem-fami-note" class="input-ui text-sm" placeholder="門市名稱">
-                </section>
-
-                <section class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-2">
-                        <span class="material-symbols-rounded text-brand text-lg">home</span> 宅配 預設地址
-                    </h4>
-                    <textarea id="mem-addr" class="input-ui min-h-[80px]" placeholder="完整地址..."></textarea>
-                </section>
-            </div>
-
-            <div class="panel-footer shrink-0">
-                <button onclick="saveMemberData(this)" class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark transition flex justify-center items-center gap-2">
-                    <span class="material-symbols-rounded">save</span> 儲存變更
-                </button>
-            </div>
-        </div>
-    </div>
-
-
     <div id="checkout-panel" class="side-panel">
         <div class="flex flex-col h-full relative">
             <div class="p-5 bg-white border-b border-gray-100 flex justify-between items-center z-10 shrink-0">
@@ -307,30 +198,46 @@
             <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white pb-40"> 
                 <div class="p-5 space-y-8">
                     
-                    <section class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
-                        
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
                         <div class="bg-white rounded-xl border border-brandBg overflow-hidden">
-                            <ul id="checkout-readonly-list" class="divide-y divide-brandBg bg-[rgba(110,164,76,0.05)]">
-                                </ul>
+                            <ul id="checkout-readonly-list" class="divide-y divide-brandBg bg-[rgba(110,164,76,0.05)]"></ul>
                         </div>
+                    </div>
 
-                        <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1">
-                                <span class="material-symbols-rounded text-sm text-brand">smartphone</span> 會員查詢 / 手機號碼
-                            </label>
-                            <div class="flex gap-2">
+                    <section class="border-b border-gray-100 pb-6">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-brand rounded-full"></span> 訂購人資訊
+                        </h4>
+                        
+                        <div class="mb-4">
+                            <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">手機號碼 <span class="text-brand">*</span> (輸入後按箭頭帶入資料)</label>
+                            <div class="flex gap-2 relative">
                                 <input type="tel" id="input-phone" 
                                     class="input-ui font-bold text-lg tracking-wider" 
                                     placeholder="09xxxxxxxx" 
                                     maxlength="10" 
-                                    pattern="^09\d{8}$"
-                                    required>
+                                    inputmode="tel">
                                 <button type="button" onclick="lookupPhoneData(this)" 
-                                    class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50">
+                                    class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50 shrink-0 shadow-sm shadow-brand/20">
                                     <span class="material-symbols-rounded">arrow_forward</span>
                                 </button>
                             </div>
                             <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300"></p>
+                        </div>
+
+                        <div id="member-fields" class="space-y-4 transition-all duration-300">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span class="text-brand">*</span></label>
+                                <input type="text" id="input-name" required class="input-ui" placeholder="請輸入真實姓名">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span class="text-brand">*</span></label>
+                                <input type="email" id="input-email" required class="input-ui" placeholder="接收訂單通知">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE 顯示名稱</label>
+                                <input type="text" id="input-line" class="input-ui" placeholder="方便聯絡 (選填)">
+                            </div>
                         </div>
                     </section>
 
@@ -353,12 +260,13 @@
                                 </div>
                                 <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
                                     <div class="flex gap-2">
-                                        <input type="text" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" pattern="^\d{6}$" inputmode="numeric" id="store-id-711" onchange="syncStoreInput()">
+                                        <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-711" oninput="syncStoreInput()">
                                         <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-query-store">
-                                            <span class="material-symbols-rounded text-base">map</span> 查詢店號
+                                            <span class="material-symbols-rounded text-base">map</span> 查詢
                                         </a>
                                     </div>
-                                    <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-711" onchange="syncStoreInput()">
+                                    <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-711" oninput="syncStoreInput()">
+                                    <p class="text-[10px] text-gray-500 pl-1">* 請務必確認店號正確</p>
                                 </div>
                             </div>
 
@@ -374,16 +282,16 @@
                                 </div>
                                 <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
                                     <div class="flex gap-2">
-                                        <input type="text" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" pattern="^\d{6}$" inputmode="numeric" id="store-id-fami" onchange="syncStoreInput()">
+                                        <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-fami" oninput="syncStoreInput()">
                                         <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-query-store">
-                                            <span class="material-symbols-rounded text-base">map</span> 查詢店號
+                                            <span class="material-symbols-rounded text-base">map</span> 查詢
                                         </a>
                                     </div>
-                                    <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-fami" onchange="syncStoreInput()">
+                                    <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-fami" oninput="syncStoreInput()">
                                 </div>
                             </div>
 
-                            <div class="logistics-card cursor-pointer group" onclick="s('郵寄/宅配', this)">
+                            <div class="logistics-card cursor-pointer group" onclick="selectLogistics('郵寄/宅配', this)">
                                 <div class="p-4 flex justify-between items-center">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
@@ -394,32 +302,12 @@
                                     <span class="text-brand font-bold text-sm logistics-price" data-type="宅配">$100</span>
                                 </div>
                                 <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4" onclick="event.stopPropagation()">
-                                    <textarea id="store-addr" class="input-ui text-sm min-h-[80px]" placeholder="請輸入完整收件地址 (含郵遞區號)" onchange="syncStoreInput()"></textarea>
+                                    <textarea id="store-addr" class="input-ui text-sm min-h-[80px]" placeholder="請輸入完整收件地址 (含郵遞區號)" oninput="syncStoreInput()"></textarea>
                                 </div>
                             </div>
                             
-                            <input type="hidden" name="store" id="input-store" required>
+                            <input type="hidden" name="store" id="input-store">
                             <input type="hidden" name="store_note" id="input-store-note">
-                        </div>
-                    </section>
-
-                    <section class="space-y-4">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <span class="w-1 h-4 bg-brand rounded-full"></span> 收件資料
-                        </h4>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span class="text-brand">*</span></label>
-                                <input type="text" id="input-name" required class="input-ui" placeholder="請輸入真實姓名">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span class="text-brand">*</span></label>
-                                <input type="email" id="input-email" required class="input-ui" placeholder="接收訂單通知">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE 顯示名稱</label>
-                                <input type="text" id="input-line" class="input-ui" placeholder="方便聯絡 (選填)">
-                            </div>
                         </div>
                     </section>
 
@@ -434,7 +322,7 @@
                                 <input type="checkbox" id="join-member" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-brand checked:border-brand transition-all" checked>
                                 <span class="material-symbols-rounded absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none text-base left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">check</span>
                             </div>
-                            <span class="text-sm text-gray-600 font-medium">同意儲存資料，下次自動帶入</span>
+                            <span class="text-sm text-gray-600 font-medium">更新並儲存會員資料 (下次自動帶入)</span>
                         </label>
                     </section>
                 </div>
@@ -458,6 +346,7 @@
     </div>
 
     <script>
+        // 設定 API 網址 (請確認以下兩個網址是正確的 GAS 部署網址)
         const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
         const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec";
         const BASE_REPO_URL = "assets/images/"; 
@@ -466,11 +355,13 @@
         let cart = [];
         let shippingFee = 0;
         let shippingRules = [];
-        let currentUser = null;
         let selectedLogisticsType = '';
         let tempQtyMap = {};
+        
+        // 暫存會員資料，用於自動帶入
+        let cachedMemberData = null;
 
-        // --- Core Side Panel Logic ---
+        // --- Core Panel Logic ---
         function openPanel(id) {
             const el = document.getElementById(id);
             const overlay = document.getElementById('overlay');
@@ -490,15 +381,6 @@
             openPanel('cart-sidebar');
         }
 
-        function openLoginPanel() {
-            openPanel('login-panel');
-        }
-
-        function openMemberPanel() {
-            closeAllPanels();
-            openPanel('member-panel');
-        }
-
         function openCheckout() {
             if (cart.length === 0) { alert('請先加入商品'); return; }
             
@@ -512,9 +394,12 @@
             document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
             selectedLogisticsType = '';
 
-            // Generate Readonly List
+            // 如果已經有會員資料，嘗試自動選取物流
+            if (cachedMemberData) {
+                autoFillLogistics(cachedMemberData);
+            }
+
             updateCheckoutReadonlyList();
-            
             closeAllPanels();
             openPanel('checkout-panel');
             updateShippingFee();
@@ -531,7 +416,7 @@
             
             let currentCartQty = existingItem ? existingItem.qty : 0;
             if (currentCartQty + qtyToAdd > stock) { alert("抱歉，庫存不足！"); return; }
-            if (currentCartQty + qtyToAdd > maxLimit) { alert(`此商品每人限購 ${maxLimit} 件`); return; }
+            if (maxLimit && currentCartQty + qtyToAdd > maxLimit) { alert(`此商品每人限購 ${maxLimit} 件`); return; }
 
             if (existingItem) { 
                 existingItem.qty += qtyToAdd; 
@@ -584,7 +469,6 @@
             const subtotalEl = document.getElementById('cart-subtotal');
             container.innerHTML = '';
             
-            // Empty State
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3">
@@ -621,7 +505,6 @@
                     const unitPrice = isDiscountActive ? item.price_multi : item.price;
                     const isMultiPriceApplied = isDiscountActive && (item.price !== item.price_multi);
 
-                    // A-3: Image Logic (No render if empty)
                     let imgHtml = '';
                     if (item.img) {
                         const src = item.img.startsWith('http') ? item.img : BASE_REPO_URL + item.img;
@@ -634,7 +517,6 @@
                     container.innerHTML += `
                         <div class="relative flex gap-4 items-start border-b border-gray-50 p-5 last:border-0 group bg-white">
                              ${imgHtml}
-                            
                             <div class="flex-1 min-w-0 flex flex-col justify-between min-h-[64px]">
                                 <div class="pr-6">
                                     <div class="font-bold text-gray-800 text-sm leading-tight line-clamp-2">${item.name}</div>
@@ -644,7 +526,6 @@
                                         <span class="${isMultiPriceApplied ? 'text-brand font-bold' : ''}">$${unitPrice}</span>
                                     </div>
                                 </div>
-                                
                                 <div class="flex justify-between items-end mt-2">
                                     <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8">
                                         <button onclick="updateCartQty(${mainIndex}, -1)" class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-brand hover:bg-gray-100 rounded-l-lg transition font-bold">-</button>
@@ -654,7 +535,6 @@
                                     <div class="font-bold text-brand font-mono">$${unitPrice * item.qty}</div>
                                 </div>
                             </div>
-
                             <button onclick="removeFromCart(${mainIndex})" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition p-1">
                                 <span class="material-symbols-rounded text-xl">close</span>
                             </button>
@@ -702,7 +582,7 @@
                     <li class="px-4 py-3 text-sm text-brandDark font-medium flex items-start gap-2">
                         <span class="material-symbols-rounded text-brand text-base mt-0.5">check_circle</span>
                         <span>
-                            ${item.brand_key || 'Default'} ${item.name} 
+                            ${item.brand_key}｜${item.name} 
                             ${item.spec ? `<span class="text-xs bg-brandLight px-1 rounded ml-1">${item.spec}</span>` : ''}
                             <span class="text-xs text-gray-500 ml-1">x${item.qty}</span>
                         </span>
@@ -711,220 +591,17 @@
              });
         }
 
-// 物流選擇 UI 控制 (含運費規則修正)
-        function selectLogistics(type, cardEl) {
-            // 1. UI 狀態切換
-            document.querySelectorAll('.logistics-card').forEach(el => {
-                el.classList.remove('active');
-                el.querySelector('.logistics-detail').classList.add('hidden');
-            });
-            cardEl.classList.add('active');
-            cardEl.querySelector('.logistics-detail').classList.remove('hidden');
-
-            // 2. 更新 select 與變數
-            const select = document.getElementById('input-logistics');
-            select.value = type;
-            
-            // 3. 計算運費 (修正邏輯：優先讀取 '抹茶'，若無則讀取 'default')
-            const { subtotal } = calculateCartTotals();
-            
-            // 步驟 A: 先找 '抹茶' 規則
-            let rule = shippingRules.find(r => r.category === '抹茶' && type.includes(r.method));
-            
-            // 步驟 B: 若沒找到，嘗試找 'default' 規則
-            if (!rule) {
-                rule = shippingRules.find(r => r.category === 'default' && type.includes(r.method));
-            }
-
-            // 設定預設基礎運費 (若完全沒規則時的保底)
-            let fee = 60;
-            if (type.includes('宅配')) fee = 100;
-            
-            // 步驟 C: 套用找到的規則門檻
-            if (rule) {
-                fee = Number(rule.base);
-                // 依序檢查門檻 (由高到低)
-                if (rule.t3 && subtotal >= rule.t3) fee = Number(rule.f3);
-                else if (rule.t2 && subtotal >= rule.t2) fee = Number(rule.f2);
-                else if (rule.t1 && subtotal >= rule.t1) fee = Number(rule.f1);
-            }
-            shippingFee = fee;
-
-            // 4. 更新 Footer 顯示
-            document.getElementById('footer-logistics-name').innerText = `已選擇：${type} (運費 $${fee})`;
-            updateCartUI(); // 更新總金額
-            
-            // 5. 觸發 input sync 確保 hidden value 正確
-            syncStoreInput();
-        }
-
-        function syncStoreInput() {
-            let storeId = '';
-            let storeName = '';
-
-            if (selectedLogisticsType === '7-11') {
-                storeId = document.getElementById('store-id-711').value;
-                storeName = document.getElementById('store-name-711').value;
-            } else if (selectedLogisticsType === '全家') {
-                storeId = document.getElementById('store-id-fami').value;
-                storeName = document.getElementById('store-name-fami').value;
-            } else if (selectedLogisticsType.includes('宅配')) {
-                storeId = document.getElementById('store-addr').value; 
-            }
-
-            document.getElementById('input-store').value = storeId;
-            document.getElementById('input-store-note').value = storeName;
-        }
-
-        // D-3: Strict Shipping Logic
-        function updateShippingFee() {
-            const subtotal = calculateSubtotal();
-            
-            // D-2: Only use category="抹茶"
-            const rule = shippingRules.find(r => 
-                r.method === selectedLogisticsType && 
-                r.category === '抹茶'
-            );
-            
-            let finalFee = 0; 
-            
-            if (rule) {
-                finalFee = Number(rule.base);
-                if (rule.t3 && subtotal >= Number(rule.t3)) finalFee = Number(rule.f3);
-                else if (rule.t2 && subtotal >= Number(rule.t2)) finalFee = Number(rule.f2);
-                else if (rule.t1 && subtotal >= Number(rule.t1)) finalFee = Number(rule.f1);
-            }
-            
-            // Update UI for all cards with rule-based fees if possible
-            document.querySelectorAll('.logistics-price').forEach(el => {
-                const type = el.dataset.type;
-                const cardRule = shippingRules.find(r => r.method === type && r.category === '抹茶');
-                let cardFee = cardRule ? Number(cardRule.base) : 0;
-                
-                if (cardRule) {
-                    if (cardRule.t3 && subtotal >= Number(cardRule.t3)) cardFee = Number(cardRule.f3);
-                    else if (cardRule.t2 && subtotal >= Number(cardRule.t2)) cardFee = Number(cardRule.f2);
-                    else if (cardRule.t1 && subtotal >= Number(cardRule.t1)) cardFee = Number(cardRule.f1);
-                }
-                
-                // If type is not selected, fallback to base logic or 0? 
-                // Requirement: No Fallback. But for UI display we need to show *something*.
-                // Assuming cards should show "potential fee".
-                el.innerText = cardFee > 0 ? `$${cardFee}` : (type==='宅配'?'$100':'$60'); // Safe visual default just in case rules not loaded
-            });
-            
-            shippingFee = finalFee;
-            document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
-        }
-
-        // --- Login & Member Logic ---
-        function performLogin() {
-             const input = document.getElementById('login-phone');
-             const msg = document.getElementById('login-msg');
-             const btn = document.getElementById('btn-login-action');
-             const phone = input.value.trim();
-
-             if (!input.checkValidity()) {
-                msg.innerText = "格式錯誤";
-                return;
-             }
-
-             btn.disabled = true;
-             btn.innerHTML = '查詢中...';
-
-             fetch(ORDER_API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "login", phone: phone })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // C-1: Auto Register / Welcome
-                    const info = data.data || { phone: phone, name: '新朋友' };
-                    currentUser = info;
-                    showWelcomeState(info.name || phone);
-                    populateMemberForm(info);
-                } else {
-                    // Fallback (Should be covered by success:true isNew:true)
-                    currentUser = { phone: phone, name: '新朋友' };
-                    showWelcomeState('新朋友');
-                    populateMemberForm(currentUser);
-                }
-            })
-            .catch(() => { msg.innerText = "連線失敗"; })
-            .finally(() => { 
-                btn.disabled = false; 
-                btn.innerHTML = '查詢會員資料';
-            });
-        }
-
-        function showWelcomeState(name) {
-            document.getElementById('login-state-default').classList.add('hidden');
-            document.getElementById('login-state-welcome').classList.remove('hidden');
-            document.getElementById('welcome-name').innerText = name;
-        }
-
-        function populateMemberForm(info) {
-             if(!info) return;
-             document.getElementById('mem-name').value = info.name || '';
-             document.getElementById('mem-phone').value = info.phone || '';
-             document.getElementById('mem-email').value = info.email || '';
-             document.getElementById('mem-line').value = info.line_name || ''; // GAS key check
-             
-             document.getElementById('mem-711-id').value = info.store_711 || '';
-             document.getElementById('mem-711-note').value = info.store_711_note || '';
-             
-             document.getElementById('mem-fami-id').value = info.store_fami || '';
-             document.getElementById('mem-fami-note').value = info.store_fami_note || '';
-             
-             document.getElementById('mem-addr').value = info.shipping_address || '';
-        }
-
-        function saveMemberData(btn) {
-             btn.disabled = true;
-             btn.innerHTML = '儲存中...';
-
-             const payload = {
-                action: "update_member",
-                phone: document.getElementById('mem-phone').value,
-                name: document.getElementById('mem-name').value,
-                email: document.getElementById('mem-email').value,
-                line_name: document.getElementById('mem-line').value,
-                
-                // C-2-2 Independent logistics data
-                store_711: document.getElementById('mem-711-id').value,
-                store_711_note: document.getElementById('mem-711-note').value,
-                
-                store_fami: document.getElementById('mem-fami-id').value,
-                store_fami_note: document.getElementById('mem-fami-note').value,
-                
-                shipping_address: document.getElementById('mem-addr').value
-             };
-
-             fetch(ORDER_API_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-             })
-             .then(res => res.json())
-             .then(data => {
-                 alert('資料已更新');
-                 closeAllPanels();
-             })
-             .catch(() => { alert('更新失敗'); })
-             .finally(() => {
-                 btn.disabled = false;
-                 btn.innerHTML = '<span class="material-symbols-rounded">save</span> 儲存變更';
-             });
-        }
-
+        // --- Checkout & Validation Logic ---
         function lookupPhoneData(btn) {
             const input = document.getElementById('input-phone');
             const msg = document.getElementById('phone-msg');
             const phone = input.value.trim();
+            const regex = /^09\d{8}$/;
 
-            if (!input.checkValidity()) {
-                msg.innerText = "格式錯誤";
+            if (!regex.test(phone)) {
+                msg.innerText = "格式錯誤，請輸入 09 開頭的 10 碼手機號碼";
                 msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-red-500";
+                input.focus();
                 return;
             }
             
@@ -938,73 +615,173 @@
             })
             .then(res => res.json())
             .then(data => {
-                // Always treat as success/welcome logic (B-2, C-1)
-                const info = (data.success && data.data) ? data.data : { phone: phone, name: '新朋友' };
-                currentUser = info;
-                msg.innerText = `歡迎回來，${info.name || '新朋友'}`;
-                msg.className = "text-xs mt-2 pl-1 h-4 font-bold text-brand";
-                
-                if(info.name) document.getElementById('input-name').value = info.name;
-                if(info.email) document.getElementById('input-email').value = info.email;
-                if(info.line_name) document.getElementById('input-line').value = info.line_name;
-                
-                // Pre-fill existing logistics preferences if they match (B-2)
-                if(info.store_711) document.getElementById('store-id-711').value = info.store_711;
-                if(info.store_711_note) document.getElementById('store-name-711').value = info.store_711_note;
-                
-                if(info.store_fami) document.getElementById('store-id-fami').value = info.store_fami;
-                if(info.store_fami_note) document.getElementById('store-name-fami').value = info.store_fami_note;
-                
-                if(info.shipping_address) document.getElementById('store-addr').value = info.shipping_address;
-
+                const info = (data.success && data.data) ? data.data : null;
+                if(info && info.name) {
+                    // Found existing member
+                    msg.innerText = `歡迎回來，${info.name}`;
+                    msg.className = "text-xs mt-2 pl-1 h-4 font-bold text-brand";
+                    
+                    document.getElementById('input-name').value = info.name || '';
+                    document.getElementById('input-email').value = info.email || '';
+                    document.getElementById('input-line').value = info.line_name || '';
+                    
+                    cachedMemberData = info;
+                    autoFillLogistics(info); // Auto fill logistics inputs
+                } else {
+                    // New member
+                    msg.innerText = "新朋友您好，請填寫下方程式資料";
+                    msg.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-500";
+                    cachedMemberData = null;
+                }
             })
-            .catch(() => { msg.innerText = "連線失敗"; })
+            .catch(() => { msg.innerText = "連線失敗，請稍後再試"; })
             .finally(() => { btn.disabled = false; });
         }
 
-function submitOrder(btn) {
-            // 驗證
-            const phone = document.getElementById('input-phone').value;
-            const name = document.getElementById('input-name').value;
-            const type = document.getElementById('input-logistics').value;
-            const store = document.getElementById('input-store').value;
-            const storeNote = document.getElementById('input-store-note').value.trim(); // 取得店鋪備註
+        function autoFillLogistics(info) {
+            if(!info) return;
+            // 預填各物流對應的 input，但不會自動觸發 click 選擇
+            if(info.store_711) document.getElementById('store-id-711').value = info.store_711;
+            if(info.store_711_note) document.getElementById('store-name-711').value = info.store_711_note;
+            
+            if(info.store_fami) document.getElementById('store-id-fami').value = info.store_fami;
+            if(info.store_fami_note) document.getElementById('store-name-fami').value = info.store_fami_note;
+            
+            if(info.shipping_address) document.getElementById('store-addr').value = info.shipping_address;
+        }
 
-            if (!phone || !name) return alert("請填寫完整聯絡資訊");
-            if (!store) return alert("請填寫取貨店號或地址");
+        function selectLogistics(type, cardEl) {
+            document.querySelectorAll('.logistics-card').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('.logistics-detail').classList.add('hidden');
+            });
+            cardEl.classList.add('active');
+            cardEl.querySelector('.logistics-detail').classList.remove('hidden');
+
+            const select = document.getElementById('input-logistics');
+            select.value = type;
+            selectedLogisticsType = type;
+            
+            // 計算運費 (強制套用 category="抹茶" 規則)
+            updateShippingFee();
+            
+            // 即時同步該區塊的 input 到 hidden field
+            syncStoreInput();
+        }
+
+        // 重要：將 input 內容即時同步到隱藏的提交欄位
+        function syncStoreInput() {
+            let storeId = '';
+            let storeName = '';
+
+            if (selectedLogisticsType === '7-11') {
+                storeId = document.getElementById('store-id-711').value.trim();
+                storeName = document.getElementById('store-name-711').value.trim();
+            } else if (selectedLogisticsType === '全家') {
+                storeId = document.getElementById('store-id-fami').value.trim();
+                storeName = document.getElementById('store-name-fami').value.trim();
+            } else if (selectedLogisticsType && selectedLogisticsType.includes('宅配')) {
+                storeId = document.getElementById('store-addr').value.trim(); 
+            }
+
+            document.getElementById('input-store').value = storeId;
+            document.getElementById('input-store-note').value = storeName;
+        }
+
+        function updateShippingFee() {
+            const subtotal = calculateSubtotal();
+            
+            // 這裡強制指定 category = '抹茶'
+            const rule = shippingRules.find(r => 
+                r.method === selectedLogisticsType && 
+                r.category === '抹茶'
+            );
+            
+            let finalFee = 0; 
+            
+            if (rule) {
+                finalFee = Number(rule.base);
+                if (rule.t3 && subtotal >= Number(rule.t3)) finalFee = Number(rule.f3);
+                else if (rule.t2 && subtotal >= Number(rule.t2)) finalFee = Number(rule.f2);
+                else if (rule.t1 && subtotal >= Number(rule.t1)) finalFee = Number(rule.f1);
+            } else {
+                 // Fallback if rule not found (UI only)
+                 if(selectedLogisticsType === '7-11' || selectedLogisticsType === '全家') finalFee = 60;
+                 if(selectedLogisticsType && selectedLogisticsType.includes('宅配')) finalFee = 100;
+            }
+            
+            shippingFee = finalFee;
+            const logisticsText = selectedLogisticsType ? `已選擇：${selectedLogisticsType} (運費 $${finalFee})` : '尚未選擇物流';
+            document.getElementById('footer-logistics-name').innerText = logisticsText;
+            document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
+        }
+
+        function submitOrder(btn) {
+            // 1. 取得資料
+            const phone = document.getElementById('input-phone').value.trim();
+            const name = document.getElementById('input-name').value.trim();
+            const email = document.getElementById('input-email').value.trim();
+            const type = document.getElementById('input-logistics').value;
+            const store = document.getElementById('input-store').value.trim();
+            const storeNote = document.getElementById('input-store-note').value.trim();
+
+            // 2. 嚴格驗證
+            const phoneRegex = /^09\d{8}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("請填寫正確的手機號碼 (09開頭共10碼)");
+                document.getElementById('input-phone').focus();
+                return;
+            }
+
+            if (!name) { alert("請填寫收件人姓名"); document.getElementById('input-name').focus(); return; }
+            if (!email) { alert("請填寫電子信箱"); document.getElementById('input-email').focus(); return; }
+
+            if (!type || !store) {
+                alert("請選擇物流方式並填寫店號/地址");
+                // 嘗試將畫面捲動到物流區塊
+                document.getElementById('input-logistics').parentElement.scrollIntoView({behavior: 'smooth'});
+                return;
+            }
+
+            // 超商代碼驗證 (僅限數字6碼)
+            if (type === '7-11' || type === '全家') {
+                if (!/^\d{6}$/.test(store)) {
+                    alert(`${type} 店號格式錯誤，請輸入 6 碼數字`);
+                    const targetId = type === '7-11' ? 'store-id-711' : 'store-id-fami';
+                    document.getElementById(targetId).focus();
+                    return;
+                }
+            }
 
             btn.disabled = true;
-            btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span>';
+            btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span> 處理中...';
 
-            const { subtotal } = calculateCartTotals();
+            const subtotal = calculateSubtotal();
             
             // 組合商品字串
             const itemsStr = cart.map(item => {
-                return `${item.brandKey}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.appliedPrice})`;
+                return `${item.brand_key}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.qty>1 && item.price_multi ? item.price_multi : item.price})`;
             }).join('\n');
 
-            // ★ 修改重點：Logistics 欄位組合邏輯
-            // 若有 storeNote，則 "Type Note" (中間空格)；若無則單純 "Type"
+            // 組合物流字串 (為了讓 GAS 收到完整資訊)
             const logisticsStr = storeNote ? `${type} ${storeNote}` : type;
 
             const payload = {
                 action: "checkout",
-                phone, name, 
-                email: document.getElementById('input-email').value,
+                phone, name, email,
                 line_name: document.getElementById('input-line').value,
-                
-                logistics: logisticsStr, // 這裡傳送組合後的字串
-                
-                store: store, // 純店號或地址
-                store_note: storeNote, // 獨立傳送店名 (供後端會員更新使用)
+                logistics: logisticsStr,
+                store: store,
+                store_note: storeNote,
                 items: itemsStr,
-                subtotal, shipping: shippingFee,
+                subtotal, 
+                shipping: shippingFee,
                 date: new Date().toISOString(),
                 product_note: document.getElementById('input-note').value,
                 join_member: document.getElementById('join-member').checked
             };
 
-            fetch(API_URL, {
+            fetch(ORDER_API_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             })
@@ -1013,11 +790,17 @@ function submitOrder(btn) {
                 if(data.success) {
                     alert(`訂單建立成功！\n編號：${data.orderId}`);
                     cart = [];
-                    updateCartUI();
+                    updateCartQty(0, 0); // Trigger clear logic
+                    document.getElementById('cart-items-wrapper').innerHTML = ''; // Force clear
+                    document.getElementById('header-cart-badge').classList.add('hidden');
                     closeAllPanels();
                 } else {
-                    alert("失敗：" + data.msg);
+                    alert("建立失敗：" + data.msg);
                 }
+            })
+            .catch((err) => {
+                console.error(err);
+                alert("系統連線錯誤，請稍後再試");
             })
             .finally(() => {
                 btn.disabled = false;
@@ -1025,7 +808,6 @@ function submitOrder(btn) {
             });
         }
 
-        // Init
         function adjQty(productId, change) {
              if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
              let newQty = tempQtyMap[productId] + change;
@@ -1044,12 +826,16 @@ function submitOrder(btn) {
                     if(data.error) throw new Error(data.error);
                     if(data.shipping_rules) shippingRules = data.shipping_rules;
                     
-                    allProducts = data.products || [];
+                    // 重要：生成唯一 ID
+                    allProducts = (data.products || []).map(p => {
+                        p.key = p.brand_key + '_' + p.name; 
+                        return p;
+                    });
 
                     renderStatusOverview(data.brands);
                     renderProductSections(data.brands);
                     data.brands.forEach(brand => {
-                        renderProductCards(brand.key, data.products.filter(p => p.brand_key === brand.key));
+                        renderProductCards(brand.key, allProducts.filter(p => p.brand_key === brand.key));
                     });
                     loader.style.display = 'none';
                 })
@@ -1061,7 +847,7 @@ function submitOrder(btn) {
                 });
         });
 
-        // (Original Render functions omitted for brevity, strictly SAME as previous)
+        // (Render functions)
         function renderStatusOverview(brands) {
             const container = document.getElementById('status-grid-container');
             if (!container) return;
@@ -1102,14 +888,14 @@ function submitOrder(btn) {
             if (!grid) return;
             if (products.length === 0) { grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`; return; }
             products.forEach(product => {
-                const productId = product.key || Math.random().toString(36).substr(2, 9); 
+                const productId = product.key; // Already generated
                 const name = product.name || '未命名';
                 const price = Number(product.price) || 0;
                 const priceMulti = Number(product.price_multi) || 0;
                 const status = product.status || '';
-                const note = product.note || '';      
-                const tag = product.tag || '';        
-                const spec = product.spec || '';      
+                const note = product.note || '';       
+                const tag = product.tag || '';         
+                const spec = product.spec || '';       
                 const imgPath = String(product.img || ''); 
                 let isStockZero = false;
                 if (product.stock !== "" && product.stock !== undefined) { if (Number(product.stock) <= 0) isStockZero = true; }
@@ -1121,7 +907,7 @@ function submitOrder(btn) {
                     const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
                     imgHTML = `<div class="card-img-group w-full aspect-square relative overflow-hidden bg-gray-50 md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
                                     <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
-                                </div>`;
+                               </div>`;
                 }
                 let badgeHTML = '';
                 if (tag) { badgeHTML = `<span class="absolute top-3 right-3 bg-brand text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`; } 
