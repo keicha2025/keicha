@@ -29,19 +29,25 @@ styles: |
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 輸入框 placeholder 字體大小 */
-        input::placeholder {
-            font-size: 0.75rem; /* text-xs */
-        }
-
         /* 結果卡片樣式 */
         .order-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 移除卡片左側線條邏輯，改為純色邊框或陰影 */
         
-        /* 點擊輸入框時 icon 保持灰色 */
-        .relative:focus-within .material-symbols-rounded {
-            color: #9ca3af !important; /* gray-400 */
+        /* 輸入框 Placeholder 字體縮小 */
+        input::placeholder {
+            font-size: 0.75rem; /* text-xs */
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
         }
     </style>
 scripts: |
@@ -55,6 +61,7 @@ scripts: |
             const resultSection = document.getElementById('order-result-section');
             
             let originalButtonContent = "";
+
             const API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
 
             if (searchButton) searchButton.addEventListener('click', handleSearch);
@@ -79,6 +86,7 @@ scripts: |
                 showLoading(true);
                 showError(null);
                 resultSection.classList.add('hidden');
+                resultsContainer.innerHTML = '';
 
                 try {
                     let fetchUrl = `${API_URL}?action=query`;
@@ -93,7 +101,8 @@ scripts: |
                         resultSection.classList.remove('hidden');
                         resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     } else {
-                        showError(json.msg || "查無此訂單資料，請檢查您的輸入是否正確。");
+                        const msg = json.msg || "查無此訂單資料，請檢查您的輸入是否正確。";
+                        showError(msg);
                     }
                 } catch (error) {
                     showError("連線發生錯誤，請稍後再試或聯繫客服。");
@@ -106,18 +115,9 @@ scripts: |
                 resultsContainer.innerHTML = '';
 
                 orders.forEach(order => {
-                    let statusColorClass = "text-gray-600";
-                    let hideSideBorder = false;
-
-                    // 針對「待確認」狀態寫死邏輯
-                    if (order.status === "待確認") {
-                        statusColorClass = "text-[#6ea44c]";
-                        hideSideBorder = true; // 不顯示左方色條
-                    } else if (order.status.includes("確認") || order.status.includes("完成") || order.status.includes("出貨")) {
-                        statusColorClass = "text-[#6ea44c]";
-                    } else if (order.status.includes("取消") || order.status.includes("異常")) {
-                        statusColorClass = "text-red-600";
-                    }
+                    // 狀態顏色邏輯：寫死「待確認」為灰色，其餘為品牌綠
+                    const isPending = order.status === "待確認";
+                    const statusClass = isPending ? "text-gray-500 bg-gray-100" : "text-[#6ea44c] bg-green-50";
 
                     let noteHtml = '';
                     if (order.sellerNote && order.sellerNote.trim() !== "") {
@@ -131,34 +131,29 @@ scripts: |
 
                     const cardHtml = `
                         <div class="order-card bg-white border border-gray-100 rounded-xl p-6 mb-6 shadow-sm relative overflow-hidden">
-                            ${hideSideBorder ? '' : `<div class="absolute top-0 left-0 w-2 h-full ${statusColorClass.replace('text-', 'bg-')}"></div>`}
-                            
-                            <div class="${hideSideBorder ? '' : 'pl-4'}">
-                                <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
-                                    <div>
-                                        <div class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">訂單編號</div>
-                                        <div class="text-xl font-mono font-bold text-gray-800 flex items-center gap-2">
-                                            <span class="material-symbols-rounded text-gray-400 text-lg">tag</span>
-                                            ${order.orderId}
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full self-start">
-                                        <span class="font-bold ${statusColorClass}">${order.status}</span>
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
+                                <div>
+                                    <div class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">訂單編號</div>
+                                    <div class="text-xl font-mono font-bold text-gray-800 flex items-center gap-2">
+                                        ${order.orderId}
                                     </div>
                                 </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-4">
-                                    <div>
-                                        <div class="text-xs text-gray-400 font-bold mb-1">訂單明細</div>
-                                        <div class="text-gray-700 font-medium">${order.item}</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs text-gray-400 font-bold mb-1">訂單金額</div>
-                                        <div class="text-gray-700 font-medium font-mono">NT$ ${order.amount ? Number(order.amount).toLocaleString() : '-'}</div>
-                                    </div>
+                                <div class="px-4 py-1.5 rounded-full text-sm font-bold ${statusClass}">
+                                    ${order.status}
                                 </div>
-                                ${noteHtml}
                             </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-4">
+                                <div>
+                                    <div class="text-xs text-gray-400 font-bold mb-1">訂單明細</div>
+                                    <div class="text-gray-700 font-medium">${order.item}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400 font-bold mb-1">訂單金額</div>
+                                    <div class="text-gray-700 font-medium font-mono">NT$ ${order.amount ? Number(order.amount).toLocaleString() : '-'}</div>
+                                </div>
+                            </div>
+                            ${noteHtml}
                         </div>
                     `;
                     resultsContainer.insertAdjacentHTML('beforeend', cardHtml);
@@ -198,7 +193,7 @@ scripts: |
                 <h1 class="text-3xl md:text-4xl font-bold text-[#6ea44c]">
                     訂單紀錄
                 </h1>
-                <p class="mt-4 text-gray-500">輸入您的訂單資訊，查詢處理進度。</p>
+                <p class="mt-4 text-gray-500 text-sm">輸入您的訂單資訊，查詢處理進度。</p>
             </header>
             
             <div class="max-w-xl mx-auto space-y-6">
@@ -224,34 +219,30 @@ scripts: |
                 <p class="text-xs text-gray-400 text-center">※ 請至少輸入其中一項即可查詢</p>
 
                 <button id="search-order-button"
-                        class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-xl shadow-lg hover:bg-[#5d8c40] transition-all flex items-center justify-center gap-2">
+                        class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-xl hover:bg-[#5d8c40] transition-all duration-300 flex items-center justify-center gap-2">
                     <span class="material-symbols-rounded">search</span>
                     查詢
                 </button>
 
-                <div id="search-error" class="hidden mt-4 text-center text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 font-medium text-sm">
+                <div id="search-error" class="hidden mt-4 text-center text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 text-sm">
                 </div>
             </div>
         </section>
 
         <section id="order-result-section" class="hidden">
-            <div class="flex items-center gap-2 mb-6">
-                <h2 class="text-xl font-bold text-gray-800">查詢結果</h2>
-            </div>
+            <h2 class="text-xl font-bold text-gray-800 mb-6 px-2">查詢結果</h2>
             <div id="results-container"></div>
         </section>
 
         <section class="mt-12 text-center">
           <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-800 mb-2">
-              需要協助嗎？
-            </h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">需要協助嗎？</h2>
             <p class="text-gray-500 mb-6 text-sm">
               查詢不到訂單，或對訂單有任何疑問，請聯絡 LINE 官方客服。<br>
               LINE ID：@366qwylw
             </p>                
             <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex bg-[#6ea44c] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#5d8c40] transition duration-300 shadow-md">
+               class="inline-flex bg-[#6ea44c] text-white px-10 py-3 rounded-lg font-bold hover:bg-[#5d8c40] transition duration-300 shadow-md">
                 LINE 官方客服
             </a>
           </div>
