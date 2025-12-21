@@ -40,76 +40,26 @@
         body { font-family: "Noto Sans TC", sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; background-color: #ffffff; overflow-x: hidden; }
         .font-brand-text { font-family: var(--font-brand); font-weight: 700; }
         
-        /* Loading Spinner */
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid #6ea44c; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Side Panel */
-        .side-panel { 
-            position: fixed; 
-            top: 0; 
-            right: 0; 
-            bottom: 0;
-            width: 100%; 
-            max-width: 420px; 
-            background: white; 
-            z-index: 200; 
-            transform: translateX(100%); 
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
-            box-shadow: var(--shadow-panel); 
-            display: flex; 
-            flex-direction: column; 
-        }
+        .side-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px; background: white; z-index: 200; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: var(--shadow-panel); display: flex; flex-direction: column; }
         .side-panel.open { transform: translateX(0) !important; }
-        
-        .overlay { 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.4); 
-            z-index: 150; 
-            opacity: 0; 
-            visibility: hidden; 
-            transition: opacity 0.3s; 
-            backdrop-filter: blur(2px); 
-        }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; opacity: 0; visibility: hidden; transition: opacity 0.3s; backdrop-filter: blur(2px); }
         .overlay.open { opacity: 1; visibility: visible; }
 
-        /* Custom Inputs */
-        .input-ui { 
-            width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 10px; 
-            font-size: 15px; outline: none; transition: all 0.2s ease; background-color: #f8fafc; color: #334155;
-        }
+        .input-ui { width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s ease; background-color: #f8fafc; color: #334155; }
         .input-ui:focus { border-color: #6ea44c; background-color: white; ring: 1px solid #6ea44c; }
         .input-ui::placeholder { color: #94a3b8; }
         
-        /* Logistics Card UI */
-        .logistics-card { 
-            border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.2s ease; 
-            background: white; overflow: hidden; position: relative;
-        }
-        .logistics-card.active { 
-            border-color: #6ea44c; background-color: #fcfdfc; 
-            box-shadow: 0 0 0 1px #6ea44c inset; 
-        }
+        .logistics-card { border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.2s ease; background: white; overflow: hidden; position: relative; }
+        .logistics-card.active { border-color: #6ea44c; background-color: #fcfdfc; box-shadow: 0 0 0 1px #6ea44c inset; }
         .logistics-card:active { transform: scale(0.99); }
 
-        /* Store Query Button */
-        .btn-query-store {
-            background-color: white; color: #6ea44c; border: 1px solid #6ea44c;
-            display: flex; align-items: center; justify-content: center; gap: 4px;
-            padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px;
-            transition: background 0.2s; text-decoration: none; white-space: nowrap;
-        }
+        .btn-query-store { background-color: white; color: #6ea44c; border: 1px solid #6ea44c; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; transition: background 0.2s; text-decoration: none; white-space: nowrap; }
         .btn-query-store:hover { background-color: #e8f5e9; }
 
-        /* Sticky Footer */
-        .panel-footer { 
-            background: white; padding: 16px 20px; border-top: 1px solid #f1f5f9; 
-            box-shadow: var(--shadow-sticky); z-index: 20; 
-            padding-bottom: calc(env(safe-area-inset-bottom) + 24px); 
-        }
-
-        /* Product Card Styles */
+        .panel-footer { background: white; padding: 16px 20px; border-top: 1px solid #f1f5f9; box-shadow: var(--shadow-sticky); z-index: 20; padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
         .card-img-group { width: 100px; height: 100px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background-color: #f9fafb; }
         @media (min-width: 768px) { .card-img-group { width: 100%; height: auto; aspect-ratio: 1/1; } }
     </style>
@@ -160,9 +110,7 @@
                     <span class="material-symbols-rounded text-2xl pointer-events-none">close</span>
                 </button>
             </div>
-
             <div id="cart-items-wrapper" class="flex-1 overflow-y-auto p-0 pb-4"></div>
-
             <div class="panel-footer bg-gray-50 shrink-0">
                 <div class="space-y-4">
                     <div class="flex justify-between items-center px-1">
@@ -170,12 +118,8 @@
                         <span class="text-xl font-bold text-brand font-mono">NT$ <span id="cart-subtotal">0</span></span>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="closeAllPanels()" class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">
-                            繼續選購
-                        </button>
-                        <button onclick="openCheckout()" class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">
-                            前往結帳 <span class="material-symbols-rounded text-sm">arrow_forward</span>
-                        </button>
+                        <button onclick="closeAllPanels()" class="col-span-1 bg-white text-gray-500 border border-gray-200 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2">繼續選購</button>
+                        <button onclick="openCheckout()" class="col-span-1 bg-brand text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2">前往結帳 <span class="material-symbols-rounded text-sm">arrow_forward</span></button>
                     </div>
                 </div>
             </div>
@@ -186,17 +130,13 @@
         <div class="flex flex-col h-full relative">
             <div class="p-5 bg-white border-b border-gray-100 flex justify-between items-center z-10 shrink-0">
                 <h3 class="font-bold flex items-center gap-2 text-lg text-gray-800">
-                    <span class="material-symbols-rounded text-brand">shopping_cart_checkout</span> 
-                    結帳確認
+                    <span class="material-symbols-rounded text-brand">shopping_cart_checkout</span> 結帳確認
                 </h3>
-                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
-                    <span class="material-symbols-rounded">close</span>
-                </button>
+                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"><span class="material-symbols-rounded">close</span></button>
             </div>
 
             <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white pb-40"> 
                 <div class="p-5 space-y-8">
-                    
                     <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
                         <div class="bg-white rounded-xl border border-brandBg overflow-hidden">
                             <ul id="checkout-readonly-list" class="divide-y divide-brandBg bg-[rgba(110,164,76,0.05)]"></ul>
@@ -204,65 +144,36 @@
                     </div>
 
                     <section class="border-b border-gray-100 pb-6">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <span class="w-1 h-4 bg-brand rounded-full"></span> 訂購人資訊
-                        </h4>
-                        
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-brand rounded-full"></span> 訂購人資訊</h4>
                         <div class="mb-4">
                             <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">手機號碼 <span class="text-brand">*</span> (輸入後按箭頭帶入資料)</label>
                             <div class="flex gap-2 relative">
-                                <input type="tel" id="input-phone" 
-                                    class="input-ui font-bold text-lg tracking-wider" 
-                                    placeholder="09xxxxxxxx" 
-                                    maxlength="10" 
-                                    inputmode="tel">
-                                <button type="button" onclick="lookupPhoneData(this)" 
-                                    class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50 shrink-0 shadow-sm shadow-brand/20">
-                                    <span class="material-symbols-rounded">arrow_forward</span>
-                                </button>
+                                <input type="tel" id="input-phone" class="input-ui font-bold text-lg tracking-wider" placeholder="09xxxxxxxx" maxlength="10" inputmode="tel">
+                                <button type="button" onclick="lookupPhoneData(this)" class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50 shrink-0 shadow-sm shadow-brand/20"><span class="material-symbols-rounded">arrow_forward</span></button>
                             </div>
                             <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300"></p>
                         </div>
-
                         <div id="member-fields" class="space-y-4 transition-all duration-300">
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span class="text-brand">*</span></label>
-                                <input type="text" id="input-name" required class="input-ui" placeholder="請輸入真實姓名">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span class="text-brand">*</span></label>
-                                <input type="email" id="input-email" required class="input-ui" placeholder="接收訂單通知">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE 顯示名稱</label>
-                                <input type="text" id="input-line" class="input-ui" placeholder="方便聯絡 (選填)">
-                            </div>
+                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span class="text-brand">*</span></label><input type="text" id="input-name" required class="input-ui" placeholder="請輸入真實姓名"></div>
+                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span class="text-brand">*</span></label><input type="email" id="input-email" required class="input-ui" placeholder="接收訂單通知"></div>
+                            <div><label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE 顯示名稱</label><input type="text" id="input-line" class="input-ui" placeholder="方便聯絡 (選填)"></div>
                         </div>
                     </section>
 
                     <section>
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <span class="w-1 h-4 bg-brand rounded-full"></span> 配送方式
-                        </h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-brand rounded-full"></span> 配送方式</h4>
                         <div class="space-y-3">
                             <select id="input-logistics" class="hidden"><option value="7-11">7-11</option><option value="全家">全家</option><option value="郵寄/宅配">宅配</option></select>
                             
                             <div class="logistics-card cursor-pointer group" onclick="selectLogistics('7-11', this)">
                                 <div class="p-4 flex justify-between items-center">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
-                                            <span class="material-symbols-rounded">local_shipping</span>
-                                        </div>
-                                        <div class="font-bold text-gray-800 text-sm">7-11 店到店</div>
-                                    </div>
+                                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand"><span class="material-symbols-rounded">local_shipping</span></div><div class="font-bold text-gray-800 text-sm">7-11 店到店</div></div>
                                     <span class="text-brand font-bold text-sm logistics-price" data-type="7-11">...</span>
                                 </div>
                                 <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
                                     <div class="flex gap-2">
                                         <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-711" oninput="syncStoreInput()">
-                                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-query-store">
-                                            <span class="material-symbols-rounded text-base">map</span> 查詢
-                                        </a>
+                                        <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-query-store"><span class="material-symbols-rounded text-base">map</span> 查詢</a>
                                     </div>
                                     <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-711" oninput="syncStoreInput()">
                                 </div>
@@ -270,20 +181,13 @@
 
                             <div class="logistics-card cursor-pointer group" onclick="selectLogistics('全家', this)">
                                 <div class="p-4 flex justify-between items-center">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
-                                            <span class="material-symbols-rounded">store</span>
-                                        </div>
-                                        <div class="font-bold text-gray-800 text-sm">全家 店到店</div>
-                                    </div>
+                                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand"><span class="material-symbols-rounded">store</span></div><div class="font-bold text-gray-800 text-sm">全家 店到店</div></div>
                                     <span class="text-brand font-bold text-sm logistics-price" data-type="全家">...</span>
                                 </div>
                                 <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
                                     <div class="flex gap-2">
                                         <input type="tel" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" inputmode="numeric" id="store-id-fami" oninput="syncStoreInput()">
-                                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-query-store">
-                                            <span class="material-symbols-rounded text-base">map</span> 查詢
-                                        </a>
+                                        <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-query-store"><span class="material-symbols-rounded text-base">map</span> 查詢</a>
                                     </div>
                                     <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-fami" oninput="syncStoreInput()">
                                 </div>
@@ -291,12 +195,7 @@
 
                             <div class="logistics-card cursor-pointer group" onclick="selectLogistics('郵寄/宅配', this)">
                                 <div class="p-4 flex justify-between items-center">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
-                                            <span class="material-symbols-rounded">local_shipping</span>
-                                        </div>
-                                        <div class="font-bold text-gray-800 text-sm">宅配到府</div>
-                                    </div>
+                                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand"><span class="material-symbols-rounded">local_shipping</span></div><div class="font-bold text-gray-800 text-sm">宅配到府</div></div>
                                     <span class="text-brand font-bold text-sm logistics-price" data-type="宅配">...</span>
                                 </div>
                                 <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4" onclick="event.stopPropagation()">
@@ -310,11 +209,8 @@
                     </section>
 
                     <section class="space-y-4">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <span class="w-1 h-4 bg-brand rounded-full"></span> 其他
-                        </h4>
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-brand rounded-full"></span> 其他</h4>
                         <textarea id="input-note" class="input-ui min-h-[80px]" placeholder="訂單備註 (選填)..."></textarea>
-                        
                         <label class="flex items-center gap-3 p-4 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-100 transition">
                             <div class="relative flex items-center">
                                 <input type="checkbox" id="join-member" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-brand checked:border-brand transition-all" checked>
@@ -344,7 +240,6 @@
     </div>
 
     <script>
-        // 設定 API 網址
         const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
         const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec";
         const BASE_REPO_URL = "assets/images/"; 
@@ -356,50 +251,6 @@
         let selectedLogisticsType = '';
         let tempQtyMap = {};
         let cachedMemberData = null;
-
-// --- Helper: 取得適用運費規則 (強健比對版) ---
-function getApplicableRule(uiMethod) {
-    if (!uiMethod) return null;
-
-    // 1. 標準化前端選到的值 (轉字串、去空白)
-    const cleanUiMethod = String(uiMethod).trim();
-
-    // 定義比對邏輯：雙方轉字串、去空白後，檢查包含關係
-    const isMatch = (ruleMethod) => {
-        if (!ruleMethod) return false;
-        const rMethod = String(ruleMethod).trim(); // 強制轉字串並去空白
-        
-        // A. 前端包含後端 (例如: 前端"郵寄/宅配" 包含 後端"宅配")
-        if (cleanUiMethod.includes(rMethod)) return true;
-        
-        // B. 後端包含前端 (預防萬一)
-        if (rMethod.includes(cleanUiMethod)) return true;
-        
-        // C. 完全相等
-        return cleanUiMethod === rMethod;
-    };
-
-    // Debug: 可以在這裡印出 log 檢查 (F12 Console)
-    // console.log("正在尋找運費規則, 前端選擇:", cleanUiMethod);
-
-    // 2. 優先找 'category' 為 '抹茶'
-    let rule = shippingRules.find(r => 
-        String(r.category).trim() === '抹茶' && isMatch(r.method)
-    );
-
-    // 3. 沒找到則找 'category' 為 'default'
-    if (!rule) {
-        rule = shippingRules.find(r => 
-            String(r.category).trim() === 'default' && isMatch(r.method)
-        );
-    }
-    
-    // Debug: 檢查有沒有找到
-    // if (rule) console.log("找到規則:", rule);
-    // else console.log("沒找到規則 (將使用 fallback)");
-
-    return rule;
-}
 
         // --- Core Panel Logic ---
         function openPanel(id) {
@@ -433,7 +284,7 @@ function getApplicableRule(uiMethod) {
             document.getElementById('footer-logistics-name').innerText = '尚未選擇物流';
             selectedLogisticsType = '';
 
-            // Update card base prices using loaded rules
+            // Update card base prices based on cleaned rules
             updateLogisticsCardPrices();
 
             if (cachedMemberData) {
@@ -446,15 +297,21 @@ function getApplicableRule(uiMethod) {
             updateShippingFee();
         }
 
-        // --- Update UI Prices based on Rules ---
         function updateLogisticsCardPrices() {
-            document.querySelectorAll('.logistics-price').forEach(el => {
-                const type = el.dataset.type;
-                const rule = getApplicableRule(type);
-                if (rule) {
-                    el.innerText = `$${rule.base}`;
-                } else {
-                    el.innerText = '$0'; 
+            const types = ['7-11', '全家', '宅配'];
+            types.forEach(type => {
+                // Find matching card by data-type attribute
+                const el = document.querySelector(`.logistics-price[data-type="${type}"]`);
+                if (el) {
+                    let rule = shippingRules.find(r => r.method == type && r.category == '抹茶');
+                    if (!rule) rule = shippingRules.find(r => r.method == type && r.category == 'default');
+                    
+                    if (rule) {
+                        el.innerText = `$${Number(rule.base)}`;
+                    } else {
+                        // Fallback display
+                        el.innerText = (type === '宅配') ? '$100' : '$60';
+                    }
                 }
             });
         }
@@ -487,11 +344,9 @@ function getApplicableRule(uiMethod) {
                     img: productData.img
                 }); 
             }
-            
             tempQtyMap[productId] = 1;
             const qtyDisplay = document.getElementById(`iq-${productId}`);
             if(qtyDisplay) qtyDisplay.innerText = 1;
-
             if (navigator.vibrate) navigator.vibrate(50);
             renderCartItems();
             openCart();
@@ -524,11 +379,7 @@ function getApplicableRule(uiMethod) {
             container.innerHTML = '';
             
             if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3">
-                        <span class="material-symbols-rounded text-5xl">shopping_basket</span>
-                        <p class="text-sm font-medium">購物車是空的</p>
-                    </div>`;
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-gray-300 gap-3"><span class="material-symbols-rounded text-5xl">shopping_basket</span><p class="text-sm font-medium">購物車是空的</p></div>`;
                 subtotalEl.innerText = '0';
                 document.getElementById('header-cart-badge').classList.add('hidden');
                 return;
@@ -545,12 +396,7 @@ function getApplicableRule(uiMethod) {
             for (const [brandKey, items] of Object.entries(groupedCart)) {
                 const isDiscountActive = brandCounts[brandKey] > 1;
                 if(isDiscountActive) {
-                    container.innerHTML += `
-                        <div class="bg-brandLight text-brandDark text-xs font-bold px-4 py-2 flex items-center gap-1">
-                            <span class="material-symbols-rounded text-sm">verified</span>
-                            已套用同品牌多件優惠
-                        </div>
-                    `;
+                    container.innerHTML += `<div class="bg-brandLight text-brandDark text-xs font-bold px-4 py-2 flex items-center gap-1"><span class="material-symbols-rounded text-sm">verified</span>已套用同品牌多件優惠</div>`;
                 }
                 items.forEach((item) => {
                     const mainIndex = cart.indexOf(item);
@@ -582,11 +428,8 @@ function getApplicableRule(uiMethod) {
                                     <div class="font-bold text-brand font-mono">$${unitPrice * item.qty}</div>
                                 </div>
                             </div>
-                            <button onclick="removeFromCart(${mainIndex})" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition p-1">
-                                <span class="material-symbols-rounded text-xl">close</span>
-                            </button>
-                        </div>
-                    `;
+                            <button onclick="removeFromCart(${mainIndex})" class="absolute top-4 right-4 text-gray-300 hover:text-gray-500 transition p-1"><span class="material-symbols-rounded text-xl">close</span></button>
+                        </div>`;
                 });
             }
             subtotalEl.innerText = calculateSubtotal().toLocaleString();
@@ -632,8 +475,7 @@ function getApplicableRule(uiMethod) {
                             ${item.spec ? `<span class="text-xs bg-brandLight px-1 rounded ml-1">${item.spec}</span>` : ''}
                             <span class="text-xs text-gray-500 ml-1">x${item.qty}</span>
                         </span>
-                    </li>
-                 `;
+                    </li>`;
              });
         }
 
@@ -727,52 +569,49 @@ function getApplicableRule(uiMethod) {
             document.getElementById('input-store-note').value = storeName;
         }
 
-function updateShippingFee() {
-    const subtotal = calculateSubtotal();
-    const uiMethod = selectedLogisticsType; // 前端選單的值 (7-11, 全家, 郵寄/宅配)
+        // 核心運費計算 (Data Cleaning + Simple Logic)
+        function updateShippingFee() {
+            const subtotal = calculateSubtotal();
+            const uiMethod = selectedLogisticsType; 
 
-    if (!uiMethod || !shippingRules || shippingRules.length === 0) {
-        setFeeUI(0, uiMethod);
-        return;
-    }
+            if (!uiMethod || !shippingRules || shippingRules.length === 0) {
+                setFeeUI(0, uiMethod);
+                return;
+            }
 
-    // 1. 轉換名稱以符合資料庫 (將 '郵寄/宅配' 轉為 '宅配' 以便比對，7-11/全家 不變)
-    const dbMethod = uiMethod.includes('宅配') ? '宅配' : uiMethod;
+            // 1. 名稱轉換：將前端的 '郵寄/宅配' 對應到後端的 '宅配'
+            const dbMethod = uiMethod.includes('宅配') ? '宅配' : uiMethod;
 
-    // 2. 尋找規則 (仿照您的成功邏輯)
-    // 優先找 '抹茶'
-    let rule = shippingRules.find(r => r.method == dbMethod && r.category == '抹茶');
-    // 沒找到，找 'default'
-    if (!rule) {
-        rule = shippingRules.find(r => r.method == dbMethod && r.category == 'default');
-    }
+            // 2. 尋找規則：優先找 '抹茶'，失敗則找 'default'
+            let rule = shippingRules.find(r => r.method == dbMethod && r.category == '抹茶');
+            if (!rule) {
+                rule = shippingRules.find(r => r.method == dbMethod && r.category == 'default');
+            }
 
-    let finalFee = 0;
+            let finalFee = 0;
 
-    if (rule) {
-        // 3. 計算費用 (照搬您的成功邏輯)
-        finalFee = parseFloat(rule.base) || 0;
-        
-        if (rule.t3 && subtotal >= parseFloat(rule.t3)) finalFee = parseFloat(rule.f3);
-        else if (rule.t2 && subtotal >= parseFloat(rule.t2)) finalFee = parseFloat(rule.f2);
-        else if (rule.t1 && subtotal >= parseFloat(rule.t1)) finalFee = parseFloat(rule.f1);
-    } else {
-        // 保底顯示 (避免選了卻顯示 $0)
-        finalFee = (dbMethod === '宅配') ? 100 : 60;
-    }
+            if (rule) {
+                // 3. 讀取與計算 (ParseFloat 避免字串/數字問題)
+                finalFee = parseFloat(rule.base) || 0;
+                
+                if (rule.t3 && subtotal >= parseFloat(rule.t3)) finalFee = parseFloat(rule.f3);
+                else if (rule.t2 && subtotal >= parseFloat(rule.t2)) finalFee = parseFloat(rule.f2);
+                else if (rule.t1 && subtotal >= parseFloat(rule.t1)) finalFee = parseFloat(rule.f1);
+            } else {
+                // Fallback (Safe Default)
+                finalFee = (dbMethod === '宅配') ? 100 : 60;
+            }
 
-    shippingFee = finalFee;
-    setFeeUI(finalFee, uiMethod, subtotal);
-}
+            shippingFee = finalFee;
+            setFeeUI(finalFee, uiMethod, subtotal);
+        }
 
-// 輔助：更新畫面顯示
-function setFeeUI(fee, method, subtotal = 0) {
-    const text = method ? `已選擇：${method} (運費 $${fee})` : '尚未選擇物流';
-    document.getElementById('footer-logistics-name').innerText = text;
-    // 若 subtotal 未傳入則重新計算一次，確保總金額正確
-    const total = (subtotal || calculateSubtotal()) + fee;
-    document.getElementById('modal-total').innerText = total.toLocaleString();
-}
+        function setFeeUI(fee, method, subtotal = 0) {
+            const text = method ? `已選擇：${method} (運費 $${fee})` : '尚未選擇物流';
+            document.getElementById('footer-logistics-name').innerText = text;
+            const total = (subtotal || calculateSubtotal()) + fee;
+            document.getElementById('modal-total').innerText = total.toLocaleString();
+        }
         
         function submitOrder(btn) {
             const phone = document.getElementById('input-phone').value.trim();
@@ -816,7 +655,6 @@ function setFeeUI(fee, method, subtotal = 0) {
                 return `${item.brand_key}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.qty>1 && item.price_multi ? item.price_multi : item.price})`;
             }).join('\n');
 
-            // 組合字串
             const logisticsStr = storeNote ? `${type} ${storeNote}` : type;
 
             const payload = {
@@ -875,19 +713,17 @@ function setFeeUI(fee, method, subtotal = 0) {
              
              fetch(DISPLAY_API_URL)
                 .then(res => res.json())
-.then(data => {
-    if(data.error) throw new Error(data.error);
-    
-    // 【修正重點】這裡照搬您其他頁面的成功寫法，先清洗資料
-    if (data.shipping_rules) {
-        shippingRules = data.shipping_rules.map(r => ({
-            ...r,
-            // 如果 GAS 把 7-11 轉成日期 (含 - 號)，強制轉回字串 '7-11'
-            method: (r.method && String(r.method).includes('-')) ? '7-11' : r.method
-        }));
-    }
+                .then(data => {
+                    if(data.error) throw new Error(data.error);
                     
-                    // Generate unique keys
+                    // 【重點修正】: 在載入時就先清洗運費規則的 "7-11" 字串
+                    if (data.shipping_rules) {
+                        shippingRules = data.shipping_rules.map(r => ({
+                            ...r,
+                            method: (r.method && String(r.method).includes('-')) ? '7-11' : r.method
+                        }));
+                    }
+                    
                     allProducts = (data.products || []).map(p => {
                         p.key = p.brand_key + '_' + p.name; 
                         return p;
@@ -899,7 +735,7 @@ function setFeeUI(fee, method, subtotal = 0) {
                         renderProductCards(brand.key, allProducts.filter(p => p.brand_key === brand.key));
                     });
                     
-                    // Initialize logistics cards prices
+                    // 初始化運費顯示
                     updateLogisticsCardPrices();
 
                     loader.style.display = 'none';
@@ -912,7 +748,7 @@ function setFeeUI(fee, method, subtotal = 0) {
                 });
         });
 
-        // (Render functions omitted to keep clean, assumed same as before)
+        // (Render functions same as previous)
         function renderStatusOverview(brands) {
             const container = document.getElementById('status-grid-container');
             if (!container) return;
