@@ -1,5 +1,4 @@
 ---
-# 這是 Front Matter
 layout: default
 title: KEICHA 電話代播服務 | 日本餐廳預約、活動代訂
 description: KEICHA 提供專業的日本電話代播服務，跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務。
@@ -45,7 +44,7 @@ styles: |
             color: #6ea44c;
             line-height: 1.8;
             letter-spacing: 0.15em;
-            font-family: 'Zen Maru Gothic', sans-serif;
+            /* 字體已在 HTML 標籤中強制指定 */
         }
         .title-line { font-size: 1.25rem; font-weight: 700; display: block; margin-bottom: 0.5rem; }
         .subtitle-line { font-size: 0.95rem; font-weight: 400; opacity: 0.8; display: block; }
@@ -201,357 +200,252 @@ scripts: ""
         font-weight: 500 !important;
     }
 </style>
+
 <div id="intro-loader">
     <div class="handset-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.053 15.053 0 01-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1.01A11.36 11.36 0 018.59 3.91c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/>
         </svg>
     </div>
-<div class="intro-text brand-title-font"> <span class="title-line">讓對話零距離</span>
-    <span class="subtitle-line">正在準備代播服務指南</span>
+    <div class="intro-text">
+        <span class="title-line brand-title-font">讓對話零距離</span>
+        <span class="subtitle-line brand-title-font">正在準備代播服務指南</span>
+    </div>
 </div>
-</div>
+
 <div id="main-wrapper">
-<div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-    <header class="text-center mb-8 md:mb-12">
-        <h1 class="text-3xl md:text-4xl brand-title-font text-brandGreen">KEICHA 電話代播服務</h1>
-        <p class="mt-2 text-slate-600">感謝您選擇 KEICHA，請在使用服務前詳閱以下條款並完成支付。</p>
-    </header>
+    <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-4xl brand-title-font text-brandGreen">KEICHA 電話代播服務</h1>
+            <p class="mt-2 text-slate-600">感謝您選擇 KEICHA，請在使用服務前詳閱以下條款並完成支付。</p>
+        </header>
 
-    <div class="flex flex-col md:flex-row gap-8">
-        <aside class="md:w-1/4 lg:w-1/5 md:sticky md:top-28 self-start">
-<nav id="toc-nav" class="bg-white rounded-lg shadow-sm p-4">
-    <h3 class="font-semibold text-lg mb-3 text-slate-700">頁面導覽</h3>
-    <ul class="space-y-2">
-        <li>
-            <a href="#section-booking-method" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">
-                預約與諮詢方式
-            </a>
-        </li>
-        
-        <li>
-            <a href="#section-payment" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">
-                服務費用支付
-            </a>
-        </li>
+        <div class="flex flex-col md:flex-row gap-8">
+            <aside class="md:w-1/4 lg:w-1/5 md:sticky md:top-28 self-start">
+                <nav id="toc-nav" class="bg-white rounded-lg shadow-sm p-4">
+                    <h3 class="font-semibold text-lg mb-3 text-slate-700">頁面導覽</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#section-booking-method" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">預約與諮詢方式</a></li>
+                        <li><a href="#section-payment" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務費用支付</a></li>
+                        <li><a href="#section-terms" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">服務條款與介紹</a></li>
+                        <li><a href="#section-privacy" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">隱私權條款</a></li>
+                        <li><a href="#section-contact" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">聯絡方式</a></li>
+                    </ul>
+                </nav>
+            </aside>
 
-        <li>
-            <a href="#section-terms" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">
-                服務條款與介紹
-            </a>
-        </li>
-
-        <li>
-            <a href="#section-privacy" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">
-                隱私權條款
-            </a>
-        </li>
-
-        <li>
-            <a href="#section-contact" class="nav-link block w-full text-left px-4 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors duration-200">
-                聯絡方式
-            </a>
-        </li>
-    </ul>
-</nav>
-        </aside>
-
-        <main class="md:w-3/4 lg:w-4/5">
-            <div class="space-y-10">
-<section id="section-booking-method" class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
-  <h2 class="text-2xl font-bold text-brandGreen mb-6">預約與諮詢方式</h2>
-  <p class="text-slate-600 mb-8">我們提供兩種預約管道，請依照您的需求選擇最適合的方式：</p>
-  
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="flex flex-col h-full bg-brandGreen/10 rounded-xl p-6 border border-white hover:shadow-md transition duration-300">
-      <div class="flex items-center mb-4">
-        <span class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-full shadow-sm">edit_document</span>
-        <h3 class="text-xl font-bold text-gray-800">線上填寫表單</h3>
-      </div>
-      <p class="text-gray-600 text-sm mb-6 flex-grow leading-relaxed">
-        系統將自動立案並推播給客服，流程最快速。
-      </p>
-      <a href="https://keicha2025.github.io/keicha/denwa-form.html" class="block w-full text-center bg-brandGreen text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition shadow-sm">
-        填寫表單
-      </a>
-    </div>
-
-    <div class="flex flex-col h-full bg-brandGreen/10 rounded-xl p-6 border border-white hover:shadow-md transition duration-300">
-      <div class="flex items-center mb-4">
-        <span class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-full shadow-sm">chat</span>
-        <h3 class="text-xl font-bold text-gray-800">直接私訊詢問</h3>
-      </div>
-      <p class="text-gray-600 text-sm mb-6 flex-grow leading-relaxed">
-        也歡迎直接透過 LINE 與我們聯絡<br>
-        LINE ID：@366qwylw
-      </p>
-      <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-brandGreen text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition shadow-sm">
-        LINE 私訊客服
-      </a>
-    </div>
-  </div>
-</section>
-<section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
-    <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
-    
-    <p class="text-slate-600 mb-8 text-left">請根據您的需求選擇支付方案，服務皆須先支付預付款。</p>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 items-start justify-items-center text-center">
-        
-        <div class="flex flex-col items-center w-full">
-            <h3 class="font-semibold mb-3">預付款 (50元)</h3>
-            <a href="https://pcpay.tw/EhQGv" target="_blank" rel="noopener noreferrer" 
-               class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">
-                支付預付款
-            </a>
-        </div>
-
-        <div class="flex flex-col items-center w-full">
-            <h3 class="font-semibold mb-3">基本方案 (160元)</h3>
-            <a href="https://pcpay.tw/ovM39" target="_blank" rel="noopener noreferrer" 
-               class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">
-                支付基本方案
-            </a>
-            <p class="text-xs text-slate-500 mt-2">(含50元預付款)</p>
-        </div>
-
-        <div class="flex flex-col items-center w-full">
-            <h3 class="font-semibold mb-3">補款及尾款</h3>
-            <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" 
-               class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">
-                支付款項
-            </a>
-            <p class="text-xs text-slate-500 mt-2">進入後請自行填寫金額</p>
-        </div>
-
-    </div>
-
-    <div class="mt-10 pt-8 border-t border-slate-200 text-center flex flex-col items-center">
-        <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請複製以下付款連結至瀏覽器開啟，並自行填寫金額：</p>
-        <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" 
-               class="w-full max-w-md p-3 text-center bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 mb-8" 
-               onfocus="this.select()">
-        
-        <p class="text-slate-600 mb-3 font-medium">如有任何疑問，歡迎透過 LINE 聯絡我們<br>
-        LINE ID：@366qwylw</p>
-    </div>
-</section>
-
-                <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
-                    <h2 class="text-2xl font-bold text-brandGreen mb-6">服務條款與介紹</h2>
-                    
-                    <div class="service-subsection">
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">服務內容</h3>
-                        <div class="space-y-4 text-slate-700">
-                            <div>
-                                <h4 class="text-lg font-semibold mb-2 flex items-center">
-                                    <span class="material-symbols-rounded text-3xl text-brandGreen mr-3 select-none">call</span>
-                                    日本電話代撥服務
-                                </h4>
-                                <p class="mb-2">協助您處理以下單次可完成的日文溝通需求：</p>
-                                <ul class="list-disc list-inside space-y-1 pl-4">
-                                    <li>餐廳訂位、預訂變更或取消。</li>
-                                    <li>向商家（飯店、餐廳等）進行各類詢問。</li>
-                                    <li>其他需要日文溝通的代辦事項。</li>
-                                </ul>
+            <main class="md:w-3/4 lg:w-4/5">
+                <div class="space-y-10">
+                    <section id="section-booking-method" class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+                        <h2 class="text-2xl font-bold text-brandGreen mb-6">預約與諮詢方式</h2>
+                        <p class="text-slate-600 mb-8">我們提供兩種預約管道，請依照您的需求選擇最適合的方式：</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex flex-col h-full bg-brandGreen/10 rounded-xl p-6 border border-white hover:shadow-md transition duration-300">
+                                <div class="flex items-center mb-4">
+                                    <span class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-full shadow-sm">edit_document</span>
+                                    <h3 class="text-xl font-bold text-gray-800">線上填寫表單</h3>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-6 flex-grow leading-relaxed">系統將自動立案並推播給客服，流程最快速。</p>
+                                <a href="https://keicha2025.github.io/keicha/denwa-form.html" class="block w-full text-center bg-brandGreen text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition shadow-sm">填寫表單</a>
                             </div>
-                            <div class="border-t pt-4">
-                                <h4 class="text-lg font-semibold mb-2 flex items-center">
-                                    <span class="material-symbols-rounded text-3xl text-brandGreen mr-3 select-none">language</span>
-                                    網路代訂服務
-                                </h4>
-                                <p>協助您代為操作日本網站進行餐廳、飯店等預訂。</p>
-                                <ul class="list-disc list-inside space-y-1 pl-4">
-                                    <li><strong>服務限制：</strong>僅限無須事先付款、或由本店代為付款的內容。所有後續的兌換、現場付款、領取等操作、均須由客戶自行處理。</li>
-                                    <li><strong>服務包含：</strong>訂單完成後、提供簡要的中文翻譯說明。</li>
-                                </ul>
-                            </div>
-                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg mt-4">
-                                <h4 class="text-lg font-semibold text-red-800 mb-2">無法受理之服務</h4>
-                                <p class="text-red-700">請於下單前確認，若下單後發現屬於此類，將依退款規則處理：</p>
-                                <ul class="list-disc list-inside space-y-1 pl-4 text-red-700 mt-2">
-                                    <li>撥打非商家之私人電話。</li>
-                                    <li>依法規或商家規定，需本人親自辦理之業務。</li>
-                                    <li>無法接收國際來電之商家。</li>
-                                    <li>各類網路平台、App 註冊所需之電話號碼認證服務。</li>
-                                </ul>
+                            <div class="flex flex-col h-full bg-brandGreen/10 rounded-xl p-6 border border-white hover:shadow-md transition duration-300">
+                                <div class="flex items-center mb-4">
+                                    <span class="material-symbols-rounded text-3xl text-brandGreen mr-3 bg-white p-2 rounded-full shadow-sm">chat</span>
+                                    <h3 class="text-xl font-bold text-gray-800">直接私訊詢問</h3>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-6 flex-grow leading-relaxed">也歡迎直接透過 LINE 與我們聯絡<br>LINE ID：@366qwylw</p>
+                                <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-brandGreen text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition shadow-sm">LINE 私訊客服</a>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
-    <h3 class="text-xl font-bold text-slate-800 mb-4">服務實績</h3>
-    <p class="text-slate-600 mb-4">我們已成功協助眾多客戶處理日本大小事宜：</p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-slate-700">
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>敘敘苑 餐廳預約</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>炉ばた焼ウタリ 餐廳預約</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>酒処ふじりん 餐廳預約</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>琉球の牛(燒肉店) 餐廳預約</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>よろにく (燒肉店) 預約取消</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>涸沢ヒュッテ (上高地山小屋) 住宿預約</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>Yama登山用品 租借預約</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>燒肉五苑 更改預約人數</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>TOYOTA租車 指定車款預約</div>
-        <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>銀座三越百貨 遺失物詢問</div>
-    </div>
-</div>
+                    <section id="section-payment" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                        <h2 class="text-2xl font-bold text-brandGreen mb-4">服務費用支付</h2>
+                        <p class="text-slate-600 mb-8 text-left">請根據您的需求選擇支付方案，服務皆須先支付預付款。</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 items-start justify-items-center text-center">
+                            <div class="flex flex-col items-center w-full">
+                                <h3 class="font-semibold mb-3">預付款 (50元)</h3>
+                                <a href="https://pcpay.tw/EhQGv" target="_blank" rel="noopener noreferrer" class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">支付預付款</a>
+                            </div>
+                            <div class="flex flex-col items-center w-full">
+                                <h3 class="font-semibold mb-3">基本方案 (160元)</h3>
+                                <a href="https://pcpay.tw/ovM39" target="_blank" rel="noopener noreferrer" class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">支付基本方案</a>
+                                <p class="text-xs text-slate-500 mt-2">(含50元預付款)</p>
+                            </div>
+                            <div class="flex flex-col items-center w-full">
+                                <h3 class="font-semibold mb-3">補款及尾款</h3>
+                                <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="w-full max-w-[180px] bg-brandGreen text-white py-2 rounded-md font-medium hover:bg-opacity-90 transition shadow">支付款項</a>
+                                <p class="text-xs text-slate-500 mt-2">進入後請自行填寫金額</p>
+                            </div>
+                        </div>
+                        <div class="mt-10 pt-8 border-t border-slate-200 text-center flex flex-col items-center">
+                            <p class="text-sm text-slate-500 mb-3">如付款按鈕無法正常開啟，請複製以下付款連結至瀏覽器開啟，並自行填寫金額：</p>
+                            <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" class="w-full max-w-md p-3 text-center bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen text-slate-700 mb-8" onfocus="this.select()">
+                            <p class="text-slate-600 mb-3 font-medium">如有任何疑問，歡迎透過 LINE 聯絡我們<br>LINE ID：@366qwylw</p>
+                        </div>
+                    </section>
+
+                    <section id="section-terms" class="scroll-mt-28 bg-white p-6 rounded-lg shadow-sm">
+                        <h2 class="text-2xl font-bold text-brandGreen mb-6">服務條款與介紹</h2>
+                        <div class="service-subsection">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">服務內容</h3>
+                            <div class="space-y-4 text-slate-700">
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2 flex items-center"><span class="material-symbols-rounded text-3xl text-brandGreen mr-3 select-none">call</span>日本電話代撥服務</h4>
+                                    <p class="mb-2">協助您處理以下單次可完成的日文溝通需求：</p>
+                                    <ul class="list-disc list-inside space-y-1 pl-4">
+                                        <li>餐廳訂位、預訂變更或取消。</li>
+                                        <li>向商家（飯店、餐廳等）進行各類詢問。</li>
+                                        <li>其他需要日文溝通的代辦事項。</li>
+                                    </ul>
+                                </div>
+                                <div class="border-t pt-4">
+                                    <h4 class="text-lg font-semibold mb-2 flex items-center"><span class="material-symbols-rounded text-3xl text-brandGreen mr-3 select-none">language</span>網路代訂服務</h4>
+                                    <p>協助您代為操作日本網站進行餐廳、飯店等預訂。</p>
+                                    <ul class="list-disc list-inside space-y-1 pl-4">
+                                        <li><strong>服務限制：</strong>僅限無須事先付款、或由本店代為付款的內容。所有後續的兌換、現場付款、領取等操作、均須由客戶自行處理。</li>
+                                        <li><strong>服務包含：</strong>訂單完成後、提供簡要的中文翻譯說明。</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg mt-4">
+                                    <h4 class="text-lg font-semibold text-red-800 mb-2">無法受理之服務</h4>
+                                    <p class="text-red-700">請於下單前確認，若下單後發現屬於此類，將依退款規則處理：</p>
+                                    <ul class="list-disc list-inside space-y-1 pl-4 text-red-700 mt-2">
+                                        <li>撥打非商家之私人電話。</li>
+                                        <li>依法規或商家規定，需本人親自辦理之業務。</li>
+                                        <li>無法接收國際來電之商家。</li>
+                                        <li>各類網路平台、App 註冊所需之電話號碼認證服務。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">服務實績</h3>
+                            <p class="text-slate-600 mb-4">我們已成功協助眾多客戶處理日本大小事宜：</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-slate-700">
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>敘敘苑 餐廳預約</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>炉ばた焼ウタリ 餐廳預約</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>酒処ふじりん 餐廳預約</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>琉球の牛(燒肉店) 餐廳預約</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>よろにく (燒肉店) 預約取消</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>涸沢ヒュッテ (上高地山小屋) 住宿預約</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>Yama登山用品 租借預約</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>燒肉五苑 更改預約人數</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>TOYOTA租車 指定車款預約</div>
+                                <div class="flex items-center"><span class="text-brandGreen font-bold mr-2">✓</span>銀座三越百貨 遺失物詢問</div>
+                            </div>
+                        </div>
                         <div id="slider-container" class="relative w-full max-w-2xl mx-auto rounded-lg overflow-hidden shadow-lg bg-brandGreen mt-8 aspect-[16/9] group">
-    
-    <div id="slider-wrapper" class="flex h-full transition-transform duration-500 ease-in-out">
-        
-        <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center h-full">
-            <img src="{{ '/images/keicha_電話代播_服務案例1.png' | relative_url }}" 
-                 alt="服務案例1" 
-                 class="w-full h-full object-contain lightbox-trigger cursor-pointer hover:opacity-95 transition-opacity">
-        </div>
-        
-        <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center h-full">
-            <img src="{{ '/images/keicha_電話代播_服務案例2.png' | relative_url }}" 
-                 alt="服務案例2" 
-                 class="w-full h-full object-contain lightbox-trigger cursor-pointer hover:opacity-95 transition-opacity">
-        </div>
-        
-    </div>
-                            
+                            <div id="slider-wrapper" class="flex h-full transition-transform duration-500 ease-in-out">
+                                <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center h-full">
+                                    <img src="{{ '/images/keicha_電話代播_服務案例1.png' | relative_url }}" alt="服務案例1" class="w-full h-full object-contain lightbox-trigger cursor-pointer hover:opacity-95 transition-opacity">
+                                </div>
+                                <div class="slider-slide w-full flex-shrink-0 flex items-center justify-center h-full">
+                                    <img src="{{ '/images/keicha_電話代播_服務案例2.png' | relative_url }}" alt="服務案例2" class="w-full h-full object-contain lightbox-trigger cursor-pointer hover:opacity-95 transition-opacity">
+                                </div>
+                            </div>
                             <button id="slider-prev" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
-                                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                             </button>
                             <button id="slider-next" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none z-10">
-                                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                             </button>
-                            
                             <div id="slider-dots" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
                                 <button class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
                                 <button class="slider-dot w-3 h-3 bg-white bg-opacity-50 rounded-full focus:outline-none"></button>
                             </div>
                         </div>
-                        </div>
-
-                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">服務費用與支付方式</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700">
-                            <div class="bg-slate-100 p-4 rounded-lg">
-                                <h4 class="font-semibold text-lg mb-2">支付方式</h4>
-                                <p>所有服務皆透過 <strong>信用卡</strong> 付款。</p>
-                            </div>
-                            <div class="bg-slate-100 p-4 rounded-lg">
-                                <h4 class="font-semibold text-lg mb-2">預付款（行政處理費）</h4>
-                                <p>所有訂單均須先支付預付款 <strong>新台幣 50 元</strong>。此費用訂單受理後概不退還。</p>
-                            </div>
-                            <div class="bg-[#f0f6ec] p-4 rounded-lg md:col-span-2">
-                                <h4 class="font-semibold text-lg text-brandGreen mb-2">服務費用標準</h4>
-                                <div class="space-y-3">
-                                    <p class="flex items-start">
-                                        <span class="material-symbols-rounded text-brandGreen mr-2 select-none">call</span>
-                                        <span><strong>電話代撥：</strong>每通 7 分鐘內 <strong>NT$160</strong>。超過則以每 10 分鐘 <strong>NT$200</strong>費率計。</span>
-                                    </p>
-                                    <p class="flex items-start">
-                                        <span class="material-symbols-rounded text-brandGreen mr-2 select-none">language</span>
-                                        <span><strong>網路代訂：</strong>每筆訂單（單次操作）<strong>NT$150</strong>。</span>
-                                    </p>
-                                    <p class="flex items-start">
-                                        <span class="material-symbols-rounded text-brandGreen mr-2 select-none">headphones</span>
-                                        <span><strong>調取音檔：</strong>每筆 <strong>NT$50</strong> (僅擷取音檔中可確定預約資訊內容)。</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 border-t pt-4">
-                            <h4 class="font-semibold text-lg mb-2">計費原則</h4>
-                            <ul class="list-disc list-inside space-y-1 pl-4">
-                                <li>電話代撥以「<strong>每通電話</strong>」為單位計費。</li>
-                                <li>若需再次致電，將視為一筆新服務訂單，並重新計費（包含預付款與服務尾款）。</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">變更訂位與取消相關</h3>
-                        <div class="space-y-4 text-slate-700">
-                            <p>訂單成立後，若客戶需要變更原先提供的預約資訊或需本店再次聯繫店家，均視為一筆 <strong>新服務訂單</strong>，需另行支付全額服務費用。</p>
-                            <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
-                                <h4 class="font-semibold text-amber-800">商家取消費用</h4>
-                                <p class="text-amber-700">若因取消預訂而產生商家取消費，該費用將由 <strong>客戶全額負擔</strong>。若商家向本店請求支付，本店保留向客戶求償該筆實付金額之權利。</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">退款規則</h3>
-                        <div class="space-y-3">
-                            <div class="accordion-item">
-                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                    <span>不予退款之情況</span>
-                                    <span class="transform transition-transform duration-300">▼</span>
-                                </button>
-                                <div class="accordion-content">
-                                    <div class="p-4 bg-white border rounded-b-lg">
-                                        <p>除「部分退款」所列情況外，凡電話成功接通商家，無論最終結果如何，所有已付費用（含預付款及服務尾款）<strong>概不退還</strong>。</p>
-                                        <p class="mt-2 text-sm text-slate-500">服務費用為支付本店「代撥/代訂行為」所耗費之時間與人力成本，並不保證「預訂必然成功」。</p>
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">服務費用與支付方式</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-700">
+                                <div class="bg-slate-100 p-4 rounded-lg"><h4 class="font-semibold text-lg mb-2">支付方式</h4><p>所有服務皆透過 <strong>信用卡</strong> 付款。</p></div>
+                                <div class="bg-slate-100 p-4 rounded-lg"><h4 class="font-semibold text-lg mb-2">預付款（行政處理費）</h4><p>所有訂單均須先支付預付款 <strong>新台幣 50 元</strong>。此費用訂單受理後概不退還。</p></div>
+                                <div class="bg-[#f0f6ec] p-4 rounded-lg md:col-span-2">
+                                    <h4 class="font-semibold text-lg text-brandGreen mb-2">服務費用標準</h4>
+                                    <div class="space-y-3">
+                                        <p class="flex items-start"><span class="material-symbols-rounded text-brandGreen mr-2 select-none">call</span><span><strong>電話代撥：</strong>每通 7 分鐘內 <strong>NT$160</strong>。超過則以每 10 分鐘 <strong>NT$200</strong>費率計。</span></p>
+                                        <p class="flex items-start"><span class="material-symbols-rounded text-brandGreen mr-2 select-none">language</span><span><strong>網路代訂：</strong>每筆訂單（單次操作）<strong>NT$150</strong>。</span></p>
+                                        <p class="flex items-start"><span class="material-symbols-rounded text-brandGreen mr-2 select-none">headphones</span><span><strong>調取音檔：</strong>每筆 <strong>NT$50</strong> (僅擷取音檔中可確定預約資訊內容)。</span></p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="accordion-item">
-                                <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg">
-                                    <span>部分退款之情況</span>
-                                    <span class="transform transition-transform duration-300">▼</span>
-                                </button>
-                                <div class="accordion-content">
-                                    <div class="p-4 bg-white border rounded-b-lg">
-                                        <p>僅限發生以下情況時，本店將收取「<strong>服務尾款之一半</strong>」，預付款 50 元恕不退還：</p>
-                                        <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
-                                            <li>於商家公告之營業時間内，本店連續撥打三次，商家均無人接聽。</li>
-                                            <li>商家表示不接受代撥、代訂服務或不接受電話預約。</li>
-                                            <li>商家無法接收或不接受國際電話。</li>
-                                        </ul>
+                            <div class="mt-4 border-t pt-4">
+                                <h4 class="font-semibold text-lg mb-2">計費原則</h4>
+                                <ul class="list-disc list-inside space-y-1 pl-4">
+                                    <li>電話代撥以「<strong>每通電話</strong>」為單位計費。</li>
+                                    <li>若需再次致電，將視為一筆新服務訂單，並重新計費（包含預付款與服務尾款）。</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">變更訂位與取消相關</h3>
+                            <div class="space-y-4 text-slate-700">
+                                <p>訂單成立後，若客戶需要變更原先提供的預約資訊或需本店再次聯繫店家，均視為一筆 <strong>新服務訂單</strong>，需另行支付全額服務費用。</p>
+                                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                                    <h4 class="font-semibold text-amber-800">商家取消費用</h4>
+                                    <p class="text-amber-700">若因取消預訂而產生商家取消費，該費用將由 <strong>客戶全額負擔</strong>。若商家向本店請求支付，本店保留向客戶求償該筆實付金額之權利。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">退款規則</h3>
+                            <div class="space-y-3">
+                                <div class="accordion-item">
+                                    <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg"><span>不予退款之情況</span><span class="transform transition-transform duration-300">▼</span></button>
+                                    <div class="accordion-content">
+                                        <div class="p-4 bg-white border rounded-b-lg">
+                                            <p>除「部分退款」所列情況外，凡電話成功接通商家，無論最終結果如何，所有已付費用（含預付款及服務尾款）<strong>概不退還</strong>。</p>
+                                            <p class="mt-2 text-sm text-slate-500">服務費用為支付本店「代撥/代訂行為」所耗費之時間與人力成本，並不保證「預訂必然成功」。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <button class="accordion-header flex justify-between items-center w-full p-4 bg-slate-100 rounded-lg text-left font-semibold text-lg"><span>部分退款之情況</span><span class="transform transition-transform duration-300">▼</span></button>
+                                    <div class="accordion-content">
+                                        <div class="p-4 bg-white border rounded-b-lg">
+                                            <p>僅限發生以下情況時，本店將收取「<strong>服務尾款之一半</strong>」，預付款 50 元恕不退還：</p>
+                                            <ul class="list-disc list-inside space-y-1 pl-4 mt-2">
+                                                <li>於商家公告之營業時間内，本店連續撥打三次，商家均無人接聽。</li>
+                                                <li>商家表示不接受代撥、代訂服務或不接受電話預約。</li>
+                                                <li>商家無法接收或不接受國際電話。</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
-                        <h3 class="text-xl font-bold text-slate-800 mb-4">免責聲明</h3>
-                        <div class="space-y-4 text-slate-700">
-                            <div>
-                                <h4 class="font-semibold text-lg mb-1">資訊正確性</h4>
-                                <p>客戶應確保提供所有預訂資訊之完整性與正確性。若因資訊錯誤導致預訂失敗、權益受損或產生額外費用，本店概不負責。</p>
-                            </div>
-                            <div class="border-t pt-4">
-                                <h4 class="font-semibold text-lg mb-1">服務性質</h4>
-                                <p>本店僅提供「代客溝通」及「代客操作」之服務。所有預訂之履約、服務品質等，均由您與該商家負責。</p>
+                        <div class="service-subsection mt-8 pt-6 border-t border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">免責聲明</h3>
+                            <div class="space-y-4 text-slate-700">
+                                <div><h4 class="font-semibold text-lg mb-1">資訊正確性</h4><p>客戶應確保提供所有預訂資訊之完整性與正確性。若因資訊錯誤導致預訂失敗、權益受損或產生額外費用，本店概不負責。</p></div>
+                                <div class="border-t pt-4"><h4 class="font-semibold text-lg mb-1">服務性質</h4><p>本店僅提供「代客溝通」及「代客操作」之服務。所有預訂之履約、服務品質等，均由您與該商家負責。</p></div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-<section id="section-privacy" class="scroll-mt-28 bg-white rounded-lg shadow-sm overflow-hidden mt-12 mb-12">
-                    <div class="accordion-item border-0">
-                        
-                        <button class="accordion-header flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition-colors">
-                            <h2 class="text-2xl font-bold text-brandGreen m-0">隱私權條款</h2>
-                            <span class="transform transition-transform duration-300 text-gray-400 text-xl">▼</span>
-                        </button>
-
-                        <div class="accordion-content">
-                            <div class="px-6 pb-6 pt-0 border-t border-gray-100 mt-2">
-                                <div id="privacy-loader" class="flex justify-center items-center h-24">
-                                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-10 w-10"></div>
+                    <section id="section-privacy" class="scroll-mt-28 bg-white rounded-lg shadow-sm overflow-hidden mt-12 mb-12">
+                        <div class="accordion-item border-0">
+                            <button class="accordion-header flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition-colors">
+                                <h2 class="text-2xl font-bold text-brandGreen m-0">隱私權條款</h2>
+                                <span class="transform transition-transform duration-300 text-gray-400 text-xl">▼</span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="px-6 pb-6 pt-0 border-t border-gray-100 mt-2">
+                                    <div id="privacy-loader" class="flex justify-center items-center h-24">
+                                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-10 w-10"></div>
+                                    </div>
+                                    <div id="privacy-container" class="space-y-3 privacy-content"></div>
                                 </div>
-
-                                <div id="privacy-container" class="space-y-3 privacy-content"></div>
                             </div>
                         </div>
-                        
-                    </div>
-                </section>
-            </div>
-</main>
-    </div> </div> <section id="section-contact" class="w-full">
-    {% include contact-section.html %}
-</section>
-</div>
-<div id="lightbox" class="lightbox">
+                    </section>
+                </div>
+            </main>
+        </div> </div> <section id="section-contact" class="w-full">
+        {% include contact-section.html %}
+    </section>
+
+</div> <div id="lightbox" class="lightbox">
     <span class="lightbox-close">&times;</span>
     <img class="lightbox-content" id="lightbox-img">
 </div>
@@ -779,4 +673,3 @@ scripts: ""
     }); // 結束 DOMContentLoaded
 </script>
 <script src="{{ '/assets/js/privacy-loader.js' | relative_url }}" data-cf-async="false" defer></script>
-
