@@ -224,28 +224,28 @@ scripts: |
             </div>
         </section>
 
-        <section id="order-result" class="hidden mt-10 bg-white p-8 md:p-12 rounded-lg shadow-lg">
-            
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">查詢結果</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="text-sm font-semibold text-gray-500 mb-1">訂單編號</h3>
-                    <p id="result-order-number" class="text-lg font-bold text-brandGreen"></p>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="text-sm font-semibold text-gray-500 mb-1">訂購商品</h3>
-                    <p id="result-order-info" class="text-lg font-medium text-gray-800"></p>
-                </div>
-            </div>
+<section id="order-result" class="hidden mt-10 bg-white p-8 md:p-12 rounded-lg shadow-lg">
+    
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">查詢結果</h2>
 
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">目前狀態</h3>
-                <div id="result-current-status" class="text-center">
-                    </div>
-            </div>
+    <!-- 目前狀態移到這裡 -->
+    <div class="bg-gray-50 p-4 rounded-lg mb-8 w-full">
+        <h3 class="text-sm font-semibold text-gray-500 mb-1">目前狀態</h3>
+        <p id="result-current-status" class="text-lg font-bold text-brandGreen"></p>
+    </div>
 
-        </section>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="text-sm font-semibold text-gray-500 mb-1">訂單編號</h3>
+            <p id="result-order-number" class="text-lg font-bold text-brandGreen"></p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="text-sm font-semibold text-gray-500 mb-1">訂購商品</h3>
+            <p id="result-order-info" class="text-lg font-medium text-gray-800"></p>
+        </div>
+    </div>
+
+</section>
 
         <section class="mt-16 text-center">
             <div class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
@@ -262,4 +262,5 @@ scripts: |
     </div>
 
 </main>
+
 
