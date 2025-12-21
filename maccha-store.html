@@ -383,7 +383,7 @@
                                 </div>
                             </div>
 
-                            <div class="logistics-card cursor-pointer group" onclick="selectLogistics('郵寄/宅配', this)">
+                            <div class="logistics-card cursor-pointer group" onclick="s('郵寄/宅配', this)">
                                 <div class="p-4 flex justify-between items-center">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
@@ -711,22 +711,51 @@
              });
         }
 
-        // --- Logistics & Shipping ---
+// 物流選擇 UI 控制 (含運費規則修正)
         function selectLogistics(type, cardEl) {
-            selectedLogisticsType = type;
-            const select = document.getElementById('input-logistics');
-            select.value = type;
-
-            document.querySelectorAll('.logistics-card').forEach(c => {
-                c.classList.remove('active');
-                c.querySelector('.logistics-detail').classList.add('hidden');
+            // 1. UI 狀態切換
+            document.querySelectorAll('.logistics-card').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('.logistics-detail').classList.add('hidden');
             });
-            
             cardEl.classList.add('active');
             cardEl.querySelector('.logistics-detail').classList.remove('hidden');
 
-            document.getElementById('footer-logistics-name').innerText = `已選擇：${type}`;
-            updateShippingFee();
+            // 2. 更新 select 與變數
+            const select = document.getElementById('input-logistics');
+            select.value = type;
+            
+            // 3. 計算運費 (修正邏輯：優先讀取 '抹茶'，若無則讀取 'default')
+            const { subtotal } = calculateCartTotals();
+            
+            // 步驟 A: 先找 '抹茶' 規則
+            let rule = shippingRules.find(r => r.category === '抹茶' && type.includes(r.method));
+            
+            // 步驟 B: 若沒找到，嘗試找 'default' 規則
+            if (!rule) {
+                rule = shippingRules.find(r => r.category === 'default' && type.includes(r.method));
+            }
+
+            // 設定預設基礎運費 (若完全沒規則時的保底)
+            let fee = 60;
+            if (type.includes('宅配')) fee = 100;
+            
+            // 步驟 C: 套用找到的規則門檻
+            if (rule) {
+                fee = Number(rule.base);
+                // 依序檢查門檻 (由高到低)
+                if (rule.t3 && subtotal >= rule.t3) fee = Number(rule.f3);
+                else if (rule.t2 && subtotal >= rule.t2) fee = Number(rule.f2);
+                else if (rule.t1 && subtotal >= rule.t1) fee = Number(rule.f1);
+            }
+            shippingFee = fee;
+
+            // 4. 更新 Footer 顯示
+            document.getElementById('footer-logistics-name').innerText = `已選擇：${type} (運費 $${fee})`;
+            updateCartUI(); // 更新總金額
+            
+            // 5. 觸發 input sync 確保 hidden value 正確
+            syncStoreInput();
         }
 
         function syncStoreInput() {
@@ -933,70 +962,66 @@
             .finally(() => { btn.disabled = false; });
         }
 
-        function submitOrder(btn) {
-            const form = document.getElementById('order-form');
-            if (!form.checkValidity()) { alert('請檢查欄位是否填寫正確'); form.reportValidity(); return; }
-            if (!selectedLogisticsType) { alert('請選擇配送方式'); return; }
-            if (!document.getElementById('input-store').value) { alert('請填寫店號或地址'); return; }
+function submitOrder(btn) {
+            // 驗證
+            const phone = document.getElementById('input-phone').value;
+            const name = document.getElementById('input-name').value;
+            const type = document.getElementById('input-logistics').value;
+            const store = document.getElementById('input-store').value;
+            const storeNote = document.getElementById('input-store-note').value.trim(); // 取得店鋪備註
+
+            if (!phone || !name) return alert("請填寫完整聯絡資訊");
+            if (!store) return alert("請填寫取貨店號或地址");
 
             btn.disabled = true;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="loader border-white border-t-transparent mr-2"></span> 處理中...';
+            btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span>';
 
-            const brandCounts = getBrandCounts();
+            const { subtotal } = calculateCartTotals();
+            
+            // 組合商品字串
             const itemsStr = cart.map(item => {
-                let k = item.brand_key || 'default';
-                let useDiscount = brandCounts[k] > 1;
-                let finalP = useDiscount ? item.price_multi : item.price;
-                return `${item.name} x${item.qty} ($${finalP})`;
+                return `${item.brandKey}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.appliedPrice})`;
             }).join('\n');
+
+            // ★ 修改重點：Logistics 欄位組合邏輯
+            // 若有 storeNote，則 "Type Note" (中間空格)；若無則單純 "Type"
+            const logisticsStr = storeNote ? `${type} ${storeNote}` : type;
 
             const payload = {
                 action: "checkout",
-                name: document.getElementById('input-name').value,
-                phone: document.getElementById('input-phone').value,
+                phone, name, 
                 email: document.getElementById('input-email').value,
                 line_name: document.getElementById('input-line').value,
-                logistics: selectedLogisticsType,
-                store: document.getElementById('input-store').value,
-                // B-1: Send store note
-                store_note: document.getElementById('input-store-note').value, 
-                product_note: document.getElementById('input-note').value,
-                join_member: document.getElementById('join-member').checked,
+                
+                logistics: logisticsStr, // 這裡傳送組合後的字串
+                
+                store: store, // 純店號或地址
+                store_note: storeNote, // 獨立傳送店名 (供後端會員更新使用)
                 items: itemsStr,
-                subtotal: calculateSubtotal(),
-                shipping: shippingFee,
-                date: new Date().toISOString()
+                subtotal, shipping: shippingFee,
+                date: new Date().toISOString(),
+                product_note: document.getElementById('input-note').value,
+                join_member: document.getElementById('join-member').checked
             };
 
-            fetch(ORDER_API_URL, {
+            fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
+                if(data.success) {
                     alert(`訂單建立成功！\n編號：${data.orderId}`);
                     cart = [];
-                    renderCartItems();
+                    updateCartUI();
                     closeAllPanels();
-                    form.reset();
-                    // Reset UI
-                    document.getElementById('checkout-readonly-list').innerHTML = '';
-                    document.querySelectorAll('.logistics-card').forEach(c => {
-                        c.classList.remove('active');
-                        c.querySelector('.logistics-detail').classList.add('hidden');
-                    });
-                    document.getElementById('input-store').value = '';
-                    document.getElementById('input-store-note').value = '';
                 } else {
-                    alert('失敗：' + data.msg);
+                    alert("失敗：" + data.msg);
                 }
             })
-            .catch(err => { alert('網路錯誤'); console.error(err); })
             .finally(() => {
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.innerHTML = '<span class="material-symbols-rounded">verified</span> 確認送出訂單';
             });
         }
 
