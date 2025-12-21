@@ -18,8 +18,10 @@
             theme: {
                 extend: {
                     colors: {
-                        brandGreen: '#6ea44c',
-                        brandLight: '#e8f5e9',
+                        brand: '#6ea44c',
+                        brandDark: '#5a8a3e',
+                        brandBg: '#e8f5e9', // 淺綠背景
+                        brandLight: '#f1f8f1',
                     },
                     fontFamily: {
                         sans: ['var(--font-body)', 'sans-serif'],
@@ -36,35 +38,19 @@
             --font-body: "Noto Sans TC", sans-serif;
         }
 
-        body { 
-            font-family: var(--font-body); 
-            background-color: #ffffff; 
-            overflow-x: hidden; 
-        }
-        
-        .font-brand-text {
-            font-family: var(--font-brand);
-            font-weight: 700;
-        }
+        body { font-family: var(--font-body); background-color: #ffffff; overflow-x: hidden; }
+        .font-brand-text { font-family: var(--font-brand); font-weight: 700; }
 
-        /* 品牌色輔助類 */
-        .text-brand { color: #6ea44c; }
-        .bg-brand { background-color: #6ea44c; }
-        .border-brand { border-color: #6ea44c; }
-        .brand-green { color: #6ea44c; }
-        .bg-brandGreen { background-color: #6ea44c; }
-        .bg-brand-10 { background-color: rgba(110, 164, 76, 0.1); }
-        
-        /* Loading */
+        /* Loading Spinner */
         .loader { border-top-color: #6ea44c; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 側邊面板 */
+        /* Side Panel */
         .side-panel {
-            position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 420px;
+            position: fixed; top: 0; right: 0; height: 100%; width: 100%; max-width: 480px; /* 稍微加寬適配新UI */
             background-color: white; z-index: 200; transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+            box-shadow: -4px 0 25px rgba(0,0,0,0.15);
         }
         .side-panel.open { transform: translateX(0); }
         
@@ -74,30 +60,13 @@
         }
         .overlay.open { opacity: 1; visibility: visible; }
 
-        /* 元件樣式 */
-        .btn-outline-brand { 
-            background-color: white; color: #6ea44c; border: 2px solid #6ea44c; 
-            width: 100%; padding: 0.8rem; border-radius: 0.75rem; 
-            font-weight: bold; transition: all 0.2s; font-size: 0.875rem; 
-        }
-        .btn-outline-brand:hover { background-color: rgba(110, 164, 76, 0.05); }
-
+        /* Global UI Elements */
         .btn-primary {
             background-color: #6ea44c; color: white; font-weight: bold;
-            box-shadow: 0 4px 6px -1px rgba(110, 164, 76, 0.4);
-            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(110, 164, 76, 0.4); transition: all 0.2s;
         }
         .btn-primary:hover { background-color: #5a8a3e; }
         .btn-primary:active { transform: scale(0.98); }
-
-        .checkout-inline-input { 
-            width: 100%; padding: 10px; border: 1px solid #e5e7eb; 
-            border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color 0.2s; 
-        }
-        .checkout-inline-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; }
-        .checkout-inline-input.error { border-color: #ef4444; background-color: #fef2f2; }
-        
-        .ship-opt-card.selected { border-color: #6ea44c; background-color: rgba(110, 164, 76, 0.1); }
 
         .cart-floating-btn {
             position: fixed; bottom: 2rem; right: 2rem; width: 4rem; height: 4rem;
@@ -107,46 +76,54 @@
         }
         .cart-floating-btn:active { transform: scale(0.95); }
 
-        .qty-control { 
-            display: flex; align-items: center; justify-content: space-between;
-            background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem;
-            padding: 0 8px; height: 48px; box-sizing: border-box;
+        /* Input UI Style (新版結帳頁用) */
+        .input-ui {
+            width: 100%; padding: 12px 16px; border-radius: 12px;
+            border: 1px solid #e2e8f0; background-color: #f8fafc;
+            color: #334155; font-size: 15px; outline: none; transition: all 0.2s;
         }
-        .qty-btn { 
-            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; 
-            background: transparent; border-radius: 8px; font-weight: bold; cursor: pointer; border: none;
-            color: #6ea44c; transition: background-color 0.2s;
-        }
-        .qty-btn:hover { background-color: #f3f4f6; }
-        .add-btn {
-            height: 48px !important; display: flex; align-items: center; justify-content: center;
-            padding: 0 16px; 
+        .input-ui:focus {
+            background-color: #fff; border-color: #6ea44c; 
+            box-shadow: 0 0 0 3px rgba(110, 164, 76, 0.15);
         }
 
-        /* 手機版適配 */
-        @media (max-width: 767px) {
-            .mobile-product-card { 
-                display: flex !important; flex-direction: column !important; 
-                padding: 16px !important; gap: 12px !important;
-            }
-            .card-top-row { 
-                display: flex !important; flex-direction: row !important; 
-                gap: 16px !important; width: 100%;
-            }
-            .card-img-group { 
-                width: 100px !important; height: 100px !important; flex-shrink: 0 !important;
-                border-radius: 12px !important; overflow: hidden; background-color: #f9fafb;
-            }
-            .card-info-group {
-                flex: 1 !important; display: flex !important; flex-direction: column !important;
-                justify-content: flex-start; min-height: 100px;
-            }
-            .card-bottom-row {
-                display: flex !important; flex-direction: row !important; gap: 12px !important;
-                width: 100%; padding: 0 !important; border-top: none !important;
-            }
-            .qty-control { flex: 1 !important; }
-            .add-btn { flex: 1.5 !important; }
+        /* Logistics Card Style */
+        .logistics-card {
+            border: 1px solid #e2e8f0; border-radius: 16px; background: white; overflow: hidden; transition: all 0.2s;
+        }
+        .logistics-card:hover { border-color: #cbd5e1; }
+        .logistics-card.active {
+            border-color: #6ea44c; background-color: #fcfdfc;
+            box-shadow: 0 4px 12px rgba(110, 164, 76, 0.08);
+        }
+        .logistics-card.active .logistics-price { color: #6ea44c; }
+
+        .btn-query-store {
+            padding: 0 16px; background-color: #f1f5f9; color: #64748b;
+            border-radius: 10px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 4px; transition: all 0.2s; text-decoration: none;
+        }
+        .btn-query-store:hover { background-color: #e2e8f0; color: #334155; }
+
+        /* Full Screen Loading Overlay */
+        #checkout-loading-overlay {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.9);
+            z-index: 50; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        #checkout-loading-overlay.active { opacity: 1; pointer-events: auto; }
+
+        /* Cart Group Styles */
+        .cart-brand-group { margin-bottom: 24px; border-bottom: 1px dashed #eee; padding-bottom: 16px; }
+        .cart-brand-group:last-child { border-bottom: none; }
+        
+        /* 優惠 Banner 樣式 */
+        .discount-banner {
+            background-color: #e8f5e9; color: #2e7d32;
+            font-size: 13px; font-weight: bold;
+            padding: 6px 12px; border-radius: 8px;
+            margin-bottom: 12px; display: inline-flex; items-center; gap: 6px;
         }
     </style>
 </head>
@@ -154,39 +131,21 @@
 
     <div id="overlay" class="overlay" onclick="closeAllPanels()"></div>
 
-    <div class="bg-white border-b border-gray-100 shadow-sm">
+    <div class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 max-w-6xl py-4 flex justify-between items-center">
             <div>
                 <h1 class="text-xl md:text-2xl font-bold tracking-tight text-brand">
-                    <span class="font-brand-text">KEICHA</span> 抹茶代購下單區
+                    <span class="font-brand-text">KEICHA</span> 抹茶代購
                 </h1>
                 <p class="text-xs text-brand/60 mt-0.5">同品牌任選 2 件 • 即享多入優惠價</p>
             </div>
-            <div id="top-auth-zone">
-                <button onclick="openPanel('login-panel')" class="flex items-center gap-1 text-brand font-bold text-sm bg-brand-10 px-3 py-1.5 rounded-full hover:bg-brand-10/80 transition">
-                    <span class="material-symbols-rounded text-lg">account_circle</span> 
-                    <span id="header-user-name" class="hidden md:inline">會員登入</span>
-                </button>
             </div>
-        </div>
     </div>
 
-    <section class="py-8 bg-white border-b border-gray-100">
-        <div class="container mx-auto px-4 max-w-5xl">
-            <h2 class="text-xl font-bold text-center mb-6 text-gray-800 flex items-center justify-center gap-2">
-                <span class="material-symbols-rounded text-brand">storefront</span> 品牌總覽
-            </h2>
-            
-            <div id="status-loader" class="flex justify-center h-20">
-                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div>
-            </div>
-            
-            <div id="status-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-            <div id="status-error" class="hidden text-center text-brand text-sm mt-4"></div>
-        </div>
-    </section>
-
     <main class="max-w-5xl mx-auto px-4 py-8 pb-32">
+        <div id="status-loader" class="flex justify-center h-20">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div>
+        </div>
         <div id="product-list-container" class="space-y-12"></div>
     </main>
 
@@ -195,760 +154,657 @@
         <span id="cart-badge" class="absolute top-0 right-0 bg-white text-brand text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-gray-100 hidden">0</span>
     </div>
 
-    <div id="login-panel" class="side-panel">
-        <div class="p-6 bg-brand text-white flex justify-between items-center">
-            <h3 class="font-bold flex items-center gap-2 text-white"><span class="material-symbols-rounded">login</span> 會員登入</h3>
-            <button onclick="closeAllPanels()" class="material-symbols-rounded text-white">close</button>
-        </div>
-        <div class="p-8 space-y-6">
-            <div class="text-center space-y-2">
-                <p class="text-gray-600 font-bold text-xl">歡迎來到 <span class="font-brand-text">KEICHA</span></p>
-                <p class="text-sm text-gray-400">請輸入手機號碼快速登入/註冊</p>
-            </div>
-            <input type="tel" id="member-phone-search" placeholder="例如：0912345678" class="w-full p-4 bg-gray-50 border rounded-2xl text-lg font-bold outline-none focus:ring-1 ring-brand text-brand">
-            <p id="member-msg" class="text-xs text-center min-h-[1.5em]"></p>
-            
-            <button onclick="checkMember()" id="login-submit-btn" class="w-full btn-primary py-4 rounded-2xl flex justify-center items-center gap-2">
-                <span id="login-text">下一步</span><span id="login-icon" class="material-symbols-rounded">arrow_forward</span>
-            </button>
-        </div>
-    </div>
-
     <div id="cart-sidebar" class="side-panel">
-        <div class="p-6 border-b flex justify-between items-center bg-white sticky top-0 z-10">
-            <h3 class="font-bold flex items-center gap-2 text-gray-800">
+        <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+            <h3 class="font-bold flex items-center gap-2 text-gray-800 text-lg">
                 <span class="material-symbols-rounded">shopping_cart</span> 購物車
             </h3>
             <button onclick="closeAllPanels()" class="material-symbols-rounded text-gray-400 hover:text-gray-600">close</button>
         </div>
         
-        <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4">
-            <div class="text-center text-gray-400 mt-10">購物車是空的</div>
-        </div>
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-5">
+            </div>
 
-        <div class="p-6 border-t bg-gray-50 space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div class="p-5 border-t bg-gray-50 space-y-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="flex justify-between items-center font-bold mb-2">
                 <span class="text-gray-600">預估小計</span>
-                <span id="bar-total" class="text-xl text-brand">0</span>
+                <span id="bar-total" class="text-xl text-brand font-mono">NT$ 0</span>
             </div>
-            <button onclick="openCheckout()" class="w-full btn-primary py-4 rounded-xl flex items-center justify-center gap-2">
-                前往結帳 <span class="material-symbols-rounded text-sm">arrow_forward</span>
+            <button onclick="openCheckout()" class="w-full btn-primary py-4 rounded-xl flex items-center justify-center text-lg">
+                前往結帳
             </button>
-            <button onclick="closeAllPanels()" class="btn-outline-brand flex items-center justify-center gap-2">
-                <span class="material-symbols-rounded text-sm">arrow_back</span> 返回商店繼續選購
+            <button onclick="closeAllPanels()" class="w-full bg-white border border-brand text-brand font-bold py-3 rounded-xl hover:bg-brandBg transition text-sm">
+                繼續選購
             </button>
         </div>
     </div>
 
     <div id="checkout-panel" class="side-panel">
-        <div class="p-6 bg-brand text-white flex justify-between items-center sticky top-0 z-20 shadow-md">
-            <h3 class="font-bold flex items-center gap-2">
-                <span class="material-symbols-rounded">shopping_cart_checkout</span> 結帳確認
-            </h3>
-            <button onclick="closeAllPanels()" class="material-symbols-rounded text-white hover:opacity-70 transition">close</button>
-        </div>
+        <div class="flex flex-col h-full relative">
+            
+            <div id="checkout-loading-overlay">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-brand h-12 w-12 mb-4"></div>
+                <p class="text-brand font-bold tracking-widest animate-pulse">資料讀取中...</p>
+            </div>
 
-        <form id="order-form" onsubmit="submitOrder(event)" class="contents">
-            <div class="p-8 flex-1 overflow-y-auto space-y-10 pb-24">
-                
-                <div class="bg-brand-10 p-4 rounded-lg">
-                    <h4 class="text-xs font-bold text-brand uppercase tracking-widest mb-2">購買清單</h4>
-                    <ul id="display-items" class="text-sm space-y-3 text-gray-700"></ul>
+            <div class="p-5 bg-white border-b border-gray-100 flex justify-between items-center z-10 shrink-0">
+                <h3 class="font-bold flex items-center gap-2 text-lg text-gray-800">
+                    <span class="material-symbols-rounded text-brand">shopping_cart_checkout</span> 
+                    結帳確認
+                </h3>
+                <button onclick="closeAllPanels()" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+
+            <form id="order-form" onsubmit="return false;" class="flex-1 overflow-y-auto bg-white pb-40"> 
+                <div class="p-5 space-y-8">
+                    
+                    <section class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-4">
+                        <div class="bg-white rounded-xl border border-brandBg overflow-hidden">
+                            <ul id="checkout-readonly-list" class="divide-y divide-brandBg bg-[rgba(110,164,76,0.05)]">
+                                </ul>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1">
+                                <span class="material-symbols-rounded text-sm text-brand">smartphone</span> 會員查詢 / 手機號碼
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="tel" id="input-phone" class="input-ui font-bold text-lg tracking-wider" placeholder="09xxxxxxxx" maxlength="10" pattern="^09\d{8}$" required="">
+                                <button type="button" onclick="lookupPhoneData(this)" class="bg-brand text-white w-14 rounded-xl flex items-center justify-center hover:bg-brandDark transition disabled:opacity-50">
+                                    <span class="material-symbols-rounded">arrow_forward</span>
+                                </button>
+                            </div>
+                            <p id="phone-msg" class="text-xs mt-2 pl-1 h-4 font-medium transition-colors duration-300"></p>
+                        </div>
+                    </section>
+
+                    <div id="checkout-sections-after-phone" class="hidden space-y-8">
+                        
+                        <section>
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <span class="w-1 h-4 bg-brand rounded-full"></span> 配送方式
+                            </h4>
+                            <div class="space-y-3">
+                                <select id="input-logistics" class="hidden"><option value="7-11">7-11</option><option value="全家">全家</option><option value="郵寄/宅配">宅配</option></select>
+                                
+                                <div class="logistics-card cursor-pointer group" onclick="selectLogistics('7-11', this)">
+                                    <div class="p-4 flex justify-between items-center">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
+                                                <span class="material-symbols-rounded">local_shipping</span>
+                                            </div>
+                                            <div class="font-bold text-gray-800 text-sm">7-11 店到店</div>
+                                        </div>
+                                        <span class="text-brand font-bold text-sm logistics-price" data-type="7-11">$60</span>
+                                    </div>
+                                    <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
+                                        <div class="flex gap-2">
+                                            <input type="text" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" pattern="^\d{6}$" inputmode="numeric" id="store-id-711" onchange="syncStoreInput()">
+                                            <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="btn-query-store">
+                                                <span class="material-symbols-rounded text-base">map</span> 查詢店號
+                                            </a>
+                                        </div>
+                                        <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-711" onchange="syncStoreInput()">
+                                    </div>
+                                </div>
+
+                                <div class="logistics-card cursor-pointer group" onclick="selectLogistics('全家', this)">
+                                    <div class="p-4 flex justify-between items-center">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
+                                                <span class="material-symbols-rounded">store</span>
+                                            </div>
+                                            <div class="font-bold text-gray-800 text-sm">全家 店到店</div>
+                                        </div>
+                                        <span class="text-brand font-bold text-sm logistics-price" data-type="全家">$60</span>
+                                    </div>
+                                    <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4 space-y-3" onclick="event.stopPropagation()">
+                                        <div class="flex gap-2">
+                                            <input type="text" class="input-ui flex-1 text-center font-mono tracking-widest" placeholder="輸入6碼店號" maxlength="6" pattern="^\d{6}$" inputmode="numeric" id="store-id-fami" onchange="syncStoreInput()">
+                                            <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="btn-query-store">
+                                                <span class="material-symbols-rounded text-base">map</span> 查詢店號
+                                            </a>
+                                        </div>
+                                        <input type="text" class="input-ui text-sm" placeholder="門市名稱 / 備註" id="store-name-fami" onchange="syncStoreInput()">
+                                    </div>
+                                </div>
+
+                                <div class="logistics-card cursor-pointer group" onclick="selectLogistics('郵寄/宅配', this)">
+                                    <div class="p-4 flex justify-between items-center">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-brandLight flex items-center justify-center text-brand">
+                                                <span class="material-symbols-rounded">local_shipping</span>
+                                            </div>
+                                            <div class="font-bold text-gray-800 text-sm">宅配到府</div>
+                                        </div>
+                                        <span class="text-brand font-bold text-sm logistics-price" data-type="宅配">$100</span>
+                                    </div>
+                                    <div class="logistics-detail hidden border-t border-brand/20 bg-brandLight/20 p-4" onclick="event.stopPropagation()">
+                                        <textarea id="store-addr" class="input-ui text-sm min-h-[80px]" placeholder="請輸入完整收件地址 (含郵遞區號)" onchange="syncStoreInput()"></textarea>
+                                    </div>
+                                </div>
+                                
+                                <input type="hidden" name="store" id="input-store" required="" value="">
+                                <input type="hidden" name="store_note" id="input-store-note" value="">
+                            </div>
+                        </section>
+
+                        <section class="space-y-4">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <span class="w-1 h-4 bg-brand rounded-full"></span> 收件資料
+                            </h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">收件人全名 <span class="text-brand">*</span></label>
+                                    <input type="text" id="input-name" required="" class="input-ui" placeholder="請輸入真實姓名">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">電子信箱 <span class="text-brand">*</span></label>
+                                    <input type="email" id="input-email" required="" class="input-ui" placeholder="接收訂單通知">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 mb-1.5 block ml-1">LINE 顯示名稱</label>
+                                    <input type="text" id="input-line" class="input-ui" placeholder="方便聯絡 (選填)">
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-4">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <span class="w-1 h-4 bg-brand rounded-full"></span> 其他
+                            </h4>
+                            <textarea id="input-note" class="input-ui min-h-[80px]" placeholder="訂單備註 (選填)..."></textarea>
+                            
+                            <label class="flex items-center gap-3 p-4 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-100 transition">
+                                <div class="relative flex items-center">
+                                    <input type="checkbox" id="join-member" class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 checked:bg-brand checked:border-brand transition-all" checked="">
+                                    <span class="material-symbols-rounded absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none text-base left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">check</span>
+                                </div>
+                                <span class="text-sm text-gray-600 font-medium">同意儲存資料，下次自動帶入</span>
+                            </label>
+                        </section>
+                    </div>
                 </div>
+            </form>
 
-                <div class="hidden">
-                    <select id="input-logistics" onchange="updateShippingFee()">
-                        <option value="7-11">7-11</option>
-                        <option value="全家">全家</option>
-                        <option value="郵寄/宅配">宅配</option>
-                    </select>
-                    <input type="checkbox" id="join-member" checked>
-                </div>
-
-                <section class="space-y-4">
-                    <h4 class="text-xs font-bold text-brand uppercase tracking-widest border-b border-gray-100 pb-2">聯絡資訊</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-[10px] text-gray-400 font-bold mb-1 block">收件人全名 <span class="text-brand">*</span></label>
-                            <input type="text" id="input-name" required class="checkout-inline-input w-full bg-gray-50" placeholder="請輸入真實姓名">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-gray-400 font-bold mb-1 block">手機號碼 <span class="text-brand">*</span></label>
-                            <input type="tel" id="input-phone" required class="checkout-inline-input w-full bg-gray-50" placeholder="09xxxxxxxx (共10碼)">
-                            <p id="error-phone" class="text-red-500 text-xs mt-1 hidden"></p>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-gray-400 font-bold mb-1 block">電子信箱 <span class="text-brand">*</span></label>
-                            <input type="email" id="input-email" required class="checkout-inline-input w-full bg-gray-50" placeholder="訂單通知用">
-                        </div>
-                         <div>
-                            <label class="text-[10px] text-gray-400 font-bold mb-1 block">LINE ID / 暱稱</label>
-                            <input type="text" id="input-line" class="checkout-inline-input w-full bg-gray-50">
+            <div class="panel-footer shrink-0 p-5 bg-white border-t border-gray-100 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] relative z-20">
+                <div class="panel-footer-btn-wrapper">
+                    <div class="flex justify-between items-end mb-4">
+                        <div class="text-xs text-gray-400 font-medium" id="footer-logistics-name">尚未選擇物流</div>
+                        <div class="text-right flex items-baseline gap-2">
+                            <span class="text-xs text-gray-400">總金額</span>
+                            <span class="text-2xl font-bold text-brand font-mono">NT$ <span id="modal-total">0</span></span>
                         </div>
                     </div>
-                </section>
-
-                <section class="space-y-4">
-                    <h4 class="text-xs font-bold text-brand uppercase tracking-widest border-b border-gray-100 pb-2">選擇取貨方式</h4>
-                    
-                    <div onclick="uiSelectLogistics('7-11')" id="card-7-11" class="ship-opt-card p-4 rounded-2xl border border-gray-200 cursor-pointer hover:border-brandGreen transition-all bg-white">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="material-symbols-rounded text-brand text-2xl">local_shipping</span>
-                            <div class="font-bold text-sm text-gray-800">7-11 店到店</div>
-                        </div>
-                        <div id="area-7-11" class="hidden space-y-2 mt-2 pt-2 border-t border-dashed border-gray-200">
-                             <div class="flex gap-2">
-                                <input type="text" id="store-id-711" class="checkout-inline-input flex-1 text-xs" placeholder="輸入6碼店號" onchange="syncStoreValue(this)">
-                                <a href="https://www.ibon.com.tw/mobile/retail_inquiry.aspx" target="_blank" class="bg-gray-100 text-gray-600 px-3 py-1 rounded text-xs flex items-center hover:bg-gray-200" onclick="event.stopPropagation()">查詢</a>
-                             </div>
-                             <input type="text" id="store-note-711" class="checkout-inline-input w-full text-xs" placeholder="門市名稱 (選填)" onchange="syncStoreValue(this)">
-                        </div>
-                    </div>
-                    
-                    <div onclick="uiSelectLogistics('全家')" id="card-fami" class="ship-opt-card p-4 rounded-2xl border border-gray-200 cursor-pointer hover:border-brandGreen transition-all bg-white">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="material-symbols-rounded text-brand text-2xl">store</span>
-                            <div class="font-bold text-sm text-gray-800">全家 店到店</div>
-                        </div>
-                        <div id="area-fami" class="hidden space-y-2 mt-2 pt-2 border-t border-dashed border-gray-200">
-                             <div class="flex gap-2">
-                                <input type="text" id="store-id-fami" class="checkout-inline-input flex-1 text-xs" placeholder="輸入6碼店號" onchange="syncStoreValue(this)">
-                                <a href="https://www.family.com.tw/marketing/inquiry.aspx" target="_blank" class="bg-gray-100 text-gray-600 px-3 py-1 rounded text-xs flex items-center hover:bg-gray-200" onclick="event.stopPropagation()">查詢</a>
-                             </div>
-                             <input type="text" id="store-note-fami" class="checkout-inline-input w-full text-xs" placeholder="門市名稱 (選填)" onchange="syncStoreValue(this)">
-                        </div>
-                    </div>
-                    
-                    <div onclick="uiSelectLogistics('郵寄/宅配')" id="card-addr" class="ship-opt-card p-4 rounded-2xl border border-gray-200 cursor-pointer hover:border-brandGreen transition-all bg-white">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="material-symbols-rounded text-brand text-2xl">home</span>
-                            <div class="font-bold text-sm text-gray-800">郵寄 / 宅配</div>
-                        </div>
-                        <div id="area-addr" class="hidden mt-2 pt-2 border-t border-dashed border-gray-200">
-                            <textarea id="store-addr" class="checkout-inline-input w-full text-xs" rows="2" placeholder="請輸入完整收件地址" onchange="syncStoreValue(this)"></textarea>
-                        </div>
-                    </div>
-                    
-                    <input type="hidden" name="store" id="input-store" required>
-                </section>
-
-                <section class="space-y-4">
-                    <h4 class="text-xs font-bold text-brand uppercase tracking-widest border-b border-gray-100 pb-2">訂單備註</h4>
-                    <textarea name="note" id="input-note" class="w-full p-4 rounded-2xl border border-gray-200 bg-gray-50 text-sm focus:ring-1 ring-brand outline-none resize-none" rows="2" placeholder="如有其他需求請填寫..."></textarea>
-                </section>
-
-                <section class="bg-brand-10 p-6 rounded-3xl space-y-4">
-                    <div class="flex justify-between text-sm text-gray-600">
-                        <span>商品小計</span>
-                        <span>NT$ <span id="modal-subtotal">0</span></span>
-                    </div>
-                    <div class="flex justify-between text-sm text-gray-600">
-                        <span>運費</span>
-                        <span>NT$ <span id="modal-shipping">計算中...</span></span>
-                    </div>
-                    <div class="flex justify-between text-xl font-bold text-gray-800 pt-4 border-t border-brand/20">
-                        <span>總計金額</span>
-                        <span class="text-brand font-mono">NT$ <span id="modal-total">0</span></span>
-                    </div>
-                </section>
-
-                <div class="space-y-4 pt-4">
-                    <button type="submit" id="btn-submit" class="w-full btn-primary py-4 rounded-2xl flex justify-center items-center gap-2 text-lg">
+                    <button id="btn-submit" onclick="submitOrder(this)" disabled class="w-full bg-brand text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-brand/20 hover:bg-brandDark active:scale-[0.98] transition flex justify-center items-center gap-2 disabled:opacity-50 disabled:bg-gray-300 disabled:shadow-none disabled:cursor-not-allowed">
                         <span class="material-symbols-rounded">verified</span> 確認送出訂單
                     </button>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 
     <script>
-        let tempQtyMap = {}; 
-
-        function adjQty(productId, change) {
-            if (!tempQtyMap[productId]) tempQtyMap[productId] = 1;
-            let newQty = tempQtyMap[productId] + change;
-            if (newQty < 1) newQty = 1; 
-            tempQtyMap[productId] = newQty;
-            const qtyDisplay = document.getElementById(`iq-${productId}`);
-            if (qtyDisplay) { qtyDisplay.innerText = newQty; }
-        }
-
-        function openPanel(panelId) {
-            document.getElementById('overlay').classList.add('open');
-            document.getElementById(panelId).classList.add('open');
-        }
-
-        function closeAllPanels() {
-            document.getElementById('overlay').classList.remove('open');
-            document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
-        }
-
-        function openCart() {
-            openPanel('cart-sidebar');
-            updateCartSidebarRender(); 
-        }
-
-        function uiSelectLogistics(value) {
-            const select = document.getElementById('input-logistics');
-            select.value = value;
-            updateShippingFee();
-
-            document.querySelectorAll('.ship-opt-card').forEach(el => el.classList.remove('selected', 'ring-2', 'ring-brand'));
-            document.querySelectorAll('[id^="area-"]').forEach(el => el.classList.add('hidden'));
-
-            let cardId = '', areaId = '';
-            if(value.includes('7-11')) { cardId = 'card-7-11'; areaId = 'area-7-11'; }
-            else if(value.includes('全家')) { cardId = 'card-fami'; areaId = 'area-fami'; }
-            else { cardId = 'card-addr'; areaId = 'area-addr'; }
-
-            if(document.getElementById(cardId)) {
-                document.getElementById(cardId).classList.add('selected', 'ring-2', 'ring-brand');
-                document.getElementById(areaId).classList.remove('hidden');
-            }
-        }
-
-        function syncStoreValue(el) {
-            // 這個 function 留著是為了讓 hidden input 有值，避免原生 required 報錯
-            // 但實際資料傳輸會使用新的 validateCheckoutForm 邏輯抓取個別 ID
-            const parent = el.closest('[id^="area-"]');
-            const inputs = parent.querySelectorAll('input, textarea');
-            const vals = Array.from(inputs).map(i => i.value).filter(v => v).join(' / ');
-            document.getElementById('input-store').value = vals;
-        }
-        
-        function updateCartSidebarRender() {
-            const container = document.getElementById('cart-items-container');
-            container.innerHTML = '';
-            
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-gray-400 space-y-4"><span class="material-symbols-rounded text-4xl text-brand/30">remove_shopping_cart</span><p>購物車是空的</p></div>';
-                return;
-            }
-
-            cart.forEach(item => {
-                const itemTotal = (item.qty * (item.qty >= 2 ? item.price_multi : item.price));
-                container.innerHTML += `
-                    <div class="flex gap-4 items-start pb-4 border-b border-gray-100 last:border-0">
-                        <div class="w-12 h-12 bg-brand-10 rounded-lg flex items-center justify-center text-brand">
-                           <span class="material-symbols-rounded">check</span>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-gray-800 text-sm line-clamp-2">${item.name}</h4>
-                            <div class="text-xs text-gray-500 mt-1">單價 $${item.price}</div>
-                            <div class="flex justify-between items-end mt-2">
-                                <div class="font-bold text-brand">$${itemTotal}</div>
-                                <div class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">x ${item.qty}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            const sub = calculateSubtotal();
-            document.querySelectorAll('#bar-total').forEach(el => el.innerText = "NT$ " + sub.toLocaleString());
-        }
-
-        const DISPLAY_API_URL = "https://script.google.com/macros/s/AKfycbxnxbcdCdxH2Qmuek5Up8BqTWeOLUcLR30jfUi0lMbMn5ocn9tY1f_c7yEyd9KSZ4Um/exec"; 
-        const ORDER_API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
         const BASE_REPO_URL = "assets/images/"; 
 
-        let cart = []; 
-        let shippingFee = 0; 
-        let shippingRules = []; 
+        let cart = [];
+        let shippingFee = 0;
+        let shippingRules = [];
+        let brandsData = []; // 儲存品牌資訊
 
-        function addToCart(productId, name, price, priceMulti, stock, maxLimit, brandKey, spec) {
-            const qtyToAdd = tempQtyMap[productId] || 1;
-            const existingItem = cart.find(item => item.name === name);
-            let currentCartQty = existingItem ? existingItem.qty : 0;
+        // 1. 初始化讀取
+        window.addEventListener('load', () => {
+            fetch(API_URL) 
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        shippingRules = data.shipping_rules || [];
+                        brandsData = data.brands || []; // 假設 API 會回傳 brands
+                        renderProductList(data);
+                    }
+                })
+                .catch(err => console.error("Error:", err))
+                .finally(() => {
+                    document.getElementById('status-loader').style.display = 'none';
+                });
+        });
+
+        // 2. 渲染商品 (包含修正 addToCart 參數)
+        function renderProductList(data) {
+            const container = document.getElementById('product-list-container');
+            container.innerHTML = '';
             
-            if (currentCartQty + qtyToAdd > stock) { alert("抱歉，庫存不足！"); return; }
-            if (currentCartQty + qtyToAdd > maxLimit) { alert(`此商品每人限購 ${maxLimit} 件`); return; }
-
-            if (existingItem) { 
-                existingItem.qty += qtyToAdd; 
-            } else { 
-                cart.push({ 
-                    brand_key: brandKey, // 記錄 brand_key 供結帳顯示用
-                    productId: productId, 
-                    name: name, 
-                    spec: spec || "", 
-                    price: price, 
-                    price_multi: priceMulti, 
-                    qty: qtyToAdd 
-                }); 
-            }
+            // 依照 API 回傳的 brands 渲染區塊 (若 API 結構不同請自行調整)
+            // 這裡假設 API 回傳格式為 { brands: [...], products: [...] }
+            // 為了相容您原本的邏輯，這裡做簡單處理
             
-            tempQtyMap[productId] = 1;
-            const qtyDisplay = document.getElementById(`iq-${productId}`);
-            if(qtyDisplay) qtyDisplay.innerText = 1;
+            const brands = data.brands || []; // 需確保後端有回傳
+            const products = data.products || [];
 
-            updateCartUI();
-            openCart();
-            if (navigator.vibrate) navigator.vibrate(50);
+            brands.sort((a,b) => (a.order||99) - (b.order||99)).forEach(brand => {
+                const brandProducts = products.filter(p => p.brand_key === brand.key);
+                if(brandProducts.length === 0) return;
+
+                const section = document.createElement('section');
+                section.className = "scroll-mt-24";
+                section.innerHTML = `
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b pb-4">
+                        <span class="w-2 h-6 bg-brand rounded-full"></span> ${brand.name}
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${brandProducts.map(p => createProductCard(p, brand.key)).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
         }
 
-        function calculateSubtotal() {
+        function createProductCard(product, brandKey) {
+            const productId = product.key || Math.random().toString(36).substr(2, 9);
+            const price = Number(product.price) || 0;
+            const priceMulti = Number(product.price_multi) || 0;
+            const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
+            
+            // 圖片處理
+            let imgHTML = '';
+            if (product.img) {
+                const src = product.img.startsWith('http') ? product.img : BASE_REPO_URL + product.img;
+                imgHTML = `<div class="w-full aspect-square bg-gray-50 overflow-hidden"><img src="${src}" class="w-full h-full object-cover transition hover:scale-105 duration-500" loading="lazy"></div>`;
+            }
+
+            // 價格顯示
+            let priceHTML = hasMultiPrice 
+                ? `<div class="flex flex-col items-end">
+                     <span class="text-xs text-gray-400">單件 $${price}</span>
+                     <span class="text-brand font-bold text-lg font-mono">2件起 $${priceMulti}</span>
+                   </div>`
+                : `<div class="text-right"><span class="text-brand font-bold text-lg font-mono">$${price}</span></div>`;
+
+            // 按鈕與庫存
+            const stock = Number(product.stock);
+            const isSoldOut = stock <= 0 || (product.status && product.status.includes('完售'));
+            const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-brand text-white hover:bg-brandDark active:scale-95 shadow-lg shadow-brand/20';
+            const btnText = isSoldOut ? '完售' : '加入購物車';
+            
+            // ★重點修正：addToCart 參數必須完整★
+            const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${product.name}', ${price}, ${priceMulti}, ${stock}, '${brandKey}', '${product.spec||''}')"`;
+
+            return `
+                <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col hover:shadow-md transition group">
+                    ${imgHTML}
+                    <div class="p-4 flex flex-col flex-1 gap-3">
+                        <h4 class="font-bold text-gray-800 line-clamp-1">${product.name} ${product.spec ? `<span class="text-gray-400 text-xs font-normal ml-1">${product.spec}</span>` : ''}</h4>
+                        ${product.note ? `<p class="text-xs text-gray-400 line-clamp-2">${product.note}</p>` : ''}
+                        <div class="mt-auto pt-2 flex items-end justify-between border-t border-gray-50">
+                             ${priceHTML}
+                             <button class="px-4 py-2 rounded-xl text-sm font-bold transition ${btnClass}" ${clickEvent}>${btnText}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. 購物車邏輯 (修正版)
+        function addToCart(productId, name, price, priceMulti, stock, brandKey, spec) {
+            const existing = cart.find(item => item.productId === productId);
+            if (existing) {
+                if (existing.qty < stock) existing.qty++;
+                else alert("庫存不足");
+            } else {
+                cart.push({
+                    productId, name, price, priceMulti, stock, brandKey, spec, qty: 1
+                });
+            }
+            updateCartUI();
+            openCart();
+            if(navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function calculateCartTotals() {
+            // 1. 統計每個品牌的總數量
+            const brandCounts = {};
+            cart.forEach(item => {
+                if (!brandCounts[item.brandKey]) brandCounts[item.brandKey] = 0;
+                brandCounts[item.brandKey] += item.qty;
+            });
+
+            // 2. 計算小計
             let subtotal = 0;
             cart.forEach(item => {
-                const unitPrice = item.qty >= 2 ? item.price_multi : item.price;
-                subtotal += unitPrice * item.qty;
+                // 新邏輯：只要該品牌總數 > 1，就套用優惠價
+                const isDiscount = brandCounts[item.brandKey] > 1 && item.priceMulti > 0;
+                const finalPrice = isDiscount ? item.priceMulti : item.price;
+                subtotal += finalPrice * item.qty;
+                item.appliedPrice = finalPrice; // 暫存實際套用的價格供顯示用
+                item.isDiscounted = isDiscount;
             });
-            return subtotal;
+
+            return { subtotal, brandCounts };
         }
 
         function updateCartUI() {
-            const subtotal = calculateSubtotal();
+            const { subtotal, brandCounts } = calculateCartTotals();
+            
+            // Badge
+            const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
             const badge = document.getElementById('cart-badge');
-            document.querySelectorAll('#bar-total').forEach(el => el.innerText = subtotal.toLocaleString());
-            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
-            if(badge) {
-                badge.innerText = totalQty;
-                badge.classList.toggle('hidden', totalQty === 0);
-            }
-            updateCartSidebarRender();
+            badge.innerText = totalQty;
+            badge.classList.toggle('hidden', totalQty === 0);
+
+            // Subtotal
+            document.querySelectorAll('#bar-total').forEach(el => el.innerText = "NT$ " + subtotal.toLocaleString());
+            document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
+
+            updateCartSidebarRender(brandCounts);
         }
 
-        function openCheckout() {
-            if (cart.length === 0) { alert("購物車是空的喔！"); return; }
-            
-            // 使用新 ID #display-items
-            const listEl = document.getElementById('display-items');
-            listEl.innerHTML = '';
-            
-            cart.forEach(item => {
-                // 1. 組合商品唯讀資料：brand_key｜name｜spec
-                let displayText = `${item.brand_key}｜${item.name}`;
-                if (item.spec) {
-                    displayText += `｜${item.spec}`;
+        function updateCartSidebarRender(brandCounts) {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="flex flex-col items-center justify-center h-64 text-gray-400"><span class="material-symbols-rounded text-4xl mb-2 opacity-30">shopping_cart</span><p>購物車是空的</p></div>';
+                return;
+            }
+
+            // 依照品牌分組顯示 (解決：優惠狀態顯眼告知)
+            // 先取得所有唯一的 brandKey
+            const uniqueBrands = [...new Set(cart.map(i => i.brandKey))];
+
+            uniqueBrands.forEach(bKey => {
+                const items = cart.filter(i => i.brandKey === bKey);
+                const isDiscountGroup = brandCounts[bKey] > 1; // 該品牌是否符合優惠
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = "cart-brand-group";
+                
+                // 優惠 Banner (如果符合)
+                let bannerHTML = '';
+                if (isDiscountGroup) {
+                    bannerHTML = `<div class="discount-banner"><span class="material-symbols-rounded text-sm">verified</span> 已套用同品牌多件優惠</div>`;
                 }
 
-                const li = document.createElement('li');
-                // 唯讀、不可編輯、不顯示數量按鈕、僅文字、多商品換行 (li 本身就是 block)
-                // 價格不在此區顯示，僅顯示品項與數量文字
-                li.className = "flex justify-between border-b border-gray-100 pb-2 last:border-0";
-                li.innerHTML = `
-                    <div class="text-gray-600 flex-1 pr-4">
-                        <div class="font-bold text-gray-800">${displayText}</div>
+                groupDiv.innerHTML = `
+                    ${bannerHTML}
+                    <div class="space-y-4">
+                        ${items.map(item => {
+                            const unitPrice = item.appliedPrice;
+                            const total = unitPrice * item.qty;
+                            return `
+                                <div class="flex gap-3">
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start">
+                                            <h4 class="font-bold text-gray-700 text-sm">${item.name}</h4>
+                                            <button onclick="removeFromCart('${item.productId}')" class="text-gray-300 hover:text-red-400"><span class="material-symbols-rounded text-lg">delete</span></button>
+                                        </div>
+                                        <div class="text-xs text-gray-400 mt-0.5">${item.spec || ''}</div>
+                                        <div class="flex justify-between items-end mt-2">
+                                            <div class="font-mono text-brand font-bold">
+                                                $${unitPrice} 
+                                                <span class="text-xs text-gray-400 font-normal">x ${item.qty}</span>
+                                            </div>
+                                            <div class="flex items-center border border-gray-200 rounded-lg h-7">
+                                                <button onclick="changeQty('${item.productId}', -1)" class="w-7 flex items-center justify-center text-gray-500 hover:bg-gray-100">-</button>
+                                                <div class="w-8 text-center text-xs font-bold">${item.qty}</div>
+                                                <button onclick="changeQty('${item.productId}', 1)" class="w-7 flex items-center justify-center text-gray-500 hover:bg-gray-100">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
-                    <div class="font-mono font-bold text-brand whitespace-nowrap">x${item.qty}</div>
                 `;
-                listEl.appendChild(li);
+                container.appendChild(groupDiv);
+            });
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.productId === id);
+            if (item) {
+                const newQty = item.qty + delta;
+                if (newQty > 0) {
+                    if (newQty <= item.stock) item.qty = newQty;
+                    else alert("庫存不足");
+                } else {
+                    removeFromCart(id);
+                    return;
+                }
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(id) {
+            if(confirm('確定移除此商品？')) {
+                cart = cart.filter(i => i.productId !== id);
+                updateCartUI();
+            }
+        }
+
+        // 4. 面板控制
+        function openPanel(id) {
+            document.getElementById('overlay').classList.add('open');
+            document.getElementById(id).classList.add('open');
+        }
+        function closeAllPanels() {
+            document.getElementById('overlay').classList.remove('open');
+            document.querySelectorAll('.side-panel').forEach(el => el.classList.remove('open'));
+        }
+        function openCart() {
+            openPanel('cart-sidebar');
+        }
+
+        // 5. 新版結帳流程 logic
+        function openCheckout() {
+            if (cart.length === 0) return alert("購物車是空的");
+            
+            // 1. 渲染唯讀清單
+            const listEl = document.getElementById('checkout-readonly-list');
+            listEl.innerHTML = '';
+            // 計算一次確保價格正確
+            const { subtotal } = calculateCartTotals(); 
+            
+            cart.forEach(item => {
+                listEl.innerHTML += `
+                    <li class="px-4 py-3 text-sm text-brandDark font-medium flex items-start gap-2">
+                        <span class="material-symbols-rounded text-brand text-base mt-0.5">check_circle</span>
+                        <div class="flex-1">
+                            ${item.brandKey}｜${item.name} ${item.spec ? '｜'+item.spec : ''}
+                            <div class="text-xs text-gray-500 mt-0.5">
+                                $${item.appliedPrice} x ${item.qty} = <span class="font-bold">$${item.appliedPrice * item.qty}</span>
+                            </div>
+                        </div>
+                    </li>
+                `;
             });
 
-            updateShippingFee();
+            // 2. 初始化狀態：隱藏後續區塊，重置欄位
+            document.getElementById('checkout-sections-after-phone').classList.add('hidden');
+            document.getElementById('input-phone').value = '';
+            document.getElementById('phone-msg').innerText = '';
+            document.getElementById('btn-submit').disabled = true;
+            document.getElementById('footer-logistics-name').innerText = "尚未選擇物流";
+            shippingFee = 0;
+            updateCartUI(); // 重算總價 (含歸零運費)
+
             closeAllPanels();
             openPanel('checkout-panel');
         }
 
-        function updateShippingFee() {
-            const subtotal = calculateSubtotal();
-            const selectedLogistics = document.getElementById('input-logistics').value; 
-            const rule = shippingRules.find(r => r.category === '抹茶' && selectedLogistics.includes(r.method));
-            let finalFee = 60; 
-            if (selectedLogistics.includes("宅配")) finalFee = 100;
-            if (rule) {
-                finalFee = Number(rule.base); 
-                if (rule.t3 && subtotal >= rule.t3) { finalFee = Number(rule.f3); } 
-                else if (rule.t2 && subtotal >= rule.t2) { finalFee = Number(rule.f2); } 
-                else if (rule.t1 && subtotal >= rule.t1) { finalFee = Number(rule.f1); }
+        // 查詢會員
+        function lookupPhoneData(btn) {
+            const phoneInput = document.getElementById('input-phone');
+            const phone = phoneInput.value.trim();
+            const msgEl = document.getElementById('phone-msg');
+            
+            // 驗證格式
+            if (!/^09\d{8}$/.test(phone)) {
+                msgEl.innerText = "格式錯誤，請輸入 09 開頭共 10 碼";
+                msgEl.className = "text-xs mt-2 pl-1 h-4 font-medium text-red-500";
+                return;
             }
-            shippingFee = finalFee;
-            updateModalTotals();
-        }
 
-        function updateModalTotals() {
-            const subtotal = calculateSubtotal();
-            document.getElementById('modal-subtotal').innerText = subtotal.toLocaleString();
-            document.getElementById('modal-shipping').innerText = shippingFee;
-            document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
-        }
+            // 顯示遮罩 Loading
+            const overlay = document.getElementById('checkout-loading-overlay');
+            overlay.classList.add('active');
 
-        function checkMember() {
-            const phone = document.getElementById('member-phone-search').value.trim();
-            const msgEl = document.getElementById('member-msg');
-            if (!phone) { alert("請輸入電話號碼"); return; }
-            msgEl.innerText = "查詢中...";
-            msgEl.className = "text-xs mt-1 text-gray-400"; 
-
-            fetch(ORDER_API_URL, {
+            fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: "login", phone: phone })
             })
             .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    const info = data.data;
-                    document.getElementById('input-phone').value = info.phone; 
-                    closeAllPanels();
-                    document.getElementById('header-user-name').innerText = info.name || "會員";
-                    alert(`歡迎回來，${info.name}！\n資料已自動帶入結帳頁面。`);
-                    if (info.name) {
-                        document.getElementById('input-name').value = info.name;
-                        document.getElementById('input-email').value = info.email;
-                        // 這裡只做帶入，不影響 members 寫入邏輯
-                        if (info.store_711) {
-                            document.getElementById('store-id-711').value = info.store_711.split('/')[0] || info.store_711; 
-                            // 假設舊資料格式可能混雜，這裡盡量還原
-                        }
-                        updateShippingFee(); 
+            .then(res => {
+                // 無論是否為新會員，都展開後續區塊
+                document.getElementById('checkout-sections-after-phone').classList.remove('hidden');
+                document.getElementById('btn-submit').disabled = false; // 允許送出(需再選物流)
+
+                if (res.success && !res.isNew) {
+                    const data = res.data;
+                    msgEl.innerText = `歡迎回來，${data.name}`;
+                    msgEl.className = "text-xs mt-2 pl-1 h-4 font-medium text-brand";
+                    
+                    // 帶入資料
+                    document.getElementById('input-name').value = data.name || '';
+                    document.getElementById('input-email').value = data.email || '';
+                    
+                    // 帶入物流偏好 (如果有)
+                    if (data.store_711) {
+                        // 這裡可以做更細緻的預選，目前先不強制，讓用戶自己點選以觸發事件
                     }
                 } else {
-                    msgEl.innerText = "是新朋友呢！請填寫資料，下單後自動成為會員。";
-                    msgEl.className = "text-xs mt-1 text-brand font-bold";
-                    setTimeout(() => {
-                        closeAllPanels();
-                        openCheckout();
-                        document.getElementById('input-phone').value = phone;
-                    }, 1000);
+                    msgEl.innerText = "新朋友您好，請繼續填寫資料";
+                    msgEl.className = "text-xs mt-2 pl-1 h-4 font-medium text-gray-500";
                 }
             })
             .catch(err => {
-                console.error(err);
-                msgEl.innerText = "系統連線錯誤";
-                msgEl.className = "text-xs mt-1 text-brand"; 
+                alert("連線錯誤");
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                }, 500); // 稍微延遲讓動畫跑完
             });
         }
 
-        // 新增：資料驗證邏輯
-        function validateCheckoutForm() {
-            let isValid = true;
-            let errorMsg = "";
+        // 物流選擇 UI 控制
+        function selectLogistics(type, cardEl) {
+            // 1. UI 狀態切換
+            document.querySelectorAll('.logistics-card').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('.logistics-detail').classList.add('hidden');
+            });
+            cardEl.classList.add('active');
+            cardEl.querySelector('.logistics-detail').classList.remove('hidden');
 
-            // 1. 手機號碼驗證 (09開頭，共10碼)
-            const phone = document.getElementById('input-phone').value.trim();
-            const phoneRegex = /^09\d{8}$/;
-            const phoneErrEl = document.getElementById('error-phone');
+            // 2. 更新 select 與變數
+            const select = document.getElementById('input-logistics');
+            select.value = type;
             
-            if (!phoneRegex.test(phone)) {
-                document.getElementById('input-phone').classList.add('error');
-                if(phoneErrEl) {
-                    phoneErrEl.innerText = "格式錯誤，請輸入 09 開頭共 10 碼數字";
-                    phoneErrEl.classList.remove('hidden');
-                }
-                isValid = false;
-                errorMsg += "手機號碼格式錯誤\n";
-            } else {
-                document.getElementById('input-phone').classList.remove('error');
-                if(phoneErrEl) phoneErrEl.classList.add('hidden');
+            // 3. 計算運費
+            const { subtotal } = calculateCartTotals();
+            // 簡單查找規則 (根據您的 GAS 結構)
+            const rule = shippingRules.find(r => r.category === '抹茶' && type.includes(r.method));
+            let fee = 60;
+            if (type.includes('宅配')) fee = 100;
+            
+            // 套用門檻
+            if (rule) {
+                fee = Number(rule.base);
+                if (rule.t3 && subtotal >= rule.t3) fee = Number(rule.f3);
+                else if (rule.t2 && subtotal >= rule.t2) fee = Number(rule.f2);
+                else if (rule.t1 && subtotal >= rule.t1) fee = Number(rule.f1);
             }
+            shippingFee = fee;
 
-            // 2. 物流欄位驗證 (選取才強制)
-            const selectedLogistics = document.getElementById('input-logistics').value;
-            const storeRegex = /^\d{6}$/;
-
-            if (selectedLogistics.includes('7-11')) {
-                const storeId = document.getElementById('store-id-711').value.trim();
-                if (!storeRegex.test(storeId)) {
-                    document.getElementById('store-id-711').classList.add('error');
-                    isValid = false;
-                    errorMsg += "7-11 店號必須為 6 碼數字\n";
-                } else {
-                    document.getElementById('store-id-711').classList.remove('error');
-                }
-            } else if (selectedLogistics.includes('全家')) {
-                const storeId = document.getElementById('store-id-fami').value.trim();
-                if (!storeRegex.test(storeId)) {
-                    document.getElementById('store-id-fami').classList.add('error');
-                    isValid = false;
-                    errorMsg += "全家店號必須為 6 碼數字\n";
-                } else {
-                    document.getElementById('store-id-fami').classList.remove('error');
-                }
-            } else if (selectedLogistics.includes('宅配')) {
-                const addr = document.getElementById('store-addr').value.trim();
-                if (!addr) {
-                    document.getElementById('store-addr').classList.add('error');
-                    isValid = false;
-                    errorMsg += "宅配地址不得為空\n";
-                } else {
-                    document.getElementById('store-addr').classList.remove('error');
-                }
-            }
-
-            return { isValid, errorMsg };
+            // 4. 更新 Footer 顯示
+            document.getElementById('footer-logistics-name').innerText = `已選擇：${type} (運費 $${fee})`;
+            updateCartUI(); // 更新總金額
+            
+            // 5. 觸發 input sync 確保 hidden value 正確
+            syncStoreInput();
         }
 
-function submitOrder(e) {
-            e.preventDefault();
-            
-            // 1. 驗證欄位
-            const validation = validateCheckoutForm();
-            if (!validation.isValid) {
-                alert("請檢查以下欄位：\n" + validation.errorMsg);
-                return; 
+        // 同步店鋪資料到 hidden input
+        function syncStoreInput() {
+            const type = document.getElementById('input-logistics').value;
+            let storeVal = "";
+            let noteVal = "";
+
+            if (type === '7-11') {
+                const id = document.getElementById('store-id-711').value;
+                // const name = document.getElementById('store-name-711').value; // 改為分開存
+                storeVal = id;
+                noteVal = document.getElementById('store-name-711').value;
+            } else if (type === '全家') {
+                const id = document.getElementById('store-id-fami').value;
+                storeVal = id;
+                noteVal = document.getElementById('store-name-fami').value;
+            } else {
+                storeVal = document.getElementById('store-addr').value;
             }
 
-            const btn = document.getElementById('btn-submit');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span> 處理中...';
+            document.getElementById('input-store').value = storeVal;
+            document.getElementById('input-store-note').value = noteVal;
+        }
 
-            const subtotal = calculateSubtotal();
+        function submitOrder(btn) {
+            // 驗證
+            const phone = document.getElementById('input-phone').value;
+            const name = document.getElementById('input-name').value;
+            const type = document.getElementById('input-logistics').value;
+            const store = document.getElementById('input-store').value;
+
+            if (!phone || !name) return alert("請填寫完整聯絡資訊");
+            if (!store) return alert("請填寫取貨店號或地址");
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader h-5 w-5 border-2 border-white rounded-full"></span>';
+
+            const { subtotal } = calculateCartTotals();
             
-            // 商品字串化
+            // 組合商品字串
             const itemsStr = cart.map(item => {
-                const unitPrice = item.qty >= 2 ? item.price_multi : item.price;
-                return `${item.brand_key}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${unitPrice})`;
+                return `${item.brandKey}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.appliedPrice})`;
             }).join('\n');
 
-            const selectedMethod = document.getElementById('input-logistics').value;
-            
-            // 2. 準備後端需要的「扁平」資料
-            // 後端 updateMemberData 需要 p.store (店號) 和 p.store_note (店名)
-            let finalStoreData = "";
-            let finalStoreNote = "";
-            
-            if(selectedMethod.includes('7-11')) {
-                finalStoreData = document.getElementById('store-id-711').value;   // 店號
-                finalStoreNote = document.getElementById('store-note-711').value; // 店名
-            } else if (selectedMethod.includes('全家')) {
-                finalStoreData = document.getElementById('store-id-fami').value;  // 店號
-                finalStoreNote = document.getElementById('store-note-fami').value;// 店名
-            } else {
-                finalStoreData = document.getElementById('store-addr').value;     // 地址
-                // 宅配通常沒有 store_note，保持空字串
-            }
-
-            // 為了讓訂單表(Orders)的顯示更完整(因為後端直接寫入 p.store)，
-            // 我們可以把「店號 (店名)」組在一起給 p.store，
-            // 但這樣會影響會員表(Members)的店號欄位格式。
-            // 
-            // 依照您的後端邏輯：
-            // u711 = p.store; (會員表只存 p.store)
-            // 所以 p.store 必須是純店號，不能混雜店名，否則下次查詢會員會格式混亂。
-            // 
-            // 結論：維持 p.store 只有店號/地址，p.store_note 傳送店名。
-
-            // 3. 組合 Payload (完全符合現有 GAS 格式)
             const payload = {
                 action: "checkout",
-                name: document.getElementById('input-name').value,
-                phone: document.getElementById('input-phone').value,
+                phone, name, 
                 email: document.getElementById('input-email').value,
                 line_name: document.getElementById('input-line').value,
-                
-                // ★ 修正點：logistics 傳送純字串，讓後端 .includes() 正常運作
-                logistics: selectedMethod, 
-                
-                // ★ 修正點：store 傳送店號/地址 (對應後端 p.store)
-                store: finalStoreData,     
-                
-                // ★ 修正點：store_note 傳送店名 (對應後端 p.store_note)
-                store_note: finalStoreNote, 
-
-                // 這邊不需要 member_data 物件了，因為您的後端是直接讀取根目錄的參數
-                
-                product_note: document.getElementById('input-note').value,
-                join_member: document.getElementById('join-member').checked,
+                logistics: type,
+                store: store, // 純店號或地址
+                store_note: document.getElementById('input-store-note').value, // 店名
                 items: itemsStr,
-                subtotal: subtotal,
-                shipping: shippingFee,
-                temp: "常溫", 
-                date: new Date().toISOString()
+                subtotal, shipping: shippingFee,
+                date: new Date().toISOString(),
+                product_note: document.getElementById('input-note').value,
+                join_member: document.getElementById('join-member').checked
             };
 
-            fetch(ORDER_API_URL, {
+            fetch(API_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload) // 改回使用 JSON
+                body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    alert(`訂單建立成功！\n訂單編號: ${data.orderId}\n請至 Email 收信確認。`);
-                    cart = []; 
+                if(data.success) {
+                    alert(`訂單建立成功！\n編號：${data.orderId}`);
+                    cart = [];
                     updateCartUI();
                     closeAllPanels();
-                    document.getElementById('order-form').reset();
                 } else {
-                    alert("送出失敗: " + (data.msg || "未知錯誤"));
+                    alert("失敗：" + data.msg);
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("網路連線錯誤，無法送出訂單。");
             })
             .finally(() => {
                 btn.disabled = false;
                 btn.innerHTML = '<span class="material-symbols-rounded">verified</span> 確認送出訂單';
             });
         }
-
-        window.addEventListener('load', () => {
-            const statusLoader = document.getElementById('status-loader');
-
-            fetch(ORDER_API_URL) 
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.shipping_rules) {
-                        shippingRules = data.shipping_rules;
-                    }
-                })
-                .catch(err => console.error("無法讀取運費規則:", err));
-
-            function renderStatusOverview(brands) {
-                const container = document.getElementById('status-grid-container');
-                if (statusLoader) statusLoader.style.display = 'none';
-                if (!container) return;
-                container.innerHTML = '';
-                const sortedBrands = brands.sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
-
-                sortedBrands.forEach(brand => {
-                    const rawStatus = (brand.status || '').toLowerCase().trim();
-                    let statusText = brand.status || '未定';
-                    let statusClass = 'bg-gray-200 text-gray-600';
-                    let hoverClass = 'group-hover:text-gray-600';
-                    
-                    if (['available', 'open', '开团', '開團', '接收訂單中', '收單中', '可供訂購', '可訂購'].includes(rawStatus)) {
-                        statusText = '可訂購';
-                        statusClass = 'bg-brandGreen text-white';
-                        hoverClass = 'group-hover:text-brandGreen';
-                    } else {
-                        statusText = '缺貨中'; 
-                    }
-                    
-                    container.innerHTML += `
-                        <a href="#brand-${brand.key}" class="block group transform hover:-translate-y-1 transition-transform duration-300">
-                            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
-                                <span class="font-bold text-gray-800 text-lg ${hoverClass} transition-colors">${brand.name}</span>
-                                <span class="${statusClass} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
-                                    ${statusText}
-                                </span>
-                            </div>
-                        </a>`;
-                });
-            }
-
-            function renderProductSections(brands) {
-                const container = document.getElementById('product-list-container');
-                if (!container) return;
-                container.innerHTML = '';
-                brands.forEach(brand => {
-                    container.innerHTML += `
-                        <section id="brand-${brand.key}" class="scroll-mt-24">
-                            <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-gray-800 border-b pb-4">
-                                <span class="w-2 h-6 bg-brand rounded-full"></span>
-                                ${brand.name}
-                            </h2>
-                            <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                        </section>`;
-                });
-            }
-
-            function renderProductCards(brandKey, products) {
-                const grid = document.getElementById(`${brandKey}-grid`);
-                if (!grid) return;
-                
-                const visibleProducts = products; 
-                if (visibleProducts.length === 0) {
-                    grid.innerHTML = `<p class="text-gray-400 text-center col-span-full py-8">尚無品項</p>`;
-                    return;
-                }
-
-                visibleProducts.forEach(product => {
-                    const productId = product.key || Math.random().toString(36).substr(2, 9); 
-                    const name = product.name || '未命名';
-                    const price = Number(product.price) || 0;
-                    const priceMulti = Number(product.price_multi) || 0;
-                    const status = product.status || '';
-                    
-                    const note = product.note || '';      
-                    const tag = product.tag || '';        
-                    const spec = product.spec || '';      
-                    const imgPath = String(product.img || ''); 
-                    
-                    let isStockZero = false;
-                    if (product.stock !== "" && product.stock !== undefined) {
-                        if (Number(product.stock) <= 0) isStockZero = true;
-                    }
-                    const isSoldOut = isStockZero || status.includes('完售');
-                    const hasImage = imgPath !== '';
-                    const hasMultiPrice = (priceMulti > 0 && priceMulti < price);
-
-                    let imgHTML = '';
-                    if (hasImage) {
-                        const src = imgPath.startsWith('http') ? imgPath : BASE_REPO_URL + imgPath;
-                        imgHTML = `<div class="card-img-group w-full aspect-square relative overflow-hidden bg-gray-50 md:order-first md:relative md:aspect-square md:w-full md:bg-gray-50 md:overflow-hidden">
-                                         <img src="${src}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
-                                       </div>`;
-                    }
-                    
-                    let badgeHTML = '';
-                    if (tag) {
-                        badgeHTML = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">${tag}</span>`;
-                    } else if (isSoldOut) {
-                         badgeHTML = `<span class="absolute top-3 right-3 bg-gray-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full z-10 shadow-sm">缺貨</span>`;
-                    }
-
-                    let priceHTML = '';
-                    if (hasMultiPrice) {
-                        priceHTML = `
-                            <div class="flex flex-col items-end w-full">
-                                <span class="text-xs text-gray-400">單件 $${price}</span>
-                                <span class="brand-green font-bold text-lg font-mono">2件起 $${priceMulti}</span>
-                            </div>`;
-                    } else {
-                        priceHTML = `
-                            <div class="w-full text-right">
-                                <span class="brand-green font-bold text-lg font-mono">NT$ ${price}</span>
-                            </div>`;
-                    }
-
-                    const btnClass = isSoldOut ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-[#6ea44c] text-white transition active:scale-95 hover:bg-[#5d8d41] shadow-md shadow-green-900/10';
-                    // 修正：傳入 brandKey 與 spec 供結帳顯示用
-                    const clickEvent = isSoldOut ? '' : `onclick="addToCart('${productId}', '${name}', ${price}, ${priceMulti}, ${product.stock}, ${product.max_limit}, '${brandKey}', '${spec}')"`;
-                    const btnText = isSoldOut ? '完售' : '加入購物車';
-                    const qtyDisable = isSoldOut ? 'disabled opacity-50' : '';
-                    
-                    const topRowClass = `card-top-row md:contents ${hasImage ? 'items-center' : ''}`;
-
-                    grid.innerHTML += `
-                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col mobile-product-card transition hover:shadow-lg group relative">
-                            ${badgeHTML}
-                            
-                            <div class="${topRowClass}">
-                                ${imgHTML}
-                                
-                                <div class="card-info-group p-5 flex-1 flex flex-col gap-3">
-                                    
-                                    <h4 class="font-bold text-gray-800 text-xl leading-tight line-clamp-1 flex items-baseline">
-                                        ${name}
-                                        ${spec ? `<span class="ml-2 text-gray-400 text-xs font-normal whitespace-nowrap">${spec}</span>` : ''}
-                                    </h4>
-
-                                    ${ note ? `<p class="text-gray-400 text-[11px] leading-relaxed line-clamp-2 min-h-[1.5em]">${note}</p>` : '' }
-
-                                    <div class="mt-auto">
-                                        ${priceHTML}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card-bottom-row md:p-5 md:border-t md:flex md:gap-2">
-                                <div class="qty-control">
-                                    <button class="qty-btn" onclick="adjQty('${productId}', -1)" ${qtyDisable}>-</button>
-                                    <span id="iq-${productId}" class="text-xs font-bold px-2 min-w-[20px] text-center">1</span>
-                                    <button class="qty-btn" onclick="adjQty('${productId}', 1)" ${qtyDisable}>+</button>
-                                </div>
-                                <button class="add-btn flex-1 py-3 rounded-xl text-xs font-bold ${btnClass}" ${clickEvent}>${btnText}</button>
-                            </div>
-                        </div>`;
-                });
-            }
-
-            fetch(DISPLAY_API_URL)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) throw new Error(data.error);
-                    renderStatusOverview(data.brands);
-                    renderProductSections(data.brands);
-                    data.brands.forEach(brand => {
-                        renderProductCards(brand.key, data.products.filter(p => p.brand_key === brand.key));
-                    });
-                })
-                .catch(err => {
-                    console.error(err);
-                    if(document.getElementById('status-grid-container')) 
-                        document.getElementById('status-grid-container').innerHTML = `<p class="text-brand">載入失敗</p>`;
-                });
-        });
     </script>
 </body>
 </html>
