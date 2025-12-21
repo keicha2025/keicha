@@ -13,7 +13,6 @@ styles: |
         .note-box {
             background-color: #f3f4f6; /* gray-100 */
             color: #374151;
-            /* 移除 border-left */
         }
         
         /* 按鈕內專用的白色 Loader */
@@ -37,10 +36,8 @@ styles: |
             transform: translateY(-4px);
             box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
         }
-
-        /* 移除卡片左側線條邏輯，改為純色邊框或陰影 */
         
-        /* 輸入框 Placeholder 字體縮小 */
+        /* 輸入框 Placeholder 尺寸設定 */
         input::placeholder {
             font-size: 0.75rem; /* text-xs */
         }
@@ -115,9 +112,9 @@ scripts: |
                 resultsContainer.innerHTML = '';
 
                 orders.forEach(order => {
-                    // 狀態顏色邏輯：寫死「待確認」為灰色，其餘為品牌綠
+                    // 顏色邏輯：待確認為灰色，其餘品牌綠
                     const isPending = order.status === "待確認";
-                    const statusClass = isPending ? "text-gray-500 bg-gray-100" : "text-[#6ea44c] bg-green-50";
+                    const textColorClass = isPending ? "text-gray-500" : "text-[#6ea44c]";
 
                     let noteHtml = '';
                     if (order.sellerNote && order.sellerNote.trim() !== "") {
@@ -134,11 +131,11 @@ scripts: |
                             <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
                                 <div>
                                     <div class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">訂單編號</div>
-                                    <div class="text-xl font-mono font-bold text-gray-800 flex items-center gap-2">
+                                    <div class="text-xl font-mono font-bold text-gray-800">
                                         ${order.orderId}
                                     </div>
                                 </div>
-                                <div class="px-4 py-1.5 rounded-full text-sm font-bold ${statusClass}">
+                                <div class="bg-gray-50 px-4 py-2 rounded-full text-sm font-bold ${textColorClass}">
                                     ${order.status}
                                 </div>
                             </div>
