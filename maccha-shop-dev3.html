@@ -770,20 +770,25 @@
                 return `${item.brandKey}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.appliedPrice})`;
             }).join('\n');
 
-            const payload = {
-                action: "checkout",
-                phone, name, 
-                email: document.getElementById('input-email').value,
-                line_name: document.getElementById('input-line').value,
-                logistics: type,
-                store: store, // 純店號或地址
-                store_note: document.getElementById('input-store-note').value, // 店名
-                items: itemsStr,
-                subtotal, shipping: shippingFee,
-                date: new Date().toISOString(),
-                product_note: document.getElementById('input-note').value,
-                join_member: document.getElementById('join-member').checked
-            };
+const storeNote = document.getElementById('input-store-note').value || "";
+// 如果有店名就直接空格拼接，沒有就只顯示 type
+const logisticsInfo = storeNote 
+  ? `${type} ${storeNote}` 
+  : type;
+
+const payload = {
+  action: "checkout",
+  phone, name,
+  email: document.getElementById('input-email').value,
+  line_name: document.getElementById('input-line').value,
+  logistics: logisticsInfo, // 組合後的物流資訊
+  store: store, // 店號或地址仍可獨立傳
+  items: itemsStr,
+  subtotal, shipping: shippingFee,
+  date: new Date().toISOString(),
+  product_note: document.getElementById('input-note').value,
+  join_member: document.getElementById('join-member').checked
+};
 
             fetch(API_URL, {
                 method: 'POST',
