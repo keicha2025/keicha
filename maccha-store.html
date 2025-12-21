@@ -357,26 +357,49 @@
         let tempQtyMap = {};
         let cachedMemberData = null;
 
-        // --- Helper: 取得適用運費規則 (優先找'抹茶'，找不到找'default') ---
-        function getApplicableRule(uiMethod) {
-            if (!uiMethod) return null;
+// --- Helper: 取得適用運費規則 (強健比對版) ---
+function getApplicableRule(uiMethod) {
+    if (!uiMethod) return null;
 
-            // 定義比對邏輯：只要前端選的物流名稱 (uiMethod) 包含 後端設定的名稱 (r.method) 就算符合
-            const isMatch = (ruleMethod) => uiMethod.includes(ruleMethod);
+    // 1. 標準化前端選到的值 (轉字串、去空白)
+    const cleanUiMethod = String(uiMethod).trim();
 
-            // 1. 優先找 'category' 為 '抹茶' 且 物流方式符合 的規則
-            let rule = shippingRules.find(r => 
-                r.category === '抹茶' && isMatch(r.method)
-            );
+    // 定義比對邏輯：雙方轉字串、去空白後，檢查包含關係
+    const isMatch = (ruleMethod) => {
+        if (!ruleMethod) return false;
+        const rMethod = String(ruleMethod).trim(); // 強制轉字串並去空白
+        
+        // A. 前端包含後端 (例如: 前端"郵寄/宅配" 包含 後端"宅配")
+        if (cleanUiMethod.includes(rMethod)) return true;
+        
+        // B. 後端包含前端 (預防萬一)
+        if (rMethod.includes(cleanUiMethod)) return true;
+        
+        // C. 完全相等
+        return cleanUiMethod === rMethod;
+    };
 
-            // 2. 沒找到則找 'category' 為 'default' 且 物流方式符合 的規則
-            if (!rule) {
-                rule = shippingRules.find(r => 
-                    r.category === 'default' && isMatch(r.method)
-                );
-            }
-            return rule;
-        }
+    // Debug: 可以在這裡印出 log 檢查 (F12 Console)
+    // console.log("正在尋找運費規則, 前端選擇:", cleanUiMethod);
+
+    // 2. 優先找 'category' 為 '抹茶'
+    let rule = shippingRules.find(r => 
+        String(r.category).trim() === '抹茶' && isMatch(r.method)
+    );
+
+    // 3. 沒找到則找 'category' 為 'default'
+    if (!rule) {
+        rule = shippingRules.find(r => 
+            String(r.category).trim() === 'default' && isMatch(r.method)
+        );
+    }
+    
+    // Debug: 檢查有沒有找到
+    // if (rule) console.log("找到規則:", rule);
+    // else console.log("沒找到規則 (將使用 fallback)");
+
+    return rule;
+}
 
         // --- Core Panel Logic ---
         function openPanel(id) {
