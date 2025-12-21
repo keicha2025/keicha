@@ -1,0 +1,154 @@
+---
+layout: default
+title: KEICHA | 訂購方式
+description: KEICHA 下單管道說明
+---
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KEICHA 下單管道</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 導入思源黑體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#6ea44c',
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'black-sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'black-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .btn-interact {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-interact:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+        .btn-interact:active {
+            transform: scale(0.96);
+        }
+        .card-interact {
+            transition: transform 0.3s ease;
+        }
+        .card-interact:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- 服務項目區段開始 -->
+    <section id="services" class="py-16 md:py-24 bg-white scroll-mt-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">下單管道說明</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                
+                <!-- 區塊一：官網 -->
+                <div class="bg-white p-8 rounded-lg shadow-black-md text-center flex flex-col h-full border border-gray-100 card-interact">
+                    <div class="bg-brandGreen/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-brandGreen" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">官網</h3>
+                    
+                    <!-- 內容上下置中區 -->
+                    <div class="flex-grow flex flex-col justify-center my-6">
+                        <div class="space-y-6 text-left">
+                            <div class="border-l-4 border-brandGreen pl-4 py-1">
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-bold text-gray-800 block mb-1">支援登入會員</span>
+                                    自動儲存收件資料，下次購買更快速。
+                                </p>
+                            </div>
+                            <div class="border-l-4 border-brandGreen pl-4 py-1">
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-bold text-gray-800 block mb-1">訂單查詢系統</span>
+                                    隨時掌握訂單處理進度與物流狀態。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 官網按鈕群 -->
+                    <div class="mt-auto flex flex-col gap-3">
+                        <a href="https://keicha2025.github.io/keicha/maccha-store.html" class="inline-block bg-brandGreen text-white px-6 py-3 rounded-full font-bold shadow-black-sm btn-interact w-full">
+                            抹茶專屬商店
+                        </a>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="https://keicha2025.github.io/keicha/diy.html" class="inline-block border-2 border-brandGreen text-brandGreen px-4 py-2 rounded-full font-bold hover:bg-brandGreen/10 btn-interact text-sm">
+                                自填單賣場
+                            </a>
+                            <a href="https://keicha2025.github.io/keicha/fast.html" class="inline-block border-2 border-brandGreen text-brandGreen px-4 py-2 rounded-full font-bold hover:bg-brandGreen/10 btn-interact text-sm">
+                                快速結帳賣場
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 區塊二：超商貨到付款平台 -->
+                <div class="bg-white p-8 rounded-lg shadow-black-md text-center flex flex-col h-full border border-gray-100 card-interact">
+                    <div class="bg-brandGreen/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-brandGreen" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">超商貨到付款平台</h3>
+                    
+                    <div class="space-y-6 flex-grow flex flex-col justify-center my-6 text-left">
+                        <!-- 7-11 -->
+                        <div class="border-l-4 border-brandGreen pl-4 py-1">
+                            <h4 class="font-bold text-gray-800 mb-1">7-11 賣貨便</h4>
+                            <p class="text-sm text-gray-600">
+                                需進入賣場後<span class="text-brandGreen font-bold">自行填寫</span>商品明細與總金額。
+                            </p>
+                        </div>
+                        
+                        <!-- 全家 -->
+                        <div class="border-l-4 border-brandGreen/40 pl-4 py-1">
+                            <h4 class="font-bold text-gray-800 mb-1">全家 好賣+</h4>
+                            <p class="text-sm text-gray-600">
+                                需要<span class="text-brandGreen font-bold">選取至訂單金額</span>後，於訂單備註填寫商品名稱。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 超商按鈕群 -->
+                    <div class="mt-auto flex flex-col gap-3">
+                        <a href="#" class="inline-block bg-brandGreen text-white px-6 py-3 rounded-full font-bold shadow-black-sm btn-interact w-full">
+                            7-11 賣貨便下單
+                        </a>
+                        <a href="#" class="inline-block border-2 border-brandGreen text-brandGreen px-6 py-3 rounded-full font-bold hover:bg-brandGreen/10 btn-interact w-full">
+                            全家 好賣+ 下單
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- 底部提示 -->
+            <div class="mt-12 text-center">
+                <p class="text-gray-400 font-medium text-sm">
+                    以上皆適用原先報價與相同運費設定
+                </p>
+            </div>
+        </div>
+    </section>
+    <!-- 服務項目區段結束 -->
+
+</body>
