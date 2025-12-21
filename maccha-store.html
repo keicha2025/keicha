@@ -357,27 +357,26 @@
         let tempQtyMap = {};
         let cachedMemberData = null;
 
-// --- Helper: 取得適用運費規則 (優先找'抹茶'，找不到找'default') ---
-function getApplicableRule(uiMethod) {
-    if (!uiMethod) return null;
+        // --- Helper: 取得適用運費規則 (優先找'抹茶'，找不到找'default') ---
+        function getApplicableRule(uiMethod) {
+            if (!uiMethod) return null;
 
-    // 定義比對邏輯：只要前端選的物流名稱 (uiMethod) 包含 後端設定的名稱 (r.method) 就算符合
-    // 例如：前端 "郵寄/宅配" 包含了 後端 "宅配" -> 符合
-    const isMatch = (ruleMethod) => uiMethod.includes(ruleMethod);
+            // 定義比對邏輯：只要前端選的物流名稱 (uiMethod) 包含 後端設定的名稱 (r.method) 就算符合
+            const isMatch = (ruleMethod) => uiMethod.includes(ruleMethod);
 
-    // 1. 優先找 'category' 為 '抹茶' 且 物流方式符合 的規則
-    let rule = shippingRules.find(r => 
-        r.category === '抹茶' && isMatch(r.method)
-    );
+            // 1. 優先找 'category' 為 '抹茶' 且 物流方式符合 的規則
+            let rule = shippingRules.find(r => 
+                r.category === '抹茶' && isMatch(r.method)
+            );
 
-    // 2. 沒找到則找 'category' 為 'default' 且 物流方式符合 的規則
-    if (!rule) {
-        rule = shippingRules.find(r => 
-            r.category === 'default' && isMatch(r.method)
-        );
-    }
-    return rule;
-}}
+            // 2. 沒找到則找 'category' 為 'default' 且 物流方式符合 的規則
+            if (!rule) {
+                rule = shippingRules.find(r => 
+                    r.category === 'default' && isMatch(r.method)
+                );
+            }
+            return rule;
+        }
 
         // --- Core Panel Logic ---
         function openPanel(id) {
@@ -432,7 +431,7 @@ function getApplicableRule(uiMethod) {
                 if (rule) {
                     el.innerText = `$${rule.base}`;
                 } else {
-                    el.innerText = '$0'; // Or some other placeholder if no rule found
+                    el.innerText = '$0'; 
                 }
             });
         }
@@ -706,48 +705,34 @@ function getApplicableRule(uiMethod) {
         }
 
         function updateShippingFee() {
-    const subtotal = calculateSubtotal();
-    
-    // 取得規則
-    const rule = getApplicableRule(selectedLogisticsType);
-    
-    let finalFee = 0; 
-    
-    if (rule) {
-        // --- 有抓到規則，開始計算 ---
-        
-        // 1. 先將 base 轉為數字，作為預設運費
-        finalFee = Number(rule.base || 0);
-
-        // 2. 檢查門檻 (由高門檻 t3 往低門檻 t1 檢查)
-        // 只有當 t 欄位 "不為空" 且 "消費達標" 時才覆寫運費
-        
-        if (rule.t3 !== "" && subtotal >= Number(rule.t3)) {
-            finalFee = Number(rule.f3);
-        } 
-        else if (rule.t2 !== "" && subtotal >= Number(rule.t2)) {
-            finalFee = Number(rule.f2);
-        } 
-        else if (rule.t1 !== "" && subtotal >= Number(rule.t1)) {
-            finalFee = Number(rule.f1);
+            const subtotal = calculateSubtotal();
+            const rule = getApplicableRule(selectedLogisticsType);
+            
+            let finalFee = 0; 
+            
+            if (rule) {
+                finalFee = Number(rule.base || 0);
+                if (rule.t3 !== "" && subtotal >= Number(rule.t3)) {
+                    finalFee = Number(rule.f3);
+                } 
+                else if (rule.t2 !== "" && subtotal >= Number(rule.t2)) {
+                    finalFee = Number(rule.f2);
+                } 
+                else if (rule.t1 !== "" && subtotal >= Number(rule.t1)) {
+                    finalFee = Number(rule.f1);
+                }
+            } else {
+                if(selectedLogisticsType.includes('宅配')) finalFee = 100;
+                else if(selectedLogisticsType) finalFee = 60;
+            }
+            
+            shippingFee = finalFee;
+            const logisticsText = selectedLogisticsType 
+                ? `已選擇：${selectedLogisticsType} (運費 $${finalFee})` 
+                : '尚未選擇物流';
+            document.getElementById('footer-logistics-name').innerText = logisticsText;
+            document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
         }
-    } else {
-        // --- 沒抓到規則 (Fallback) ---
-        // 為了避免顯示 $0 誤導，若使用者已選物流但沒抓到規則，給予一個安全預設值
-        if(selectedLogisticsType.includes('宅配')) finalFee = 100;
-        else if(selectedLogisticsType) finalFee = 60;
-    }
-    
-    shippingFee = finalFee;
-    
-    // 更新 UI 文字
-    const logisticsText = selectedLogisticsType 
-        ? `已選擇：${selectedLogisticsType} (運費 $${finalFee})` 
-        : '尚未選擇物流';
-        
-    document.getElementById('footer-logistics-name').innerText = logisticsText;
-    document.getElementById('modal-total').innerText = (subtotal + shippingFee).toLocaleString();
-}
         
         function submitOrder(btn) {
             const phone = document.getElementById('input-phone').value.trim();
@@ -791,7 +776,7 @@ function getApplicableRule(uiMethod) {
                 return `${item.brand_key}｜${item.name}${item.spec ? '｜'+item.spec : ''} x${item.qty} ($${item.qty>1 && item.price_multi ? item.price_multi : item.price})`;
             }).join('\n');
 
-            // 組合字串： "物流方式 店名備註" (如：全家 松山店)
+            // 組合字串
             const logisticsStr = storeNote ? `${type} ${storeNote}` : type;
 
             const payload = {
@@ -866,7 +851,7 @@ function getApplicableRule(uiMethod) {
                         renderProductCards(brand.key, allProducts.filter(p => p.brand_key === brand.key));
                     });
                     
-                    // Initialize logistics cards prices (after rules loaded)
+                    // Initialize logistics cards prices
                     updateLogisticsCardPrices();
 
                     loader.style.display = 'none';
@@ -879,7 +864,7 @@ function getApplicableRule(uiMethod) {
                 });
         });
 
-        // (Render functions are same as before)
+        // (Render functions omitted to keep clean, assumed same as before)
         function renderStatusOverview(brands) {
             const container = document.getElementById('status-grid-container');
             if (!container) return;
