@@ -1,22 +1,47 @@
 ---
-# 這是 Front Matter
 layout: default
 title: KEICHA 訂單追蹤 | 預購商品狀態查詢
-description: KEICHA 訂單追蹤系統。輸入您的訂單編號，即時查詢預購商品的最新處理進度。
+description: KEICHA 訂單追蹤系統。輸入訂單編號或手機號碼，即時查詢訂單進度。
 keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
 
 # ★ CSS 與 JS 區塊
 styles: |
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+    
     <style>
-        /* 專屬 jyoukyou.html 的樣式 */
+        /* 專屬樣式 */
         .note-box {
-            background-color: #f9fafb; /* gray-50 */
-            border-left: 4px solid #d1d5db; /* gray-300 */
+            background-color: #f0fdf4; /* green-50 */
+            border-left: 4px solid #6ea44c; /* brand color */
+            color: #374151;
         }
-        /* 異常狀態專用樣式 */
         .error-box {
             background-color: #fef2f2; /* red-50 */
             border-left: 4px solid #ef4444; /* red-500 */
+            color: #b91c1c;
+        }
+        
+        /* Loading 動畫 */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #6ea44c;
+            width: 24px;
+            height: 24px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 結果卡片樣式 */
+        .order-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
     </style>
 scripts: |
@@ -24,167 +49,162 @@ scripts: |
         document.addEventListener('DOMContentLoaded', () => {
             const searchButton = document.getElementById('search-order-button');
             const orderInput = document.getElementById('order-number-input');
-            const resultDiv = document.getElementById('order-result');
+            const phoneInput = document.getElementById('phone-number-input');
+            const resultsContainer = document.getElementById('results-container'); // 變更：改為容器以容納多筆
             const loader = document.getElementById('search-loader');
             const errorDiv = document.getElementById('search-error');
-            const statusResultDiv = document.getElementById('result-current-status');
+            const resultSection = document.getElementById('order-result-section');
             
-            // ★★★ 您的 Google Sheet .csv 網址 ★★★
-            const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEb5SDs5hEq76XXxcdCKQL_KYjPyUlHNKHqJEhblIskMEXHK3uRkUWXR-PbPdXf5H5sLq4e8oAJwfL/pub?gid=0&single=true&output=csv"; 
+            // ★★★ 您的 GAS Web App URL ★★★
+            const API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
             // ★★★★★★★★★★★★★★★★★★★★★★★★★
 
-            // 檢查 Google Sheet 網址
-            if (!sheetUrl || !sheetUrl.startsWith('http') || sheetUrl.includes("YOUR_GOOGLE_SHEET_URL")) {
-                showError("網站尚未設定訂單追蹤的 Google Sheet 網址。請聯繫管理員。");
-                if (orderInput) orderInput.disabled = true;
-                if (searchButton) searchButton.disabled = true;
-                return; 
-            }
-
-            // 按鈕事件
+            // 按鈕事件監聽
             if (searchButton) searchButton.addEventListener('click', handleSearch);
-            if (orderInput) {
-                orderInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') handleSearch();
-                });
-            }
+            
+            // Enter 鍵監聽
+            const inputs = [orderInput, phoneInput];
+            inputs.forEach(input => {
+                if(input) {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') handleSearch();
+                    });
+                }
+            });
 
-            // 搜尋函式
+            // 查詢函式
             async function handleSearch() {
-                const orderNumber = orderInput.value.trim().toUpperCase(); 
-                if (!orderNumber) {
-                    showError("請輸入您的訂單編號。");
+                const orderId = orderInput.value.trim();
+                const phone = phoneInput.value.trim();
+
+                // 驗證：至少需輸入一項
+                if (!orderId && !phone) {
+                    showError("請輸入「訂單編號」或「手機號碼」其中一項即可查詢。");
                     return;
                 }
                 
+                // UI 重置
                 showLoading(true);
                 showError(null);
-                resultDiv.classList.add('hidden');
-                if (statusResultDiv) statusResultDiv.innerHTML = ''; 
+                resultSection.classList.add('hidden');
+                resultsContainer.innerHTML = '';
 
                 try {
-                    const response = await fetch(sheetUrl, { cache: 'no-store' });
-                    if (!response.ok) throw new Error(`無法連接資料庫 (${response.status})`);
-                    
-                    const csvText = await response.text();
-                    const orderData = parseCSV(csvText);
-                    
-                    const foundOrder = orderData.find(row => 
-                        row.order_number && row.order_number.trim().toUpperCase() === orderNumber
-                    );
+                    // 組建 API 網址
+                    let fetchUrl = `${API_URL}?action=query`;
+                    if (orderId) fetchUrl += `&orderId=${encodeURIComponent(orderId)}`;
+                    if (phone) fetchUrl += `&phone=${encodeURIComponent(phone)}`;
 
-                    if (foundOrder) {
-                        displayResult(foundOrder);
+                    const response = await fetch(fetchUrl);
+                    const json = await response.json();
+                    
+                    if (json.success && json.data && json.data.length > 0) {
+                        // 成功抓取資料
+                        renderResults(json.data);
+                        resultSection.classList.remove('hidden');
+                        
+                        // 平滑捲動到結果區
+                        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     } else {
-                        showError(`找不到訂單編號 "${orderNumber}"。請檢查您的編號是否正確，或聯繫客服。`);
+                        // 查無資料或後端回傳失敗
+                        const msg = json.msg || "查無此訂單資料，請檢查您的輸入是否正確。";
+                        showError(msg);
                     }
 
                 } catch (error) {
-                    console.error("查詢錯誤:", error);
-                    showError(`查詢時發生錯誤: ${error.message}`);
+                    console.error("API Error:", error);
+                    showError("連線發生錯誤，請稍後再試或聯繫客服。");
                 } finally {
                     showLoading(false);
                 }
             }
 
-            // CSV 解析
-            function parseCSV(text) {
-                const lines = text.split(/\r?\n/);
-                if (lines.length < 2) return [];
-                
-                const headers = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF"']/g, ''));
-                const minimalHeaders = ['order_number', 'order_info', 'status']; 
-                
-                if (!minimalHeaders.every(h => headers.includes(h))) {
-                    console.error("CSV 標頭不符。需要:", minimalHeaders, "實際:", headers);
-                    throw new Error("訂單資料庫格式錯誤，請聯繫管理員。");
-                }
-                
-                const data = [];
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i].trim()) continue;
-                    const values = lines[i].split(',');
-                    const row = {};
-                    headers.forEach((header, index) => {
-                        row[header] = values[index] ? values[index].trim().replace(/"/g, '') : '';
-                    });
-                    data.push(row);
-                }
-                return data;
-            }
+            // 渲染結果卡片 (支援多筆)
+            function renderResults(orders) {
+                resultsContainer.innerHTML = ''; // 清空
 
-            // 顯示結果
-            function displayResult(order) {
-                resultDiv.classList.remove('hidden');
-                
-                const orderNumberEl = document.getElementById('result-order-number');
-                const orderInfoEl = document.getElementById('result-order-info');
-                
-                if (orderNumberEl) orderNumberEl.textContent = order.order_number || 'N/A';
-
-                const isInfoAbnormal = !order.order_info || order.order_info.trim() === '' || order.order_info === '異常';
-
-                if (orderInfoEl) {
-                    if (isInfoAbnormal) {
-                        orderInfoEl.innerHTML = '<span class="text-red-600 font-bold">資料異常 (請聯繫客服)</span>';
-                    } else {
-                        orderInfoEl.textContent = order.order_info;
+                orders.forEach(order => {
+                    // 狀態顏色邏輯
+                    let statusColorClass = "text-gray-600";
+                    let iconName = "pending"; // 預設 icon
+                    
+                    if (order.status.includes("確認") || order.status.includes("完成") || order.status.includes("出貨")) {
+                        statusColorClass = "text-[#6ea44c]"; // Brand Green
+                        iconName = "check_circle";
+                    } else if (order.status.includes("取消") || order.status.includes("異常")) {
+                        statusColorClass = "text-red-600";
+                        iconName = "error";
                     }
-                }
 
-                displayCurrentStatus(order.status, order.note, isInfoAbnormal);
-            }
+                    // 備註區塊 (有的話才顯示)
+                    let noteHtml = '';
+                    if (order.sellerNote && order.sellerNote.trim() !== "") {
+                        noteHtml = `
+                            <div class="note-box mt-4 p-4 rounded-lg text-sm">
+                                <div class="flex items-center gap-2 font-bold mb-1">
+                                    <span class="material-symbols-rounded text-base">campaign</span>
+                                    賣家留言
+                                </div>
+                                <div class="leading-relaxed whitespace-pre-wrap">${order.sellerNote}</div>
+                            </div>
+                        `;
+                    }
 
-            // ★ 狀態顯示函式 (已修改異常顯示邏輯)
-            function displayCurrentStatus(currentStatus, note, isInfoAbnormal) {
-                const statusResultDiv = document.getElementById('result-current-status');
-                if (!statusResultDiv) return;
+                    // 卡片 HTML
+                    const cardHtml = `
+                        <div class="order-card bg-white border border-gray-100 rounded-xl p-6 mb-6 shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-2 h-full ${statusColorClass.replace('text-', 'bg-')}"></div>
+                            
+                            <div class="pl-4">
+                                <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
+                                    <div>
+                                        <div class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">訂單編號</div>
+                                        <div class="text-xl font-mono font-bold text-gray-800 flex items-center gap-2">
+                                            <span class="material-symbols-rounded text-gray-400 text-lg">tag</span>
+                                            ${order.orderId}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full self-start">
+                                        <span class="material-symbols-rounded ${statusColorClass}">${iconName}</span>
+                                        <span class="font-bold ${statusColorClass}">${order.status}</span>
+                                    </div>
+                                </div>
 
-                statusResultDiv.innerHTML = '';
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-4">
+                                    <div>
+                                        <div class="text-xs text-gray-400 font-bold mb-1 flex items-center gap-1">
+                                            <span class="material-symbols-rounded text-sm">shopping_bag</span> 訂購商品
+                                        </div>
+                                        <div class="text-gray-700 font-medium">${order.item}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-400 font-bold mb-1 flex items-center gap-1">
+                                            <span class="material-symbols-rounded text-sm">payments</span> 訂單金額
+                                        </div>
+                                        <div class="text-gray-700 font-medium font-mono">NT$ ${order.amount ? Number(order.amount).toLocaleString() : '-'}</div>
+                                    </div>
+                                </div>
 
-                const isStatusAbnormal = !currentStatus || currentStatus.trim() === '' || currentStatus === '異常';
-                
-                if (isStatusAbnormal || isInfoAbnormal) {
-                    // === 顯示異常畫面 (已更新文字與 select-all 範圍) ===
-                    statusResultDiv.innerHTML = `
-                        <p class="text-2xl font-bold text-red-600 mb-2">狀態異常</p>
-                        <div class="error-box mt-4 p-4 text-left mx-auto max-w-md rounded-r-lg">
-                            <p class="text-red-700 font-bold mb-1">訂單資訊需進一步確認</p>
-                            <p class="text-gray-700 text-sm mb-2">請您聯繫客服協助處理。</p>
-                            <div class="bg-white bg-opacity-50 p-2 rounded border border-red-200 text-center">
-                                <span class="text-gray-800 font-bold">LINE ID：</span>
-                                <span class="text-gray-800 font-bold select-all">@366qwylw</span>
+                                ${noteHtml}
                             </div>
                         </div>
                     `;
-                    return; 
-                }
-
-                // === 顯示正常狀態 ===
-                let htmlContent = `
-                    <p class="text-2xl font-bold text-brandGreen mb-2">${currentStatus}</p>
-                `;
-
-                if (note && note.trim() !== "") {
-                    htmlContent += `
-                        <div class="note-box mt-4 p-4 text-left mx-auto max-w-md rounded-r-lg">
-                            <span class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">備註/留言</span>
-                            <p class="text-gray-700 text-sm md:text-base leading-relaxed">${note}</p>
-                        </div>
-                    `;
-                }
-
-                statusResultDiv.innerHTML = htmlContent;
+                    
+                    resultsContainer.insertAdjacentHTML('beforeend', cardHtml);
+                });
             }
 
+            // 顯示/隱藏 Loading
             function showLoading(isLoading) {
                 if (loader) loader.classList.toggle('hidden', !isLoading);
+                if (searchButton) searchButton.disabled = isLoading;
             }
 
+            // 顯示錯誤訊息
             function showError(message) {
                 if (errorDiv) {
                     if (message) {
-                        errorDiv.textContent = message;
+                        errorDiv.innerHTML = `<span class="material-symbols-rounded align-middle mr-2">warning</span>${message}`;
                         errorDiv.classList.remove('hidden');
                     } else {
                         errorDiv.classList.add('hidden');
@@ -196,72 +216,80 @@ scripts: |
     </script>
 ---
 
-<main class="py-16 md:py-24">
+<main class="py-16 md:py-24 bg-gray-50 min-h-screen">
     <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
-        <section class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
-            <header class="text-center mb-8 pb-6 border-b border-gray-200">
-                <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">訂單追蹤</h1>
-                <p class="mt-4 text-lg text-gray-600">輸入您的訂單編號，查詢預購商品最新進度。</p>
+        <section class="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100 mb-8">
+            <header class="text-center mb-8 pb-6 border-b border-gray-100">
+                <h1 class="text-3xl md:text-4xl font-bold text-[#6ea44c] flex items-center justify-center gap-3">
+                    <span class="material-symbols-rounded text-4xl">search_check</span>
+                    訂單追蹤
+                </h1>
+                <p class="mt-4 text-gray-500">輸入您的訂單資訊，即時查詢處理進度。</p>
             </header>
             
-            <div class="max-w-xl mx-auto">
-                <label for="order-number-input" class="block text-sm font-medium text-gray-700 mb-2">訂單編號</label>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="order-number-input" placeholder="請輸入訂單編號"
-                           class="flex-grow w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brandGreen focus:border-transparent">
-                    <button id="search-order-button"
-                            class="w-full sm:w-auto px-6 py-3 bg-brandGreen text-white font-bold rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brandGreen focus:ring-offset-2">
-                        查詢
-                    </button>
+            <div class="max-w-xl mx-auto space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="order-number-input" class="block text-sm font-bold text-gray-700 mb-2">訂單編號</label>
+                        <div class="relative">
+                            <span class="material-symbols-rounded absolute left-3 top-3.5 text-gray-400">tag</span>
+                            <input type="text" id="order-number-input" placeholder="例如：denwa-25121901"
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6ea44c] focus:border-transparent transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="phone-number-input" class="block text-sm font-bold text-gray-700 mb-2">手機號碼</label>
+                        <div class="relative">
+                            <span class="material-symbols-rounded absolute left-3 top-3.5 text-gray-400">smartphone</span>
+                            <input type="tel" id="phone-number-input" placeholder="例如：0912345678"
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6ea44c] focus:border-transparent transition-all">
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-gray-400 text-center">※ 請至少輸入其中一項即可查詢</p>
+
+                <button id="search-order-button"
+                        class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-xl shadow-lg shadow-green-100 hover:bg-[#5d8c40] hover:shadow-xl transition-all duration-300 transform active:scale-98 flex items-center justify-center gap-2">
+                    <span class="material-symbols-rounded">search</span>
+                    開始查詢
+                </button>
+
+                <div id="search-loader" class="text-center py-4 hidden">
+                    <div class="loader mr-2"></div>
+                    <span class="text-gray-500 font-bold">查詢中...</span>
                 </div>
 
-                <div id="search-loader" class="text-center py-6 hidden">
-                    <p class="text-gray-600">查詢中，請稍候...</p>
+                <div id="search-error" class="hidden mt-4 text-center text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 font-medium">
                 </div>
-                <div id="search-error" class="hidden mt-4 text-center text-red-600 bg-red-100 p-4 rounded-lg">
-                    </div>
             </div>
         </section>
 
-<section id="order-result" class="hidden mt-10 bg-white p-8 md:p-12 rounded-lg shadow-lg">
-    
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">查詢結果</h2>
+        <section id="order-result-section" class="hidden">
+            <div class="flex items-center gap-2 mb-6">
+                <span class="material-symbols-rounded text-[#6ea44c]">list_alt</span>
+                <h2 class="text-xl font-bold text-gray-800">查詢結果</h2>
+            </div>
+            
+            <div id="results-container"></div>
+        </section>
 
-    <!-- 目前狀態移到這裡 -->
-    <div class="bg-gray-50 p-4 rounded-lg mb-8 w-full">
-        <h3 class="text-sm font-semibold text-gray-500 mb-1">目前狀態</h3>
-        <p id="result-current-status" class="text-lg font-bold text-brandGreen"></p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-gray-50 p-4 rounded-lg">
-            <h3 class="text-sm font-semibold text-gray-500 mb-1">訂單編號</h3>
-            <p id="result-order-number"  class="text-lg font-medium text-gray-800"></p>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-lg">
-            <h3 class="text-sm font-semibold text-gray-500 mb-1">訂購商品</h3>
-            <p id="result-order-info" class="text-lg font-medium text-gray-800"></p>
-        </div>
-    </div>
-
-</section>
-
-        <section class="mt-16 text-center">
-            <div class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">需要協助嗎？</h2>
-                <p class="text-gray-600 mb-6">查詢不到訂單，或對訂單有任何疑問嗎？</p>
+        <section class="mt-12 text-center">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
+                    <span class="material-symbols-rounded text-[#6ea44c]">support_agent</span>
+                    需要協助嗎？
+                </h2>
+                <p class="text-gray-500 mb-6 text-sm">查詢不到訂單，或對訂單有任何疑問，請聯絡 LINE 官方客服。</p>
                 
-                <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" 
-                   class="inline-block bg-brandGreen text-white px-8 py-3 rounded-lg text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-md transform hover:scale-105">
-                    LINE 官方客服
+                <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center bg-[#06c755] text-white px-8 py-3 rounded-full font-bold hover:bg-[#05b64d] transition duration-300 shadow-md gap-2">
+                   <span class="material-symbols-rounded">chat</span>
+                   聯絡 LINE 官方客服
                 </a>
             </div>
         </section>
 
     </div>
-
 </main>
-
-
-
