@@ -1,341 +1,166 @@
 /**
- * KEICHA 抹茶代購總覽 - 全自動載入引擎
- * * 功能：
- * 1. 抓取「總表」Google Sheet
- * 2. 動態建立「品牌總覽」HTML (支援中文化狀態顯示)
- * 3. 動態建立「詳細品項」HTML 骨架
- * 4. 動態建立 SEO 結構化資料 (JSON-LD)
- * 5. 異步抓取所有「詳細品項」的 CSV 並填入 (含下架過濾與備註顯示)
+ * KEICHA 抹茶代購總覽 - GAS JSON 驅動版
+ * 更新日期：2025-12-21
  */
 
-// ★ 使用 'load' 事件，確保在頁面資源載入後執行
 window.addEventListener('load', () => {
 
-    // --- 您的後台設定區 ---
-    const masterSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRg7lbIAXPL0bOABXVzsELSwhhc0UQfZX2JOtxWkHH0wLlZwkWNK-8kNiRGpyvLyfNhAsl0zVaDKpIv/pub?gid=1151248789&single=true&output=csv";
+    // --- 設定區 ---
+    const gasUrl = "您的_GAS_WEB_APP_URL"; // 請在此貼上您的 GAS 部署網址
     // --- 設定區結束 ---
 
-    
-    // --- 核心功能函式 ---
+    const statusGrid = document.getElementById('status-grid-container');
+    const statusLoader = document.getElementById('status-loader');
+    const productContainer = document.getElementById('product-list-container');
 
-    /**
-     * 強制清除快取的 Fetch
-     */
-    function fetchWithCacheBust(url) {
-        if (!url || !url.startsWith('http') || url.includes("請貼上")) {
-            return Promise.reject(new Error(`無效或缺失的 Google Sheet 網址: ${url}`));
-        }
-        
-        return fetch(url, {
-            cache: 'no-store',
-            headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            }
-        })
+    // 1. 抓取 GAS 資料
+    fetch(gasUrl)
         .then(response => {
-            if (!response.ok) {
-                const statusText = response.status === 0 ? 'Network/CORS Error' : response.status;
-                throw new Error(`網路回應錯誤 (status: ${statusText})`);
-            }
-            return response.text();
-        });
-    }
+            if (!response.ok) throw new Error('網路回應錯誤');
+            return response.json();
+        })
+        .then(data => {
+            const { brands, products } = data;
 
-    /**
-     * 清理 CSV 標頭中的隱藏字元
-     */
-    function cleanHeader(headerArray) {
-        return headerArray.map(h => h.trim().replace(/[\uFEFF"']/g, ''));
-    }
+            // A. 品牌排序邏輯：依照 order 數字小到大排，沒填的排最後
+            const sortedBrands = brands.sort((a, b) => {
+                const orderA = (a.order === "" || a.order === null) ? 999 : parseInt(a.order);
+                const orderB = (b.order === "" || b.order === null) ? 999 : parseInt(b.order);
+                return orderA - orderB;
+            });
 
-    /**
-     * 統一的 CSV 解析器
-     */
-    function parseCSV(text, requiredHeaders) {
-        const lines = text.split(/\r?\n/);
-        if (lines.length < 2) return [];
-        
-        let header = cleanHeader(lines[0].split(','));
-        
-        // 檢查絕對必要欄位
-        const criticalHeaders = ['product_name', 'price', 'key', 'name']; 
-        const missingCritical = requiredHeaders.filter(h => 
-            criticalHeaders.includes(h) && !header.includes(h)
-        );
+            // B. 隱藏載入動畫
+            if (statusLoader) statusLoader.style.display = 'none';
 
-        if (missingCritical.length > 0) {
-            console.error(`CSV 標頭缺少關鍵欄位:`, missingCritical);
-            throw new Error(`CSV 標頭缺少 ${missingCritical.join(', ')} 欄位。`);
-        }
-        
-        const headerMap = {};
-        requiredHeaders.forEach(h => {
-            headerMap[h] = header.indexOf(h);
+            // C. 渲染「品牌總覽」
+            renderBrands(sortedBrands);
+
+            // D. 渲染「產品區塊」
+            renderProducts(sortedBrands, products);
+
+            // E. 生成 SEO 結構化資料
+            renderSEO(sortedBrands);
+        })
+        .catch(err => {
+            console.error("載入失敗:", err);
+            if (statusGrid) statusGrid.innerHTML = `<p class="text-red-500 col-span-full text-center">資料載入失敗，請稍後再試。</p>`;
         });
 
-        const data = [];
-        const primaryKey = requiredHeaders[0]; 
-
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i].trim()) continue;
-            const row = lines[i].split(',');
-            const item = {};
-            
-            for (const key in headerMap) {
-                const index = headerMap[key];
-                if (index !== -1 && row[index] !== undefined) {
-                    item[key] = row[index].trim();
-                } else {
-                    item[key] = '';
-                }
-            }
-
-            if (item[primaryKey]) { 
-                data.push(item);
-            }
-        }
-        return data;
-    }
-
     /**
-     * ★ [UPDATED] 渲染「品牌狀態總覽」
-     * 加入中文化翻譯：available -> 可訂購, out-of-stock -> 缺貨中
+     * 渲染品牌總覽小卡
      */
-    function renderStatusOverview(brands) {
-        const container = document.getElementById('status-grid-container');
-        const loader = document.getElementById('status-loader');
-        
-        if (loader) loader.style.display = 'none';
-        if (!container) return;
-
-        container.innerHTML = '';
+    function renderBrands(brands) {
+        if (!statusGrid) return;
+        statusGrid.innerHTML = '';
 
         brands.forEach(brand => {
-            // 1. 取得原始狀態並轉小寫
-            const rawStatus = (brand.status || '').toLowerCase().trim();
-            
-            // 2. 設定預設值 (灰底、原始文字)
-            let statusText = brand.status || '未定';
-            let statusColor = 'bg-gray-200 text-gray-600'; // 預設灰色
+            const isAvailable = brand.status === 'available';
+            const statusText = isAvailable ? '可訂購' : '缺貨中';
+            const statusColor = isAvailable ? 'bg-brandGreen text-white' : 'bg-gray-200 text-gray-600';
 
-            // 3. 判斷邏輯與翻譯
-            // 綠色：可訂購
-            if (['available', 'open', '开团', '開團', '接收訂單中'].includes(rawStatus)) {
-                statusText = '可訂購';
-                statusColor = 'bg-brandGreen text-white';
-            } 
-            // 灰色：缺貨中
-            else if (['out-of-stock', 'sold out', 'close', '關閉', '缺貨'].includes(rawStatus)) {
-                statusText = '缺貨中';
-                statusColor = 'bg-gray-200 text-gray-600';
-            }
-
-            const cardHTML = `
-                <a href="#${brand.key}" class="block group transform hover:-translate-y-1 transition-transform duration-300">
-                    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 border border-gray-100 flex justify-between items-center">
-                        <span class="font-bold text-gray-800 text-lg group-hover:text-brandGreen transition-colors">${brand.name}</span>
-                        <span class="${statusColor} text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
+            statusGrid.innerHTML += `
+                <a href="#${brand.key}" class="block group transform hover:-translate-y-1 transition-all">
+                    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 flex justify-between items-center">
+                        <span class="font-bold text-gray-800 text-lg group-hover:text-brandGreen">${brand.name}</span>
+                        <span class="${statusColor} text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                             ${statusText}
                         </span>
                     </div>
                 </a>
             `;
-            container.innerHTML += cardHTML;
         });
     }
 
     /**
-     * 渲染「詳細品項」區塊結構
+     * 渲染產品詳細區塊
      */
-    function renderProductSections(brands) {
-        const container = document.getElementById('product-list-container');
-        if (!container) return;
-        
-        container.innerHTML = ''; 
+    function renderProducts(brands, allProducts) {
+        if (!productContainer) return;
+        productContainer.innerHTML = '';
 
         brands.forEach(brand => {
-            const sectionHTML = `
-                <section id="${brand.key}" class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28">
-                    <h2 class="text-3xl font-bold text-center mb-10">${brand.name}</h2>
-                    <div id="${brand.key}-loader" class="flex justify-center items-center h-32">
-                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-                    </div>
-                    <div id="${brand.key}-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            // 篩選屬於該品牌的產品
+            const brandProducts = allProducts.filter(p => p.brand_key === brand.key);
+
+            // 建立品牌 Section
+            const section = document.createElement('section');
+            section.id = brand.key;
+            section.className = "container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl scroll-mt-28";
+            
+            let productCardsHTML = '';
+            
+            if (brandProducts.length === 0) {
+                productCardsHTML = `<p class="text-gray-400 text-center col-span-full py-8">目前暫無品項</p>`;
+            } else {
+                brandProducts.forEach(p => {
+                    const isAvailable = p.status === 'available' && p.stock > 0;
+                    const cardClass = isAvailable ? 'bg-white transform hover:scale-105' : 'bg-gray-100 opacity-70';
+                    
+                    // 標籤顯示 (對應 GAS 的 tag 欄位)
+                    let badge = '';
+                    if (!isAvailable) {
+                        badge = `<span class="absolute top-3 right-3 bg-gray-300 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full">缺貨中</span>`;
+                    } else if (p.tag) {
+                        badge = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-bold px-2.5 py-1 rounded-full">${p.tag}</span>`;
+                    }
+
+                    // 價格顯示 (支援 price_multi 折扣)
+                    let priceHTML = '';
+                    if (p.price_multi > 0 && p.price_multi < p.price) {
+                        priceHTML = `
+                            <div class="price-discount">
+                                <span class="price-original">單罐: NT$ ${p.price.toLocaleString()}</span>
+                                <span class="text-brandGreen price-current">2罐起單價: NT$ ${p.price_multi.toLocaleString()}</span>
+                            </div>`;
+                    } else {
+                        priceHTML = `<p class="text-brandGreen price-current">NT$ ${p.price.toLocaleString()}</p>`;
+                    }
+
+                    // 規格顯示
+                    const displayName = p.spec ? `${p.name} <span class="text-sm font-normal text-gray-500">(${p.spec})</span>` : p.name;
+
+                    productCardsHTML += `
+                        <div class="${cardClass} relative shadow-lg rounded-lg overflow-hidden transition-all duration-300 flex flex-col">
+                            ${badge}
+                            <div class="p-6 flex-grow">
+                                <h3 class="text-xl font-bold mb-2">${displayName}</h3>
+                                ${p.note ? `<p class="text-sm text-gray-500">${p.note}</p>` : ''}
+                            </div>
+                            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                                ${priceHTML}
+                            </div>
                         </div>
-                </section>
-            `;
-            container.innerHTML += sectionHTML;
-        });
-    }
-
-    /**
-     * 渲染「單一品牌」的品項卡片
-     * (含 hidden 過濾、availability_note 顯示邏輯)
-     */
-    function renderProductCards(brandKey, products) {
-        const grid = document.getElementById(`${brandKey}-grid`);
-        const loader = document.getElementById(`${brandKey}-loader`);
-        if (!grid || !loader) return;
-
-        loader.style.display = 'none';
-        grid.innerHTML = '';
-
-        // 1. 先過濾出「要顯示」的商品
-        const visibleProducts = products.filter(product => {
-            if (!product.hidden) return true;
-            const h = product.hidden.toString().toLowerCase().trim();
-            return !['true', '1', 'yes', '下架'].includes(h);
-        });
-
-        // 2. 判斷過濾後的數量
-        if (visibleProducts.length === 0) {
-            grid.innerHTML = `<p class="text-gray-500 text-center col-span-full">目前此品牌尚無代購品項，或暫時缺貨中。</p>`;
-            return;
-        }
-
-        // 3. 渲染清單
-        visibleProducts.forEach(product => {
-            const name = product.product_name || '未命名品項';
-            const price = product.price ? parseInt(product.price) : 0;
-            const priceMulti = product.price_multi ? parseInt(product.price_multi) : 0;
-            const status = product.status || 'out-of-stock';
-            
-            const isAvailable = status === 'available';
-            const cardClasses = isAvailable ? 'bg-white transform hover:scale-105' : 'bg-gray-100 opacity-70';
-            
-            // 處理狀態徽章 (僅顯示 availability_note 或 缺貨)
-            let statusBadge = '';
-            if (isAvailable) {
-                if (product.availability_note && product.availability_note.trim() !== '') {
-                    statusBadge = `<span class="absolute top-3 right-3 bg-brandGreen text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">${product.availability_note}</span>`;
-                }
-            } else {
-                statusBadge = `<span class="absolute top-3 right-3 bg-gray-200 text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">缺貨中</span>`;
+                    `;
+                });
             }
 
-            let priceHTML = '';
-            const priceTextClass = isAvailable ? 'text-brandGreen' : 'text-gray-500';
-
-            if (priceMulti > 0 && priceMulti < price) {
-                priceHTML = `
-                    <div class="price-discount">
-                        <span class="price-original">單罐: NT$ ${price.toLocaleString()}</span>
-                        <span class="${priceTextClass} price-current">2罐起單價: NT$ ${priceMulti.toLocaleString()}</span>
-                    </div>
-                `;
-            } else if (price > 0) {
-                priceHTML = `<p class="${priceTextClass} price-current" style="font-size: 1.125rem; font-weight: 700;">NT$ ${price.toLocaleString()}</p>`;
-            } else {
-                priceHTML = `<p class="${priceTextClass} price-current" style="font-size: 1.125rem; font-weight: 700;">價格請洽詢</p>`;
-            }
-
-            const cardHTML = `
-                <div class="${cardClasses} relative shadow-lg rounded-lg overflow-hidden transition-all duration-300 flex flex-col">
-                    ${statusBadge}
-                    <div class="p-6 flex-grow">
-                        <h3 class="text-xl font-bold mb-2 ${isAvailable ? 'text-gray-900' : 'text-gray-600'}">${name}</h3>
-                    </div>
-                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                        ${priceHTML}
-                    </div>
+            section.innerHTML = `
+                <h2 class="text-3xl font-bold text-center mb-10">${brand.name}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${productCardsHTML}
                 </div>
             `;
-            grid.innerHTML += cardHTML;
+            productContainer.appendChild(section);
         });
     }
 
     /**
-     * 處理錯誤
+     * 生成 JSON-LD SEO 資料
      */
-    function renderError(containerId, error) {
-        const container = document.getElementById(containerId);
-        const loader = document.getElementById(containerId.replace('-grid', '-loader').replace('-container', '-loader'));
-        
-        if (loader) loader.style.display = 'none';
-        if (container) {
-            container.innerHTML = `<p class="text-red-500 text-center col-span-full">載入資料時發生錯誤。<br>(訊息: ${error.message})</p>`;
-        }
-    }
-    
-    /**
-     * 動態生成 SEO 結構化資料
-     */
-    function renderStructuredData(brands) {
+    function renderSEO(brands) {
         const container = document.getElementById('structured-data-container');
         if (!container) return;
-
-        const itemListElements = brands.map((brand, index) => ({
-            "@type": "ListItem",
-            "position": index + 1,
-            "name": brand.name,
-            "url": `https://keicha2025.github.io/keicha/maccha.html#${brand.key}`
-        }));
-
         const schema = {
             "@context": "https://schema.org",
             "@type": "ItemList",
             "name": "KEICHA 抹茶代購總覽",
-            "description": "即時查看日本各大抹茶品牌（丸久小山園、山政小山園、星野製茶園、上林春松本店）的最新可訂購狀態。",
-            "url": "https://keicha2025.github.io/keicha/maccha.html",
-            "itemListElement": itemListElements
+            "itemListElement": brands.map((b, i) => ({
+                "@type": "ListItem",
+                "position": i + 1,
+                "name": b.name,
+                "url": `https://keicha2025.github.io/keicha/maccha.html#${b.key}`
+            }))
         };
-
         container.innerHTML = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
     }
-
-
-    // --- 主執行流程 ---
-    
-    const statusLoader = document.getElementById('status-loader');
-    if (statusLoader) statusLoader.classList.remove('hidden');
-
-    // 1. 抓取「總表」
-    fetchWithCacheBust(masterSheetUrl)
-        .then(csvText => {
-            const masterBrandList = parseCSV(csvText, ['key', 'name', 'status', 'product_csv_url']);
-            
-            // 2. 渲染「總覽」HTML
-            renderStatusOverview(masterBrandList);
-            
-            // 3. 渲染「品項區塊」的 HTML 骨架
-            renderProductSections(masterBrandList);
-            
-            // 4. 動態生成 SEO <script>
-            renderStructuredData(masterBrandList);
-
-            // 5. 異步抓取所有「詳細品項」
-            masterBrandList.forEach(brand => {
-                const productUrl = brand.product_csv_url;
-                if (productUrl && productUrl.startsWith('http')) {
-                    fetchWithCacheBust(productUrl)
-                        .then(productCsvText => {
-                            // ★ 確保讀取 availability_note 與 hidden
-                            const products = parseCSV(productCsvText, [
-                                'product_name', 
-                                'price', 
-                                'price_multi', 
-                                'status', 
-                                'hidden',
-                                'availability_note'
-                            ]); 
-                            renderProductCards(brand.key, products);
-                        })
-                        .catch(err => {
-                            console.error(`抓取 ${brand.key} 品項時發生錯誤:`, err);
-                            renderError(`${brand.key}-grid`, err);
-                        });
-                } else {
-                    renderError(`${brand.key}-grid`, new Error(`總表中未提供 ${brand.name} 的品項網址。`));
-                }
-            });
-
-        })
-        .catch(err => {
-            console.error("抓取「總表」時發生嚴重錯誤:", err);
-            renderError('status-grid-container', err); 
-            const productListContainer = document.getElementById('product-list-container');
-            if (productListContainer) productListContainer.innerHTML = '';
-        });
-
-}); // 結束 'load' 事件
+});
