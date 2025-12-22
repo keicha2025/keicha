@@ -1,0 +1,74 @@
+---
+layout: default
+title: 【測試】KEICHA AI 客服開發中
+description: 測試頁面：日本電話代播服務 AI 諮詢
+---
+
+<section style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
+  <div style="background: #fff; border: 1px solid #e1e1e1; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+    
+    <div style="background: #000; color: #fff; padding: 1rem; font-weight: bold; display: flex; align-items: center;">
+      <span style="background: #2ecc71; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px;"></span>
+      KEICHA AI 客服助手 (Beta)
+    </div>
+
+    <div id="chat-window" style="height: 300px; overflow-y: auto; padding: 1.5rem; background: #fcfcfc; border-bottom: 1px solid #eee;">
+      <div style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">
+        請輸入關於「電話代播服務」的問題，AI 將根據頁面內容為您解答。
+      </div>
+      <div id="answer-display" style="line-height: 1.6; color: #333;"></div>
+    </div>
+
+    <div style="padding: 1rem; display: flex; gap: 10px; background: #fff;">
+      <input type="text" id="user-input" placeholder="例如：代訂位怎麼收費？" 
+             style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
+      <button onclick="askKEICHA()" id="submit-btn" 
+              style="padding: 0 20px; background: #000; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
+        傳送
+      </button>
+    </div>
+  </div>
+  
+  <p style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #999;">
+    ※ 若 AI 無法回答，請點擊頁面下方 LINE 按鈕聯繫真人客服
+  </p>
+</section>
+
+<script>
+async function askKEICHA() {
+  const input = document.getElementById('user-input');
+  const display = document.getElementById('answer-display');
+  const btn = document.getElementById('submit-btn');
+  
+  if (!input.value.trim()) return;
+
+  // UI 鎖定狀態
+  const question = input.value;
+  input.value = '';
+  input.disabled = true;
+  btn.disabled = true;
+  btn.innerText = '...';
+  display.style.opacity = '0.5';
+  display.innerText = '正在檢索服務說明...';
+
+  try {
+    // 這裡替換成你之後部署好的 API 網址
+    const API_URL = "https://script.google.com/macros/s/AKfycbxtOuYcuKScF-iIgYiw3W2Tfist1SvKU7nSv_tuLC7l2w4DU-1tkureu-otcVB8kGjGqA/exec"; 
+    
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ question: question })
+    });
+    
+    const data = await response.json();
+    display.innerText = data.reply;
+  } catch (err) {
+    display.innerText = "連線失敗，請稍後再試或聯繫 LINE 客服。";
+  } finally {
+    display.style.opacity = '1';
+    input.disabled = false;
+    btn.disabled = false;
+    btn.innerText = '傳送';
+  }
+}
+</script>
