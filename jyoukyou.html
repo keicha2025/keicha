@@ -1,249 +1,53 @@
----
-layout: default
-title: KEICHA 訂單追蹤 | 預購商品狀態查詢
-description: KEICHA 訂單追蹤系統。輸入訂單編號或手機號碼，即時查詢訂單進度。
-keywords: KEICHA, 訂單追蹤, 訂單查詢, 貨況, 預購, 抹茶代購
-
-# ★ CSS 與 JS 區塊
-styles: |
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2.5; url=https://keicha2025.github.io/jyoukyou.html">
+    <title>KEICHA | 讓日本的事，變得簡單。</title>
+    
+    <!-- 使用本地相對路徑 images/ -->
+    <link rel="icon" type="image/svg+xml" href="images/KEICHA_LOGO.svg">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 專屬樣式 */
-        .note-box {
-            background-color: #f3f4f6; /* gray-100 */
-            color: #374151;
+        :root {
+            --brand-color: #6ea44c;
+            --text-color: #333333;
+            --bg-color: #ffffff;
+            --brand-font: 'Zen Maru Gothic', sans-serif;
         }
-        
-        /* 按鈕內專用的白色 Loader */
-        .loader-white {
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 2px solid #ffffff;
-            width: 18px;
-            height: 18px;
-            animation: spin 0.8s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* 結果卡片樣式 */
-        .order-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .order-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* 輸入框 Placeholder 尺寸設定 */
-        input::placeholder {
-            font-size: 0.75rem; /* text-xs */
-        }
-
-        button:disabled {
-            cursor: not-allowed;
-            opacity: 0.8;
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-color); font-family: var(--brand-font); }
+        .main-link { text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .content-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transform: translateY(-5vh); animation: fadeIn 1.2s ease-out forwards; }
+        .brand-logo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); border: 1px solid #f0f0f0; background-color: #fff; }
+        h1 { font-family: var(--brand-font); font-size: 2.2rem; font-weight: 700; margin: 0 0 10px 0; color: var(--brand-color); letter-spacing: 0.15em; text-indent: 0.15em; }
+        .slogan { font-family: var(--brand-font); font-size: 1.1rem; font-weight: 400; margin: 0; color: var(--brand-color); letter-spacing: 0.25em; text-indent: 0.25em; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-5vh + 15px)); } to { opacity: 1; transform: translateY(-5vh); } }
+        @media (max-width: 768px) {
+            .content-container { transform: translateY(-8vh); }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-8vh + 15px)); } to { opacity: 1; transform: translateY(-8vh); } }
+            .brand-logo { width: 105px; height: 105px; }
+            h1 { font-size: 1.8rem; }
+            .slogan { font-size: 0.95rem; }
         }
     </style>
-scripts: |
+</head>
+<body>
+    <a href="https://keicha2025.github.io/jyoukyou.html" class="main-link">
+        <div class="content-container">
+            <!-- 使用本地相對路徑 images/ -->
+            <img src="images/KEICHA_LOGO.svg" alt="KEICHA" class="brand-logo">
+            <h1>KEICHA</h1>
+            <p class="slogan">讓日本的事，變得簡單。</p>
+        </div>
+    </a>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchButton = document.getElementById('search-order-button');
-            const orderInput = document.getElementById('order-number-input');
-            const phoneInput = document.getElementById('phone-number-input');
-            const resultsContainer = document.getElementById('results-container');
-            const errorDiv = document.getElementById('search-error');
-            const resultSection = document.getElementById('order-result-section');
-            
-            let originalButtonContent = "";
-
-            const API_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec"; 
-
-            if (searchButton) searchButton.addEventListener('click', handleSearch);
-            
-            [orderInput, phoneInput].forEach(input => {
-                if(input) {
-                    input.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') handleSearch();
-                    });
-                }
-            });
-
-            async function handleSearch() {
-                const orderId = orderInput.value.trim();
-                const phone = phoneInput.value.trim();
-
-                if (!orderId && !phone) {
-                    showError("請輸入「訂單編號」或「手機號碼」其中一項即可查詢。");
-                    return;
-                }
-                
-                showLoading(true);
-                showError(null);
-                resultSection.classList.add('hidden');
-                resultsContainer.innerHTML = '';
-
-                try {
-                    let fetchUrl = `${API_URL}?action=query`;
-                    if (orderId) fetchUrl += `&orderId=${encodeURIComponent(orderId)}`;
-                    if (phone) fetchUrl += `&phone=${encodeURIComponent(phone)}`;
-
-                    const response = await fetch(fetchUrl);
-                    const json = await response.json();
-                    
-                    if (json.success && json.data && json.data.length > 0) {
-                        renderResults(json.data);
-                        resultSection.classList.remove('hidden');
-                        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } else {
-                        const msg = json.msg || "查無此訂單資料，請檢查您的輸入是否正確。";
-                        showError(msg);
-                    }
-                } catch (error) {
-                    showError("連線發生錯誤，請稍後再試或聯繫客服。");
-                } finally {
-                    showLoading(false);
-                }
-            }
-
-            function renderResults(orders) {
-                resultsContainer.innerHTML = '';
-
-                orders.forEach(order => {
-                    // 顏色邏輯：待確認為灰色，其餘品牌綠
-                    const isPending = order.status === "待確認";
-                    const textColorClass = isPending ? "text-gray-500" : "text-[#6ea44c]";
-
-                    let noteHtml = '';
-                    if (order.sellerNote && order.sellerNote.trim() !== "") {
-                        noteHtml = `
-                            <div class="note-box mt-4 p-4 rounded-lg text-sm">
-                                <div class="font-bold mb-1">賣家留言</div>
-                                <div class="leading-relaxed whitespace-pre-wrap">${order.sellerNote}</div>
-                            </div>
-                        `;
-                    }
-
-                    const cardHtml = `
-                        <div class="order-card bg-white border border-gray-100 rounded-xl p-6 mb-6 shadow-sm relative overflow-hidden">
-                            <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
-                                <div>
-                                    <div class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">訂單編號</div>
-                                    <div class="text-xl font-mono font-bold text-gray-800">
-                                        ${order.orderId}
-                                    </div>
-                                </div>
-                                <div class="bg-gray-50 px-4 py-2 rounded-full text-sm font-bold ${textColorClass}">
-                                    ${order.status}
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-4">
-                                <div>
-                                    <div class="text-xs text-gray-400 font-bold mb-1">訂單明細</div>
-                                    <div class="text-gray-700 font-medium">${order.item}</div>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-gray-400 font-bold mb-1">訂單金額</div>
-                                    <div class="text-gray-700 font-medium font-mono">NT$ ${order.amount ? Number(order.amount).toLocaleString() : '-'}</div>
-                                </div>
-                            </div>
-                            ${noteHtml}
-                        </div>
-                    `;
-                    resultsContainer.insertAdjacentHTML('beforeend', cardHtml);
-                });
-            }
-
-            function showLoading(isLoading) {
-                if (isLoading) {
-                    originalButtonContent = searchButton.innerHTML;
-                    searchButton.disabled = true;
-                    searchButton.innerHTML = `<div class="loader-white mr-2"></div> 查詢中...`;
-                } else {
-                    searchButton.disabled = false;
-                    if (originalButtonContent) searchButton.innerHTML = originalButtonContent;
-                }
-            }
-
-            function showError(message) {
-                if (errorDiv) {
-                    if (message) {
-                        errorDiv.innerHTML = message;
-                        errorDiv.classList.remove('hidden');
-                    } else {
-                        errorDiv.classList.add('hidden');
-                    }
-                }
-            }
-        });
+        setTimeout(function() {
+            window.location.href = "https://keicha2025.github.io/jyoukyou.html";
+        }, 2500);
     </script>
----
-
-<main class="py-16 md:py-24 bg-gray-50 min-h-screen">
-    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-
-        <section class="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100 mb-8">
-            <header class="text-center mb-8 pb-6 border-b border-gray-100">
-                <h1 class="text-3xl md:text-4xl font-bold text-[#6ea44c]">
-                    訂單紀錄
-                </h1>
-                <p class="mt-4 text-gray-500 text-sm">輸入您的訂單資訊，查詢處理進度。</p>
-            </header>
-            
-            <div class="max-w-xl mx-auto space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="order-number-input" class="block text-sm font-bold text-gray-700 mb-2">訂單編號</label>
-                        <div class="relative">
-                            <span class="material-symbols-rounded absolute left-3 top-3.5 text-gray-400">tag</span>
-                            <input type="text" id="order-number-input" placeholder="訂單編號請見電子郵件"
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6ea44c] focus:border-transparent transition-all">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="phone-number-input" class="block text-sm font-bold text-gray-700 mb-2">手機號碼</label>
-                        <div class="relative">
-                            <span class="material-symbols-rounded absolute left-3 top-3.5 text-gray-400">smartphone</span>
-                            <input type="tel" id="phone-number-input" placeholder="手機號碼查詢歷史訂單"
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#6ea44c] focus:border-transparent transition-all">
-                        </div>
-                    </div>
-                </div>
-                
-                <p class="text-xs text-gray-400 text-center">※ 請至少輸入其中一項即可查詢</p>
-
-                <button id="search-order-button"
-                        class="w-full bg-[#6ea44c] text-white font-bold py-4 rounded-xl hover:bg-[#5d8c40] transition-all duration-300 flex items-center justify-center gap-2">
-                    <span class="material-symbols-rounded">search</span>
-                    查詢
-                </button>
-
-                <div id="search-error" class="hidden mt-4 text-center text-red-600 bg-red-50 p-4 rounded-xl border border-red-100 text-sm">
-                </div>
-            </div>
-        </section>
-
-        <section id="order-result-section" class="hidden">
-            <h2 class="text-xl font-bold text-gray-800 mb-6 px-2">查詢結果</h2>
-            <div id="results-container"></div>
-        </section>
-
-        <section class="mt-12 text-center">
-          <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-800 mb-2">需要協助嗎？</h2>
-            <p class="text-gray-500 mb-6 text-sm">
-              查詢不到訂單，或對訂單有任何疑問，請聯絡 LINE 官方客服。<br>
-              LINE ID：@366qwylw
-            </p>                
-            <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex bg-[#6ea44c] text-white px-10 py-3 rounded-lg font-bold hover:bg-[#5d8c40] transition duration-300 shadow-md">
-                LINE 官方客服
-            </a>
-          </div>
-        </section>
-
-    </div>
-</main>
+</body>
+</html>

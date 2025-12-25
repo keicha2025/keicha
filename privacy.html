@@ -1,81 +1,53 @@
----
-# 這是 Front Matter
-layout: default
-title: KEICHA 隱私權條款
-description: KEICHA 隱私權條款，說明我們如何蒐集、使用及保護您的個人資訊。
-keywords: KEICHA, 隱私權, 隱私權條款, 個資保護
-
-# ★ 隱私權條款專用 CSS
-styles: |
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2.5; url=https://keicha2025.github.io/privacy.html">
+    <title>KEICHA | 讓日本的事，變得簡單。</title>
+    
+    <!-- 使用本地相對路徑 images/ -->
+    <link rel="icon" type="image/svg+xml" href="images/KEICHA_LOGO.svg">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* 標題樣式 */
-        .privacy-content h3 {
-            font-size: 1.25rem; /* text-xl */
-            font-weight: 700; /* font-bold */
-            color: #1e293b; /* text-slate-800 */
-            margin-bottom: 1rem;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e2e8f0; /* border-slate-200 */
+        :root {
+            --brand-color: #6ea44c;
+            --text-color: #333333;
+            --bg-color: #ffffff;
+            --brand-font: 'Zen Maru Gothic', sans-serif;
         }
-        /* 第一個標題不需上方線條 */
-        .privacy-content section:first-child h3 {
-            margin-top: 0;
-            padding-top: 0;
-            border-top: 0;
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-color); font-family: var(--brand-font); }
+        .main-link { text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .content-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transform: translateY(-5vh); animation: fadeIn 1.2s ease-out forwards; }
+        .brand-logo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); border: 1px solid #f0f0f0; background-color: #fff; }
+        h1 { font-family: var(--brand-font); font-size: 2.2rem; font-weight: 700; margin: 0 0 10px 0; color: var(--brand-color); letter-spacing: 0.15em; text-indent: 0.15em; }
+        .slogan { font-family: var(--brand-font); font-size: 1.1rem; font-weight: 400; margin: 0; color: var(--brand-color); letter-spacing: 0.25em; text-indent: 0.25em; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-5vh + 15px)); } to { opacity: 1; transform: translateY(-5vh); } }
+        @media (max-width: 768px) {
+            .content-container { transform: translateY(-8vh); }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-8vh + 15px)); } to { opacity: 1; transform: translateY(-8vh); } }
+            .brand-logo { width: 105px; height: 105px; }
+            h1 { font-size: 1.8rem; }
+            .slogan { font-size: 0.95rem; }
         }
-        /* 內文樣式 */
-        .privacy-content div, .privacy-content p {
-            color: #334155; /* text-slate-700 */
-            margin-bottom: 0.75rem;
-            line-height: 1.6;
-        }
-        /* 列表樣式 (對應您試算表中可能填寫的 ul/li) */
-        .privacy-content ul {
-            list-style-type: disc;
-            list-style-position: inside;
-            padding-left: 1rem;
-            color: #334155;
-            margin-bottom: 0.75rem;
-        }
-        /* 載入動畫 */
-        .loader {
-            border-top-color: #6ea44c;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
-# ★ 移除 scripts 區塊，改用下方手動載入
-scripts: ""
----
-
-<!-- ==== 頁面主要內容 ==== -->
-<main class="py-16 md:py-24">
-    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <div class="bg-white p-8 md:p-12 rounded-lg shadow-lg">
-            <header class="text-center mb-10 pb-6 border-b border-gray-200">
-                <h1 class="text-3xl md:text-4xl font-bold text-brandGreen">隱私權條款</h1>
-                <p class="mt-4 text-lg text-gray-600">Privacy Policy</p>
-            </header>
-
-            <!-- 載入動畫 -->
-            <div id="privacy-loader" class="flex justify-center items-center h-32">
-                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-300 h-12 w-12"></div>
-            </div>
-
-            <!-- ★ 內容容器：JS 會將試算表內容填入這裡 ★ -->
-            <div id="privacy-container" class="privacy-content">
-                <!-- 內容將由 privacy-loader.js 自動生成 -->
-            </div>
+</head>
+<body>
+    <a href="https://keicha2025.github.io/privacy.html" class="main-link">
+        <div class="content-container">
+            <!-- 使用本地相對路徑 images/ -->
+            <img src="images/KEICHA_LOGO.svg" alt="KEICHA" class="brand-logo">
+            <h1>KEICHA</h1>
+            <p class="slogan">讓日本的事，變得簡單。</p>
         </div>
-    </div>
-</main>
-
-<!-- 
-  ★ 載入外部 JS 引擎
-  'defer' 確保 HTML 解析完畢才執行
-  'data-cf-async="false"' 告訴 Cloudflare 不要干擾
--->
-<script src="{{ '/assets/js/privacy-loader.js' | relative_url }}" data-cf-async="false" defer></script>
-
-
+    </a>
+    <script>
+        setTimeout(function() {
+            window.location.href = "https://keicha2025.github.io/privacy.html";
+        }, 2500);
+    </script>
+</body>
+</html>

@@ -1,334 +1,53 @@
----
-layout: default
-title: 賣場管理後台
----
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-
-<style>
-    /* [UI修正] 移除數字輸入框的上下箭頭 (Spinner) */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
-    }
-    input[type=number] {
-        -moz-appearance: textfield; 
-    }
-
-    .brand-green { color: #6ea44c; }
-    .bg-brand-green { background-color: #6ea44c; }
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2.5; url=https://keicha2025.github.io/admin_fast.html">
+    <title>KEICHA | 讓日本的事，變得簡單。</title>
     
-    /* 輸入框基礎樣式 */
-    .admin-input {
-        width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px;
-        font-size: 1rem; outline: none; transition: all 0.2s;
-        background-color: #fff;
-        color: #1f2937;
-    }
-    .admin-input:focus { border-color: #6ea44c; ring: 1px solid #6ea44c; }
+    <!-- 使用本地相對路徑 images/ -->
+    <link rel="icon" type="image/svg+xml" href="images/KEICHA_LOGO.svg">
     
-    /* 卡片樣式 */
-    .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .section-title { font-size: 0.85rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
-
-    /* [UI修正] Toggle Switch 開關樣式 - 嚴格尺寸控制 */
-    .toggle-wrapper {
-        position: relative;
-        flex-shrink: 0; /* 禁止被壓縮 */
-        width: 52px;
-        height: 28px;
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     
-    .toggle-checkbox { 
-        position: absolute; opacity: 0; width: 0; height: 0; 
-    }
-    
-    .toggle-label { 
-        display: block;
-        width: 100%; 
-        height: 100%; 
-        background-color: #e5e7eb; 
-        border-radius: 9999px; 
-        cursor: pointer; 
-        transition: background-color 0.3s ease;
-    }
-    
-    .toggle-circle { 
-        width: 24px; 
-        height: 24px; 
-        background-color: white; 
-        border-radius: 50%; 
-        position: absolute; 
-        top: 2px; 
-        left: 2px; 
-        transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); 
-        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    }
-    
-    /* 狀態連動 */
-    .toggle-checkbox:checked + .toggle-label { background-color: #6ea44c; }
-    .toggle-checkbox:checked + .toggle-label .toggle-circle { transform: translateX(24px); }
-</style>
-
-<div class="bg-gray-100 min-h-screen pb-32">
-
-    <main class="container mx-auto px-4 max-w-2xl py-8">
-                <section class="bg-white border border-gray-200 shadow-sm rounded-lg mb-6">
-            <div class="px-4 py-4 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <span class="material-symbols-rounded text-[#6ea44c]">settings</span> 賣場管理後台
-                </h2>
-                <a href="fast.html" target="_blank" class="text-xs font-bold text-[#6ea44c] border border-[#6ea44c] px-3 py-1.5 rounded-lg hover:bg-[#6ea44c] hover:text-white transition">
-                    查看前台
-                </a>
-            </div>
-        </section>
-        
-        <div id="loading-msg" class="text-center py-10 text-gray-500 font-bold flex flex-col items-center">
-            <div class="w-8 h-8 border-4 border-gray-200 border-t-[#6ea44c] rounded-full animate-spin mb-4"></div>
-            正在讀取賣場設定...
+    <style>
+        :root {
+            --brand-color: #6ea44c;
+            --text-color: #333333;
+            --bg-color: #ffffff;
+            --brand-font: 'Zen Maru Gothic', sans-serif;
+        }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-color); font-family: var(--brand-font); }
+        .main-link { text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .content-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transform: translateY(-5vh); animation: fadeIn 1.2s ease-out forwards; }
+        .brand-logo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); border: 1px solid #f0f0f0; background-color: #fff; }
+        h1 { font-family: var(--brand-font); font-size: 2.2rem; font-weight: 700; margin: 0 0 10px 0; color: var(--brand-color); letter-spacing: 0.15em; text-indent: 0.15em; }
+        .slogan { font-family: var(--brand-font); font-size: 1.1rem; font-weight: 400; margin: 0; color: var(--brand-color); letter-spacing: 0.25em; text-indent: 0.25em; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-5vh + 15px)); } to { opacity: 1; transform: translateY(-5vh); } }
+        @media (max-width: 768px) {
+            .content-container { transform: translateY(-8vh); }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-8vh + 15px)); } to { opacity: 1; transform: translateY(-8vh); } }
+            .brand-logo { width: 105px; height: 105px; }
+            h1 { font-size: 1.8rem; }
+            .slogan { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="https://keicha2025.github.io/admin_fast.html" class="main-link">
+        <div class="content-container">
+            <!-- 使用本地相對路徑 images/ -->
+            <img src="images/KEICHA_LOGO.svg" alt="KEICHA" class="brand-logo">
+            <h1>KEICHA</h1>
+            <p class="slogan">讓日本的事，變得簡單。</p>
         </div>
-
-        <form id="config-form" class="hidden space-y-6" onsubmit="event.preventDefault(); saveConfig();">
-            
-            <div class="card">
-                <div class="section-title">賣場核心設定</div>
-                
-                <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
-                    <div>
-                        <label class="block text-base font-bold text-gray-800 mb-1">賣場狀態開關</label>
-                        <p class="text-xs text-gray-400">開啟後顧客可下單，關閉則顯示維護中</p>
-                    </div>
-                    <div class="toggle-wrapper">
-                        <input type="checkbox" id="status_toggle" class="toggle-checkbox">
-                        <label for="status_toggle" class="toggle-label"><div class="toggle-circle"></div></label>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">商品內容文字</label>
-                    <textarea id="items_text" rows="4" class="admin-input resize-none" placeholder="輸入商品名稱與規格..."></textarea>
-                    <p class="text-xs text-gray-400 mt-2">此欄位將直接顯示於前台，支援換行。</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">商品總金額</label>
-                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="amount" class="admin-input font-mono font-bold text-lg" placeholder="0">
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">物流管道開關</div>
-                <div class="space-y-6">
-                    
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-rounded text-gray-400 text-2xl">local_shipping</span>
-                            <span class="font-bold text-gray-700 text-base">7-11 店到店</span>
-                        </div>
-                        <div class="toggle-wrapper">
-                            <input type="checkbox" id="enable_711" class="toggle-checkbox">
-                            <label for="enable_711" class="toggle-label"><div class="toggle-circle"></div></label>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-rounded text-gray-400 text-2xl">store</span>
-                            <span class="font-bold text-gray-700 text-base">全家 店到店</span>
-                        </div>
-                        <div class="toggle-wrapper">
-                            <input type="checkbox" id="enable_fami" class="toggle-checkbox">
-                            <label for="enable_fami" class="toggle-label"><div class="toggle-circle"></div></label>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-rounded text-gray-400 text-2xl">home</span>
-                            <span class="font-bold text-gray-700 text-base">宅配到府</span>
-                        </div>
-                        <div class="toggle-wrapper">
-                            <input type="checkbox" id="enable_home" class="toggle-checkbox">
-                            <label for="enable_home" class="toggle-label"><div class="toggle-circle"></div></label>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="section-title">運費規則設定</div>
-                
-                <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
-                    <span class="font-bold text-[#6ea44c] flex items-center gap-2 text-base">
-                        <span class="material-symbols-rounded">loyalty</span> 免運活動
-                    </span>
-                    <div class="toggle-wrapper">
-                        <input type="checkbox" id="is_free_shipping" class="toggle-checkbox" onchange="toggleFeeInputs()">
-                        <label for="is_free_shipping" class="toggle-label"><div class="toggle-circle"></div></label>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between mb-4">
-                    <span class="font-bold text-gray-700 text-sm">啟用「統一運費」</span>
-                    <div class="toggle-wrapper">
-                        <input type="checkbox" id="use_uniform_fee" class="toggle-checkbox" onchange="toggleFeeInputs()">
-                        <label for="use_uniform_fee" class="toggle-label"><div class="toggle-circle"></div></label>
-                    </div>
-                </div>
-                <div class="mb-8">
-                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="uniform_fee" class="admin-input bg-gray-50 font-bold" placeholder="統一運費金額">
-                </div>
-
-                <div id="individual-fees" class="space-y-4 opacity-100 transition-opacity">
-                    <div class="grid grid-cols-3 gap-4 items-center">
-                        <span class="text-sm font-bold text-gray-500">7-11</span>
-                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="fee_711" class="admin-input col-span-2 text-right" placeholder="60">
-                    </div>
-                    <div class="grid grid-cols-3 gap-4 items-center">
-                        <span class="text-sm font-bold text-gray-500">全家</span>
-                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="fee_fami" class="admin-input col-span-2 text-right" placeholder="60">
-                    </div>
-                    <div class="grid grid-cols-3 gap-4 items-center">
-                        <span class="text-sm font-bold text-gray-500">宅配</span>
-                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="fee_home" class="admin-input col-span-2 text-right" placeholder="120">
-                    </div>
-                </div>
-            </div>
-
-            <div class="card bg-gray-800 border-none">
-                <div class="mb-6">
-                    <label class="block text-xs font-bold text-gray-400 mb-2 uppercase">管理員密碼</label>
-                    <input type="text" id="admin-password" class="w-full bg-white border-0 rounded-xl p-4 text-gray-900 font-bold text-lg shadow-inner outline-none focus:ring-2 ring-[#6ea44c]" placeholder="請輸入密碼">
-                </div>
-                <button type="submit" id="btn-save" class="w-full bg-[#6ea44c] hover:bg-[#5d8d41] text-white font-bold py-4 rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 text-lg">
-                    <span class="material-symbols-rounded">save</span> 儲存設定
-                </button>
-            </div>
-
-        </form>
-    </main>
-</div>
-
-<script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyUq36i64Z-JGcERE_rZOdphVtVDX8L-lguc7eiUIdoAERqI1ZK8GWAL-HgbC75cuMHFg/exec";
-
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            const res = await fetch(GAS_URL);
-            const data = await res.json();
-            
-            if (data && data.fast_config) {
-                fillForm(data.fast_config);
-                document.getElementById('loading-msg').classList.add('hidden');
-                document.getElementById('config-form').classList.remove('hidden');
-            } else {
-                alert("讀取失敗：無資料");
-            }
-        } catch (e) {
-            console.error(e);
-            document.getElementById('loading-msg').innerText = "連線錯誤，請重新整理";
-        }
-    });
-
-    function fillForm(c) {
-        setCheck('status_toggle', c.status === '開啟');
-        setVal('items_text', c.items_text);
-        setVal('amount', c.amount);
-        
-        setCheck('enable_711', c.enable_711);
-        setCheck('enable_fami', c.enable_fami);
-        setCheck('enable_home', c.enable_home);
-        
-        setCheck('is_free_shipping', c.is_free_shipping);
-        setCheck('use_uniform_fee', c.use_uniform_fee);
-        
-        setVal('uniform_fee', c.uniform_fee);
-        setVal('fee_711', c.fee_711);
-        setVal('fee_fami', c.fee_fami);
-        setVal('fee_home', c.fee_home);
-
-        toggleFeeInputs(); 
-    }
-
-    async function saveConfig() {
-        const password = getVal('admin-password');
-        if (!password) return alert("請輸入管理員密碼");
-
-        const btn = document.getElementById('btn-save');
-        const oldText = btn.innerHTML;
-        btn.innerHTML = "儲存中...";
-        btn.disabled = true;
-        btn.classList.add('opacity-50');
-
-        const payload = {
-            action: 'updateFastConfig',
-            password: password,
-            status: getCheck('status_toggle') ? '開啟' : '關閉',
-            items_text: getVal('items_text'),
-            amount: getVal('amount'),
-            enable_711: getCheck('enable_711'),
-            enable_fami: getCheck('enable_fami'),
-            enable_home: getCheck('enable_home'),
-            is_free_shipping: getCheck('is_free_shipping'),
-            use_uniform_fee: getCheck('use_uniform_fee'),
-            uniform_fee: getVal('uniform_fee'),
-            fee_711: getVal('fee_711'),
-            fee_fami: getVal('fee_fami'),
-            fee_home: getVal('fee_home')
-        };
-
-        try {
-            const res = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            
-            const result = await res.json();
-            
-            if (result.success) {
-                alert("設定已更新成功！");
-            } else {
-                alert("更新失敗：" + result.msg);
-            }
-        } catch (e) {
-            console.error(e);
-            alert("系統錯誤，請檢查網路");
-        } finally {
-            btn.innerHTML = oldText;
-            btn.disabled = false;
-            btn.classList.remove('opacity-50');
-        }
-    }
-
-    function toggleFeeInputs() {
-        const isFree = document.getElementById('is_free_shipping').checked;
-        const isUniform = document.getElementById('use_uniform_fee').checked;
-        const individualDiv = document.getElementById('individual-fees');
-        const uniformInput = document.getElementById('uniform_fee');
-
-        if (isFree) {
-            individualDiv.classList.add('opacity-30', 'pointer-events-none');
-            uniformInput.disabled = true;
-            uniformInput.classList.add('opacity-50');
-        } else {
-            if (isUniform) {
-                individualDiv.classList.add('opacity-30', 'pointer-events-none');
-                uniformInput.disabled = false;
-                uniformInput.classList.remove('opacity-50');
-            } else {
-                individualDiv.classList.remove('opacity-30', 'pointer-events-none');
-                uniformInput.disabled = true;
-                uniformInput.classList.add('opacity-50');
-            }
-        }
-    }
-
-    function getVal(id) { return document.getElementById(id).value; }
-    function setVal(id, v) { document.getElementById(id).value = v || ''; }
-    function getCheck(id) { return document.getElementById(id).checked; }
-    function setCheck(id, v) { document.getElementById(id).checked = v === true; }
-</script>
+    </a>
+    <script>
+        setTimeout(function() {
+            window.location.href = "https://keicha2025.github.io/admin_fast.html";
+        }, 2500);
+    </script>
+</body>
+</html>

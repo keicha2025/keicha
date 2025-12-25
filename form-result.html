@@ -1,197 +1,53 @@
----
-layout: default
-title: 預約申請完成 | KEICHA 服務
-description: KEICHA 電話代播服務預約結果。
----
-
-<style>
-    /* 品牌 Icon 樣式：品牌色 10% 背景 */
-    .brand-icon-wrapper {
-        width: 80px; height: 80px;
-        background-color: rgba(110, 164, 76, 0.1); /* #6ea44c 10% */
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 1.5rem auto;
-    }
-    .brand-icon-svg {
-        width: 40px; height: 40px; color: #6ea44c;
-    }
-
-    /* 主要按鈕 (聯絡客服) */
-    .btn-brand {
-        display: inline-flex; align-items: center; justify-content: center;
-        background-color: #6ea44c; color: white;
-        font-weight: bold; padding: 12px 32px; border-radius: 50px;
-        text-decoration: none; transition: all 0.2s ease;
-        border: none; cursor: pointer; width: 100%;
-        box-shadow: 0 4px 6px -1px rgba(110, 164, 76, 0.2);
-    }
-    .btn-brand:hover { background-color: #5d8c40; transform: translateY(-1px); }
-
-    /* 付款按鈕 (白底綠字綠框) */
-    .btn-payment {
-        display: inline-flex; align-items: center; justify-content: center;
-        background-color: white; color: #6ea44c; border: 2px solid #6ea44c;
-        font-weight: bold; padding: 12px 32px; border-radius: 50px;
-        text-decoration: none; transition: all 0.2s ease;
-        width: 100%; margin-top: 12px;
-    }
-    .btn-payment:hover { background-color: #f0fdf4; }
-
-    /* 返回首頁按鈕 (灰框) */
-    .btn-outline {
-        display: inline-flex; align-items: center; justify-content: center;
-        background-color: white; color: #64748b; border: 1px solid #e2e8f0;
-        font-weight: bold; padding: 12px 32px; border-radius: 50px;
-        text-decoration: none; transition: all 0.2s ease;
-        width: 100%; margin-top: 12px;
-    }
-    .btn-outline:hover { background-color: #f8fafc; border-color: #cbd5e1; }
-
-    /* 明細表格樣式 */
-    .details-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .details-table th { 
-        width: 32%; color: #64748b; font-weight: normal; 
-        padding: 12px 0; border-bottom: 1px solid #f1f5f9; vertical-align: top;
-        font-size: 0.95rem;
-    }
-    .details-table td { 
-        width: 68%; color: #1e293b; font-weight: 600; 
-        padding: 12px 0; border-bottom: 1px solid #f1f5f9; padding-left: 12px;
-        font-size: 1rem;
-    }
-    .details-table tr:last-child th, 
-    .details-table tr:last-child td { border-bottom: none; }
-</style>
-
-<div class="container mx-auto max-w-2xl px-4 py-12 md:py-20">
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-10 text-center">
-        
-        <div id="success-view" style="display: none;">
-            <div class="brand-icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="brand-icon-svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-            </div>
-
-            <h1 class="text-3xl font-bold text-slate-800 mb-4">預約申請已送出</h1>
-            
-            <div class="text-slate-600 mb-8">
-                <p>確認信已同步發送至您的信箱。</p>
-            </div>
-
-            <div class="bg-slate-50 rounded-xl p-6 mb-8 text-left border border-slate-200 relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-[#6ea44c] text-white text-xs px-3 py-1 rounded-bl-lg font-bold">
-                    請截圖此畫面
-                </div>
-                
-                <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center">
-                    預約內容明細
-                </h3>
-                
-                <table class="details-table">
-                    <tr><th>訂單編號</th><td id="d-orderId" class="text-[#6ea44c] font-bold text-lg"></td></tr>
-                    <tr><th>預約商家</th><td id="d-shop"></td></tr>
-                    <tr><th>預約時間</th><td id="d-time"></td></tr>
-                    <tr><th>預約英文姓名</th><td id="d-bookingName"></td></tr>
-                    <tr><th>預約人數</th><td id="d-people"></td></tr>
-                    <tr><th>聯絡電話</th><td id="d-phone"></td></tr>
-                    <tr><th>預約方案</th><td id="d-plan"></td></tr>
-                    <tr><th>備註</th><td id="d-note" style="white-space: pre-line;"></td></tr>
-                    <tr><th>在日資訊</th><td id="d-japanContact"></td></tr>
-                </table>
-            </div>
-
-            <div class="mb-6">
-                <p class="text-slate-700 mb-4 leading-relaxed">
-                    請將上方明細 <span class="font-bold">截圖</span>，並傳送到 LINE 官方客服聊天室。
-                </p>
-
-                <div class="flex flex-col gap-0 max-w-sm mx-auto">
-                    <a href="https://lin.ee/QJU5mUO" target="_blank" class="btn-brand">
-                        聯絡客服
-                    </a>
-                    
-                    <a id="payment-btn" href="#" target="_blank" class="btn-payment hidden">
-                        前往付款
-                    </a>
-
-                    <a href="{{ '/denwa-form.html' | relative_url }}" class="btn-outline">
-                        返回首頁
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div id="error-view" style="display: none;">
-            <div class="mb-6 text-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-slate-700 mb-2">查無資料</h2>
-            <p class="text-slate-500 mb-8">無法讀取您的預約資料，可能是頁面已過期。<br>請檢查信箱確認信，或直接聯繫客服。</p>
-            <a href="{{ '/denwa-form.html' | relative_url }}" class="btn-brand">重新預約</a>
-        </div>
-
-    </div>
-</div>
-
-{% include contact-section.html %}
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 從 sessionStorage 讀取資料
-        const storedData = sessionStorage.getItem('orderResult');
-        
-        if (storedData) {
-            const data = JSON.parse(storedData);
-            
-            // 處理人數格式 (將原本字串轉為 "X大Y小")
-            // 假設 data.people 原本格式類似 "大人 3 / 小孩 2 (共 5 人)"
-            let peopleText = data.people;
-            try {
-                // 簡單正則抓取數字
-                const matchAdult = data.people.match(/大人\s*(\d+)/);
-                const matchChild = data.people.match(/小孩\s*(\d+)/);
-                
-                if (matchAdult) {
-                    const adultNum = matchAdult[1];
-                    const childNum = matchChild ? matchChild[1] : '0';
-                    peopleText = `${adultNum}大${childNum}小`;
-                    // 若有總人數也可考慮加上，但需求指定 3大2小 格式
-                }
-            } catch (e) {
-                console.log("Pax format conversion error", e);
-            }
-
-            // 填寫表格
-            document.getElementById('d-orderId').textContent = data.orderId;
-            document.getElementById('d-shop').textContent = data.shopName;
-            document.getElementById('d-time').textContent = data.dateTime;
-            document.getElementById('d-bookingName').textContent = data.bookingName;
-            document.getElementById('d-people').textContent = peopleText;
-            document.getElementById('d-phone').textContent = data.phone;
-            document.getElementById('d-plan').textContent = data.planName;
-            document.getElementById('d-note').textContent = data.note || '無';
-            
-            // 確保 denwa-form 有儲存 japanContact，若無則顯示無
-            document.getElementById('d-japanContact').textContent = data.japanContact || (data.note && data.note.includes('日本') ? '請參閱備註' : '無');
-
-            // 處理付款按鈕
-            if (data.paymentLink && data.paymentLink.startsWith('http')) {
-                const payBtn = document.getElementById('payment-btn');
-                payBtn.href = data.paymentLink;
-                payBtn.classList.remove('hidden');
-                payBtn.classList.add('inline-flex');
-            }
-
-            // 顯示成功區塊
-            document.getElementById('success-view').style.display = 'block';
-            
-        } else {
-            // 無資料顯示錯誤
-            document.getElementById('error-view').style.display = 'block';
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2.5; url=https://keicha2025.github.io/form-result.html">
+    <title>KEICHA | 讓日本的事，變得簡單。</title>
+    
+    <!-- 使用本地相對路徑 images/ -->
+    <link rel="icon" type="image/svg+xml" href="images/KEICHA_LOGO.svg">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-color: #6ea44c;
+            --text-color: #333333;
+            --bg-color: #ffffff;
+            --brand-font: 'Zen Maru Gothic', sans-serif;
         }
-    });
-</script>
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-color); font-family: var(--brand-font); }
+        .main-link { text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .content-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transform: translateY(-5vh); animation: fadeIn 1.2s ease-out forwards; }
+        .brand-logo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); border: 1px solid #f0f0f0; background-color: #fff; }
+        h1 { font-family: var(--brand-font); font-size: 2.2rem; font-weight: 700; margin: 0 0 10px 0; color: var(--brand-color); letter-spacing: 0.15em; text-indent: 0.15em; }
+        .slogan { font-family: var(--brand-font); font-size: 1.1rem; font-weight: 400; margin: 0; color: var(--brand-color); letter-spacing: 0.25em; text-indent: 0.25em; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-5vh + 15px)); } to { opacity: 1; transform: translateY(-5vh); } }
+        @media (max-width: 768px) {
+            .content-container { transform: translateY(-8vh); }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-8vh + 15px)); } to { opacity: 1; transform: translateY(-8vh); } }
+            .brand-logo { width: 105px; height: 105px; }
+            h1 { font-size: 1.8rem; }
+            .slogan { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="https://keicha2025.github.io/form-result.html" class="main-link">
+        <div class="content-container">
+            <!-- 使用本地相對路徑 images/ -->
+            <img src="images/KEICHA_LOGO.svg" alt="KEICHA" class="brand-logo">
+            <h1>KEICHA</h1>
+            <p class="slogan">讓日本的事，變得簡單。</p>
+        </div>
+    </a>
+    <script>
+        setTimeout(function() {
+            window.location.href = "https://keicha2025.github.io/form-result.html";
+        }, 2500);
+    </script>
+</body>
+</html>

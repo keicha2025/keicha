@@ -1,166 +1,53 @@
----
-layout: default
-title: 抹茶代購・日本電話代打服務｜KEICHA
-description: KEICHA 提供日本抹茶代購與日本電話代打服務，協助餐廳預約、聯絡日本店家，讓日本的事變得簡單。
-keywords: KEICHA, 日本茶, 日本代購, 抹茶, 抹茶代購, 上林春松, 日本電話代播, 日本電話代打, 日文電話, 餐廳預約, 山政小山園, 代購
----
-
-<main>
-<section class="relative h-auto py-14 md:py-24 flex items-center justify-center text-center text-white px-4 bg-brandGreen">
-    <div class="relative z-10">
-        
-        <h1 class="text-4xl md:text-6xl brand-title-font font-semibold">
-            KEICHA
-        </h1>
-
-        <p class="text-xl md:text-2xl brand-title-font font-medium tracking-wide mt-6 md:mt-8">
-            讓日本的事，變得簡單。
-        </p>
-
-        <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 md:gap-x-6 mt-6 md:mt-8">
-            <a href="{{ site.baseurl }}/maccha.html" class="text-white font-medium hover:underline">
-                抹茶代購
-            </a>
-            <span class="text-white opacity-50 hidden md:inline">|</span>
-            <a href="{{ site.baseurl }}/denwa.html" class="text-white font-medium hover:underline">
-                電話代播
-            </a>
-            <span class="text-white opacity-50 hidden md:inline">|</span>
-            <a href="#payment" class="text-white font-medium hover:underline">
-                付款下單
-            </a>
-            <span class="text-white opacity-50 hidden md:inline">|</span>
-            <a href="#notice" class="text-white font-medium hover:underline">
-                購買須知
-            </a>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2.5; url=https://keicha2025.github.io/">
+    <title>KEICHA | 讓日本的事，變得簡單。</title>
+    
+    <!-- 使用本地相對路徑 images/ -->
+    <link rel="icon" type="image/svg+xml" href="images/KEICHA_LOGO.svg">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-color: #6ea44c;
+            --text-color: #333333;
+            --bg-color: #ffffff;
+            --brand-font: 'Zen Maru Gothic', sans-serif;
+        }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-color); font-family: var(--brand-font); }
+        .main-link { text-decoration: none; color: inherit; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .content-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transform: translateY(-5vh); animation: fadeIn 1.2s ease-out forwards; }
+        .brand-logo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); border: 1px solid #f0f0f0; background-color: #fff; }
+        h1 { font-family: var(--brand-font); font-size: 2.2rem; font-weight: 700; margin: 0 0 10px 0; color: var(--brand-color); letter-spacing: 0.15em; text-indent: 0.15em; }
+        .slogan { font-family: var(--brand-font); font-size: 1.1rem; font-weight: 400; margin: 0; color: var(--brand-color); letter-spacing: 0.25em; text-indent: 0.25em; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-5vh + 15px)); } to { opacity: 1; transform: translateY(-5vh); } }
+        @media (max-width: 768px) {
+            .content-container { transform: translateY(-8vh); }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(calc(-8vh + 15px)); } to { opacity: 1; transform: translateY(-8vh); } }
+            .brand-logo { width: 105px; height: 105px; }
+            h1 { font-size: 1.8rem; }
+            .slogan { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="https://keicha2025.github.io/" class="main-link">
+        <div class="content-container">
+            <!-- 使用本地相對路徑 images/ -->
+            <img src="images/KEICHA_LOGO.svg" alt="KEICHA" class="brand-logo">
+            <h1>KEICHA</h1>
+            <p class="slogan">讓日本的事，變得簡單。</p>
         </div>
-
-        <a href="#contact"
-           class="mt-8 md:mt-10 inline-block bg-white text-brandGreen px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-100 transition duration-300 shadow-lg">
-            <span class="material-symbols-rounded align-middle mr-1">chat</span>
-            LINE 官方客服
-        </a>
-
-    </div>
-</section>
-
-<section id="payment" class="py-16 md:py-24 bg-gray-50 scroll-mt-20">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">付款與下單專區</h2>
-            <p class="text-center text-gray-500 mb-8">
-                所有訂單皆先透過 LINE 確認內容與金額後再進行付款
-            </p>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                
-                <div class="bg-white p-8 rounded-lg shadow-lg flex flex-col h-full">
-                    <h3 class="text-xl md:text-2xl font-semibold text-center mb-8">線上刷卡支付</h3>
-                    
-                    <div class="flex flex-col items-center justify-center text-center flex-grow pb-6">
-                        <div>
-                            <a href="https://pcpay.tw/NF4vv" target="_blank" rel="noopener noreferrer" class="inline-block hover:opacity-90 transition-opacity">
-                                <img src="https://www.pchomepay.com.tw/share/static/dist/images/receiptBtn-180x40.png" border="0" alt="支付補款及尾款"/>
-                            </a>
-                            <p class="text-sm text-gray-500 mt-4">請進入後填寫付款金額</p>
-                        </div>
-                    </div>
-
-                    <div class="pt-6 border-t border-gray-200 text-center mt-auto">
-                        <p class="text-sm text-gray-500 mb-3 font-medium">如無法正常開啟，請複製以下連結：</p>
-                        <input type="text" value="https://pcpay.tw/NF4vv" readonly onclick="this.select()" 
-                               class="w-full max-w-sm p-3 text-center bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen text-gray-700" 
-                               onfocus="this.select()">
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-lg shadow-lg flex flex-col h-full">
-                    <h3 class="text-xl md:text-2xl font-semibold text-center mb-8">店到店貨到付款下單</h3>
-                    
-                    <div class="flex flex-col items-center justify-center text-center flex-grow pb-6">
-                        <a href="https://myship.7-11.com.tw/cart/easy/GM2510186847800" target="_blank" rel="noopener noreferrer" 
-                           class="inline-block bg-brandGreen text-white px-10 py-3 rounded-full text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-lg transform hover:scale-105">
-                            前往 7-11 賣貨便
-                        </a>
-                        <p class="text-sm text-gray-500 mt-4">進入後請填寫商品名稱及價格</p>
-                    </div>
-                    
-                    <div class="pt-6 border-t border-gray-200 text-center mt-auto">
-                        <p class="text-sm text-gray-500 mb-3 font-medium">如無法正常開啟，請複製以下連結：</p>
-                        <input type="text" value="https://myship.7-11.com.tw/cart/easy/GM2510186847800" readonly onclick="this.select()" 
-                               class="w-full max-w-sm p-3 text-center bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brandGreen text-gray-700" 
-                               onfocus="this.select()">
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <section id="services" class="py-16 md:py-24 bg-white scroll-mt-20">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <h2 class="text-2xl md:text-3xl font-bold text-center mb-12">服務項目</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                
-                <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col h-full border border-gray-100">
-                    <img src="{{ site.baseurl }}/images/KEICHA_icon_maccha.png" alt="抹茶代購" class="h-16 w-16 mx-auto mb-4">
-                    <h3 class="text-xl font-semibold mb-3">抹茶代購</h3>
-                    
-                    <ul class="text-gray-600 mb-6 text-left text-sm space-y-1 pl-4 flex-grow">
-                        <li>・日本抹茶品牌代購（山政小山園、上林春松、中村藤吉、一保堂等）</li>
-                        <li>・部分品牌與品項供貨不穩</li>
-                        <li>・歡迎透過 LINE 私訊詢問</li>
-                    </ul>
-
-                    <div class="mt-auto flex flex-col gap-3">
-                        <a href="https://lin.ee/QJU5mUO" target="_blank" rel="noopener noreferrer" class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-opacity-90 transition duration-300">
-                            私訊詢問
-                        </a>
-                        <a href="{{ site.baseurl }}/maccha.html" class="inline-block bg-brandGreen text-white px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition duration-300">
-                            查看代購狀況
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-8 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300 flex flex-col h-full border border-gray-100">
-                    <img src="{{ site.baseurl }}/images/KEICHA_icon_denwa.png" alt="電話代播" class="h-16 w-16 mx-auto mb-4">
-                    <h3 class="text-xl font-semibold mb-3">日本電話代播</h3>
-                    <p class="text-gray-600 mb-6 flex-grow text-left">
-                        跨越語言障礙，為您代訂日本餐廳、預約活動、或聯繫處理日本事務，讓您的日本之行游刃有餘。
-                    </p>
-                    <div class="mt-auto">
-                        <a href="{{ site.baseurl }}/denwa.html" class="inline-block bg-gray-700 text-white px-6 py-2 rounded-full font-medium hover:bg-gray-600 transition duration-300 w-full">
-                            查看服務詳情
-                        </a>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </section>
-
-<section id="contact" class="py-16 md:py-24 bg-brandGreen bg-opacity-10 scroll-mt-20">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-2xl md:text-3xl font-bold mb-4">需要我們為您服務嗎？</h2>
-            
-            <p class="text-center text-gray-700 mb-8">請透過 LINE 官方帳號聯絡我們。</p>
-            
-            <a href="https://lin.ee/F3JngaC" target="_blank" rel="noopener noreferrer" 
-               class="inline-block bg-brandGreen text-white px-8 py-3 rounded-lg text-lg font-bold hover:bg-opacity-90 transition duration-300 shadow-md transform hover:scale-105">
-                LINE 官方客服
-            </a>
-            
-            <p class="text-gray-600 mt-8 mb-3 font-medium">或手動輸入 ID:</p>
-
-            <input type="text" value="@366qwylw" readonly
-               onclick="this.select()"
-               class="font-mono bg-white p-2 rounded border border-slate-300 text-center w-48 
-                     focus:outline-none focus:ring-2 focus:ring-brandGreen text-gray-700"
-               onfocus="this.select()">
-        </div>
-    </section>
-
-</main>
-
-
-
+    </a>
+    <script>
+        setTimeout(function() {
+            window.location.href = "https://keicha2025.github.io/";
+        }, 2500);
+    </script>
+</body>
+</html>
